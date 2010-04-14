@@ -1,5 +1,5 @@
 <?php
-
+/***
 /*******************************************
 #                                                             
 # index.php - Generic index for PHP GCX SSO login                    
