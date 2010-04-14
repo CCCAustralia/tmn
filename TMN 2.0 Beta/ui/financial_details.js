@@ -15,6 +15,8 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 		spouse: 'testpartnerguid',
 		session: 2,
 		overseas: false,
+		pre_tax_super_mode: 'auto',
+		s_pre_tax_super_mode: 'auto',
 		MFB_RATE: 2,
 		S_MFB_RATE: 2
 	},
@@ -515,15 +517,45 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 								{
 									itemId: 'pre_tax_super',
 									name: 'PRE_TAX_SUPER',
+									cls: 'x-form-readonly',
 									value: 0,
 									fieldLabel: 'Pre Tax Super',
 									listeners: {
-										change: this.updateCookie.createDelegate(this),
+										focus: function(field){field.blur();},
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
 												text: 'Record the amount of Pre-tax Super you would like to be paid from your Support Account each month.<br />This amount is not Taxed.'
 											});
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									itemId: 'pre_tax_super_mode',
+									enableToggle: true,
+									text: 'Manually Set Pre Tax Super',
+									scope: this,
+									toggleHandler: function(button, state){
+										//Button has been pressed so they are in manual mode
+										if(state == true){
+											//sets the mode
+											this.financial_data.pre_tax_super_mode = 'manual';
+											//removes readonly
+											this.getForm().items.map['pre_tax_super'].purgeListeners();
+											this.getForm().items.map['pre_tax_super'].removeClass('x-form-readonly');
+											//starts updating on change
+											this.getForm().items.map['pre_tax_super'].addListener('change', this.updateCookie, this);
+										} else {
+											//sets the mode
+											this.financial_data.pre_tax_super_mode = 'auto';
+											//stops it updating on change
+											this.getForm().items.map['pre_tax_super'].purgeListeners();
+											//makes it readonly
+											this.getForm().items.map['pre_tax_super'].addClass('x-form-readonly');
+											this.getForm().items.map['pre_tax_super'].addListener('focus', function(field){field.blur();});
+											//set it to the auto value
+											this.updateCookie(this.getForm().items.map['pre_tax_super'], this.getForm().items.map['pre_tax_super'].getValue(), this.getForm().items.map['pre_tax_super'].getValue());
 										}
 									}
 								},
@@ -676,6 +708,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 								{
 									itemId: 's_pre_tax_super',
 									name: 'S_PRE_TAX_SUPER',
+									cls: 'x-form-readonly',
 									fieldLabel: 'Pre Tax Super',
 									value: 0,
 									listeners: {
@@ -685,6 +718,35 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 												target: c.getEl(),
 												text: 'Record the amount of Pre-tax Super you would like to be paid from your Support Account each month.<br />This amount is not Taxed.'
 											});
+										}
+									}
+								},
+								{
+									xtype: 'button',
+									itemId: 's_pre_tax_super_mode',
+									enableToggle: true,
+									text: 'Manually Set Pre Tax Super',
+									scope: this,
+									toggleHandler: function(button, state){
+										//Button has been pressed so they are in manual mode
+										if(state == true){
+											//sets the mode
+											this.financial_data.s_pre_tax_super_mode = 'manual';
+											//removes readonly
+											this.getForm().items.map['s_pre_tax_super'].purgeListeners();
+											this.getForm().items.map['s_pre_tax_super'].removeClass('x-form-readonly');
+											//starts updating on change
+											this.getForm().items.map['s_pre_tax_super'].addListener('change', this.updateCookie, this);
+										} else {
+											//sets the mode
+											this.financial_data.s_pre_tax_super_mode = 'auto';
+											//stops it updating on change
+											this.getForm().items.map['s_pre_tax_super'].purgeListeners();
+											//makes it readonly
+											this.getForm().items.map['s_pre_tax_super'].addClass('x-form-readonly');
+											this.getForm().items.map['s_pre_tax_super'].addListener('focus', function(field){field.blur();});
+											//set it to the auto value
+											this.updateCookie(this.getForm().items.map['s_pre_tax_super'], this.getForm().items.map['s_pre_tax_super'].getValue(), this.getForm().items.map['s_pre_tax_super'].getValue());
 										}
 									}
 								},

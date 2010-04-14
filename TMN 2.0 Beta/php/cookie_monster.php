@@ -60,11 +60,15 @@ if (isset($financial_data['TAXABLE_INCOME'])) {
 			$mfbrate = 1;
 			break;
 	}
-	
+
 	//Pre Tax Super (if its not set then set it to the min
-	$min_pre_tax_super = round($financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
-	if (!isset($financial_data['PRE_TAX_SUPER']) || $financial_data['PRE_TAX_SUPER'] < $min_pre_tax_super){
-		$financial_data['PRE_TAX_SUPER'] = $min_pre_tax_super;
+	if ($financial_data['pre_tax_super_mode'] == 'auto'){
+		$financial_data['PRE_TAX_SUPER'] = round($financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+	} else {
+		$min_pre_tax_super = round($financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+		if (!isset($financial_data['PRE_TAX_SUPER']) || $financial_data['PRE_TAX_SUPER'] < $min_pre_tax_super){
+			$financial_data['PRE_TAX_SUPER'] = $min_pre_tax_super;
+		}
 	}
 	
 	//Fetch the user's days per week
@@ -124,9 +128,13 @@ if (isset($financial_data['S_TAXABLE_INCOME'])) {
 	}
 	
 	//Pre Tax Super (if its not set then set it to the min
-	$s_min_pre_tax_super = round($financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
-	if (!isset($financial_data['S_PRE_TAX_SUPER']) || $financial_data['S_PRE_TAX_SUPER'] < $s_min_pre_tax_super){
-		$financial_data['S_PRE_TAX_SUPER'] = $s_min_pre_tax_super;
+	if ($financial_data['s_pre_tax_super_mode'] == 'auto'){
+		$financial_data['S_PRE_TAX_SUPER'] = round($financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+	} else {
+		$s_min_pre_tax_super = round($financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+		if (!isset($financial_data['S_PRE_TAX_SUPER']) || $financial_data['S_PRE_TAX_SUPER'] < $s_min_pre_tax_super){
+			$financial_data['S_PRE_TAX_SUPER'] = $s_min_pre_tax_super;
+		}
 	}
 	
 	//Fetch the user's days per week
