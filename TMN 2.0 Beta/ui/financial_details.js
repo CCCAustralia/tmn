@@ -898,7 +898,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 				{
 					itemId: 'international_donations',
 					layout: 'form',
-					title: 'International Donations',
+					title: 'Incoming International Donations',
 					//collapsed: true,
 					defaultType: 'numberfield',
 					bodyStyle: 'padding:10px',
@@ -912,13 +912,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 						{
 							itemId: 'internation_donations',
 							name: 'INTERNATIONAL_DONATIONS',
-							fieldLabel: 'International Donations',
+							fieldLabel: 'Incoming International Donations',
 							listeners: {
 								change: this.updateCookie.createDelegate(this),
 								render: function(c) {
 									Ext.QuickTips.register({
 										target: c.getEl(),
-										text: 'This is the amount that goes through any CCC account outside of Australia (eg your CCCI account, if you have one.)'
+										text: 'This is the amount that comes into your CCCA account from any CCC account outside of Australia (eg your CCCI account, if you have one.)'
 									});
 								}
 							}
