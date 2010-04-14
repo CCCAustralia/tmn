@@ -371,8 +371,10 @@ TMN.PersonalDetails = Ext.extend(Ext.FormPanel, {
 					Ext.MessageBox.alert('Server Error', 'Could Not Connect to Server! Please Contact The Technology Team at tech.team@ccca.org.au');
 				} else if (action.failureType === Ext.form.Action.SERVER_INVALID) {
 					if (action.result.errors.S_FIRSTNAME !== undefined) {
-						if (action.result.errors.S_FIRSTNAME.substr(0,41) == "Cannot find spouse's details in database.")
-							Ext.MessageBox.alert('Spouse may not be Registered', action.result.errors.S_FIRSTNAME);
+							Ext.MessageBox.alert('Spouse Error', action.result.errors.S_FIRSTNAME);
+					}
+					if (action.result.errors.M_FIRSTNAME !== undefined) {
+							Ext.MessageBox.alert('MPD Supervisor Error', action.result.errors.M_FIRSTNAME);
 					}
 				}
 				
