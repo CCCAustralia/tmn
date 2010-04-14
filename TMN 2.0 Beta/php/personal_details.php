@@ -140,17 +140,17 @@ if ($mode == 'set'){
 					mysql_query("UPDATE User_Profiles SET SPOUSE_GUID='".$spouseguid_fromname."' WHERE GUID='".$guid."'");
 				}else {
 					if ($mainfan != $spousefan) {
-						$err .= "S_FIRSTNAME:\"Invalid Spouse: Financial Account Numbers do not match.\", ";
-						$err .= "S_SURNAME:\"Invalid Spouse: Financial Account Numbers do not match.\", ";
+						$err .= "S_FIRSTNAME:\"Invalid Spouse: Financial Account Numbers do not match.\nSpousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
+						$err .= "S_SURNAME:\"Invalid Spouse: Financial Account Numbers do not match.\nSpousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
 					} else {
-						$err .= "S_FIRSTNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, click <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">here</a> to logout. Then get your spouse to log in.\", ";
-						$err .= "S_SURNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, click <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">here</a> to logout. Then get your spouse to log in.\", ";
+						$err .= "S_FIRSTNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">click here to logout</a>. Then get your spouse to log in to the TMN form.\", ";
+						$err .= "S_SURNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">click here to logout</a>. Then get your spouse to log in to the TMN form.\", ";
 					}
 				}
 			} else {
 				if ($spouseguid_fromname == '') {
-					$err .= "S_FIRSTNAME:\"You cannot change details for an existing spouse.\", ";
-					$err .= "S_SURNAME:\"You cannot change details for an existing spouse.\", ";
+					$err .= "S_FIRSTNAME:\"You cannot change details for an existing spouse. If this needs to be changed, talk to your Ministry Supervisor.\", ";
+					$err .= "S_SURNAME:\"You cannot change details for an existing spouse. If this needs to be changed, talk to your Ministry Supervisor.\", ";
 				}
 			}
 		}
@@ -192,7 +192,8 @@ if ($mode == 'set'){
 				$mpdsuper_guid = 'NULL';
 				unset($main_post['M_FIRSTNAME']);
 				unset($main_post['M_SURNAME']);
-				$err .= "M_FIRSTNAME:\"Cannot find MPD supervisor in database.\", M_SURNAME:\"Cannot find MPD supervisor in database.\", ";
+				$err .= "M_FIRSTNAME:\"Cannot find MPD supervisor in database. This must be exact. Check with your supervisor to confirm.\", ";
+				$err .= "M_SURNAME:\"Cannot find MPD supervisor in database. This must be exact. Check with your supervisor to confirm.\", ";
 			}
 		}
 		
