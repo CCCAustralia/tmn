@@ -7,7 +7,7 @@ function calculateAdditionalHousing($housing, $freq, $spouse){
 	
 	if ($freq == 1) $housing = $housing * 26 / 12;
 	
-	return max( 0, $housing - $maxhousingmfb );
+	return round(max( 0, $housing - $maxhousingmfb ));
 }
 
 ?>
