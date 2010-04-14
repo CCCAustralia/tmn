@@ -140,8 +140,8 @@ if ($mode == 'set'){
 					mysql_query("UPDATE User_Profiles SET SPOUSE_GUID='".$spouseguid_fromname."' WHERE GUID='".$guid."'");
 				}else {
 					if ($mainfan != $spousefan) {
-						$err .= "S_FIRSTNAME:\"Invalid Spouse: Financial Account Numbers do not match.\nSpousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
-						$err .= "S_SURNAME:\"Invalid Spouse: Financial Account Numbers do not match.\nSpousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
+						$err .= "S_FIRSTNAME:\"Invalid Spouse: Financial Account Numbers do not match. Spousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
+						$err .= "S_SURNAME:\"Invalid Spouse: Financial Account Numbers do not match. Spousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
 					} else {
 						$err .= "S_FIRSTNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">click here to logout</a>. Then get your spouse to log in to the TMN form.\", ";
 						$err .= "S_SURNAME:\"Cannot find spouse's details in database. Your spouse may not be registered, to check, <a href=".addslashes("http://mportal.ccca.org.au/TMN/?logout").">click here to logout</a>. Then get your spouse to log in to the TMN form.\", ";
