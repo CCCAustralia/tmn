@@ -6,4 +6,4 @@ $connection = @mysql_connect("localhost", "mportal","***REMOVED***") or die(mysq
 $db = @mysql_select_db($db_name,$connection) or die(mysql_error());
 
 return $connection;
-} //end function db_connect()sdfgsdg
+} //end function db_connect()
