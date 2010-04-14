@@ -75,8 +75,8 @@ housing_frequency				=>	"__",
 additional_housing				=>	"__",
 additional_life_cover			=>	"__",
 s_additional_life_cover			=>	"__",
-additional_life_cover_source	=>	"__",
-s_additional_life_cover_source	=>	"__",
+salary_cover_source				=>	"__",
+s_salary_cover_source			=>	"__",
 mfb								=>	"__",
 s_mfb							=>	"__",
 mfb_rate						=>	"__",
@@ -214,10 +214,10 @@ $data['additional_housing']			=	$formdata['ADDITIONAL_HOUSING'];
 $data['additional_life_cover']		=	$formdata['LIFE_COVER'];
 $data['s_additional_life_cover']	=	$formdata['S_LIFE_COVER'];
 
-//Additional Life Cover Source
+//Salary Cover Source
 //(index: 0=Support Account, 1=Super Fund)
-$data['additional_life_cover_source']	=	($formdata['LIFE_COVER_SOURCE'] ? "Super Fund" : "Support Account");
-$data['s_additional_life_cover_source']	=	($formdata['S_LIFE_COVER_SOURCE'] ? "Super Fund" : "Support Account");
+$data['salary_cover_source']	=	($formdata['SALARY_SOURCE'] ? "Super Fund" : "Support Account");
+$data['s_salary_cover_source']	=	($formdata['S_SALARY_SOURCE'] ? "Super Fund" : "Support Account");
 
 //Ministry Fringe Benefits
 $data['mfb']						=	$formdata['MFB'];

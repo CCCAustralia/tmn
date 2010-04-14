@@ -574,7 +574,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 												combo.nextSibling().expand();
 											} else {
 												combo.nextSibling().collapse();
-												Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
+												Ext.Msg.alert('Super Fund Change!', 'If you are changing your Super Fund you need to fill out <a href="pdf/superfund_change.pdf" target="_blank">this</a> form for the change to apply.');
 											}
 											this.updateCookie(combo, index, index);
 					                	}.createDelegate(this),
@@ -627,12 +627,12 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                }
 							            },
 							            {
-							            	itemId: 'life_cover_source',
+							            	itemId: 'salary_cover_source',
 							           		xtype: 'combo',
-							           		fieldLabel: 'Where should this amount be taken from?',
-							           		name: 'LIFE_COVER_SOURCE',
-							            	hiddenName: 'LIFE_COVER_SOURCE',
-							            	hiddenId: 'LIFE_COVER_SOURCE_hidden',
+							           		fieldLabel: 'Where should your Salary Cover be taken from?',
+							           		name: 'SALARY_COVER_SOURCE',
+							            	hiddenName: 'SALARY_COVER_SOURCE',
+							            	hiddenId: 'SALARY_COVER_SOURCE_hidden',
 							           		triggerAction:'all',
 							           		emptyText: 'Enter Source of the Life Cover...',
 							           		validationEvent: 'blur',
@@ -650,13 +650,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
+							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your extra life cover should be taken from.<br /><b>If you select differently to your previous TMN form, the changes will <i>NOT</i> be automatic: you must contact Member Care and submit a Life Cover Change form.</b>'
+														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }
@@ -734,10 +734,10 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 											if (index == 1) {
 												combo.nextSibling().expand();
 											} else {
-												Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
 												combo.nextSibling().collapse();
+												Ext.Msg.alert('Super Fund Change!', 'If you are changing your Super Fund you need to fill out <a href="pdf/superfund_change.pdf" target="_blank">this</a> form for the change to apply.');
 											}
-											this.updateCookie(combo,index,index);
+											this.updateCookie(combo, index, index);
 					                	}.createDelegate(this),
 										render: function(c) {
 											Ext.QuickTips.register({
@@ -788,12 +788,12 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                }
 							            },
 							            {
-							            	itemId: 's_life_cover_source',
+							            	itemId: 's_salary_cover_source',
 							           		xtype: 'combo',
-							           		fieldLabel: 'Where should this amount be taken from?',
-							           		name: 'S_LIFE_COVER_SOURCE',
-							            	hiddenName: 'S_LIFE_COVER_SOURCE',
-							            	hiddenId: 'S_LIFE_COVER_SOURCE_hidden',
+							           		fieldLabel: 'Where should your Salary Cover be taken from?',
+							           		name: 'S_SALARY_COVER_SOURCE',
+							            	hiddenName: 'S_SALARY_COVER_SOURCE',
+							            	hiddenId: 'S_SALARY_COVER_SOURCE_hidden',
 							           		triggerAction:'all',
 							           		emptyText: 'Enter Source of the Life Cover...',
 							           		validationEvent: 'blur',
@@ -811,13 +811,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
+							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your extra life cover should be taken from.<br /><b>If you select differently to your previous TMN form, the changes will <i>NOT</i> be automatic: you must contact Member Care and submit a Life Cover Change form.</b>'
+														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }
