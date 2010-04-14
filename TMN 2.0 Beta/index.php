@@ -33,8 +33,8 @@ if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 
 $xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 $xmlobject = new SimpleXmlElement($xmlstr);
-setcookie("guid", $xmlobject->authenticationSuccess->attributes->ssoGuid, 0, '/TMN/');
-setcookie("email", $xmlobject->authenticationSuccess->user, 0, '/TMN/');
+setcookie("guid", $xmlobject->authenticationSuccess->attributes->ssoGuid, 0, '/');
+setcookie("email", $xmlobject->authenticationSuccess->user, 0, '/');
 
 //check if they are a valid user (If not show the rego page)
 $tmn_connection = db_connect();
