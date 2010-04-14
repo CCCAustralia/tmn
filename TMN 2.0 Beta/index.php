@@ -28,7 +28,7 @@ if (isset($_REQUEST['logout'])) {
 if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 {
 //echo GetMainBaseFromURL(curPageURL()). "<br />";
-    header("Location: https://signin.mygcx.org/cas/login?service=http://mportal.ccca.org.au/TMN/index.php");
+    header("Location: https://signin.mygcx.org/cas/login?service=".curPageURL());
 }
 
 $xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
