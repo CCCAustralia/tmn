@@ -50,7 +50,7 @@ if ($mode == 'get') {
 	$getsql = trim($getsql, ", ")." FROM User_Profiles WHERE GUID='".$guid."';";		//Form the sql statement
 	
 	
-	logToFile($LOGFILE, "GET: ".$getsql);														//Log the sql statement
+	if (!$DEBUG) logToFile($LOGFILE, "GET: ".$getsql);														//Log the sql statement
 	//$getsql .= " SELECT FIRSTNAME, SURNAME FROM User_Profiles WHERE GUID=(SELECT MPD_SUPERVISOR FROM User_Profiles WHERE GUID='".$guid."')";
 	$sql = mysql_query($getsql);														//Execute the sql statement
 	
@@ -74,7 +74,7 @@ if ($mode == 'get') {
 		$return = array('success'=>'false');
 	}
 	echo json_encode($return);
-	logToFile($LOGFILE, $mode." | ".$method."\n".$getsql."\n".json_encode($return));
+	if (!$DEBUG) logToFile($LOGFILE, $mode." | ".$method."\n".$getsql."\n".json_encode($return));
 	
 }
 
@@ -182,7 +182,7 @@ if ($mode == 'set'){
 			
 			//Lookup the guid for the given mpd supervisor
 			$mpdsuper_sql = "SELECT GUID FROM User_Profiles WHERE FIRSTNAME LIKE '".$mpdsuper_firstname."' && SURNAME LIKE '".$mpdsuper_surname."'";
-			logToFile($LOGFILE, "MPD_SUPER FETCH: ".$mpdsuper_sql);
+			if (!$DEBUG) logToFile($LOGFILE, "MPD_SUPER FETCH: ".$mpdsuper_sql);
 			$temp_arr = mysql_fetch_assoc(mysql_query($mpdsuper_sql));
 			
 			//if found, set the mpdsupervisor guid, otherwise remove the names from the array and add an error
@@ -227,8 +227,8 @@ if ($mode == 'set'){
 		//Execute and log the Main user sql if no errors
 		if ($err == "") {
 			$sqlresult = mysql_query($setsql);		//Execute the Main user sql
-		} else logToFile($LOGFILE, "Errors! ".$err);
-		logToFile($LOGFILE, "Main User SQL: ".$setsql."\nResult: ".$sqlresult);
+		} else if (!$DEBUG) logToFile($LOGFILE, "Errors! ".$err);
+		if (!$DEBUG) logToFile($LOGFILE, "Main User SQL: ".$setsql."\nResult: ".$sqlresult);
 		
 		
 		//setup the sql statment for the spouse
@@ -264,7 +264,7 @@ if ($mode == 'set'){
 		if ($err == "") {
 			$sqlspouseresult = mysql_query($s_setsql);
 		}
-		logToFile($LOGFILE, "Spouse User SQL: ".$s_setsql."\nResult: ".$sqlspouseresult);
+		if (!$DEBUG) logToFile($LOGFILE, "Spouse User SQL: ".$s_setsql."\nResult: ".$sqlspouseresult);
 		
 		//Return json success/failure with errors
 		if ($sqlresult == 1 && $sqlspouseresult == 1 && $err == NULL) {
