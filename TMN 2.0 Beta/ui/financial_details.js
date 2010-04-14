@@ -1031,7 +1031,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 		
 		//load fields
 		this.load({
-			url: '/TMN/php/load_financial_details.php',
+			url: 'php/load_financial_details.php',
 			success: function(form, action) {
 				if (successCallback !== undefined) successCallback();
 			},
