@@ -148,6 +148,15 @@ Ext.onReady(function()
 {
 	// Enables validation messages and puts them on the side
 	Ext.QuickTips.init();
+	
+	// Quicktip defaults
+	Ext.apply(Ext.QuickTips.getQuickTip(), {
+	    showDelay: 250,
+	    dismissDelay: 0,
+	    hideDelay: 2000,
+	    trackMouse: false
+	});
+	
 	Ext.form.Field.prototype.msgTarget = 'side';
 	
 	var tmn = new TMN.TmnContainer;

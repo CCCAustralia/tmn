@@ -90,7 +90,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <u>www.ATO.gov.au</u> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
 											});
 										}
 									}
@@ -187,7 +187,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <u>www.ATO.gov.au</u> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
 											});
 										}
 									}
