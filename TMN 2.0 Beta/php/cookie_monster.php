@@ -83,7 +83,8 @@ if (isset($financial_data['TAXABLE_INCOME'])) {
 
 //Housing
 if (isset($financial_data['HOUSING'])){
-	$financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($financial_data['HOUSING'], $financial_data['spouse']);
+	if (!isset($financial_data['HOUSING_FREQUENCY'])) $financial_data['HOUSING_FREQUENCY'] = 0;
+	$financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($financial_data['HOUSING'], $financial_data['HOUSING_FREQUENCY'], $financial_data['spouse']);
 }
 
 
