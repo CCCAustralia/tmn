@@ -172,11 +172,11 @@ $data['s_ft_pt_os']					=	$ftptos_map[$s_row['FT_PT_OS']];
 
 //Days per Week
 //-from db(User_Profiles)
-if (is_null($row['DAYS_PER_WEEK']))
+if (is_null($row['DAYS_PER_WEEK']) || $ftptos_map[$row['FT_PT_OS']] == "Full Time")
 	$row['DAYS_PER_WEEK']			=	4;
 $data['days_per_wk']				=	$row['DAYS_PER_WEEK'] + 1;
-if (is_null($s_row['DAYS_PER_WEEK']))
-	$s_row['DAYS_PER_WEEK']			=	48;
+if (is_null($s_row['DAYS_PER_WEEK']) || $ftptos_map[$s_row['FT_PT_OS']] == "Full Time")
+	$s_row['DAYS_PER_WEEK']			=	4;
 $data['s_days_per_wk']				=	$s_row['DAYS_PER_WEEK'] + 1;
 
 //Net Stipend
@@ -216,8 +216,8 @@ $data['s_additional_life_cover']	=	$formdata['S_LIFE_COVER'];
 
 //Salary Cover Source
 //(index: 0=Support Account, 1=Super Fund)
-$data['salary_cover_source']	=	($formdata['SALARY_SOURCE'] ? "Super Fund" : "Support Account");
-$data['s_salary_cover_source']	=	($formdata['S_SALARY_SOURCE'] ? "Super Fund" : "Support Account");
+$data['salary_cover_source']	=	($formdata['SALARY_COVER_SOURCE'] ? "Super Fund" : "Support Account");
+$data['s_salary_cover_source']	=	($formdata['S_SALARY_COVER_SOURCE'] ? "Super Fund" : "Support Account");
 
 //Ministry Fringe Benefits
 $data['mfb']						=	$formdata['MFB'];

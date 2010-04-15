@@ -1,6 +1,6 @@
 <?php
 //TESTORLOLOLOLOL
-$DEBUG = 1;
+$DEBUG = 0;
 
 include_once("dbconnect.php");
 include_once("./calc/calc_tax.php");

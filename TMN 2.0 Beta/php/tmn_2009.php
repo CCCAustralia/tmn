@@ -14,13 +14,18 @@ $sql= mysql_query("SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID='".$_REQUEST
 $row= mysql_fetch_array($sql);
 
 // grab id from guid
-$id=$row['FIN_ACC_NUM'];
+if ($row['FIN_ACC_NUM'] >= 8000000 && $row['FIN_ACC_NUM'] < 9000000) {
+	$id=$row['FIN_ACC_NUM'];
+} else {
+	$id=$row['FIN_ACC_NUM'] + 6990000;
+}
+
+
 
 // connect to sql db
 $db_name ="student_student";
 $connection = @mysql_connect("localhost","student_student","okbrain15") or die(mysql_error());
 $db = @mysql_select_db($db_name,$connection) or die(mysql_error());
-
 
 
 
@@ -36,6 +41,10 @@ $mgl_approv='';
 
 
 $sql= mysql_query("SELECT * FROM cccatmn where CCCA_Account='".$id."'");
+//if your last tmn is not found quit
+if(mysql_num_rows($sql) == 0){
+	die("Your Last TMN could not be found. Try refering to your printed version.");
+}
 $row= mysql_fetch_array($sql);
 
 
