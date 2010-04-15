@@ -229,7 +229,7 @@ TMN.PersonalDetails = Ext.extend(Ext.FormPanel, {
 		items: [{
             	itemId: 'mpd',
            		xtype: 'combo',
-           		fieldLabel: 'Are you currently doing MPD?',
+           		fieldLabel: 'Are you an NMA or currently doing MPD?',
            		name: 'MPD',
             	hiddenName: 'MPD',
             	hiddenId: 'MPD_hidden',
