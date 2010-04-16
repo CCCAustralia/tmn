@@ -648,7 +648,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
+							                		Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.zip" target="_blank">this</a> form for the change to apply.');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
@@ -839,7 +839,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-													Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.pdf" target="_blank">this</a> form for the change to apply.');
+													Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.zip" target="_blank">this</a> form for the change to apply.');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
