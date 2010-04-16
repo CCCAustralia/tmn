@@ -92,7 +92,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />The government\'s superannuation co-contribution scheme will match upto $84 per month of post tax super.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
 											});
 										}
 									}
@@ -146,7 +146,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 								},
 								{
 									xtype: 'button',
-									text: 'Show/Hide Your Last TMN',
+									text: 'Show/Hide Your Last Saved TMN of 2009',
 									enableToggle: true,
 									toggleHandler: function (button, state){
 										if (state == true){
@@ -155,7 +155,8 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										} else {
 											TMN.LastTMN.hide();
 										}
-									}.createDelegate(this)
+									}.createDelegate(this),
+									tooltip: 'This is NOT necessarily the TMN you submitted in 2009!'
 								}
 							]
 						},
@@ -189,7 +190,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />The government\'s superannuation co-contribution scheme will match upto $84 per month of post tax super.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
 											});
 										}
 									}
@@ -682,13 +683,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
+							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
+														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }
@@ -873,13 +874,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
+							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Your Salary Cover is taken out annually and can be quite a large amount so can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
+														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }
