@@ -305,13 +305,16 @@ $data['workers_comp']				=	round($data['joint_financial_package'] * $WORKERS_COM
 
 //Ministry Levy
 if ($iscouple){
+	//calc the amount that the levy should be applied to
 	$subtotal = $data['employer_super'] + $data['s_employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'] + $data['s_mmr'];
+	//grab the levy percentage
 	$ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['ministry']."'"));
 	$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
 	$s_ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['s_ministry']."'"));
 	$s_ministry_levy_rate = $s_ministry_row['MINISTRY_LEVY'];
-	$data['ministry_levy']				=	(($ministry_levy_rate / 100) * $subtotal);
-	$data['s_ministry_levy']			=	(($s_ministry_levy_rate / 100) * $subtotal);
+	//calc levy (levy is in proportion to the days per week each works)
+	$data['ministry_levy']				=	(($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($ministry_levy_rate / 100) * $subtotal);
+	$data['s_ministry_levy']			=	(($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($s_ministry_levy_rate / 100) * $subtotal);
 
 	//check if both in same ministry - combine the ministry levy rather than duplicate
 	if ($data['ministry'] == $data['s_ministry']) {
