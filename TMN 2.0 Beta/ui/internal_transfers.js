@@ -72,34 +72,38 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
     		iconCls: 'silk-delete',
     		handler: function() {
     			var grid = TMN.Grid;
-    			grid.stopEditing(true);
-    			grid.el.mask();
-    			var record = grid.getSelectionModel().getSelected();
-    			//if record is in the database remove it from both
-    			if (record.data.TRANSFER_ID !== undefined){
-    				//remove from DB
-	    			Ext.Ajax.request({
-	    				url: 'php/internal_transfers.php',
-	    				params: {
-	    					mode: 'remove',
-	    					id: record.data.TRANSFER_ID,
-	    					session: grid.session,
-	    					name: record.data.TRANSFER_NAME,
-	    					amount: record.data.TRANSFER_AMOUNT
-	    				},
-	    				success: function(grid){
-	    					//remove from grid
-	    					var record = grid.getSelectionModel().getSelected();
-	    					grid.getStore().remove(record);
-	                		grid.getSelectionModel().selectLastRow(false);
-	                		grid.el.unmask();
-	    				}.createDelegate(this, [grid])
-	    			});
-    			} else {
-    				//if the record is only in the grid remove it from grid
-    				grid.getStore().remove(record);
-    				grid.el.unmask();
-	                grid.getSelectionModel().selectLastRow(false);
+    			
+    			//make sure there is something to delete
+    			if(grid.getSelectionModel().getCount() > 0){
+    				grid.stopEditing(true);
+    				grid.el.mask();
+	    			var record = grid.getSelectionModel().getSelected();
+	    			//if record is in the database remove it from both
+	    			if (record.data.TRANSFER_ID !== undefined){
+	    				//remove from DB
+		    			Ext.Ajax.request({
+		    				url: 'php/internal_transfers.php',
+		    				params: {
+		    					mode: 'remove',
+		    					id: record.data.TRANSFER_ID,
+		    					session: grid.session,
+		    					name: record.data.TRANSFER_NAME,
+		    					amount: record.data.TRANSFER_AMOUNT
+		    				},
+		    				success: function(grid){
+		    					//remove from grid
+		    					var record = grid.getSelectionModel().getSelected();
+		    					grid.getStore().remove(record);
+		                		grid.getSelectionModel().selectLastRow(false);
+		                		grid.el.unmask();
+		    				}.createDelegate(this, [grid])
+		    			});
+	    			} else {
+	    				//if the record is only in the grid remove it from grid
+	    				grid.getStore().remove(record);
+	    				grid.el.unmask();
+		                grid.getSelectionModel().selectLastRow(false);
+	    			}
     			}
     		}
     	}
