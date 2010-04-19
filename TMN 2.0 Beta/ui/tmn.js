@@ -146,6 +146,22 @@ TMN.TmnContainer = Ext.extend(Ext.Panel, {
 
 Ext.onReady(function()
 {
+	var loadingMask = Ext.get('loading-mask');
+	var loading = Ext.get('loading');
+	//  Hide loading message
+	loading.fadeOut({ duration: 0.2, remove: true });
+	//  Hide loading mask
+	loadingMask.setOpacity(0.9);
+	loadingMask.shift({
+		xy: loading.getXY(),
+		width: loading.getWidth(),
+		height: loading.getHeight(),
+		remove: true,
+		duration: 1.1,
+		opacity: 0.1,
+		easing: 'easeOut'
+	});
+	
 	// Enables validation messages and puts them on the side
 	Ext.QuickTips.init();
 	
