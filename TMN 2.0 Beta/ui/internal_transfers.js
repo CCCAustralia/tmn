@@ -33,7 +33,17 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
             	header: 'Transfer Name', 
             	dataIndex: 'TRANSFER_NAME',
             	editor: new Ext.form.TextField({
-            		allowBlank: false
+            		allowBlank: false,
+            		listeners:{
+    					//mask add button while editing so the add load conflict cannot happen
+            			focus: function(field){
+            				TMN.Grid.getTopToolbar().items.map['add'].disable();
+            			},
+            			//unmask add button after edit is complete
+            			blur: function(field){
+            				setTimeout("TMN.Grid.getTopToolbar().items.map['add'].enable()", 500);
+            			}
+            		}
             	})
             },
             {
@@ -41,7 +51,17 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
             	dataIndex: 'TRANSFER_AMOUNT',
             	editor: new Ext.form.NumberField({
             		allowBlank: false,
-            		minValue: 0
+            		minValue: 0,
+            		listeners:{
+            			//mask add button while editing so the add load conflict cannot happen
+            			focus: function(field){
+            				TMN.Grid.getTopToolbar().items.map['add'].disable();
+            			},
+            			//unmask add button after edit is complete
+            			blur: function(field){
+            				setTimeout("TMN.Grid.getTopToolbar().items.map['add'].enable()", 500);
+            			}
+            		}
             	})
             }
         ]
@@ -49,6 +69,7 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
     
     tbar: [
     	{
+    		itemId: 'add',
     		text: 'Add',
     		iconCls: 'silk-add',
     		handler: function() {
@@ -60,14 +81,20 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
                     TRANSFER_AMOUNT: 0
                 });
                 grid.stopEditing(true);
+                console.log("stop");
                 index = grid.getStore().getCount();
+                console.log("get index");
                 grid.getStore().insert(index, transfer);
+                console.log("insert new");
                 grid.getSelectionModel().selectLastRow(false);
+                console.log("select new");
                 grid.startEditing(index, 0);
+                console.log("start edit");
     		}
     	},
     	'-',
     	{
+    		itemId: 'remove',
     		text: 'Remove',
     		iconCls: 'silk-delete',
     		handler: function() {
@@ -111,6 +138,7 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
     
     listeners: {
     	afteredit: function(event){
+    		
     		record = event.record;
     		//if its not in the DB (has no ID) and doesn't have any default values in fields, add it to DB
     		if (record.data.TRANSFER_ID === undefined && record.data.TRANSFER_NAME != '' && record.data.TRANSFER_AMOUNT != 0){
@@ -126,6 +154,7 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
     				},
     				success: function(event){
     					//update grid with what is in DB
+    					console.log("finshed add");
     					event.grid.getStore().load({params: {mode: 'get', session: event.grid.session}});
     				}.createDelegate(this, [event])
     			});
@@ -145,6 +174,7 @@ TMN.Grid = new Ext.grid.EditorGridPanel({
     				},
     				success: function(event){
     					//update grid with what is in DB
+    					console.log("finshed update");
     					event.grid.getStore().load({params: {mode: 'get', session: event.grid.session}});
     				}.createDelegate(this, [event])
     			});
