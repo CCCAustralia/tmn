@@ -1,5 +1,5 @@
 <?php
-$DEBUG = 1;
+$DEBUG = 0;
 
 include_once("logger.php");
 include_once("dbconnect.php");
@@ -310,41 +310,18 @@ $data['s_mmr']						=	$formdata['S_MMR'];
 $data['workers_comp']				=	round($data['joint_financial_package'] * $WORKERS_COMP_RATE);
 
 
-///////////////////TODO change this code for when multiple session is possible//////////////////////////////////////////////////////////
-//atm session is set to be guid but for internal transfers it needs to be FAN so $data['fan'] is used instead of $formdata['session'] //
-
-//Internal Contribution Transfers
-$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$data['fan']."'"); //should refer to $formdata['session'] but atm fan is needed so that old transfers can be viewed
-for ($i = 0; $i < mysql_num_rows($sql); $i++) {
-	$transfers_row = mysql_fetch_assoc($sql);
-	$transfer['name'] = $transfers_row['TRANSFER_NAME'];
-	$transfer['amount'] = $transfers_row['TRANSFER_AMOUNT'];
-	$transfers[$i] = $transfer;
-}
-
-//total transfers without ministry levy
-if (count($transfers) > 0)
-	foreach($transfers as $r)
-	{
-		$total_transfers += $r['amount'];
-	}
-$total_transfers			=	(is_null($total_transfers) ? 0 : $total_transfers);
-
-
 //Ministry Levy
 if ($iscouple){
 	//calc the amount that the levy should be applied to
-	$subtotal = $data['employer_super'] + $data['s_employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'] + $data['s_mmr'] + $total_transfers;
+	$subtotal = $data['employer_super'] + $data['s_employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'] + $data['s_mmr'];
 	//grab the levy percentage
 	$ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['ministry']."'"));
 	$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
 	$s_ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['s_ministry']."'"));
 	$s_ministry_levy_rate = $s_ministry_row['MINISTRY_LEVY'];
 	//calc levy (levy is in proportion to the days per week each works)
-	$levy_rate = ($ministry_levy_rate / 100);
-	$s_levy_rate = ($s_ministry_levy_rate / 100);
-	$data['ministry_levy']				=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($levy_rate/(1-$levy_rate)) * $subtotal));
-	$data['s_ministry_levy']			=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($s_levy_rate/(1-$s_levy_rate)) * $subtotal));
+	$data['ministry_levy']				=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($ministry_levy_rate / 100) * $subtotal));
+	$data['s_ministry_levy']			=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($s_ministry_levy_rate / 100) * $subtotal));
 
 	//check if both in same ministry - combine the ministry levy rather than duplicate
 	if ($data['ministry'] == $data['s_ministry']) {
@@ -359,6 +336,18 @@ if ($iscouple){
 }
 
 if($DEBUG) fb($ministry_row);
+
+///////////////////TODO change this code for when multiple session is possible//////////////////////////////////////////////////////////
+//atm session is set to be guid but for internal transfers it needs to be FAN so $data['fan'] is used instead of $formdata['session'] //
+
+//Internal Contribution Transfers
+$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$data['fan']."'"); //should refer to $formdata['session'] but atm fan is needed so that old transfers can be viewed
+for ($i = 0; $i < mysql_num_rows($sql); $i++) {
+	$transfers_row = mysql_fetch_assoc($sql);
+	$transfer['name'] = $transfers_row['TRANSFER_NAME'];
+	$transfer['amount'] = $transfers_row['TRANSFER_AMOUNT'];
+	$transfers[$i] = $transfer;
+}
 
 //adding the levy to the list of internal transfers
 if ($data['ministry_levy'] != 0) {
