@@ -39,9 +39,20 @@ class finproc {
 		}
 		
 		//Taxable Income Panel
-		if (isset($this->financial_data['NET_STIPEND'])){
-			if ($this->financial_data['NET_STIPEND'] < $this->STIPEND_MIN)
-				$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+		if (isset($this->financial_data['STIPEND'])){
+			if ($this->financial_data['STIPEND'] < $this->STIPEND_MIN)
+				$err .= "\"STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+				
+			if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
+			{
+				if (isset($this->financial_data['S_MAX_MFB']))
+					$this->financial_data['HOUSING_STIPEND'] = max(0, $this->financial_data['HOUSING'] - ($this->financial_data['MAX_MFB'] + $this->financial+data['S_MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING'])
+				else
+					$this->financial_data['HOUSING_STIPEND'] = max(0, $this->financial_data['HOUSING'] - ($this->financial_data['MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING'])
+			}
+				
+				
+			$this->financial_data['NET_STIPEND'] = $this->financial_data['STIPEND'] + $this->financial_data['HOUSING_STIPEND'];
 			
 			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
