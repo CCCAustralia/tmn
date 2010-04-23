@@ -69,8 +69,8 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							title: 'My Taxable Income',
 							items: [
 								{
-									itemId: 'net_stipend',
-									name: 'NET_STIPEND',
+									itemId: 'stipend',
+									name: 'STIPEND',
 									fieldLabel: 'Stipend',
 									listeners: {
 										change: this.updateCookie.createDelegate(this),
@@ -78,6 +78,38 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 											Ext.QuickTips.register({
 												target: c.getEl(),
 												text: 'This is the estimated amount that will go into your bank account each month.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
+											});
+										}
+									}
+								},
+								{
+									itemId: 'housing_stipend',
+									name: 'HOUSING_STIPEND',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Housing Stipend',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
+											});
+										}
+									}
+								},
+								{
+									itemId: 'net_stipend',
+									name: 'NET_STIPEND',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Net Stipend',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
 											});
 										}
 									}
@@ -167,8 +199,8 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							title: 'Spouse Taxable Income',
 							items: [
 								{
-									itemId: 's_net_stipend',
-									name: 'S_NET_STIPEND',
+									itemId: 's_stipend',
+									name: 'S_STIPEND',
 									fieldLabel: 'Stipend',
 									listeners: {
 										change: this.updateCookie.createDelegate(this),
@@ -176,6 +208,38 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 											Ext.QuickTips.register({
 												target: c.getEl(),
 												text: 'This is the estimated amount that will go into your bank account each month.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
+											});
+										}
+									}
+								},
+								{
+									itemId: 's_housing_stipend',
+									name: 'S_HOUSING_STIPEND',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Housing Stipend',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
+											});
+										}
+									}
+								},
+								{
+									itemId: 's_net_stipend',
+									name: 'S_NET_STIPEND',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Net Stipend',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
 											});
 										}
 									}
@@ -396,6 +460,22 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 											});
 										}
 									}
+								},
+								{
+									itemId: 'claimable_mfb',
+									name: 'CLAIMABLE_MFB',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Claimable MFBs',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the amount of your Ministry Fringe Benefits that you can make claims from once your housing has been deducted.<br />It will be automatically set to the maximum that you are allowed.<br />If you would like to claim more MFB, increase your Taxable Income.'
+											});
+										}
+									}
 								}
 							]
 						}, //eo my mfb
@@ -452,6 +532,22 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 											Ext.QuickTips.register({
 												target: c.getEl(),
 												text: 'This is your Ministry Fringe Benefits. It will be automatically set to the maximum that you are allowed.<br />If you would like to claim more MFB, increase your Taxable Income.'
+											});
+										}
+									}
+								},
+								{
+									itemId: 's_claimable_mfb',
+									name: 'S_CLAIMABLE_MFB',
+									readOnly: true,
+									cls: 'x-form-readonly-red',
+									fieldLabel: 'Claimable MFBs',
+									listeners: {
+										focus: function(field)	{field.blur();},
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'This is the amount of your Ministry Fringe Benefits that you can make claims from once your housing has been deducted.<br />It will be automatically set to the maximum that you are allowed.<br />If you would like to claim more MFB, increase your Taxable Income.'
 											});
 										}
 									}
