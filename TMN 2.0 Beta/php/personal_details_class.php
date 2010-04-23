@@ -111,7 +111,8 @@ class pd {
 			$spouseguid_fromname = $temp_arr['GUID'];
 			$spousefan = $temp_arr['FIN_ACC_NUM'];
 				
-				
+			$spouseguid = -1;
+			
 			//Spouse conditions:
 			if ($spouseguid == '') {		//If spouse not already linked in user's profile:
 				if ($mainfan == $spousefan && $spouseguid_fromname != '') {
@@ -134,13 +135,15 @@ class pd {
 		
 		switch ($spousecase) {	//for case explanations, see the above set of conditionals
 			case 0:
-				$q = "UPDATE User_Profiles SET SPOUSE_GUID='".$spouseguid_fromname."' WHERE GUID='".$this->userguid."'";	//form sql
-				mysql_query($q);							//update main user
-				if ($this->DEBUG) $this->logger->logToFile($q);	//log sql
-				
-				$sq = "UPDATE User_Profiles SET SPOUSE_GUID='".$this->userguid."' WHERE GUID='".$spouseguid_fromname."'";	//form spouse sql
-				mysql_query($sq);							//update spouse
-				if ($this->DEBUG) $this->logger->logToFile($sq);	//log spouse sql
+				if ($spouseguid_fromname != ''){
+					$q = "UPDATE User_Profiles SET SPOUSE_GUID='".$spouseguid_fromname."' WHERE GUID='".$this->userguid."'";	//form sql
+					mysql_query($q);							//update main user
+					if ($this->DEBUG) $this->logger->logToFile($q);	//log sql
+					
+					$sq = "UPDATE User_Profiles SET SPOUSE_GUID='".$this->userguid."' WHERE GUID='".$spouseguid_fromname."'";	//form spouse sql
+					mysql_query($sq);							//update spouse
+					if ($this->DEBUG) $this->logger->logToFile($sq);	//log spouse sql
+				}
 			break;
 			case 1:
 				$err .= "S_FIRSTNAME:\"Invalid Spouse: Financial Account Numbers do not match.<br />Spousal Financial Account numbers must be the same. If this needs to be changed, talk to your Ministry Supervisor.\", ";
