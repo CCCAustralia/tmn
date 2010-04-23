@@ -61,6 +61,8 @@ s_days_per_wk					=>	"__",
 
 net_stipend						=>	"__",
 s_net_stipend					=>	"__",
+tax								=>	"__",
+s_tax							=>	"__",
 additional_tax					=>	"__",
 s_additional_tax				=>	"__",
 post_tax_super					=>	"__",
@@ -185,6 +187,11 @@ $data['s_days_per_wk']				=	$s_row['DAYS_PER_WEEK'] + 1;
 //Either way, this value is as such: <Net/Gross Stipend> + <Additional Tax> + <Post-Tax Super> = Taxable Income
 $data['net_stipend']				=	$formdata['NET_STIPEND'];
 $data['s_net_stipend']				=	$formdata['S_NET_STIPEND'];
+
+//Tax
+//-from Form on Page
+$data['tax']						=	$formdata['TAX'];
+$data['s_tax']						=	$formdata['S_TAX'];
 
 //Additional Tax
 //-from Form on Page
