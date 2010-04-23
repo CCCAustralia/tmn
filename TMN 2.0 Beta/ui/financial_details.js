@@ -940,7 +940,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 								{
 									itemId: 's_mmr',
 									name: 'S_MMR',
-									fieldLabel: 'MMR',
+									fieldLabel: 'MMR (Optional)',
 									listeners: {
 										change: this.updateCookie.createDelegate(this),
 										render: function(c) {
