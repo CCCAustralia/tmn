@@ -23,6 +23,7 @@ class finproc {
 		$this->connection = new MySqlDriver();
 		$this->logger = new logger("logs/financial.log");
 		$this->logger->setDebug($this->DEBUG);
+		if($this->DEBUG) fb("DEBUGGING MODE");
 	}
 	
 	
@@ -39,8 +40,8 @@ class finproc {
 		
 		//Taxable Income Panel
 		if (isset($this->financial_data['NET_STIPEND'])){
-			if ($this->financial_data['NET_STIPEND'] < $STIPEND_MIN)
-				$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$STIPEND_MIN.".\", ";
+			if ($this->financial_data['NET_STIPEND'] < $this->STIPEND_MIN)
+				$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
 			
 			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
@@ -72,11 +73,11 @@ class finproc {
 					break;
 			}
 		
-			//Pre Tax Super (if its not set then set it to the min
+			//Pre Tax Super (if its not set then set it to the min)
 			if ($this->financial_data['pre_tax_super_mode'] == 'auto'){
-				$this->financial_data['PRE_TAX_SUPER'] = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				$this->financial_data['PRE_TAX_SUPER'] = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
 			} else {
-				$min_pre_tax_super = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				$min_pre_tax_super = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
 				if (!isset($this->financial_data['PRE_TAX_SUPER']) || $this->financial_data['PRE_TAX_SUPER'] < $min_pre_tax_super){
 					$this->financial_data['PRE_TAX_SUPER'] = $min_pre_tax_super;
 				}
@@ -105,8 +106,8 @@ class finproc {
 		
 		//Spouse Taxable Income Panel
 		if (isset($this->financial_data['S_NET_STIPEND'])){
-			if ($this->financial_data['S_NET_STIPEND'] < $STIPEND_MIN)
-				$err .= "\"S_NET_STIPEND\":\"Spouse Net Stipend is too low: must be at least $".$STIPEND_MIN.".\", ";
+			if ($this->financial_data['S_NET_STIPEND'] < $this->STIPEND_MIN)
+				$err .= "\"S_NET_STIPEND\":\"Spouse Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
 			
 			$s_annum = ($this->financial_data['S_NET_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
@@ -138,11 +139,11 @@ class finproc {
 					break;
 			}
 			
-			//Pre Tax Super (if its not set then set it to the min
+			//Spouse Pre Tax Super (if its not set then set it to the min)
 			if ($this->financial_data['s_pre_tax_super_mode'] == 'auto'){
-				$this->financial_data['S_PRE_TAX_SUPER'] = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				$this->financial_data['S_PRE_TAX_SUPER'] = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
 			} else {
-				$s_min_pre_tax_super = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				$s_min_pre_tax_super = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
 				if (!isset($this->financial_data['S_PRE_TAX_SUPER']) || $this->financial_data['S_PRE_TAX_SUPER'] < $s_min_pre_tax_super){
 					$this->financial_data['S_PRE_TAX_SUPER'] = $s_min_pre_tax_super;
 				}
