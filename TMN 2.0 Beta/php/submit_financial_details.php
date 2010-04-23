@@ -331,7 +331,7 @@ if ($iscouple){
 } else {
 	$subtotal = $data['employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'];
 	$ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['ministry']."'"));
-	$ministry_levy_rate = $ministry_row[$data['ministry']];
+	$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
 	$data['ministry_levy']				=	(($ministry_levy_rate / 100) * $subtotal);
 }
 
@@ -349,16 +349,28 @@ for ($i = 0; $i < mysql_num_rows($sql); $i++) {
 	$transfers[$i] = $transfer;
 }
 
+$i = count($transfers);
+if ($data['ministry_levy'] == '__')
+	$data['ministry_levy'] = 0;
+if ($data['s_ministry_levy'] == '__')
+	$data['s_ministry_levy'] == 0;
 //adding the levy to the list of internal transfers
-if ($data['ministry_levy'] != 0) {
+if ($data['ministry_levy'] != 0 && $data['s_ministry_levy'] == 0) {	//if just user (no spouse) with levy
 	$transfer['name'] = $data['ministry'];
 	$transfer['amount'] = $data['ministry_levy'];
 	$transfers[$i] = $transfer;
 }
-if ($data['s_ministry_levy'] != 0) {
-	$transfer['name'] = $data['s_ministry'];
-	$transfer['amount'] = $data['s_ministry_levy'];
-	$transfers[$i] = $transfer;
+if ($iscouple) {
+	if ($data['ministry_levy'] != 0 && $data['s_ministry_levy'] != 0 && $data['ministry'] == $data['ministry']) {	//if both spouses are in the same levy-ing ministry
+		$transfer['name'] = $data['ministry'];
+		$transfer['amount'] = $data['ministry_levy'] + $data['s_ministry_levy'];
+		$transfers[$i] = $transfer;
+	}
+	if ($data['s_ministry_levy'] != 0 && $data['ministry_levy'] == 0) {	//if just spouse with levy
+		$transfer['name'] = $data['s_ministry'];
+		$transfer['amount'] = $data['s_ministry_levy'];
+		$transfers[$i] = $transfer;
+	}
 }
 
 //total transfers with minsitry levy
