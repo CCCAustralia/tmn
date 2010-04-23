@@ -1080,7 +1080,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			
 			this.doLayout();
 		}
-		this.getComponent('mfb').collapse(false);
+		
 		if (!this.financial_data.overseas) this.getComponent('os_additional_extras').hide();
 		//////////////////////////////////////
 					//set partner, session and guid here (in both FD and Grid)
@@ -1158,8 +1158,6 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			delete (this.financial_data);
 			this.financial_data = return_object.financial_data;
 			
-			var s_mfb_range = false;
-			
 			//check for spouse calculated values
 			if (this.financial_data.spouse != false){
 				
@@ -1170,7 +1168,6 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 				
 				if (this.financial_data.S_MAX_MFB !== undefined){
 					this.getComponent('mfb').getComponent('spouse').getComponent('s_mfb').setValue(this.financial_data.S_MAX_MFB);
-					s_mfb_range = true;
 				}
 				
 				if (this.financial_data.S_PRE_TAX_SUPER !== undefined){
@@ -1181,8 +1178,6 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					this.getComponent('super').getComponent('spouse').getComponent('s_employer_super').setValue(this.financial_data.S_EMPLOYER_SUPER);
 				}
 				
-			} else {
-				s_mfb_range = true;
 			}
 			
 			//checks for my calculated values
@@ -1191,10 +1186,9 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 				this.getComponent('taxable_income').getComponent('my').getComponent('taxable_income_amount').setValue(this.financial_data.TAXABLE_INCOME);
 			}
 			
-			if (this.financial_data.MAX_MFB !== undefined && s_mfb_range){
+			if (this.financial_data.MAX_MFB !== undefined){
 				this.getComponent('mfb').getComponent('my').getComponent('mfb').setValue(this.financial_data.MAX_MFB);
-				this.getComponent('mfb').expand(true);
-				//update label with range
+				//TODO: when overseas is up, update label with range
 			}
 			
 			if (this.financial_data.ADDITIONAL_HOUSING !== undefined){
