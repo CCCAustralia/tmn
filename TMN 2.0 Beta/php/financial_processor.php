@@ -1,0 +1,178 @@
+<?php
+include_once("mysqldriver.php");
+include_once("logger.php");
+include_once("./calc/calc_tax.php");
+include_once("./calc/calc_mfbmax.php");
+include_once("./calc/calc_employersuper.php");
+include_once("./calc/calc_additionalhousing.php");
+require_once("../lib/FirePHPCore/fb.php");
+
+class finproc {
+	//financial values
+	private $STIPEND_MIN = 100;
+	private $MIN_ADD_SUPER_RATE = 0.09;
+	
+	private $financial_data;
+	private $DEBUG;
+	private $connection;
+	private $logger;
+	
+	public function __construct($findat, $dbug) {
+		$this->financial_data = $findat;
+		$this->DEBUG = $dbug;
+		$this->connection = new MySqlDriver();
+		$this->logger = new logger("logs/financial.log");
+		$this->logger->setDebug($this->DEBUG);
+	}
+	
+	
+	public function proc() {
+	
+		//if there is a spouse get the guid
+		if ($this->financial_data['spouse']){
+			$sql = mysql_query("SELECT SPOUSE_GUID FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'");
+			if (mysql_num_rows($sql) == 1) {
+				$row = mysql_fetch_assoc($sql);
+				$this->financial_data['spouse'] = $row['SPOUSE_GUID'];
+			}
+		}
+		
+		//Taxable Income Panel
+		if (isset($this->financial_data['NET_STIPEND'])){
+			if ($this->financial_data['NET_STIPEND'] < $STIPEND_MIN)
+				$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$STIPEND_MIN.".\", ";
+			
+			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
+			
+			$this->financial_data['TAXABLE_INCOME'] = calculateTaxableIncome($annum);
+			$this->financial_data['TAX'] = calculateTax($this->financial_data['TAXABLE_INCOME'], 'resident');
+			$this->financial_data['EMPLOYER_SUPER'] = calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
+			
+			$this->financial_data['TAXABLE_INCOME'] = round($this->financial_data['TAXABLE_INCOME'] / 12);
+			$this->financial_data['TAX'] = round($this->financial_data['TAX'] / 12);
+		    $this->financial_data['EMPLOYER_SUPER'] = round($this->financial_data['EMPLOYER_SUPER'] / 12);
+		}
+		
+		//Maximum MFB & Pre-tax Super
+		if (isset($this->financial_data['TAXABLE_INCOME'])) {
+		
+			//enumerate mfb rate
+			switch ($this->financial_data['MFB_RATE']) {
+				case 0:
+				//Zero MFBs
+					$mfbrate = 0;
+					break;
+				case 1:
+				//Half MFBs
+					$mfbrate = 0.5;
+					break;
+				case 2:
+				//Full MFBs
+					$mfbrate = 1;
+					break;
+			}
+		
+			//Pre Tax Super (if its not set then set it to the min
+			if ($this->financial_data['pre_tax_super_mode'] == 'auto'){
+				$this->financial_data['PRE_TAX_SUPER'] = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+			} else {
+				$min_pre_tax_super = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				if (!isset($this->financial_data['PRE_TAX_SUPER']) || $this->financial_data['PRE_TAX_SUPER'] < $min_pre_tax_super){
+					$this->financial_data['PRE_TAX_SUPER'] = $min_pre_tax_super;
+				}
+			}
+			
+			//Fetch the user's days per week
+			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'");
+			if (mysql_num_rows($sql) == 1) {
+				$row = mysql_fetch_assoc($sql);
+				if ($row['FT_PT_OS'] == 0){
+					$this->financial_data['DAYS_PER_WEEK'] = 4;
+				} else {
+					$this->financial_data['DAYS_PER_WEEK'] = $row['DAYS_PER_WEEK'];
+				}
+			}
+			
+			$this->financial_data['MAX_MFB'] = round(calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK'] + 1)); //+1 because days per week is stored as an index not a number
+		}
+		
+		//Housing
+		if (isset($this->financial_data['HOUSING'])){
+			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
+			$this->financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($this->financial_data['HOUSING'], $this->financial_data['HOUSING_FREQUENCY'], $this->financial_data['spouse']);
+		}
+		
+		
+		//Spouse Taxable Income Panel
+		if (isset($this->financial_data['S_NET_STIPEND'])){
+			if ($this->financial_data['S_NET_STIPEND'] < $STIPEND_MIN)
+				$err .= "\"S_NET_STIPEND\":\"Spouse Net Stipend is too low: must be at least $".$STIPEND_MIN.".\", ";
+			
+			$s_annum = ($this->financial_data['S_NET_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
+			
+			$this->financial_data['S_TAXABLE_INCOME'] = calculateTaxableIncome($s_annum);
+			$this->financial_data['S_TAX'] = calculateTax($this->financial_data['S_TAXABLE_INCOME'], 'resident');
+			$this->financial_data['S_EMPLOYER_SUPER'] = calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
+			
+			$this->financial_data['S_TAXABLE_INCOME'] = round($this->financial_data['S_TAXABLE_INCOME'] / 12);
+			$this->financial_data['S_TAX'] = round($this->financial_data['S_TAX'] / 12);
+		    $this->financial_data['S_EMPLOYER_SUPER'] = round($this->financial_data['S_EMPLOYER_SUPER'] / 12);
+		}
+		
+		//Spouse Maximum MFB && Pre Tax Super
+		if (isset($this->financial_data['S_TAXABLE_INCOME'])) {
+		
+			//enumerate mfb rate
+			switch ($this->financial_data['S_MFB_RATE']) {
+				case 0:
+				//Zero MFBs
+					$mfbrate = 0;
+					break;
+				case 1:
+				//Half MFBs
+					$mfbrate = 0.5;
+					break;
+				case 2:
+				//Full MFBs
+					$mfbrate = 1;
+					break;
+			}
+			
+			//Pre Tax Super (if its not set then set it to the min
+			if ($this->financial_data['s_pre_tax_super_mode'] == 'auto'){
+				$this->financial_data['S_PRE_TAX_SUPER'] = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+			} else {
+				$s_min_pre_tax_super = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $MIN_ADD_SUPER_RATE);
+				if (!isset($this->financial_data['S_PRE_TAX_SUPER']) || $this->financial_data['S_PRE_TAX_SUPER'] < $s_min_pre_tax_super){
+					$this->financial_data['S_PRE_TAX_SUPER'] = $s_min_pre_tax_super;
+				}
+			}
+			
+			//Fetch the user's days per week
+			$sql = mysql_query("SELECT DAYS_PER_WEEK FT_PT_OS FROM User_Profiles WHERE guid='".$this->financial_data['spouse']."'"); //needs to change ($this->financial_data['spouse'] doesn't hold spouse guid)
+			if (mysql_num_rows($sql) == 1) {
+				$row = mysql_fetch_assoc($sql);
+				if ($row['FT_PT_OS'] == 0){
+					$this->financial_data['S_DAYS_PER_WEEK'] = 4;
+				} else {
+					$this->financial_data['S_DAYS_PER_WEEK'] = $row['DAYS_PER_WEEK'];
+				}
+			}
+			
+			$this->financial_data['S_MAX_MFB'] = round(calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK'] + 1)); //+1 because days per week is stored as an index not a number
+		}
+		
+		if ($this->DEBUG) fb($this->financial_data);
+		
+		if ($err == '') {
+		
+			$result = array('success'=>'true');
+			$result['financial_data'] = $this->financial_data;
+			return json_encode($result);
+		}
+		else {
+			return '{"success": false, "errors":{'.trim($err,", ").'} }';	//Return with errors
+		}
+	}
+}
+?>

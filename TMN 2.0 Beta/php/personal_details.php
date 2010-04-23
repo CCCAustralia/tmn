@@ -1,12 +1,16 @@
 <?php
-$DEBUG = 0;
 include_once "logger.php";
 include_once "dbconnect.php";
-if($DEBUG) require_once("../lib/FirePHPCore/fb.php");
+include_once "mysqldriver.php";
+include_once "personal_details_class.php";
+require_once("../lib/FirePHPCore/fb.php");
 
-$LOGFILE = "./logs/personal_details.log";
+$DEBUG = 1;
+if ($DEBUG) ob_start();
+$pd_logger = new logger("logs/personal_details.log", $DEBUG);
+$pd_logger->setDebug($DEBUG);
 
-$connection = @db_connect();	//set up the database connection
+$connection = new MySqlDriver();	//set up the database connection
 
 if ($_POST['guid'] != "")
 	$guid = $_POST['guid'];
@@ -14,6 +18,51 @@ else
 	$guid = 'testuserguid';//$_REQUEST['guid'];
 $mode = $_REQUEST['mode'];		//get/set
 $method = $_REQUEST['method'];	//values(fieldnames)
+
+$personal_details = new pd($guid, $DEBUG);
+if ($DEBUG) $personal_details->addLog($pd_logger);
+
+if ($mode == 'get') {
+	if($DEBUG) fb($_POST);
+	echo $personal_details->getPersonalDetails();
+}
+
+if ($mode == 'set') {
+	//Check that the main user exists
+	$sql = mysql_query("SELECT GUID FROM User_Profiles WHERE GUID='".$guid."'");
+	
+	if (mysql_num_rows($sql) != 0) {
+				
+		//Split the POST variables into two arrays: Main user and spouse
+		foreach($_POST as $k=>$v) {			//Loop through the POST key/val pairs
+			if (strpos($v, ",")){			//Invalid character check, also makes sql injection harder
+				$err .= $k.":\" Invalid character in field.\", ";
+			}
+			if (substr($k,0,2) == 'S_'){	//If spouse variable (defined by S_ prefix)
+				$spouse_post[$k]=$v;		//Add to spouse variable array
+			}else {							//No spouse prefix
+				if ($k != 'mode') {			//mode variable will be false positive in this case and break the sql
+					$main_post[$k]=$v;		//Add to main user variable array
+				}
+			}	
+		}
+		
+		echo $personal_details->setPersonalDetails($main_post, $spouse_post);
+	}
+	else {
+		
+		echo '{"success": false, "errors": {FIRSTNAME: "User not in database, please contact tech-team@ccca.org.au.", SURNAME: "User not in database, please contact tech-team@ccca.org.au." } }';
+	}
+}
+
+
+
+die();
+
+
+
+
+
 
 //GET MODE
 if ($mode == 'get') {
@@ -50,7 +99,7 @@ if ($mode == 'get') {
 	$getsql = trim($getsql, ", ")." FROM User_Profiles WHERE GUID='".$guid."';";		//Form the sql statement
 	
 	
-	if (!$DEBUG) logToFile($LOGFILE, "GET: ".$getsql);														//Log the sql statement
+	if ($DEBUG) $pd_logger->logToFile("GET: ".$getsql);														//Log the sql statement
 	//$getsql .= " SELECT FIRSTNAME, SURNAME FROM User_Profiles WHERE GUID=(SELECT MPD_SUPERVISOR FROM User_Profiles WHERE GUID='".$guid."')";
 	$sql = mysql_query($getsql);														//Execute the sql statement
 	
@@ -74,7 +123,7 @@ if ($mode == 'get') {
 		$return = array('success'=>'false');
 	}
 	echo json_encode($return);
-	if (!$DEBUG) logToFile($LOGFILE, $mode." | ".$method."\n".$getsql."\n".json_encode($return));
+	if ($DEBUG) $pd_logger->logToFile($mode." | ".$method."\n".$getsql."\n".json_encode($return));
 	
 }
 
@@ -182,7 +231,7 @@ if ($mode == 'set'){
 			
 			//Lookup the guid for the given mpd supervisor
 			$mpdsuper_sql = "SELECT GUID FROM User_Profiles WHERE FIRSTNAME LIKE '".$mpdsuper_firstname."' && SURNAME LIKE '".$mpdsuper_surname."'";
-			if (!$DEBUG) logToFile($LOGFILE, "MPD_SUPER FETCH: ".$mpdsuper_sql);
+			if ($DEBUG) $pd_logger->logToFile("MPD_SUPER FETCH: ".$mpdsuper_sql);
 			$temp_arr = mysql_fetch_assoc(mysql_query($mpdsuper_sql));
 			
 			//if found, set the mpdsupervisor guid, otherwise remove the names from the array and add an error
@@ -227,8 +276,8 @@ if ($mode == 'set'){
 		//Execute and log the Main user sql if no errors
 		if ($err == "") {
 			$sqlresult = mysql_query($setsql);		//Execute the Main user sql
-		} else if (!$DEBUG) logToFile($LOGFILE, "Errors! ".$err);
-		if (!$DEBUG) logToFile($LOGFILE, "Main User SQL: ".$setsql."\nResult: ".$sqlresult);
+		} else if ($DEBUG) $pd_logger->logToFile("Errors! ".$err);
+		if ($DEBUG) $pd_logger->logToFile("Main User SQL: ".$setsql."\nResult: ".$sqlresult);
 		
 		
 		//setup the sql statment for the spouse
@@ -264,7 +313,7 @@ if ($mode == 'set'){
 		if ($err == "") {
 			$sqlspouseresult = mysql_query($s_setsql);
 		}
-		if (!$DEBUG) logToFile($LOGFILE, "Spouse User SQL: ".$s_setsql."\nResult: ".$sqlspouseresult);
+		if ($DEBUG) $pd_logger->logToFile("Spouse User SQL: ".$s_setsql."\nResult: ".$sqlspouseresult);
 		
 		//Return json success/failure with errors
 		if ($sqlresult == 1 && $sqlspouseresult == 1 && $err == NULL) {
