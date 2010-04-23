@@ -1,5 +1,5 @@
 <?php
-$DEBUG = 0;
+$DEBUG = 1;
 
 include_once("logger.php");
 include_once("dbconnect.php");
@@ -250,18 +250,6 @@ case 2:
 $s_mfb_rate = $formdata['S_MFB_RATE'] * 0.5;
 
 
-//Financial Packages
-if (!$iscouple){
-	$data['financial_package']			=	round($data['taxable_income'] + $data['mfb'] + $data['pre_tax_super'] + $data['additional_life_cover'] + $data['additional_housing'], ROUND_HALF_UP);
-	$data['s_financial_package']		=	0;
-	$data['joint_financial_package']	=	$data['financial_package'];
-} else {
-	$data['financial_package']			=	round($data['taxable_income'] + $data['mfb'] + $data['pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['net_stipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
-	$data['s_financial_package']		=	round($data['s_taxable_income'] + $data['s_mfb'] + $data['s_pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['s_netstipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
-	$data['joint_financial_package']	=	$data['financial_package'] + $data['s_financial_package'];
-}
-
-
 //Pre-Tax Super
 //TODO: Find how this is calculated and where to get it from.
 $min_pretax_super = round($mfb_rate * $MIN_ADD_SUPER_RATE * $data['taxable_income']);
@@ -279,6 +267,18 @@ if ($formdata['S_PRE_TAX_SUPER'] >= $s_min_pretax_super){
 	$data['s_resc']						=	round($data['s_pre_tax_super'] - $s_min_pretax_super);
 } else {
 	$err .= "S_PRE_TAX_SUPER:\"Your Pre-Tax Super must be at least $".$s_min_pretax_super.".\", ";
+}
+
+
+//Financial Packages
+if (!$iscouple){
+	$data['financial_package']			=	round($data['taxable_income'] + $data['mfb'] + $data['pre_tax_super'] + $data['additional_life_cover'] + $data['additional_housing'], ROUND_HALF_UP);
+	$data['s_financial_package']		=	0;
+	$data['joint_financial_package']	=	$data['financial_package'];
+} else {
+	$data['financial_package']			=	round($data['taxable_income'] + $data['mfb'] + $data['pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['net_stipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
+	$data['s_financial_package']		=	round($data['s_taxable_income'] + $data['s_mfb'] + $data['s_pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['s_netstipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
+	$data['joint_financial_package']	=	$data['financial_package'] + $data['s_financial_package'];
 }
 
 //Employer Super
