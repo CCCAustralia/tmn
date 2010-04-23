@@ -31,7 +31,7 @@ $connection = db_connect();
 
 
 //get if is couple
-$couple_row = mysql_fetch_assoc(mysql_query("SELECT GUID FROM User_Profiles WHERE FIN_ACC_NUM=(SELECT FIN_ACC_NUM FROM User_Profiles WHERE guid='".$_REQUEST['guid']."') && guid !='".$_REQUEST['guid']."'"));
+$couple_row = mysql_fetch_assoc(mysql_query("SELECT GUID FROM User_Profiles WHERE FIN_ACC_NUM=(SELECT FIN_ACC_NUM FROM User_Profiles WHERE guid='".$_POST['guid']."') && guid !='".$_POST['guid']."'"));
 $iscouple = !is_null($couple_row['GUID']);
 
 //Make the page more readable for debugging
