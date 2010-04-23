@@ -92,7 +92,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />The government\'s superannuation co-contribution scheme will match upto $84 per month of post tax super.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ato.gov.au/individuals/content.asp?doc=/content/42616.htm&page=1&H1" target="_blank">the ATO website</a>.<br />You may be eligible to receive up to $84/month.'
 											});
 										}
 									}
@@ -190,7 +190,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 										render: function(c) {
 											Ext.QuickTips.register({
 												target: c.getEl(),
-												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />The government\'s superannuation co-contribution scheme will match upto $84 per month of post tax super.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ATO.gov.au" target="_blank">www.ATO.gov.au</a> '
+												text: 'Record the amount of post-tax voluntary superannuation contribution you would like to be paid.<br />To ensure you are eligible for the superannuation co-contribution scheme, go to <a href="http://www.ato.gov.au/individuals/content.asp?doc=/content/42616.htm&page=1&H1" target="_blank">the ATO website</a>.<br />You may be eligible to receive up to $84/month.'
 											});
 										}
 									}
@@ -289,7 +289,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 								render: function(c) {
 									Ext.QuickTips.register({
 										target: c.getEl(),
-										text: 'Housing payments above the Maximum Housing MFB (set each year based on national median housing price) are not part of your Financial Package.<br /><b><i>This will be automatically calculated</i></b>.'
+										text: 'Housing payments above the Maximum Housing MFB (set each year based on national median housing price) are not part of your Ministry Fringe Benifits.<br /><b><i>This will be automatically calculated</i></b>.'
 									});
 								}
 							}
@@ -660,14 +660,14 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                }
 							            },
 							            {
-							            	itemId: 'salary_cover_source',
+							            	itemId: 'income_protection_cover_source',
 							           		xtype: 'combo',
-							           		fieldLabel: 'Where should your Salary Cover be taken from?',
-							           		name: 'SALARY_COVER_SOURCE',
-							            	hiddenName: 'SALARY_COVER_SOURCE',
-							            	hiddenId: 'SALARY_COVER_SOURCE_hidden',
+							           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
+							           		name: 'INCOME_PROTECTION_COVER_SOURCE',
+							            	hiddenName: 'INCOME_PROTECTION_COVER_SOURCE',
+							            	hiddenId: 'INCOME_PROTECTION_COVER_SOURCE_hidden',
 							           		triggerAction:'all',
-							           		emptyText: 'Enter Source of the Life Cover...',
+							           		emptyText: 'Enter Source of the Income Protection Cover...',
 							           		validationEvent: 'blur',
 							            	editable:false,
 							                mode:'local',
@@ -683,13 +683,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
+							                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
+														text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }
@@ -832,7 +832,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                store:new Ext.data.SimpleStore({
 							                     fields:['lifecoverCode', 'lifecoverText'],
-							                     data:[[0,'$1'],[1,'$2'],[2,'$3'],[3,'$4'],[4,'$5'],[5,'$6'],[6,'$7'],[7,'$8'],[8,'$9']]
+							                     data:[[0,'$1'],[1,'$2'],[2,'$3'],[3,'$4'],[4,'$5'],[5,'$6'],[6,'$7'],[7,'$8'],[8,'$9'],[9,'$10']]
 							                }),
 							                displayField:'lifecoverText',
 							                valueField:'lifecoverCode',
@@ -851,14 +851,14 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                }
 							            },
 							            {
-							            	itemId: 's_salary_cover_source',
+							            	itemId: 's_income_protection_cover_source',
 							           		xtype: 'combo',
-							           		fieldLabel: 'Where should your Salary Cover be taken from?',
-							           		name: 'S_SALARY_COVER_SOURCE',
-							            	hiddenName: 'S_SALARY_COVER_SOURCE',
-							            	hiddenId: 'S_SALARY_COVER_SOURCE_hidden',
+							           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
+							           		name: 'S_INCOME_PROTECTION_COVER_SOURCE',
+							            	hiddenName: 'S_INCOME_PROTECTION_COVER_SOURCE',
+							            	hiddenId: 'S_INCOME_PROTECTION_COVER_SOURCE_hidden',
 							           		triggerAction:'all',
-							           		emptyText: 'Enter Source of the Life Cover...',
+							           		emptyText: 'Enter Source of the Income Protection Cover...',
 							           		validationEvent: 'blur',
 							            	editable:false,
 							                mode:'local',
@@ -874,13 +874,13 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 							                
 							                listeners: {
 							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('SALARY Cover Change!', '<b>You have changed where your SALARY Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!</b>');
+							                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
 													this.updateCookie(combo,index,index);
 							                	}.createDelegate(this),
 												render: function(c) {
 													Ext.QuickTips.register({
 														target: c.getEl(),
-														text: 'Nominate where your salary cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download salary cover calculator.<br />Your Salary Cover is taken out annually and can be quite a large amount and can have a <i>SIGNIFICANT</i> impact on the account it comes from.<br />So choose carefully!'
+														text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
 													});
 												}
 							                }

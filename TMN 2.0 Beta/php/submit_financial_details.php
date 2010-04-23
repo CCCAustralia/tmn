@@ -18,12 +18,12 @@ $NET_STIPEND_MIN = 100;
 
 //Band values
 $MULTIPLIER				=	1;
-$BAND_FP_COUPLE			=	5800;
-$BAND_FP_SINGLE			=	3500;
-$BAND_TMN_COUPLE_MIN	=	3500;
-$BAND_TMN_COUPLE_MAX	=	7000;
-$BAND_TMN_SINGLE_MIN	=	2300;
-$BAND_TMN_SINGLE_MAX	=	3500;
+$BAND_FP_COUPLE			=	6000;
+$BAND_FP_SINGLE			=	3600;
+$BAND_TMN_COUPLE_MIN	=	3600;
+$BAND_TMN_COUPLE_MAX	=	7200;
+$BAND_TMN_SINGLE_MIN	=	2400;
+$BAND_TMN_SINGLE_MAX	=	4100;
 
 
 $connection = db_connect();
@@ -75,8 +75,8 @@ housing_frequency				=>	"__",
 additional_housing				=>	"__",
 additional_life_cover			=>	"__",
 s_additional_life_cover			=>	"__",
-salary_cover_source				=>	"__",
-s_salary_cover_source			=>	"__",
+income_protection_cover_source	=>	"__",
+s_income_protection_cover_source=>	"__",
 mfb								=>	"__",
 s_mfb							=>	"__",
 mfb_rate						=>	"__",
@@ -214,10 +214,10 @@ $data['additional_housing']			=	$formdata['ADDITIONAL_HOUSING'];
 $data['additional_life_cover']		=	$formdata['LIFE_COVER'];
 $data['s_additional_life_cover']	=	$formdata['S_LIFE_COVER'];
 
-//Salary Cover Source
+//INCOME_PROTECTION Cover Source
 //(index: 0=Support Account, 1=Super Fund)
-$data['salary_cover_source']	=	($formdata['SALARY_COVER_SOURCE'] ? "Super Fund" : "Support Account");
-$data['s_salary_cover_source']	=	($formdata['S_SALARY_COVER_SOURCE'] ? "Super Fund" : "Support Account");
+$data['income_protection_cover_source']	=	($formdata['INCOME_PROTECTION_COVER_SOURCE'] ? "Super Fund" : "Support Account");
+$data['s_income_protection_cover_source']	=	($formdata['S_INCOME_PROTECTION_COVER_SOURCE'] ? "Super Fund" : "Support Account");
 
 //Ministry Fringe Benefits
 $data['mfb']						=	$formdata['MFB'];
@@ -303,18 +303,41 @@ $data['s_mmr']						=	$formdata['S_MMR'];
 $data['workers_comp']				=	round($data['joint_financial_package'] * $WORKERS_COMP_RATE);
 
 
+///////////////////TODO change this code for when multiple session is possible//////////////////////////////////////////////////////////
+//atm session is set to be guid but for internal transfers it needs to be FAN so $data['fan'] is used instead of $formdata['session'] //
+
+//Internal Contribution Transfers
+$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$data['fan']."'"); //should refer to $formdata['session'] but atm fan is needed so that old transfers can be viewed
+for ($i = 0; $i < mysql_num_rows($sql); $i++) {
+	$transfers_row = mysql_fetch_assoc($sql);
+	$transfer['name'] = $transfers_row['TRANSFER_NAME'];
+	$transfer['amount'] = $transfers_row['TRANSFER_AMOUNT'];
+	$transfers[$i] = $transfer;
+}
+
+//total transfers without ministry levy
+if (count($transfers) > 0)
+	foreach($transfers as $r)
+	{
+		$total_transfers += $r['amount'];
+	}
+$total_transfers			=	(is_null($total_transfers) ? 0 : $total_transfers);
+
+
 //Ministry Levy
 if ($iscouple){
 	//calc the amount that the levy should be applied to
-	$subtotal = $data['employer_super'] + $data['s_employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'] + $data['s_mmr'];
+	$subtotal = $data['employer_super'] + $data['s_employer_super'] + $data['joint_financial_package'] + $data['workers_comp'] + $data['mmr'] + $data['s_mmr'] + $total_transfers;
 	//grab the levy percentage
 	$ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['ministry']."'"));
 	$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
 	$s_ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".$data['s_ministry']."'"));
 	$s_ministry_levy_rate = $s_ministry_row['MINISTRY_LEVY'];
 	//calc levy (levy is in proportion to the days per week each works)
-	$data['ministry_levy']				=	(($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($ministry_levy_rate / 100) * $subtotal);
-	$data['s_ministry_levy']			=	(($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($s_ministry_levy_rate / 100) * $subtotal);
+	$levy_rate = ($ministry_levy_rate / 100);
+	$s_levy_rate = ($s_ministry_levy_rate / 100);
+	$data['ministry_levy']				=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($levy_rate/(1-$levy_rate)) * $subtotal));
+	$data['s_ministry_levy']			=	round((($data['days_per_wk']/($data['days_per_wk']+$data['s_days_per_wk'])) * ($s_levy_rate/(1-$s_levy_rate)) * $subtotal));
 
 	//check if both in same ministry - combine the ministry levy rather than duplicate
 	if ($data['ministry'] == $data['s_ministry']) {
@@ -330,18 +353,7 @@ if ($iscouple){
 
 if($DEBUG) fb($ministry_row);
 
-
-///////////////////TODO change this code for when multiple session is possible//////////////////////////////////////////////////////////
-//atm session is set to be guid but for internal transfers it needs to be FAN so $data['fan'] is used instead of $formdata['session'] //
-
-//Internal Contribution Transfers
-$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$data['fan']."'"); //should refer to $formdata['session'] but atm fan is needed so that old transfers can be viewed
-for ($i = 0; $i < mysql_num_rows($sql); $i++) {
-	$transfers_row = mysql_fetch_assoc($sql);
-	$transfer['name'] = $transfers_row['TRANSFER_NAME'];
-	$transfer['amount'] = $transfers_row['TRANSFER_AMOUNT'];
-	$transfers[$i] = $transfer;
-}
+//adding the levy to the list of internal transfers
 if ($data['ministry_levy'] != 0) {
 	$transfer['name'] = $data['ministry'];
 	$transfer['amount'] = $data['ministry_levy'];
@@ -353,6 +365,7 @@ if ($data['s_ministry_levy'] != 0) {
 	$transfers[$i] = $transfer;
 }
 
+//total transfers with minsitry levy
 if (count($transfers) > 0)
 	foreach($transfers as $r)
 	{
@@ -367,7 +380,7 @@ if($formdata['INTERNATIONAL_DONATIONS'] < ($subtotal + $transfers_total))
 else
 	$err .= "INTERNATIONAL_DONATIONS:\"This figure must be smaller than your TMN.\", ";
 
-//CCCA Levy								//change this so its not just a percentage of the subtotal but a percentage of the whole TMN
+//CCCA Levy								//this has been changed so its not just a percentage of the subtotal but a percentage of the whole TMN
 $data['ccca_levy']					=	round(($subtotal + $total_transfers - $data['international_donations']) * ($CCCA_LEVY_RATE/(1-$CCCA_LEVY_RATE)));
 
 //Total Monthly Needs
@@ -449,8 +462,6 @@ if ($data['additional_housing'] != 0) {
 //MPD AUTH CHECK
 if ($row['MPD'] == 1) {
 	$data['auth_lv1'] = 1;
-	$data['auth_lv2'] = 1;
-	$data['auth_lv2_reasons'][count($data['auth_lv2_reasons'])] = array('reason' => 'You are in MPD.');
 }
 
 //trim and wrap
@@ -469,6 +480,10 @@ if ($data['net_stipend'] < $NET_STIPEND_MIN)
 	$err .= "NET_STIPEND:\"You cannot have a net stipend less than $".$NET_STIPEND_MIN.".\", ";
 if ($data['s_net_stipend'] < $NET_STIPEND_MIN && $iscouple)
 	$err .= "S_NET_STIPEND:\"You cannot have a net stipend less than $".$NET_STIPEND_MIN.".\", ";
+	
+//check that housing is less than total mfbs
+//if ($data['housing'] > ($data['mfb']+$data['s_mfb']))
+//	$err .= "HOUSING:\"You cannot have a housing amount greater than your total MFB\'s ($".($data['mfb']+$data['s_mfb']).").\", ";
 
 
 if ($err == '') {
