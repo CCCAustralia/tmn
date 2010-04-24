@@ -1257,7 +1257,12 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			//check for spouse calculated values
 			if (this.financial_data.spouse != false){
 				
+				if (this.financial_data.S_HOUSING_STIPEND !== undefined){
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_housing_stipend').setValue(this.financial_data.S_HOUSING_STIPEND);
+				}
+				
 				if (this.financial_data.S_TAXABLE_INCOME !== undefined){
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_net_stipend').setValue(this.financial_data.S_NET_STIPEND);
 					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_tax').setValue(this.financial_data.S_TAX);
 					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_taxable_income_amount').setValue(this.financial_data.S_TAXABLE_INCOME);
 				}
@@ -1277,7 +1282,12 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			}
 			
 			//checks for my calculated values
+			if (this.financial_data.HOUSING_STIPEND !== undefined){
+				this.getComponent('taxable_income').getComponent('my').getComponent('housing_stipend').setValue(this.financial_data.HOUSING_STIPEND);
+			}
+			
 			if (this.financial_data.TAXABLE_INCOME !== undefined){
+				this.getComponent('taxable_income').getComponent('my').getComponent('net_stipend').setValue(this.financial_data.NET_STIPEND);
 				this.getComponent('taxable_income').getComponent('my').getComponent('tax').setValue(this.financial_data.TAX);
 				this.getComponent('taxable_income').getComponent('my').getComponent('taxable_income_amount').setValue(this.financial_data.TAXABLE_INCOME);
 			}

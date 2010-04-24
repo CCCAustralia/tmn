@@ -38,21 +38,42 @@ class finproc {
 			}
 		}
 		
+		
+		//Housing
+		if (isset($this->financial_data['HOUSING'])){
+			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
+			//convert fornightly housing to monthly housing
+			if ($this->financial_data['HOUSING_FREQUENCY'] == 1)
+				$monthly_housing = $this->financial_data['HOUSING'] * 26 / 12;
+			else
+				$monthly_housing = $this->financial_data['HOUSING'];
+			//calc additional housing
+			$this->financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($this->financial_data['HOUSING'], $this->financial_data['HOUSING_FREQUENCY'], $this->financial_data['spouse']);
+		}
+		
+		
 		//Taxable Income Panel
 		if (isset($this->financial_data['STIPEND'])){
-			if ($this->financial_data['STIPEND'] < $this->STIPEND_MIN)
-				$err .= "\"STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
-				
+			
+			//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
 			if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
 			{
 				if (isset($this->financial_data['S_MAX_MFB']))
-					$this->financial_data['HOUSING_STIPEND'] = max(0, $this->financial_data['HOUSING'] - ($this->financial_data['MAX_MFB'] + $this->financial+data['S_MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING'])
+					$this->financial_data['HOUSING_STIPEND'] = max(0, $monthly_housing - ($this->financial_data['MAX_MFB'] + $this->financial_data['S_MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING']);
 				else
-					$this->financial_data['HOUSING_STIPEND'] = max(0, $this->financial_data['HOUSING'] - ($this->financial_data['MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING'])
+					$this->financial_data['HOUSING_STIPEND'] = max(0, $monthly_housing - ($this->financial_data['MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING']);
 			}
 				
-				
+			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
 			$this->financial_data['NET_STIPEND'] = $this->financial_data['STIPEND'] + $this->financial_data['HOUSING_STIPEND'];
+			
+			//check min stipend
+			if ($this->financial_data['NET_STIPEND'] < $this->STIPEND_MIN){
+				if($this->financial_data['HOUSING_STIPEND'] > 0)
+					$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+				else
+					$err .= "\"STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+			}
 			
 			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
@@ -108,17 +129,28 @@ class finproc {
 			$this->financial_data['MAX_MFB'] = round(calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK'] + 1)); //+1 because days per week is stored as an index not a number
 		}
 		
-		//Housing
-		if (isset($this->financial_data['HOUSING'])){
-			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
-			$this->financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($this->financial_data['HOUSING'], $this->financial_data['HOUSING_FREQUENCY'], $this->financial_data['spouse']);
-		}
-		
 		
 		//Spouse Taxable Income Panel
-		if (isset($this->financial_data['S_NET_STIPEND'])){
-			if ($this->financial_data['S_NET_STIPEND'] < $this->STIPEND_MIN)
-				$err .= "\"S_NET_STIPEND\":\"Spouse Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+		if (isset($this->financial_data['S_STIPEND'])){
+					//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
+			if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
+			{
+				if (isset($this->financial_data['S_MAX_MFB']))
+					$this->financial_data['S_HOUSING_STIPEND'] = 0;
+				else
+					$this->financial_data['S_HOUSING_STIPEND'] = 0;
+			}
+				
+			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
+			$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
+			
+			//check min stipend
+			if ($this->financial_data['S_NET_STIPEND'] < $this->STIPEND_MIN){
+				if($this->financial_data['S_HOUSING_STIPEND'] > 0)
+					$err .= "\"S_NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+				else
+					$err .= "\"S_STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+			}
 			
 			$s_annum = ($this->financial_data['S_NET_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
