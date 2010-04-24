@@ -1309,11 +1309,11 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 				this.getComponent('super').getComponent('my').getComponent('employer_super').setValue(this.financial_data.EMPLOYER_SUPER);
 			}
 		} else {
-			if (return_object.errors['S_NET_STIPEND'] !== undefined)
-				this.getForm().items.map['s_net_stipend'].markInvalid(return_object.errors['S_NET_STIPEND']);
+			if (return_object.errors['S_STIPEND'] !== undefined)
+				this.getForm().items.map['s_stipend'].markInvalid(return_object.errors['S_STIPEND']);
 			
-			if (return_object.errors['NET_STIPEND'] !== undefined)
-				this.getForm().items.map['net_stipend'].markInvalid(return_object.errors['NET_STIPEND']);
+			if (return_object.errors['STIPEND'] !== undefined)
+				this.getForm().items.map['stipend'].markInvalid(return_object.errors['STIPEND']);
 		}
 		
 	}

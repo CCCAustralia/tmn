@@ -17,6 +17,11 @@ class finproc {
 	private $connection;
 	private $logger;
 	
+	
+	//__construct:			This is the constructor and will initalise the object when created
+	//params:				$findat		- an associative array that contains the financial data
+	//						$dbug		- (number 0,1) tells the object if it should use debug mode or not
+	//returns				n/a
 	public function __construct($findat, $dbug) {
 		$this->financial_data = $findat;
 		$this->DEBUG = $dbug;
@@ -27,53 +32,224 @@ class finproc {
 	}
 	
 	
-	public function proc() {
-	
-		//if there is a spouse get the guid
+	//getSpouseGuid:		If there is a spouse it will return their guid (a 32 char string that identifies a user in the database)
+	//params:				n/a
+	//returns				guid (a 32 char string that identifies a user in the database) (0 means not found in DB)
+	public function getSpouseGuid(){
+		//if there is a spouse get the guid else return 0
 		if ($this->financial_data['spouse']){
+			//get the spouse's guid from the DB
 			$sql = mysql_query("SELECT SPOUSE_GUID FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'");
 			if (mysql_num_rows($sql) == 1) {
 				$row = mysql_fetch_assoc($sql);
-				$this->financial_data['spouse'] = $row['SPOUSE_GUID'];
+				return $row['SPOUSE_GUID'];
+			}
+		}
+		//if the spouse guid was not found return 0
+		return 0;
+	}
+	
+	//////////This function is now being used quite regularly, we may want to change it so it only pulls from DB if necissary/////////////
+	
+	//getDaysPerWeek:	Takes a guid and grabs that persons days per week from the database
+	//params:			$guid		- (a 32 char string that identifies a user in the database)
+	//returns			days_per_week (a number 0,1,2,3,4,5) (0 means not found in DB)
+	public function getDaysPerWeek($guid){
+		
+		//Fetch the user's days per week
+		$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
+		if (mysql_num_rows($sql) == 1) {
+			$row = mysql_fetch_assoc($sql);
+			if ($row['FT_PT_OS'] == 0){
+				return 5;
+			} else {
+				return $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
+			}
+		}
+		return 0;//zero means not found in DB
+	}
+	
+	
+	//getMonthlyHousing:	Uses the housing frequency to return the housing amount as a monthly figure
+	//params:				n/a
+	//returns				monthly_housing (a number >= 0)
+	public function getMonthlyHousing() {
+		//convert fornightly housing to monthly housing
+		if ($this->financial_data['HOUSING_FREQUENCY'] == 1)
+			return round($this->financial_data['HOUSING'] * 26 / 12);
+		else
+			return $this->financial_data['HOUSING'];
+	}
+	
+	
+	//getAdditionalHousing:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
+	//params:				n/a
+	//returns				additional_housing (a number >= 0)
+	public function getAdditionalHousing(){
+		if (isset($this->financial_data['HOUSING'])){
+			//TODO grab MAX HOUSING MFB from DB
+			$maxhousingmfb = ($this->financial_data['spouse'] ? 1600 : 960);
+			//set housing freq to the default if not set
+			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
+			//make sure housing is monthly
+			$monthly_housing = $this->getMonthlyHousing();
+			//calc additional housing
+			return round(max( 0, $this->financial_data['HOUSING'] - $maxhousingmfb ));
+		}
+		
+		return 0;
+	}
+	
+	
+	//validateStipend:		Checks if stipend is valid, if not it returns an error message
+	//params:				$me_or_spouse	- (number 0 or 1) tells function wether you want your values or your spouses values
+	//returns				error message (a string, empty if valid)
+	public function validateStipend($me_or_spouse){
+		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
+		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
+		
+		//check min stipend
+		if ($this->financial_data[$prefix.'NET_STIPEND'] < $this->STIPEND_MIN){
+			if($this->financial_data[$prefix.'HOUSING_STIPEND'] > 0)
+				return "\"".$prefix."NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+			else
+				return "\"".$prefix."STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+		}
+		
+		return "";
+	}
+	
+	
+	//getHousingStipend:	Calculates and returns the housing stipend (the amount of housing that is not covered by mfbs or
+	//						additional housing allowance and needs to be covered by stipend)
+	//params:				n/a
+	//returns				housing_stipend (a number >= 0)
+	public function getHousingStipend(){
+		//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
+		if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['STIPEND']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
+		{
+			$monthly_housing = $this->getMonthlyHousing();
+		
+			if (isset($this->financial_data['S_STIPEND'])){
+				return max(0, $monthly_housing - ($this->financial_data['MAX_MFB'] + $this->financial_data['S_MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING']);
+			} else {
+			if ($this->DEBUG) fb($this->financial_data);
+				//calc lastest taxable income
+				$annum = ($this->financial_data['STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
+				$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
+				
+				//mfb rate
+				$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
+				
+				//calc lastest max mfbs
+				$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
+			
+				//calc housing stipend from lastest values
+				$housing_stipend = max(0, $monthly_housing - $maxmfb - $this->financial_data['ADDITIONAL_HOUSING']);
+				//if there is a housing stipend it needs to be split between stipend and mfbs
+				//we do this because as you increase stipend you increase mfbs and you decrease the housing stipend
+				if ($housing_stipend > 0){
+					//recalc taxable income and max mfb with the calc housing stipend
+					$annum += ($housing_stipend * 12);//adjust back to annual from monthly
+					$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
+					$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
+
+					//TODO: put into DB
+					$max_housing_mfb = $this->financial_data['spouse'] ? 1600 : 960;
+
+					//calculate the difference between the current mfbs and where the mfbs should be (if there is a housing stipend all the mfbs should be used on housing)
+					$diff = $max_housing_mfb - $maxmfb - $housing_stipend;
+
+					//spit diff between taxable income and mfbs and take taxable incomes portion of diff away
+					$new_taxable_income = ((1 - ($mfbrate*0.5)) * $diff) + $taxableincome;
+
+					//calc tax for new taxable income
+					$new_tax = calculateTax($new_taxable_income * 12, 'resident') / 12;
+
+					//calc what housing stipend should be by taking everything other than housing stipend from the new taxable income
+					$housing_stipend = $new_taxable_income - $new_tax - $this->financial_data['ADDITIONAL_TAX'] - $this->financial_data['POST_TAX_SUPER'] - $this->financial_data['STIPEND'];
+				}
+				
+				return round($housing_stipend);
 			}
 		}
 		
+		return 0;
+	}
+	
+	
+	//getMfbRate:		Takes an MFB_RATE index and returns the actual rate
+	//params:			$MFB_RATE		- (number 0,1,2) give it the rate index
+	//returns			mfbrate (a number 0-1)
+	public function getMfbRate($MFB_RATE){
+		//enumerate mfb rate
+		switch ($MFB_RATE) {
+			case 0:
+			//Zero MFBs
+				$mfbrate = 0;
+				break;
+			case 1:
+			//Half MFBs
+				$mfbrate = 0.5;
+				break;
+			case 2:
+			//Full MFBs
+				$mfbrate = 1;
+				break;
+			default:
+			//Full MFBs
+				$mfbrate = 1;
+				break;
+		}
+		return $mfbrate;
+	}
+	
+	
+	//getPreTaxSuper:	Calculates a persons pretax super and returns it
+	//params:			$mfbrate		- (a number 0-1) give it the rate to multiply it by
+	//					$me_or_spouse	- (number 0 or 1) tells function wether you want your pretax super or the spouses pretax super
+	//returns			pretax super (a number > 0)
+	public function getPreTaxSuper($mfbrate, $me_or_spouse){
+		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
+		if ($me_or_spouse){$prefix = "S_"; $little_prefix = "s_"; } else {$prefix = ""; $little_prefix = "";}
+	
+		//Pre Tax Super (if its not set then set it to the min)
+		if ($this->financial_data[$little_prefix.'pre_tax_super_mode'] == 'auto'){
+			return round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
+		} else {
+			$min_pre_tax_super = round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
+			if (!isset($this->financial_data[$prefix.'PRE_TAX_SUPER']) || $this->financial_data[$prefix.'PRE_TAX_SUPER'] < $min_pre_tax_super){
+				return $min_pre_tax_super;
+			}
+		}
+		//if manual mode then return manually entered value
+		return $this->financial_data[$prefix.'PRE_TAX_SUPER'];
+	}
+	
+	
+	//proc:				processes the financial data and returns the result as a json object
+	//params:			n/a
+	//returns			a string that describes a json object (will contain {"success": "true", "financial_data": ... } or {"success": "false", "err": ... }
+	public function proc() {
+	
+		//Spouse Guid
+		$this->financial_data['spouse'] = $this->getSpouseGuid();
 		
 		//Housing
-		if (isset($this->financial_data['HOUSING'])){
-			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
-			//convert fornightly housing to monthly housing
-			if ($this->financial_data['HOUSING_FREQUENCY'] == 1)
-				$monthly_housing = $this->financial_data['HOUSING'] * 26 / 12;
-			else
-				$monthly_housing = $this->financial_data['HOUSING'];
-			//calc additional housing
-			$this->financial_data['ADDITIONAL_HOUSING'] = calculateAdditionalHousing($this->financial_data['HOUSING'], $this->financial_data['HOUSING_FREQUENCY'], $this->financial_data['spouse']);
-		}
+		$this->financial_data['ADDITIONAL_HOUSING'] = $this->getAdditionalHousing();
 		
 		
 		//Taxable Income Panel
 		if (isset($this->financial_data['STIPEND'])){
 			
-			//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
-			if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
-			{
-				if (isset($this->financial_data['S_MAX_MFB']))
-					$this->financial_data['HOUSING_STIPEND'] = max(0, $monthly_housing - ($this->financial_data['MAX_MFB'] + $this->financial_data['S_MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING']);
-				else
-					$this->financial_data['HOUSING_STIPEND'] = max(0, $monthly_housing - ($this->financial_data['MAX_MFB']) - $this->financial_data['ADDITIONAL_HOUSING']);
-			}
-				
+			//Housing Stipend while debug will return 0
+			$this->financial_data['HOUSING_STIPEND'] = $this->getHousingStipend();
+		if ($this->DEBUG) fb($this->financial_data);
 			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
 			$this->financial_data['NET_STIPEND'] = $this->financial_data['STIPEND'] + $this->financial_data['HOUSING_STIPEND'];
 			
 			//check min stipend
-			if ($this->financial_data['NET_STIPEND'] < $this->STIPEND_MIN){
-				if($this->financial_data['HOUSING_STIPEND'] > 0)
-					$err .= "\"NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
-				else
-					$err .= "\"STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
-			}
+			$err .= $this->validateStipend(0);//0 means STIPEND, 1 means S_STIPEND
 			
 			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
@@ -89,68 +265,30 @@ class finproc {
 		//Maximum MFB & Pre-tax Super
 		if (isset($this->financial_data['TAXABLE_INCOME'])) {
 		
-			//enumerate mfb rate
-			switch ($this->financial_data['MFB_RATE']) {
-				case 0:
-				//Zero MFBs
-					$mfbrate = 0;
-					break;
-				case 1:
-				//Half MFBs
-					$mfbrate = 0.5;
-					break;
-				case 2:
-				//Full MFBs
-					$mfbrate = 1;
-					break;
-			}
+			//mfb rate
+			$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
 		
 			//Pre Tax Super (if its not set then set it to the min)
-			if ($this->financial_data['pre_tax_super_mode'] == 'auto'){
-				$this->financial_data['PRE_TAX_SUPER'] = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
-			} else {
-				$min_pre_tax_super = round($this->financial_data['TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
-				if (!isset($this->financial_data['PRE_TAX_SUPER']) || $this->financial_data['PRE_TAX_SUPER'] < $min_pre_tax_super){
-					$this->financial_data['PRE_TAX_SUPER'] = $min_pre_tax_super;
-				}
-			}
+			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,0);//the 0 means return my value
 			
-			//Fetch the user's days per week
-			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'");
-			if (mysql_num_rows($sql) == 1) {
-				$row = mysql_fetch_assoc($sql);
-				if ($row['FT_PT_OS'] == 0){
-					$this->financial_data['DAYS_PER_WEEK'] = 4;
-				} else {
-					$this->financial_data['DAYS_PER_WEEK'] = $row['DAYS_PER_WEEK'];
-				}
-			}
+			//Fetch Days Per Week
+			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek($this->financial_data['guid']);
 			
-			$this->financial_data['MAX_MFB'] = round(calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK'] + 1)); //+1 because days per week is stored as an index not a number
+			//calc max mfbs
+			$this->financial_data['MAX_MFB'] = round(calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
 		}
 		
 		
 		//Spouse Taxable Income Panel
 		if (isset($this->financial_data['S_STIPEND'])){
 					//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
-			if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['ADDITIONAL_HOUSING']))
-			{
-				if (isset($this->financial_data['S_MAX_MFB']))
 					$this->financial_data['S_HOUSING_STIPEND'] = 0;
-				else
-					$this->financial_data['S_HOUSING_STIPEND'] = 0;
-			}
 				
 			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
 			$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
 			
 			//check min stipend
-			if ($this->financial_data['S_NET_STIPEND'] < $this->STIPEND_MIN){
-				if($this->financial_data['S_HOUSING_STIPEND'] > 0)
-					$err .= "\"S_NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
-				else
-					$err .= "\"S_STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
-			}
+			$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
 			
 			$s_annum = ($this->financial_data['S_NET_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
 			
@@ -167,46 +305,18 @@ class finproc {
 		if (isset($this->financial_data['S_TAXABLE_INCOME'])) {
 		
 			//enumerate mfb rate
-			switch ($this->financial_data['S_MFB_RATE']) {
-				case 0:
-				//Zero MFBs
-					$mfbrate = 0;
-					break;
-				case 1:
-				//Half MFBs
-					$mfbrate = 0.5;
-					break;
-				case 2:
-				//Full MFBs
-					$mfbrate = 1;
-					break;
-			}
+			$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 			
 			//Spouse Pre Tax Super (if its not set then set it to the min)
-			if ($this->financial_data['s_pre_tax_super_mode'] == 'auto'){
-				$this->financial_data['S_PRE_TAX_SUPER'] = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
-			} else {
-				$s_min_pre_tax_super = round($this->financial_data['S_TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
-				if (!isset($this->financial_data['S_PRE_TAX_SUPER']) || $this->financial_data['S_PRE_TAX_SUPER'] < $s_min_pre_tax_super){
-					$this->financial_data['S_PRE_TAX_SUPER'] = $s_min_pre_tax_super;
-				}
-			}
+			$this->financial_data['S_PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
 			
 			//Fetch the user's days per week
-			$sql = mysql_query("SELECT DAYS_PER_WEEK FT_PT_OS FROM User_Profiles WHERE guid='".$this->financial_data['spouse']."'"); //needs to change ($this->financial_data['spouse'] doesn't hold spouse guid)
-			if (mysql_num_rows($sql) == 1) {
-				$row = mysql_fetch_assoc($sql);
-				if ($row['FT_PT_OS'] == 0){
-					$this->financial_data['S_DAYS_PER_WEEK'] = 4;
-				} else {
-					$this->financial_data['S_DAYS_PER_WEEK'] = $row['DAYS_PER_WEEK'];
-				}
-			}
+			$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek($this->financial_data['spouse']);
 			
-			$this->financial_data['S_MAX_MFB'] = round(calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK'] + 1)); //+1 because days per week is stored as an index not a number
+			$this->financial_data['S_MAX_MFB'] = round(calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK'])); //+1 because days per week is stored as an index not a number
 		}
 		
-		if ($this->DEBUG) fb($this->financial_data);
+		//if ($this->DEBUG) fb($this->financial_data);
 		
 		if ($err == '') {
 		
