@@ -59,6 +59,10 @@ s_ft_pt_os						=>	"__",
 days_per_wk						=>	"__",
 s_days_per_wk					=>	"__",
 
+stipend							=>	"__",
+s_stipend						=>	"__",
+housing_stipend					=>	"__",
+s_housing_stipend				=>	"__",
 net_stipend						=>	"__",
 s_net_stipend					=>	"__",
 tax								=>	"__",
@@ -81,6 +85,8 @@ income_protection_cover_source	=>	"__",
 s_income_protection_cover_source=>	"__",
 mfb								=>	"__",
 s_mfb							=>	"__",
+claimable_mfb					=>	"__",
+s_claimable_mfb					=>	"__",
 mfb_rate						=>	"__",
 s_mfb_rate						=>	"__",
 mmr								=>	"__",
@@ -181,6 +187,16 @@ if (is_null($s_row['DAYS_PER_WEEK']) || $ftptos_map[$s_row['FT_PT_OS']] == "Full
 	$s_row['DAYS_PER_WEEK']			=	4;
 $data['s_days_per_wk']				=	$s_row['DAYS_PER_WEEK'] + 1;
 
+//Stipend
+//-from Form on Page
+$data['stipend']					=	$formdata['STIPEND'];
+$data['s_stipend']					=	$formdata['S_STIPEND'];
+
+//Stipend
+//-from Form on Page
+$data['housing_stipend']			=	$formdata['HOUSING_STIPEND'];
+$data['s_housing_stipend']			=	$formdata['S_HOUSING_STIPEND'];
+
 //Net Stipend
 //-from Form on Page
 //NOTE: The old TMN refers to and displays this as Gross Stipend.
@@ -229,6 +245,10 @@ $data['s_income_protection_cover_source']	=	($formdata['S_INCOME_PROTECTION_COVE
 //Ministry Fringe Benefits
 $data['mfb']						=	$formdata['MFB'];
 $data['s_mfb']						=	$formdata['S_MFB'];
+
+//Claimable Ministry Fringe Benefits
+$data['claimable_mfb']				=	$formdata['CLAIMABLE_MFB'];
+$data['s_claimable_mfb']			=	$formdata['S_CLAIMABLE_MFB'];
 
 //MFB Rate
 switch ($formdata['MFB_RATE']) {

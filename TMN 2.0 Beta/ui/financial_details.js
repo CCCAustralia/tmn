@@ -1271,6 +1271,10 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					this.getComponent('mfb').getComponent('spouse').getComponent('s_mfb').setValue(this.financial_data.S_MAX_MFB);
 				}
 				
+				if (this.financial_data.S_CLAIMABLE_MFB !== undefined){
+					this.getComponent('mfb').getComponent('spouse').getComponent('s_claimable_mfb').setValue(this.financial_data.S_CLAIMABLE_MFB);
+				}
+				
 				if (this.financial_data.S_PRE_TAX_SUPER !== undefined){
 					this.getComponent('super').getComponent('spouse').getComponent('s_pre_tax_super').setValue(this.financial_data.S_PRE_TAX_SUPER);
 				}
@@ -1295,6 +1299,10 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			if (this.financial_data.MAX_MFB !== undefined){
 				this.getComponent('mfb').getComponent('my').getComponent('mfb').setValue(this.financial_data.MAX_MFB);
 				//TODO: when overseas is up, update label with range
+			}
+			
+			if (this.financial_data.CLAIMABLE_MFB !== undefined){
+				this.getComponent('mfb').getComponent('my').getComponent('claimable_mfb').setValue(this.financial_data.CLAIMABLE_MFB);
 			}
 			
 			if (this.financial_data.ADDITIONAL_HOUSING !== undefined){
