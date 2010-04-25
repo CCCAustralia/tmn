@@ -304,7 +304,7 @@ if (!$iscouple){
 	$data['joint_financial_package']	=	$data['financial_package'];
 } else {
 	$data['financial_package']			=	round($data['taxable_income'] + $data['mfb'] + $data['pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['net_stipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
-	$data['s_financial_package']		=	round($data['s_taxable_income'] + $data['s_mfb'] + $data['s_pre_tax_super'] + $data['additional_life_cover'] + ($data['additional_housing'] * ($data['s_netstipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
+	$data['s_financial_package']		=	round($data['s_taxable_income'] + $data['s_mfb'] + $data['s_pre_tax_super'] + $data['s_additional_life_cover'] + ($data['additional_housing'] * ($data['s_netstipend'] / ($data['net_stipend'] + $data['s_net_stipend']))), ROUND_HALF_UP);
 	$data['joint_financial_package']	=	$data['financial_package'] + $data['s_financial_package'];
 }
 

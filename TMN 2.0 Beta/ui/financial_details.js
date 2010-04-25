@@ -83,36 +83,48 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									}
 								},
 								{
-									itemId: 'housing_stipend',
-									name: 'HOUSING_STIPEND',
-									readOnly: true,
-									cls: 'x-form-readonly-red',
-									fieldLabel: 'Housing Stipend',
-									listeners: {
-										focus: function(field)	{field.blur();},
-										render: function(c) {
-											Ext.QuickTips.register({
-												target: c.getEl(),
-												text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
-											});
+									itemId: 'hs',
+									xtype: 'panel',
+									layout: 'form',
+									defaultType: 'numberfield',
+									defaults:{
+										allowBlank: false,
+										minValue: 0
+									},
+									items: [
+										{
+											itemId: 'housing_stipend',
+											name: 'HOUSING_STIPEND',
+											readOnly: true,
+											cls: 'x-form-readonly-red',
+											fieldLabel: 'Housing Stipend',
+											listeners: {
+												focus: function(field)	{field.blur();},
+												render: function(c) {
+													Ext.QuickTips.register({
+														target: c.getEl(),
+														text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
+													});
+												}
+											}
+										},
+										{
+											itemId: 'net_stipend',
+											name: 'NET_STIPEND',
+											readOnly: true,
+											cls: 'x-form-readonly-red',
+											fieldLabel: 'Net Stipend',
+											listeners: {
+												focus: function(field)	{field.blur();},
+												render: function(c) {
+													Ext.QuickTips.register({
+														target: c.getEl(),
+														text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
+													});
+												}
+											}
 										}
-									}
-								},
-								{
-									itemId: 'net_stipend',
-									name: 'NET_STIPEND',
-									readOnly: true,
-									cls: 'x-form-readonly-red',
-									fieldLabel: 'Net Stipend',
-									listeners: {
-										focus: function(field)	{field.blur();},
-										render: function(c) {
-											Ext.QuickTips.register({
-												target: c.getEl(),
-												text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
-											});
-										}
-									}
+									]
 								},
 								{
 									itemId: 'post_tax_super',
@@ -213,36 +225,48 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									}
 								},
 								{
-									itemId: 's_housing_stipend',
-									name: 'S_HOUSING_STIPEND',
-									readOnly: true,
-									cls: 'x-form-readonly-red',
-									fieldLabel: 'Housing Stipend',
-									listeners: {
-										focus: function(field)	{field.blur();},
-										render: function(c) {
-											Ext.QuickTips.register({
-												target: c.getEl(),
-												text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
-											});
+									itemId: 'hs',
+									xtype: 'panel',
+									layout: 'form',
+									defaultType: 'numberfield',
+									defaults:{
+										allowBlank: false,
+										minValue: 0
+									},
+									items: [
+										{
+											itemId: 's_housing_stipend',
+											name: 'S_HOUSING_STIPEND',
+											readOnly: true,
+											cls: 'x-form-readonly-red',
+											fieldLabel: 'Housing Stipend',
+											listeners: {
+												focus: function(field)	{field.blur();},
+												render: function(c) {
+													Ext.QuickTips.register({
+														target: c.getEl(),
+														text: 'This is the extra amount that needs to be added to your Stipend to cover your housing.<br />This happens when your MFBs don\'t fully cover your housing requirements.'
+													});
+												}
+											}
+										},
+										{
+											itemId: 's_net_stipend',
+											name: 'S_NET_STIPEND',
+											readOnly: true,
+											cls: 'x-form-readonly-red',
+											fieldLabel: 'Net Stipend',
+											listeners: {
+												focus: function(field)	{field.blur();},
+												render: function(c) {
+													Ext.QuickTips.register({
+														target: c.getEl(),
+														text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
+													});
+												}
+											}
 										}
-									}
-								},
-								{
-									itemId: 's_net_stipend',
-									name: 'S_NET_STIPEND',
-									readOnly: true,
-									cls: 'x-form-readonly-red',
-									fieldLabel: 'Net Stipend',
-									listeners: {
-										focus: function(field)	{field.blur();},
-										render: function(c) {
-											Ext.QuickTips.register({
-												target: c.getEl(),
-												text: 'This is the estimated amount that will go into your bank account each month plus your housing stipend.<br />This will be approximately half of your total Finanacial Package when you have included your MFB\'s.'
-											});
-										}
-									}
+									]
 								},
 								{
 									itemId: 's_post_tax_super',
@@ -1177,6 +1201,8 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			this.doLayout();
 		}
 		
+		this.getComponent('taxable_income').getComponent('my').getComponent('hs').hide();
+		this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').hide();
 		if (!this.financial_data.overseas) this.getComponent('os_additional_extras').hide();
 		//////////////////////////////////////
 					//set partner, session and guid here (in both FD and Grid)
@@ -1258,11 +1284,16 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			if (this.financial_data.spouse != false){
 				
 				if (this.financial_data.S_HOUSING_STIPEND !== undefined){
-					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_housing_stipend').setValue(this.financial_data.S_HOUSING_STIPEND);
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').getComponent('s_housing_stipend').setValue(this.financial_data.S_HOUSING_STIPEND);
+				if (this.financial_data.S_HOUSING_STIPEND > 0){
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').show();
+				} else {
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').hide();
+				}
 				}
 				
 				if (this.financial_data.S_TAXABLE_INCOME !== undefined){
-					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_net_stipend').setValue(this.financial_data.S_NET_STIPEND);
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').getComponent('s_net_stipend').setValue(this.financial_data.S_NET_STIPEND);
 					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_tax').setValue(this.financial_data.S_TAX);
 					this.getComponent('taxable_income').getComponent('spouse').getComponent('s_taxable_income_amount').setValue(this.financial_data.S_TAXABLE_INCOME);
 				}
@@ -1287,11 +1318,22 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			
 			//checks for my calculated values
 			if (this.financial_data.HOUSING_STIPEND !== undefined){
-				this.getComponent('taxable_income').getComponent('my').getComponent('housing_stipend').setValue(this.financial_data.HOUSING_STIPEND);
+				this.getComponent('taxable_income').getComponent('my').getComponent('hs').getComponent('housing_stipend').setValue(this.financial_data.HOUSING_STIPEND);
+				if (this.financial_data.HOUSING_STIPEND > 0){
+					this.getComponent('taxable_income').getComponent('my').getComponent('hs').show();
+					//also have spouse show here because housing stipend is not split between couples yet, it is all taken by my
+					////////////////////////////remove if its changed to split between them/////////////////////////////////////
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').show();
+				} else {
+					this.getComponent('taxable_income').getComponent('my').getComponent('hs').hide();
+					//also have spouse hide here because housing stipend is not split between couples yet, it is all taken by my
+					////////////////////////////remove if its changed to split between them/////////////////////////////////////
+					this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').hide();
+				}
 			}
 			
 			if (this.financial_data.TAXABLE_INCOME !== undefined){
-				this.getComponent('taxable_income').getComponent('my').getComponent('net_stipend').setValue(this.financial_data.NET_STIPEND);
+				this.getComponent('taxable_income').getComponent('my').getComponent('hs').getComponent('net_stipend').setValue(this.financial_data.NET_STIPEND);
 				this.getComponent('taxable_income').getComponent('my').getComponent('tax').setValue(this.financial_data.TAX);
 				this.getComponent('taxable_income').getComponent('my').getComponent('taxable_income_amount').setValue(this.financial_data.TAXABLE_INCOME);
 			}
