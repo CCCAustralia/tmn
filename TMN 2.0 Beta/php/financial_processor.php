@@ -12,6 +12,9 @@ class finproc {
 	private $STIPEND_MIN = 100;
 	private $MIN_ADD_SUPER_RATE = 0.09;
 	
+	//personal details
+	private $days_per_week = 0;
+	
 	private $financial_data;
 	private $DEBUG;
 	private $connection;
@@ -198,17 +201,22 @@ class finproc {
 	//returns			days_per_week (a number 0,1,2,3,4,5) (0 means not found in DB)
 	public function getDaysPerWeek($guid){
 		
-		//Fetch the user's days per week
-		$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
-		if (mysql_num_rows($sql) == 1) {
-			$row = mysql_fetch_assoc($sql);
-			if ($row['FT_PT_OS'] == 0){
-				return 5;
-			} else {
-				return $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
+		//if the value has not been grabed from the DB grab it (zero means not from DB)
+		if ($this->days_per_week == 0){
+			//Fetch the user's days per week
+			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
+			if (mysql_num_rows($sql) == 1) {
+				$row = mysql_fetch_assoc($sql);
+				if ($row['FT_PT_OS'] == 0){
+					$this->days_per_week = 5;
+				} else {
+					$this->days_per_week = $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
+				}
 			}
+			$this->days_per_week = 0;//zero means not found in DB
 		}
-		return 0;//zero means not found in DB
+		
+		return $this->days_per_week;
 	}
 	
 	
