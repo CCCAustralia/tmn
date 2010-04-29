@@ -438,7 +438,7 @@ if ($iscouple) {
 		}
 		else {
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'Financial Package is more than 10% over the limit ($'.$BAND_FP_COUPLE.').<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round($data['joint_financial_package'] - ($BAND_FP_COUPLE*1.1))).' above the 10% buffer ($'.($BAND_FP_COUPLE*1.1).'). This is a Very High Joint Financial Package!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'Financial Package is more than 10% over the limit ($'.$BAND_FP_COUPLE.').<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($data['joint_financial_package'] - ($BAND_FP_COUPLE*1.1))).' above the 10% buffer ($'.($BAND_FP_COUPLE*1.1).'). <span style="color:red;">This is a Very High Joint Financial Package!</span>');
 		}
 	}
 }
@@ -451,7 +451,7 @@ if (!$iscouple) {
 		}
 		else
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'Financial Package is more than 10% over the limit ($'.$BAND_FP_SINGLE.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round($data['joint_financial_package'] - ($BAND_FP_SINGLE*1.1))).' above the 10% buffer ($'.($BAND_FP_SINGLE*1.1).'). This is a Very High Joint Financial Package!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'Financial Package is more than 10% over the limit ($'.$BAND_FP_SINGLE.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($data['joint_financial_package'] - ($BAND_FP_SINGLE*1.1))).' above the 10% buffer ($'.($BAND_FP_SINGLE*1.1).'). <span style="color:red;">This is a Very High Joint Financial Package!</span>');
 	}
 }
 if($DEBUG) fb($data);
@@ -467,7 +467,7 @@ if ($iscouple) {
 			$data['auth_lv2_reasons'][count($data['auth_lv2_reasons'])] = array('reason' => 'TMN is $'.(round($BAND_TMN_COUPLE_MIN - $data['tmn'])).' Under the Minimum ($'.$BAND_TMN_COUPLE_MIN.').');
 		} else {
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Under the Minimum ($'.$BAND_TMN_COUPLE_MIN.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round(($BAND_TMN_COUPLE_MIN*0.9) - $data['tmn'])).' Under the 10% buffer ($'.($BAND_TMN_COUPLE_MIN*0.9).'). This is a Very Low TMN!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Under the Minimum ($'.$BAND_TMN_COUPLE_MIN.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($BAND_TMN_COUPLE_MIN*0.9) - $data['tmn'])).' Under the 10% buffer ($'.($BAND_TMN_COUPLE_MIN*0.9).'). <span style="color:red;">This is a Very Low TMN!</span>');
 		}
 	}
 	//check max bound
@@ -478,7 +478,7 @@ if ($iscouple) {
 			$data['auth_lv2_reasons'][count($data['auth_lv2_reasons'])] = array('reason' => 'TMN is $'.(round($data['tmn'] - $BAND_TMN_COUPLE_MAX)).' Over the Maximum ($'.$BAND_TMN_COUPLE_MAX.').');
 		} else {
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Over the Maximum ($'.$BAND_TMN_COUPLE_MAX.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round($data['tmn'] - ($BAND_TMN_COUPLE_MAX*1.1))).' Over the 10% buffer ($'.($BAND_TMN_COUPLE_MAX*1.1).'). This is a Very High TMN!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Over the Maximum ($'.$BAND_TMN_COUPLE_MAX.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($data['tmn'] - ($BAND_TMN_COUPLE_MAX*1.1))).' Over the 10% buffer ($'.($BAND_TMN_COUPLE_MAX*1.1).'). <span style="color:red;">This is a Very High TMN!</span>');
 		}
 	}
 }
@@ -491,7 +491,7 @@ if (!$iscouple) {
 			$data['auth_lv2_reasons'][count($data['auth_lv2_reasons'])] = array('reason' => 'TMN is $'.(round($BAND_TMN_SINGLE_MIN - $data['tmn'])).' Under the Minimum ($'.$BAND_TMN_SINGLE_MIN.').');
 		} else {
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Under the Minimum ($'.$BAND_TMN_SINGLE_MIN.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round(($BAND_TMN_SINGLE_MIN*0.9) - $data['tmn'])).' Under the 10% buffer ($'.($BAND_TMN_SINGLE_MIN*0.9).'). This is a Very Low TMN!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Under the Minimum ($'.$BAND_TMN_SINGLE_MIN.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($BAND_TMN_SINGLE_MIN*0.9) - $data['tmn'])).' Under the 10% buffer ($'.($BAND_TMN_SINGLE_MIN*0.9).'). <span style="color:red;">This is a Very Low TMN!</span>');
 		}
 	}
 	//check max bound
@@ -502,7 +502,7 @@ if (!$iscouple) {
 			$data['auth_lv2_reasons'][count($data['auth_lv2_reasons'])] = array('reason' => 'TMN is $'.(round($data['tmn'] - $BAND_TMN_SINGLE_MAX)).' Over the Maximum ($'.$BAND_TMN_SINGLE_MAX.').');
 		} else {
 			$data['auth_lv3'] = 1;
-			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Over the Maximum ($'.$BAND_TMN_SINGLE_MAX.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Warning, it is $'.(round($data['tmn'] - ($BAND_TMN_SINGLE_MAX*1.1))).' Over the 10% buffer ($'.($BAND_TMN_SINGLE_MAX*1.1).'). This is a Very High TMN!');
+			$data['auth_lv3_reasons'][count($data['auth_lv3_reasons'])] = array('reason' => 'TMN is more than 10% Over the Maximum ($'.$BAND_TMN_SINGLE_MAX.'). <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($data['tmn'] - ($BAND_TMN_SINGLE_MAX*1.1))).' Over the 10% buffer ($'.($BAND_TMN_SINGLE_MAX*1.1).'). <span style="color:red;">This is a Very High TMN!</span>');
 		}
 	}
 }

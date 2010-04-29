@@ -57,7 +57,6 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 						defaultType: 'numberfield',
 						bodyStyle: 'padding:10px',
 						defaults:{
-							width: 140,
 							allowBlank: false,
 							minValue: 0
 						}
