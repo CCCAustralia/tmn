@@ -201,7 +201,9 @@ class finproc {
 	}
 	
 	
-	
+	//calculateMaxWage:					Takes an index of the weekly tax ranges and returns the range for a wage
+	//params:							$index - (an int >= 0) the index of a range in the $this->x variable
+	//returns							weekly max wage (a whole number >= 0)
 	public function calculateMaxWage($index) {
 		//formula and values grabed from:
 		//Statement of formulas for calculating amounts to be withheld
@@ -211,13 +213,18 @@ class finproc {
 	}
 	
 	
-	
+	//calculateTaxableIncome:			Takes a wage and returns a taxable income
+	//params:							$wage - (a whole number > 0) the monthly wage
+	//returns							monthly taxable income (a number >= 0)
 	public function calculateTaxableIncome($wage){
 		return $wage + $this->calculateTaxFromWage($wage, 'resident');
 	}
 	
 	
-	
+	//calculateTaxFromWage:				Takes a wage and returns a taxable income
+	//params:							$wage - (a whole number > 0) the monthly wage
+	//									$residency - (a string 'resident' or 'non-resident') selects the tax rates to use depending on a persons australian residency (for tax purposes)
+	//returns							monthly tax (a whole number >= 0)
 	public function calculateTaxFromWage($wage, $residency) {
 		//formula and values derived from:
 		//Statement of formulas for calculating amounts to be withheld
@@ -237,7 +244,10 @@ class finproc {
 	}
 	
 	
-	
+	//calculateTax:						Takes a monthly taxable income and returns the tax (formula and values grabed from: Statement of formulas for calculating amounts to be withheld. On the ATO website)
+	//params:							$taxableincome - (a whole number > 0) the weekly taxable income
+	//									$residency - (a string 'resident' or 'non-resident') selects the tax rates to use depending on a persons australian residency (for tax purposes)
+	//returns							monthly tax (a whole number >= 0)
 	public function calculateTax($taxableincome, $residency) {
 		//formula and values grabed from:
 		//Statement of formulas for calculating amounts to be withheld
