@@ -1,4 +1,6 @@
 <?php
+
+
 //tax bands and rates for 2009-10
 
 $bands_res = 	array(
@@ -41,7 +43,7 @@ $bands_nonres = 	array(
 					"band4_rate"=>	0.45
 				);
 
-				
+/*			
 //Calculate tax given a taxable income and resident-for-tax-purposes status
 function calculateTax($taxableincome, $residency) {
 
@@ -152,13 +154,13 @@ function calculateTaxableIncome($x) {
 	$tt = round($tt, 0);
 	$TI = round($TI, 0);
 	
-	/*
-	echo " tn: $tn";
-	echo " tt: $tt";
-	echo " TI: $TI";
-	echo " TT: $tt";
-	echo "\n ".calculateTax($TI,'resident');
-	*/
+	
+	//echo " tn: $tn";
+	//echo " tt: $tt";
+	//echo " TI: $TI";
+	//echo " TT: $tt";
+	//echo "\n ".calculateTax($TI,'resident');
+	
 	
 	//if ($TI < 0)
 		//$TI = 0;
@@ -167,13 +169,246 @@ function calculateTaxableIncome($x) {
 }
 
 //calculateTaxableIncome($_REQUEST['value']);
+*/
+
+//formula and values grabed from:
+//Statement of formulas for calculating amounts to be withheld
+
+//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
+$x = array(
+				198,
+				342,
+				402,
+				576,
+				673,
+				1225,
+				1538,
+				3461,
+				PHP_INT_MAX //this is the highest number possible
+			);
+			
+$a = array(
+				0.000,
+				0.150,
+				0.250,
+				0.165,
+				0.185,
+				0.335,
+				0.315,
+				0.395,
+				0.465
+			);
+			
+$b = array(
+				0.0000,
+				29.7115,
+				63.9308,
+				29.7117,
+				41.2502,
+				142.2117,
+				117.6925,
+				240.7694,
+				483.0771
+			);
+/*
+function calculateTax($taxableincome, $residency) {
+	//formula and values grabed from:
+	//Statement of formulas for calculating amounts to be withheld
+	$x = $GLOBALS['x'];
+	$a = $GLOBALS['a'];
+	$b = $GLOBALS['b'];
+	
+	//ATO rounding for monthly to weekly convertion (if $taxableincome ends with 33 cents then add one cent)
+	if (($taxableincome-floor($taxableincome)) == 0.33) $taxableincome += 0.01;
+	
+	//convert from monthly to weekly
+	$taxableincome = $taxableincome * 3 / 13; //same as $taxableincome = $taxableincome * 12 / 52
+	
+	//ATO rounding for weekly Tax calculation (ignore cents and add 0.99)
+	$taxableincome = floor($taxableincome) + 0.99;
+	
+	//find which weekly tax bracket $taxableincome falls in
+	for( $rangeCount = 0; $rangeCount < count($x); $rangeCount++ ){
+		if ($taxableincome < $x[$rangeCount])
+			break;
+	}
+	//calculate tax
+	if ($rangeCount == 0)
+		$tax = 0;
+	else
+		$tax = round($a[$rangeCount] * $taxableincome - $b[$rangeCount]);
+	//convert back to monthly before returning
+	return round($tax * 13 / 3); //same as $tax * 52 / 12
+}*/
+
+function calculateTaxableIncome($wage){
+	return $wage + calculateTaxFromWage($wage, 'resident');
+}
 
 
+function calculateMaxWage($index) {
+	//formula and values grabed from:
+	//Statement of formulas for calculating amounts to be withheld
+	$x = $GLOBALS['x'];
+	$a = $GLOBALS['a'];
+	$b = $GLOBALS['b'];
+	
+	//the max taxable income - the tax of max taxable income gives us the max wage for that tax bracket
+	return $x[$index] - round($a[$index] * (floor($x[$index]) + 0.99) - $b[$index]);
+}
 
+function calculateTaxFromWage($wage, $residency) {
+	//formula and values grabed from:
+	//Statement of formulas for calculating amounts to be withheld
+	$x = $GLOBALS['x'];
+	$a = $GLOBALS['a'];
+	$b = $GLOBALS['b'];
+	
+	//convert from months to weeks
+	$wage = floor(floor($wage) * 12 / 52);
+	
+	for( $rangeCount = 0; $rangeCount < count($x); $rangeCount++ ){
+		if ($wage < calculateMaxWage($rangeCount))
+			break;
+	}
+	
+	if ($rangeCount == 0)
+		return 0;
+	else
+		return round(ceil(($a[$rangeCount] * ($wage) - $b[$rangeCount]) / (1 - $a[$rangeCount])) * 52 / 12);
+}
+/*
+function calculateTaxableIncomeFromWage($wage, $residency) {
+	
+	return $wage + (calculateTaxFromWage($wage, $residency)) + 0.99;
+}
 
+//weekly
+$ti_t = array(
+	array(195, 0),
+	array(196, 0),
+	array(197, 0),
+	array(198, 0),
+	array(258,	9),
+	array(259,	9),
+	array(338,	21),
+	array(339,	21),
+	array(341,	22),
+	array(342,	22),
+	array(354,	25),
+	array(355,	25),
+	array(397,	36),
+	array(398,	36),
+	array(401,	37),
+	array(402,	37),
+	array(570,	65),
+	array(571,	65),
+	array(572,	65),
+	array(573,	65),
+	array(575,	65),
+	array(576,	65),
+	array(665,	82),
+	array(666,	82),
+	array(672,	83),
+	array(673,	84),
+	array(907,	162),
+	array(908,	162),
+	array(1218,	266),
+	array(1219,	266),
+	array(1220,	267),
+	array(1221,	267),
+	array(1224,	268),
+	array(1225,	268),
+	array(1531,	365),
+	array(1532,	365),
+	array(1537,	367),
+	array(1538,	367),
+	array(3143,	1001), 
+	array(3144,	1002),
+	array(3454,	1124),
+	array(3455,	1124),
+	array(3460,	1126),
+	array(3461,	1127)
+);
+*//*
+//monthly
+$ti_t = array(
+	array(845.00, 0),
+	array(849.33, 0),
+	array(853.67, 0),
+	array(858.00, 0),
+	array(1118.00, 39),
+	array(1122.33, 39),
+	array(1464.67, 91),
+	array(1469.00, 91),
+	array(1477.67, 95),
+	array(1482.00, 95),
+	array(1534.00, 108),
+	array(1538.33, 108),
+	array(1720.33, 156),
+	array(1724.67, 156),
+	array(1737.67, 160),
+	array(1742.00, 160),
+	array(2470.00, 282),
+	array(2474.33, 282),
+	array(2478.67, 282),
+	array(2483.00, 282),
+	array(2491.67, 282),
+	array(2496.00, 282),
+	array(2881.67, 355),
+	array(2886.00, 355),
+	array(2912.00, 360),
+	array(2916.33, 364),
+	array(3930.33, 702),
+	array(3934.67, 702),
+	array(5278.00, 1153),
+	array(5282.33, 1153),
+	array(5286.67, 1157),
+	array(5291.00, 1157),
+	array(5304.00, 1161),
+	array(5308.33, 1161),
+	array(6634.33, 1582),
+	array(6638.67, 1582),
+	array(6660.33, 1590),
+	array(6664.67, 1590),
+	array(13619.67, 4338),
+	array(13624.00, 4342),
+	array(14967.33, 4871),
+	array(14971.67, 4871),
+	array(14993.33, 4879),
+	array(14997.67, 4884)
+);
+/*
+for ( $testCount = 0; $testCount < count($x); $testCount++ ){
+	$w = calculateMaxWage($testCount);
+	$t = calculateTax($x[$testCount], 'resident');
+	echo 'Taxable Income: '.$x[$testCount].'<br />';
+	echo 'ATO Tax Value: '.$t.'<br />';
+	echo 'ATO Wage Value: '.($x[$testCount] - $t).'<br />';
+	echo 'Calculated Wage: '.$w.'<br />';
+	
+	if (abs($w - ($x[$testCount] - $t)) > 0)
+		echo '<p style="color:red;">Diff: '. abs($w - ($x[$testCount] - $t)) . '</p>';
+	else
+		echo 'Diff: '. abs($w - ($x[$testCount] - $t)) . '<br /><br />';
+}
 
-
-
-
-
+for ( $testCount = 0; $testCount < count($ti_t); $testCount++ ){
+	$cti = calculateTaxableIncome($ti_t[$testCount][0] - $ti_t[$testCount][1]);
+	$ct = calculateTax($cti, 'resident');
+	echo 'ATO Wage Value: '.($ti_t[$testCount][0] - $ti_t[$testCount][1]).'<br />';
+	echo 'Calculated TI: '.$cti.'<br />';
+	echo 'Calculated Tax: '.$ct.'<br />';
+	echo 'ATO Taxable Income: '.$ti_t[$testCount][0].'<br />';
+	echo 'ATO Tax Value: '.$ti_t[$testCount][1].'<br />';
+	
+	if (abs($cti - $ti_t[$testCount][0]) > 0.5){
+		if ($cti > $ti_t[$testCount][0])
+			echo '<p style="color:red;">Diff: '. abs($cti - $ti_t[$testCount][0]) . '</p>';
+		else
+			echo '<p style="color:red;">Diff: -'. abs($cti - $ti_t[$testCount][0]) . '</p>';
+	}else{
+		echo 'Diff: '. abs($cti - $ti_t[$testCount][0]) . '<br /><br />';
+	}
+}*/
 ?>

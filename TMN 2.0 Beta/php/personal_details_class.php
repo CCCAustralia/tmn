@@ -75,7 +75,7 @@ class pd {
 	//'set' mode
 	public function setPersonalDetails($main_post, $spouse_post) {
 		
-		if ($this->DEBUG) fb($main_post); fb($spouse_post);
+		if ($this->DEBUG) {fb($main_post); fb($spouse_post);}
 		
 		//Check that if one field for spouse name is entered, the other is also
 		if ($spouse_post['S_FIRSTNAME'] != "" && $spouse_post['S_SURNAME'] == "") {
@@ -143,6 +143,9 @@ class pd {
 					$sq = "UPDATE User_Profiles SET SPOUSE_GUID='".$this->userguid."' WHERE GUID='".$spouseguid_fromname."'";	//form spouse sql
 					mysql_query($sq);							//update spouse
 					if ($this->DEBUG) $this->logger->logToFile($sq);	//log spouse sql
+					
+					//set $spouseguid to the newly added spouse guid for later use
+					$spouseguid = $spouseguid_fromname;
 				}
 			break;
 			case 1:
@@ -226,7 +229,7 @@ class pd {
 
 			$s_setsql .= "MPD='".$main_post['MPD']."', ";
 		}
-		
+		if ($DEBUG) fb($spouseguid);
 		//finish the sql statement
 		$s_setsql = trim($s_setsql,", ");
 		$s_setsql .= " WHERE GUID ='".$spouseguid."'";

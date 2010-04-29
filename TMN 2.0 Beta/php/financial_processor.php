@@ -1,19 +1,59 @@
 <?php
 include_once("mysqldriver.php");
 include_once("logger.php");
-include_once("./calc/calc_tax.php");
-include_once("./calc/calc_mfbmax.php");
-include_once("./calc/calc_employersuper.php");
-include_once("./calc/calc_additionalhousing.php");
 require_once("../lib/FirePHPCore/fb.php");
 
 class finproc {
+	//TODO: grab these values from DB
 	//financial values
 	private $STIPEND_MIN = 100;
-	private $MIN_ADD_SUPER_RATE = 0.09;
+	private $MIN_SUPER_RATE = 0.09; //for employer super
+	private $MIN_ADD_SUPER_RATE = 0.09; //for pre-tax super
+	
+	//tax values
+	//formula and values grabed from:
+	//Statement of formulas for calculating amounts to be withheld
+	
+	//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
+	private $x = array(
+					198,
+					342,
+					402,
+					576,
+					673,
+					1225,
+					1538,
+					3461,
+					PHP_INT_MAX //this is the highest number possible
+				);
+				
+	private $a = array(
+					0.000,
+					0.150,
+					0.250,
+					0.165,
+					0.185,
+					0.335,
+					0.315,
+					0.395,
+					0.465
+				);
+				
+	private $b = array(
+					0.0000,
+					29.7115,
+					63.9308,
+					29.7117,
+					41.2502,
+					142.2117,
+					117.6925,
+					240.7694,
+					483.0771
+				);
 	
 	//personal details
 	private $days_per_week = 0;
+	private $s_days_per_week = 0;
 	
 	private $financial_data;
 	private $DEBUG;
@@ -59,15 +99,11 @@ class finproc {
 			//check min stipend
 			$err .= $this->validateStipend(0);//0 means STIPEND, 1 means S_STIPEND
 			
-			$annum = ($this->financial_data['NET_STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
+			$annum = $this->financial_data['NET_STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];	//calculate yearly figure
 			
-			$this->financial_data['TAXABLE_INCOME'] = calculateTaxableIncome($annum);
-			$this->financial_data['TAX'] = calculateTax($this->financial_data['TAXABLE_INCOME'], 'resident');
-			$this->financial_data['EMPLOYER_SUPER'] = calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
-			
-			$this->financial_data['TAXABLE_INCOME'] = round($this->financial_data['TAXABLE_INCOME'] / 12);
-			$this->financial_data['TAX'] = round($this->financial_data['TAX'] / 12);
-		    $this->financial_data['EMPLOYER_SUPER'] = round($this->financial_data['EMPLOYER_SUPER'] / 12);
+			$this->financial_data['TAXABLE_INCOME'] = $this->calculateTaxableIncome($annum);
+			$this->financial_data['TAX'] = $this->calculateTax($this->financial_data['TAXABLE_INCOME'], 'resident');
+			$this->financial_data['EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
 		}
 		
 		//Maximum MFB & Pre-tax Super
@@ -80,10 +116,10 @@ class finproc {
 			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,0);//the 0 means return my value
 			
 			//Fetch Days Per Week
-			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek($this->financial_data['guid']);
+			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek(0);
 			
 			//calc max mfbs
-			$this->financial_data['MAX_MFB'] = round(calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
+			$this->financial_data['MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
 			
 			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
 			$this->financial_data['CLAIMABLE_MFB'] = $this->getClaimableMfb(0);//0 for my claimable mfb
@@ -101,15 +137,11 @@ class finproc {
 			//check min stipend
 			$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
 			
-			$s_annum = ($this->financial_data['S_NET_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
+			$s_annum = $this->financial_data['S_NET_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];	//calculate yearly figure
 			
-			$this->financial_data['S_TAXABLE_INCOME'] = calculateTaxableIncome($s_annum);
-			$this->financial_data['S_TAX'] = calculateTax($this->financial_data['S_TAXABLE_INCOME'], 'resident');
-			$this->financial_data['S_EMPLOYER_SUPER'] = calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
-			
-			$this->financial_data['S_TAXABLE_INCOME'] = round($this->financial_data['S_TAXABLE_INCOME'] / 12);
-			$this->financial_data['S_TAX'] = round($this->financial_data['S_TAX'] / 12);
-		    $this->financial_data['S_EMPLOYER_SUPER'] = round($this->financial_data['S_EMPLOYER_SUPER'] / 12);
+			$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum);
+			$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME'], 'resident');
+			$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
 		}
 		
 		//Spouse Maximum MFB && Pre Tax Super
@@ -122,9 +154,9 @@ class finproc {
 			$this->financial_data['S_PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
 			
 			//Fetch the user's days per week
-			$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek($this->financial_data['spouse']);
+			$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek(1);
 			
-			$this->financial_data['S_MAX_MFB'] = round(calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
+			$this->financial_data['S_MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
 			
 			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
 			$this->financial_data['S_CLAIMABLE_MFB'] = $this->getClaimableMfb(1);//1 for spouse claimable mfb
@@ -144,19 +176,120 @@ class finproc {
 	}
 	
 	
+	//calculateEmployerSuper:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
+	//params:					$taxableincome - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
+	//returns					employer super (a whole number >= 0)
+	public function calculateEmployerSuper($taxableincome){
+		return	round($taxableincome * $this->MIN_SUPER_RATE);
+	}
+	
+	
+	//calculateMaxMFB:			Calculates and returns the max mfbs a person can take
+	//params:					$taxableincome - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
+	//							$mfbrate - (a decimal number 0 <= $mfbrate <= 1) the rate of mfbs they are entitled to (atm they are 0% 25% 50% of your taxable income)
+	//							$daysperweek - (a whole number 1,2,3,4,5)
+	//returns					maxmfb (a whole number >= 0)
+	public function calculateMaxMFB($taxableincome, $mfbrate, $daysperweek) {
+		
+		$maxmfb = $taxableincome;
+		
+		$maxmfb = $maxmfb * ($mfbrate);
+		
+		$maxmfb = $maxmfb * ($daysperweek / 5);
+		
+		return $maxmfb;
+	}
+	
+	
+	
+	public function calculateMaxWage($index) {
+		//formula and values grabed from:
+		//Statement of formulas for calculating amounts to be withheld
+		
+		//the max taxable income - the tax of max taxable income gives us the max wage for that tax bracket
+		return $this->x[$index] - round($this->a[$index] * (floor($this->x[$index]) + 0.99) - $this->b[$index]);
+	}
+	
+	
+	
+	public function calculateTaxableIncome($wage){
+		return $wage + $this->calculateTaxFromWage($wage, 'resident');
+	}
+	
+	
+	
+	public function calculateTaxFromWage($wage, $residency) {
+		//formula and values derived from:
+		//Statement of formulas for calculating amounts to be withheld
+		
+		//convert from months to weeks
+		$wage = floor(floor($wage) * 12 / 52);
+		
+		for( $rangeCount = 0; $rangeCount < count($this->x); $rangeCount++ ){
+			if ($wage < $this->calculateMaxWage($rangeCount))
+				break;
+		}
+		
+		if ($rangeCount == 0)
+			return 0;
+		else
+			return round(ceil(($this->a[$rangeCount] * ($wage) - $this->b[$rangeCount]) / (1 - $this->a[$rangeCount])) * 52 / 12);
+	}
+	
+	
+	
+	public function calculateTax($taxableincome, $residency) {
+		//formula and values grabed from:
+		//Statement of formulas for calculating amounts to be withheld
+		
+		//ATO rounding for monthly to weekly convertion (if $taxableincome ends with 33 cents then add one cent)
+		if (($taxableincome-floor($taxableincome)) == 0.33) $taxableincome += 0.01;
+		
+		//convert from monthly to weekly
+		$taxableincome = $taxableincome * 3 / 13; //same as $taxableincome = $taxableincome * 12 / 52
+		
+		//ATO rounding for weekly Tax calculation (ignore cents and add 0.99)
+		$taxableincome = floor($taxableincome) + 0.99;
+		
+		//find which weekly tax bracket $taxableincome falls in
+		for( $rangeCount = 0; $rangeCount < count($this->x); $rangeCount++ ){
+			if ($taxableincome < $this->x[$rangeCount])
+				break;
+		}
+		//calculate tax
+		if ($rangeCount == 0)
+			$tax = 0;
+		else
+			$tax = round($this->a[$rangeCount] * $taxableincome - $this->b[$rangeCount]);
+		//convert back to monthly before returning
+		return round($tax * 13 / 3); //same as $tax * 52 / 12
+	}
+	
+	
 	//getAdditionalHousing:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
 	//params:				n/a
 	//returns				additional_housing (a number >= 0)
 	public function getAdditionalHousing(){
 		if (isset($this->financial_data['HOUSING'])){
 		
+			//get max cut off
 			$maxhousingmfb = $this->getMaxHousingMfb();
+			
 			//set housing freq to the default if not set
 			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
+			
 			//make sure housing is monthly
 			$monthly_housing = $this->getMonthlyHousing();
+			
+			//get days per week ratio
+			//TODO: apply it to the calculation
+			if ($this->financial_data['spouse'])
+				$days_per_week_ratio = ($this->getDaysPerWeek(0) + $this->getDaysPerWeek(1)) / 10; //couple ratio
+			else
+				$days_per_week_ratio = $this->getDaysPerWeek(0) / 5; //singles ratio
+				
 			//calc additional housing
-			return round(max( 0, $this->financial_data['HOUSING'] - $maxhousingmfb ));
+			return round(max( 0, ($this->financial_data['HOUSING'] - $maxhousingmfb) ));
 		}
 		
 		return 0;
@@ -170,8 +303,8 @@ class finproc {
 		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
 		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
 		
-		if (isset($this->financial_data['MAX_MFB'])){
-			if (isset($this->financial_data['HOUSING'])){
+		if (isset($this->financial_data[$prefix.'MAX_MFB'])){
+			if (isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['HOUSING'])){
 				//grab max housing mfb
 				$max_housing_mfb = $this->getMaxHousingMfb();
 				//calcs spouses claimable mfb if possible
@@ -197,26 +330,27 @@ class finproc {
 	//////////This function is now being used quite regularly, we may want to change it so it only pulls from DB if necissary/////////////
 	
 	//getDaysPerWeek:	Takes a guid and grabs that persons days per week from the database
-	//params:			$guid		- (a 32 char string that identifies a user in the database)
+	//params:			$me_or_spouse	- (number 0 or 1) tells function wether you, 0, want your values or the spouses, 1, values
 	//returns			days_per_week (a number 0,1,2,3,4,5) (0 means not found in DB)
-	public function getDaysPerWeek($guid){
-		
-		//if the value has not been grabed from the DB grab it (zero means not from DB)
-		if ($this->days_per_week == 0){
+	public function getDaysPerWeek($me_or_spouse){
+		//grabs data from correct class variables based on if we are dealing with me or spouse
+		if ($me_or_spouse) {$guid = $this->financial_data['spouse']; $days_per_week = $this->s_days_per_week;} else {$guid = $this->financial_data['guid']; $days_per_week = $this->days_per_week;}
+		//grabs it from DB only if it has not already been grabed (ie when its not its default value of 0)
+		if ($days_per_week == 0){
 			//Fetch the user's days per week
 			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
 			if (mysql_num_rows($sql) == 1) {
 				$row = mysql_fetch_assoc($sql);
 				if ($row['FT_PT_OS'] == 0){
-					$this->days_per_week = 5;
+					$days_per_week = 5;
 				} else {
-					$this->days_per_week = $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
+					$days_per_week = $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
 				}
 			}
-			$this->days_per_week = 0;//zero means not found in DB
 		}
-		
-		return $this->days_per_week;
+		//saves data to correct class variables based on if we are dealing with me or spouse
+		if ($me_or_spouse) $this->s_days_per_week = $days_per_week; else $this->days_per_week = $days_per_week;
+		return $days_per_week;//zero means not found in DB
 	}
 	
 	
@@ -231,14 +365,14 @@ class finproc {
 			$monthly_housing = $this->getMonthlyHousing();
 		
 			if (isset($this->financial_data['S_STIPEND'])){
-			if ($this->DEBUG) fb($this->financial_data);
+				if ($this->DEBUG) fb($this->financial_data);
 			
 				//calc lastest taxable income for me
-				$annum = ($this->financial_data['STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
-				$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
+				$annum = $this->financial_data['STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];
+				$taxableincome = $this->calculateTaxableIncome($annum);
 				//calc lastest taxable income for spouse
-				$s_annum = ($this->financial_data['S_STIPEND'] * 12) + ($this->financial_data['S_POST_TAX_SUPER'] * 12) + ($this->financial_data['S_ADDITIONAL_TAX'] * 12);	//calculate yearly figure
-				$s_taxableincome = calculateTaxableIncome($s_annum) / 12;//adjust back to monthly from annual
+				$s_annum = $this->financial_data['S_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];
+				$s_taxableincome = $this->calculateTaxableIncome($s_annum);
 				
 				//mfb rate for me
 				$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
@@ -246,8 +380,8 @@ class finproc {
 				$s_mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//calc lastest joint max mfbs
-				$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
-				$s_maxmfb = calculateMaxMFB($s_taxableincome, $s_mfbrate, $this->getDaysPerWeek($this->financial_data['spouse']));
+				$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
+				$s_maxmfb = $this->calculateMaxMFB($s_taxableincome, $s_mfbrate, $this->getDaysPerWeek(1));
 				$joint_maxmfb = $maxmfb + $s_maxmfb;
 			
 				//calc housing stipend from lastest values
@@ -256,9 +390,9 @@ class finproc {
 				//we do this because as you increase stipend you increase mfbs and you decrease the housing stipend
 				if ($housing_stipend > 0){
 					//recalc taxable income and max mfb with the calc housing stipend
-					$annum += ($housing_stipend * 12);//adjust back to annual from monthly
-					$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
-					$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
+					$annum += $housing_stipend;
+					$taxableincome = $this->calculateTaxableIncome($annum);
+					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
 					$joint_maxmfb = $maxmfb + $s_maxmfb;
 
 					//max housing mfb
@@ -271,7 +405,7 @@ class finproc {
 					$ideal_taxable_income = ((1 - ($mfbrate*0.5)) * $diff) + $taxableincome;
 
 					//calc the ideal tax from the ideal taxable income
-					$ideal_tax = calculateTax($ideal_taxable_income * 12, 'resident') / 12;
+					$ideal_tax = $this->calculateTax($ideal_taxable_income, 'resident');
 
 					//calc what housing stipend should be by taking everything other than housing stipend from the ideal taxable income
 					$housing_stipend = $ideal_taxable_income - $ideal_tax - $this->financial_data['ADDITIONAL_TAX'] - $this->financial_data['POST_TAX_SUPER'] - $this->financial_data['STIPEND'];
@@ -279,43 +413,45 @@ class finproc {
 				
 				return round($housing_stipend);
 			} else {
-				//calc lastest taxable income
-				$annum = ($this->financial_data['STIPEND'] * 12) + ($this->financial_data['POST_TAX_SUPER'] * 12) + ($this->financial_data['ADDITIONAL_TAX'] * 12);	//calculate yearly figure
-				$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
+				//makes sure that a person without a stipend for there spouse is actually single
+				if (!$this->financial_data['spouse']){
+					//calc lastest taxable income
+					$annum = $this->financial_data['STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];
+					$taxableincome = $this->calculateTaxableIncome($annum);
+					
+					//mfb rate
+					$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
+					
+					//calc lastest max mfbs
+					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
 				
-				//mfb rate
-				$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
-				
-				//calc lastest max mfbs
-				$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
-			
-				//calc housing stipend from lastest values
-				$housing_stipend = max(0, $monthly_housing - $maxmfb - $this->financial_data['ADDITIONAL_HOUSING']);
-				//if there is a housing stipend it needs to be split between stipend and mfbs
-				//we do this because as you increase stipend you increase mfbs and you decrease the housing stipend
-				if ($housing_stipend > 0){
-					//recalc taxable income and max mfb with the calc housing stipend
-					$annum += ($housing_stipend * 12);//adjust back to annual from monthly
-					$taxableincome = calculateTaxableIncome($annum) / 12;//adjust back to monthly from annual
-					$maxmfb = calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek($this->financial_data['guid']));
+					//calc housing stipend from lastest values
+					$housing_stipend = max(0, $monthly_housing - $maxmfb - $this->financial_data['ADDITIONAL_HOUSING']);
+					//if there is a housing stipend it needs to be split between stipend and mfbs
+					//we do this because as you increase stipend you increase mfbs and you decrease the housing stipend
+					if ($housing_stipend > 0){
+						//recalc taxable income and max mfb with the calc housing stipend
+						$annum += $housing_stipend;
+						$taxableincome = $this->calculateTaxableIncome($annum);
+						$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
 
-					//TODO: put into DB
-					$max_housing_mfb = $this->getMaxHousingMfb();
-
-					//calculate the difference between the current mfbs and where the mfbs should be (if there is a housing stipend all the mfbs should be used on housing)
-					$diff = $max_housing_mfb - $maxmfb - $housing_stipend;
-
-					//split diff between taxable income and mfbs and take taxable incomes portion of diff away. This will give the ideal taxable income.
-					$ideal_taxable_income = ((1 - ($mfbrate*0.5)) * $diff) + $taxableincome;
-
-					//calc the ideal tax from the ideal taxable income
-					$ideal_tax = calculateTax($ideal_taxable_income * 12, 'resident') / 12;
-
-					//calc what housing stipend should be by taking everything other than housing stipend from the ideal taxable income
-					$housing_stipend = $ideal_taxable_income - $ideal_tax - $this->financial_data['ADDITIONAL_TAX'] - $this->financial_data['POST_TAX_SUPER'] - $this->financial_data['STIPEND'];
+						$max_housing_mfb = $this->getMaxHousingMfb();
+	
+						//calculate the difference between the current mfbs and where the mfbs should be (if there is a housing stipend all the mfbs should be used on housing)
+						$diff = $max_housing_mfb - $maxmfb - $housing_stipend;
+	
+						//split diff between taxable income and mfbs and take taxable incomes portion of diff away. This will give the ideal taxable income.
+						$ideal_taxable_income = ((1 - ($mfbrate*0.5)) * $diff) + $taxableincome;
+	
+						//calc the ideal tax from the ideal taxable income
+						$ideal_tax = $this->calculateTax($ideal_taxable_income, 'resident');
+	
+						//calc what housing stipend should be by taking everything other than housing stipend from the ideal taxable income
+						$housing_stipend = $ideal_taxable_income - $ideal_tax - $this->financial_data['ADDITIONAL_TAX'] - $this->financial_data['POST_TAX_SUPER'] - $this->financial_data['STIPEND'];
+					}
+					
+					return round($housing_stipend);
 				}
-				
-				return round($housing_stipend);
 			}
 		}
 		

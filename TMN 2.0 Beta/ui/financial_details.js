@@ -57,6 +57,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 						defaultType: 'numberfield',
 						bodyStyle: 'padding:10px',
 						defaults:{
+							width: 140,
 							allowBlank: false,
 							minValue: 0
 						}
@@ -346,6 +347,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					bodyStyle: 'padding:10px',
 					labelWidth: 300,
 					defaults: {
+						width: 140,
 						allowBlank: false,
 						minValue: 0,
 						value: 0
@@ -423,6 +425,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 						defaultType: 'numberfield',
 						bodyStyle: 'padding:10px',
 						defaults:{
+							width: 140,
 							allowBlank: false,
 							minValue: 0
 						}
@@ -591,6 +594,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					defaultType: 'numberfield',
 					bodyStyle: 'padding:10px',
 					defaults:{
+						width: 140,
 						minValue: 0,
 						value: 0
 					},
@@ -656,6 +660,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									itemId: 'pre_tax_super_mode',
 									enableToggle: true,
 									text: 'Manually Set Pre Tax Super',
+									margins: {top:0, right:0, bottom:10, left:100},
 									scope: this,
 									toggleHandler: function(button, state){
 										//Button has been pressed so they are in manual mode
@@ -697,6 +702,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									}
 								},
 								{
+									width: 140,
 					            	itemId: 'ioof',
 					           		xtype: 'combo',
 					           		fieldLabel: 'Is your super fund IOOF?',
@@ -743,6 +749,9 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					            	xtype: 'panel',
 					            	layout: 'form',
 					            	//collapsed: true,
+					            	defaults: {
+					            		width: 140
+					            	},
 					            	items: [
 					            		{
 							            	itemId: 'life_cover_amount',
@@ -778,43 +787,44 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 													});
 												}
 							                }
-							            },
-							            {
-							            	itemId: 'income_protection_cover_source',
-							           		xtype: 'combo',
-							           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
-							           		name: 'INCOME_PROTECTION_COVER_SOURCE',
-							            	hiddenName: 'INCOME_PROTECTION_COVER_SOURCE',
-							            	hiddenId: 'INCOME_PROTECTION_COVER_SOURCE_hidden',
-							           		triggerAction:'all',
-							           		emptyText: 'Enter Source of the Income Protection Cover...',
-							           		validationEvent: 'blur',
-							            	editable:false,
-							                mode:'local',
-							                hiddenValue: 0,
-							                value: 'Support Account',
-							                
-							                store:new Ext.data.SimpleStore({
-							                     fields:['lifecoversourceCode', 'lifecoversourceText'],
-							                     data:[[0,'Support Account'],[1,'Super Fund']]
-							                }),
-							                displayField:'lifecoversourceText',
-							                valueField:'lifecoversourceCode',
-							                
-							                listeners: {
-							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
-													this.updateCookie(combo,index,index);
-							                	}.createDelegate(this),
-												render: function(c) {
-													Ext.QuickTips.register({
-														target: c.getEl(),
-														text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
-													});
-												}
-							                }
 							            }
-					            	]	
+					            	]
+					            },
+					            {
+					            	width: 140,
+					            	itemId: 'income_protection_cover_source',
+					           		xtype: 'combo',
+					           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
+					           		name: 'INCOME_PROTECTION_COVER_SOURCE',
+					            	hiddenName: 'INCOME_PROTECTION_COVER_SOURCE',
+					            	hiddenId: 'INCOME_PROTECTION_COVER_SOURCE_hidden',
+					           		triggerAction:'all',
+					           		emptyText: 'Enter Source of the Income Protection Cover...',
+					           		validationEvent: 'blur',
+					            	editable:false,
+					                mode:'local',
+					                hiddenValue: 0,
+					                value: 'Support Account',
+					                
+					                store:new Ext.data.SimpleStore({
+					                     fields:['lifecoversourceCode', 'lifecoversourceText'],
+					                     data:[[0,'Support Account'],[1,'Super Fund']]
+					                }),
+					                displayField:'lifecoversourceText',
+					                valueField:'lifecoversourceCode',
+					                
+					                listeners: {
+					                	select: function(combo, record, index) {
+					                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
+											this.updateCookie(combo,index,index);
+					                	}.createDelegate(this),
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
+											});
+										}
+					                }
 					            }
 								
 							]
@@ -847,6 +857,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									itemId: 's_pre_tax_super_mode',
 									enableToggle: true,
 									text: 'Manually Set Pre Tax Super',
+									margins: {top:0, right:0, bottom:3, left:0},
 									scope: this,
 									toggleHandler: function(button, state){
 										//Button has been pressed so they are in manual mode
@@ -888,6 +899,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 									}
 								},
 								{
+									width: 140,
 					            	itemId: 's_ioof',
 					           		xtype: 'combo',
 					           		fieldLabel: 'Is your super fund IOOF?',
@@ -934,6 +946,9 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					            	xtype: 'panel',
 					            	layout: 'form',
 					            	//collapsed: true,
+					            	defaults: {
+					            		width: 140
+					            	},
 					            	items: [
 					            		{
 							            	itemId: 's_life_cover_amount',
@@ -969,43 +984,44 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 													});
 												}
 							                }
-							            },
-							            {
-							            	itemId: 's_income_protection_cover_source',
-							           		xtype: 'combo',
-							           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
-							           		name: 'S_INCOME_PROTECTION_COVER_SOURCE',
-							            	hiddenName: 'S_INCOME_PROTECTION_COVER_SOURCE',
-							            	hiddenId: 'S_INCOME_PROTECTION_COVER_SOURCE_hidden',
-							           		triggerAction:'all',
-							           		emptyText: 'Enter Source of the Income Protection Cover...',
-							           		validationEvent: 'blur',
-							            	editable:false,
-							                mode:'local',
-							                hiddenValue: 0,
-							                value: 'Support Account',
-							                
-							                store:new Ext.data.SimpleStore({
-							                     fields:['lifecoversourceCode', 'lifecoversourceText'],
-							                     data:[[0,'Support Account'],[1,'Super Fund']]
-							                }),
-							                displayField:'lifecoversourceText',
-							                valueField:'lifecoversourceCode',
-							                
-							                listeners: {
-							                	select: function(combo, record, index) {
-							                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
-													this.updateCookie(combo,index,index);
-							                	}.createDelegate(this),
-												render: function(c) {
-													Ext.QuickTips.register({
-														target: c.getEl(),
-														text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
-													});
-												}
-							                }
 							            }
-					            	]	
+					            	]
+					            },
+					            {
+					            	width: 140,
+					            	itemId: 's_income_protection_cover_source',
+					           		xtype: 'combo',
+					           		fieldLabel: 'Where should your Income Protection Cover be taken from?',
+					           		name: 'S_INCOME_PROTECTION_COVER_SOURCE',
+					            	hiddenName: 'S_INCOME_PROTECTION_COVER_SOURCE',
+					            	hiddenId: 'S_INCOME_PROTECTION_COVER_SOURCE_hidden',
+					           		triggerAction:'all',
+					           		emptyText: 'Enter Source of the Income Protection Cover...',
+					           		validationEvent: 'blur',
+					            	editable:false,
+					                mode:'local',
+					                hiddenValue: 0,
+					                value: 'Support Account',
+					                
+					                store:new Ext.data.SimpleStore({
+					                     fields:['lifecoversourceCode', 'lifecoversourceText'],
+					                     data:[[0,'Support Account'],[1,'Super Fund']]
+					                }),
+					                displayField:'lifecoversourceText',
+					                valueField:'lifecoversourceCode',
+					                
+					                listeners: {
+					                	select: function(combo, record, index) {
+					                		Ext.Msg.alert('INCOME PROTECTION Cover Change!', '<b>You have changed where your INCOME PROTECTION Cover is taken from.<br /><br />Note:<br />This cover is <i>DIFFERENT</i> to your Life Cover.<br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!</b>');
+											this.updateCookie(combo,index,index);
+					                	}.createDelegate(this),
+										render: function(c) {
+											Ext.QuickTips.register({
+												target: c.getEl(),
+												text: 'Nominate where your Income Protection Cover should be taken from.<br /><b>This cover is <i>DIFFERENT</i> to your Life Cover.</b><br />Click <a href="https://www.mygcx.org/CCCAMemberPortal/file/225/Insurance_calc.xls" target="_blank">here</a> to download Income Protection Cover calculator.<br />Your Income Protection Cover is taken out annually and can be quite a large amount and can have a <i>significant</i> impact on the account it comes from.<br />So choose carefully!'
+											});
+										}
+					                }
 					            }
 								
 							]
@@ -1024,6 +1040,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 						defaultType: 'numberfield',
 						bodyStyle: 'padding:10px',
 						defaults:{
+							width: 140,
 							minValue: 0,
 							value: 0
 						}
@@ -1087,6 +1104,7 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 					bodyStyle: 'padding:10px',
 					labelWidth: 300,
 					defaults:{
+						width: 140,
 						minValue: 0,
 						value: 0
 					},
@@ -1201,8 +1219,11 @@ TMN.FinancialDetails = Ext.extend(Ext.form.FormPanel, {
 			this.doLayout();
 		}
 		
-		this.getComponent('taxable_income').getComponent('my').getComponent('hs').hide();
-		this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').hide();
+		//checks if stuff should be hidden ( uses !(valid condition) because we are not just checking valid we are also checking if its set )
+		if (!(this.getForm().items.map['housing_stipend'].getValue() > 0)){
+			this.getComponent('taxable_income').getComponent('my').getComponent('hs').hide();
+			this.getComponent('taxable_income').getComponent('spouse').getComponent('hs').hide();
+		}
 		if (!this.financial_data.overseas) this.getComponent('os_additional_extras').hide();
 		//////////////////////////////////////
 					//set partner, session and guid here (in both FD and Grid)
