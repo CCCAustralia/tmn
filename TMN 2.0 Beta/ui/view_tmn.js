@@ -42,8 +42,6 @@ TMN.ViewPanel = Ext.extend(Ext.Panel, {
 			spouse_tpl.overwrite(this.body, values);
 		}
 		
-		delete template;
-		
 		if (successCallback !== undefined) successCallback();
 	},
 	

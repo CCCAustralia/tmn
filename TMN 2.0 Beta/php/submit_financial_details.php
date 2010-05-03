@@ -1,11 +1,21 @@
 <?php
-$DEBUG = 0;
+$DEBUG = 1;
 
 include_once("logger.php");
 include_once("dbconnect.php");
+//include_once("FinancialSubmitter.php"); //TODO uncomment once classiflying is varified as working
 if($DEBUG) require_once("../lib/FirePHPCore/fb.php");
 
 if($DEBUG) ob_start();		//enable firephp logging
+
+/*
+$formdata = (isset($_POST['guid']) ? $_POST : $_GET);
+$fs = new FinancialSubmitter($formdata, $DEBUG);
+echo $fs->submit();
+
+die();
+*/
+
 
 
 $LOGFILE = "./logs/submit_fd.log";
@@ -37,7 +47,7 @@ $iscouple = !is_null($couple_row['GUID']);
 //header("content-type:text/plain");
 
 //decode the data from the form
-$formdata = (isset($_POST[guid]) ? $_POST : $_GET);		//json_decode(stripslashes($_REQUEST['financial_data']),true);
+$formdata = (isset($_POST['guid']) ? $_POST : $_GET);		//json_decode(stripslashes($_REQUEST['financial_data']),true);
 
 //DATA ARRAY SETUP//
 $data = array(

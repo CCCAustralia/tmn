@@ -3,7 +3,7 @@ include_once("mysqldriver.php");
 include_once("logger.php");
 require_once("../lib/FirePHPCore/fb.php");
 
-class finproc {
+class FinancialProcessor {
 	//TODO: grab these values from DB
 	//financial values
 	private $STIPEND_MIN = 100;
@@ -55,7 +55,7 @@ class finproc {
 	private $days_per_week = 0;
 	private $s_days_per_week = 0;
 	
-	private $financial_data;
+	public $financial_data;
 	private $DEBUG;
 	private $connection;
 	private $logger;
@@ -78,7 +78,7 @@ class finproc {
 	//proc:				processes the financial data and returns the result as a json object
 	//params:			n/a
 	//returns			a string that describes a json object (will contain {"success": "true", "financial_data": ... } or {"success": "false", "err": ... }
-	public function proc() {
+	public function process() {
 	
 		//Spouse Guid
 		$this->financial_data['spouse'] = $this->getSpouseGuid();
@@ -162,7 +162,7 @@ class finproc {
 			$this->financial_data['S_CLAIMABLE_MFB'] = $this->getClaimableMfb(1);//1 for spouse claimable mfb
 		}
 		
-		//if ($this->DEBUG) fb($this->financial_data);
+		if ($this->DEBUG) fb($this->financial_data);
 		
 		if ($err == '') {
 		
@@ -299,7 +299,7 @@ class finproc {
 				$days_per_week_ratio = $this->getDaysPerWeek(0) / 5; //singles ratio
 				
 			//calc additional housing
-			return round(max( 0, ($this->financial_data['HOUSING'] - $maxhousingmfb) ));
+			return round(max( 0, ($monthly_housing - $maxhousingmfb) ));
 		}
 		
 		return 0;
@@ -317,18 +317,22 @@ class finproc {
 			if (isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['HOUSING'])){
 				//grab max housing mfb
 				$max_housing_mfb = $this->getMaxHousingMfb();
+				
+				//make sure housing is monthly
+				$monthly_housing = $this->getMonthlyHousing();
+				fb($monthly_housing);
 				//calcs spouses claimable mfb if possible
 				if ($me_or_spouse){
 					if(isset($this->financial_data['S_MAX_MFB'])){
 						//calcs spouse claimable mfb (take my mfb off housing first and if there is housing still to be coverd take it from spouse mfb)
-						return max(0, $this->financial_data['S_MAX_MFB'] - max(0, min($this->financial_data['HOUSING'], $max_housing_mfb) - $this->financial_data['MAX_MFB']));
+						return max(0, $this->financial_data['S_MAX_MFB'] - max(0, min($monthly_housing, $max_housing_mfb) - $this->financial_data['MAX_MFB']));
 					} else {
 						//if no spouse stipend so cant calc this value so return 0
 						return 0;
 					}
 				}
 				//calcs single claimable mfb otherwise
-				return max(0, $this->financial_data['MAX_MFB'] - min($this->financial_data['HOUSING'], $max_housing_mfb));
+				return max(0, $this->financial_data['MAX_MFB'] - min($monthly_housing, $max_housing_mfb));
 			} else {
 				//if no housing to take away, just return max mfb
 				return $this->financial_data[$prefix.'MAX_MFB'];
@@ -555,6 +559,12 @@ class finproc {
 		}
 		//if the spouse guid was not found return 0
 		return 0;
+	}
+	
+	
+	
+	public function setFinancialData($financial_data){
+		$this->financial_data = $financial_data;
 	}
 	
 	
