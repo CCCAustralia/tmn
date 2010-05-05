@@ -1,6 +1,6 @@
 <?php
 include_once "logger.php";
-include_once "dbconnect.php";
+//include_once "dbconnect.php";
 include_once "mysqldriver.php";
 require_once("../lib/FirePHPCore/fb.php");
 

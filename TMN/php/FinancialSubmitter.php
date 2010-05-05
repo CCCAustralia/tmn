@@ -2,7 +2,7 @@
 include_once("mysqldriver.php");
 include_once("logger.php");
 include_once("FinancialProcessor.php");
-require_once("../lib/FirePHPCore/fb.php");
+include_once("../lib/FirePHPCore/fb.php");
 
 class FinancialSubmitter extends FinancialProcessor {
 	
@@ -129,7 +129,8 @@ class FinancialSubmitter extends FinancialProcessor {
 	public function __construct($findat, $dbug) {
 		parent::setFinancialData($findat);
 		$this->DEBUG = $dbug;
-		$this->connection = new MySqlDriver();
+		$mysqldriver = new MySqlDriver();
+		$this->connection = $mysqldriver->getConnection();
 		$this->logger = new logger("logs/submit_fd.log");
 		$this->logger->setDebug($this->DEBUG);
 		if($this->DEBUG) fb("DEBUGGING MODE");
@@ -139,12 +140,14 @@ class FinancialSubmitter extends FinancialProcessor {
 	public function submit(){
 
 		//Fetch names
-		$sql = mysql_query("SELECT * FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'");
-
+		$sql = mysql_query("SELECT * FROM User_Profiles WHERE guid='".$this->financial_data['guid']."'", $this->connection);
+		if($this->DEBUG) fb($this);
+		if($this->DEBUG) fb($sql);
+		if($this->DEBUG) fb(mysql_num_rows($sql));
 		if (mysql_num_rows($sql) != 1) die('{"success":"false"}'); //can't be found in DB
 		$row = mysql_fetch_assoc($sql);
 		$s_sql = mysql_query("SELECT * FROM User_Profiles WHERE guid=(SELECT SPOUSE_GUID FROM User_Profiles WHERE guid='".$this->financial_data['guid']."')");
-		if (mysql_num_rows($sql) != 1) {
+		if (mysql_num_rows($s_sql) != 1) {
 			$this->financial_data['spouse'] = 0;
 			$iscouple = 0;
 		} else {

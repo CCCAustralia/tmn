@@ -1,5 +1,5 @@
 <?php
-require_once("../lib/FirePHPCore/fb.php");
+include_once("../lib/FirePHPCore/fb.php");
 
 class logger {
 	private $filename;

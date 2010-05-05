@@ -1,7 +1,7 @@
 <?php
 include_once("mysqldriver.php");
 include_once("logger.php");
-require_once("../lib/FirePHPCore/fb.php");
+include_once("../lib/FirePHPCore/fb.php");
 
 class FinancialProcessor {
 	//TODO: grab these values from DB
