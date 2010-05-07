@@ -78,10 +78,42 @@ if (mysql_num_rows($sql) == 1){
 		
 		//add guid to upobj (to be passed to financial submitter
 		$upobj['guid'] = $guid;
+		if(!isset($upobj['HOUSING_STIPEND'])) {
+			$upobj['STIPEND'] = $upobj['NET_STIPEND'];
+			if (isset($upobj['s_NET_STIPEND']))
+				$upobj['S_STIPEND'] = $upobj['S_NET_STIPEND'];
+		}
+		fb("UPOBJ");
+		fb($upobj);
+		//pre-tax super
+		$pts_store = $upobj['PRE_TAX_SUPER'];
+		unset($upobj['PRE_TAX_SUPER']);
+		$upobj['pre_tax_super_mode'] = 'auto';
+		if(isset($upobj['S_PRE_TAX_SUPER'])) {
+			$s_pts_store = $upobj['S_PRE_TAX_SUPER'];
+			unset($upobj['S_PRE_TAX_SUPER']);
+			$upobj['s_pre_tax_super_mode'] = 'auto';
+		}
 	
-		$reprocessor = new FinancialSubmitter($upobj, $DEBUG);
-		$returntext = $reprocessor->submit();
+	
+		$reprocessor = new FinancialProcessor($upobj, $DEBUG);
+		$returntext = $reprocessor->process();
 		
+		$probj = json_decode($returntext, true);
+		
+		fb($probj);
+		/*
+		//convert to uppercase
+		foreach($probj as $key => $value){
+				$lowobj[strtolower($key)] = $value;
+		}
+		*/
+		
+		
+		//if the pre-tax super was set higher than necessary (manually set) ensure the old values are used
+		$pos = strripos($returntext,'PRE_TAX_SUPER');
+		fb("RETURNTEXT");
+		fb($returntext);//substr($returntext, $pos, 16);
 		
 	}
 
@@ -90,7 +122,7 @@ if (mysql_num_rows($sql) == 1){
 
 	//display tmn
 	
-	echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css" /><title>TMN - Reprocessor</title></head><body><script type="text/javascript" src="lib/ext-base.js"></script><script type="text/javascript" src="lib/ext-all.js"></script><script type="text/javascript" src="lib/Printer-all.js"></script><script type="text/javascript" src="ui/view_tmn.js"></script><script type="text/javascript">Ext.onReady(function(){var reprocessor = new Ext.Panel({title: "Reprocessor",frame: true,renderTo: "cont",items: [{xtype: "view_tmn"}]});reprocessor.items.items[0].response = \''.$returntext.'\';reprocessor.items.items[0].loadForm();var print = new Ext.Button({renderTo: "btn",text: "Print",scope: reprocessor,handler: function(){if (Ext.isChrome){window.print();} else{Ext.ux.Printer.print(reprocessor);}}});});</script><center><div id="cont"></div><div id="btn"></div></center></body></html>';
+	echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css" /><title>TMN - Reprocessor</title></head><body><script type="text/javascript" src="lib/ext-base.js"></script><script type="text/javascript" src="lib/ext-all.js"></script><script type="text/javascript" src="lib/Printer-all.js"></script><script type="text/javascript" src="ui/view_tmn.js"></script><script type="text/javascript" src="ui/view_tmn_2_0.js"></script><script type="text/javascript">Ext.onReady(function(){var responsetext = \''.$returntext.'\';var xtype_version = "view_tmn";if (responsetext.search("housing_stipend") == -1){xtype_version = "view_tmn_2_0";} var reprocessor = new Ext.Panel({title: "Reprocessor",frame: true,renderTo: "cont",items: [{xtype: xtype_version}]});reprocessor.items.items[0].response = responsetext;reprocessor.items.items[0].loadForm();var print = new Ext.Button({renderTo: "btn",text: "Print",scope: reprocessor,handler: function(){if (Ext.isChrome){window.print();} else{Ext.ux.Printer.print(reprocessor);}}});});</script><center><div id="cont"></div><div id="btn"></div></center></body></html>';
 	//Ext.onReady(function(){var reprocessor = new Ext.Panel({title: "Reprocessor",frame: true,renderTo: "cont",listeners:{afterrender: function(panel){var returnObj = JSON.parse(\''.$returntext.'\');var values = returnObj["tmn_data"];var single_tpl = new Ext.XTemplate(\''.$single_template.'\');var spouse_tpl = new Ext.XTemplate(\''.$spouse_template.'\');if (values["s_firstname"] == null){single_tpl.overwrite(panel.body, values);} else {spouse_tpl.overwrite(panel.body, values);}}},hand: function(){if (Ext.isChrome){window.print();}else{Ext.ux.Printer.print(this);}}});var print = new Ext.Button({renderTo: "btn",text: "Print",scope: reprocessor,handler: reprocessor.hand});});
 	
 

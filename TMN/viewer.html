@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css" /><title>TMN - Viewer</title></head><body><script type="text/javascript" src="lib/ext-base.js"></script><script type="text/javascript" src="lib/ext-all.js"></script><script type="text/javascript" src="lib/Printer-all.js"></script><script type="text/javascript" src="ui/view_tmn.js"></script><script type="text/javascript" src="ui/view_tmn_2_0.js"></script><script type="text/javascript">
+Ext.onReady(function(){
+	var responsetext = '{"success":"true","tmn_data":{"firstname":"Ron","surname":"Jansons","date":"13 Apr 2010","fan":"9992178","ministry":"HQ \/ Core Services","ft_pt_os":"Full Time","days_per_wk":5,"net_stipend":"123","additional_tax":"0","post_tax_super":"0","taxable_income":"2265","pre_tax_super":"102","housing":"1650","housing_frequency":"Monthly","additional_housing":"0","additional_life_cover":"0","additional_life_cover_source":"Support Account","mfb":"1133","mfb_rate":"Half","mmr":"500","financial_package":3398,"joint_financial_package":3398,"ministry_levy":0,"employer_super":"204","total_super":306,"resc":0,"super_fund":"Other","transfers":[{"name":"xyz","amount":"50"}],"total_transfers":50,"workers_comp":51,"buffer":7005,"international_donations":"0","ccca_levy":467,"tmn":4670,"auth_lv1":1,"auth_lv2":1,"auth_lv2_reasons":"[{reason: \'TMN is outside recommended band: Over Maximum ($3500).\'}]","auth_lv3":0,"auth_lv3_reasons":"[]"}}';
+	
+	
+	var xtype_version = "view_tmn";
+	if (responsetext.search("housing_stipend") == -1) {
+		xtype_version = "view_tmn_2_0";	}
+	
+	var reprocessor = new Ext.Panel({
+		title: "Reprocessor",
+		frame: true,
+		renderTo: "cont",
+		items: [
+			{xtype: xtype_version}
+		]
+	});
+	reprocessor.items.items[0].response = responsetext;
+	try {
+		reprocessor.items.items[0].loadForm();
+	} catch (error) {
+		alert(error);
+	}
+	var print = new Ext.Button({
+		renderTo: "btn",
+		text: "Print",
+		scope: reprocessor,
+		handler: function(){
+			if (Ext.isChrome){
+				window.print();
+			} else{
+				Ext.ux.Printer.print(reprocessor);
+			}
+		}
+	});
+
+	
+});
+</script><center><div id="cont"></div><div id="btn"></div></center></body></html>
