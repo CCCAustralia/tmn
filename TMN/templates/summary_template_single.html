@@ -1,0 +1,580 @@
+<html>
+<head>
+<title>Aussie Based Single Summary Template</title>
+</head>
+<link rel="stylesheet" type="text/css" href="../lib/resources/css/customstyles.css'.$force_reload.'" />
+<body>
+<!-- Copy the code between the start and end comments (DO NOT Remove the start and end quotes)-->
+<!-- START aussie-based-single -->
+<div class="tmn-page">
+	<table>
+		<tr>
+			<td><h1 class="tmn-title">'+this.title+'</h1></td>
+			<td><img class="tmn-logo" src="http://www.ccca.org.au/tntmpd/TntMPDCCCALogo-new.JPG" alt="CCCA Logo" /></td>
+		</tr>
+	</table>
+	
+	<div class="tmn-instructions">
+		<div>- Print a copy for your own records.</div>
+		<div>- Have it authorised by the appropriate people.</div>
+		<div>- Submit your TMN to Payroll (PO Box 565, Mulgrave, Vic, 3170 OR payroll@ccca.org.au).</div>
+		<div class="indent">- If this is your first TMN, submit to Member Care (PO Box 565, Mulgrave, Vic, 3170 OR mc.admin@ccca.org.au).</div>
+		<div class="indent">- If you would like to submit it by email, please print this page as a pdf.</div>
+		<div class="double-indent">- You should then attach the pdf to an email to the appropriate people for authorisation.</div>
+		<div class="double-indent">- It should be forwarded up the authority chain (as needed) and then forwarded to payroll@ccca.org.au.</div>
+		<div class="double-indent">- It is your responsibility to see that it reaches payroll.</div>
+		<div class="double-indent">- If you need software to print your TMN as a PDF then <a href="http://www.cutepdf.com/download/CuteWriter.exe" target="_blank">download</a> Cute PDF.</div>
+	</div>
+	
+	<table>
+		<tr>
+			<td style="width:50%;"><b>Name: </b>{firstname} {surname}</td>
+			<td style="width:25%;"><b>Date: </b>{date}</td>
+			<td style="width:25%;"><b>Support Account: </b>{fan}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><div class="tmn-note"><b>Note:</b> From this year on your support account no. will have the form 101#### instead of 800####.</div></td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<br />
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-goals">
+			<th>Your Monthly Support Goal is: ${tmn}</th>
+			<th colspan="2">Your Account must be above: ${buffer}</th>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+	</table>
+	
+	<p>&nbsp;</p>
+	
+	<div class="tmn-break-down">
+	<div class="header">TMN Break Down</div>
+	<table>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr>
+			<th colspan="2">Name</th>
+			<td>{firstname}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr>
+			<th colspan="2">Ministry</th>
+			<td>{ministry}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr>
+			<th colspan="2">Status</th>
+			<td>{ft_pt_os} - {days_per_wk} Days</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Net Stipend</th>
+			<td>${net_stipend}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Estimated Tax </th>
+			<td>${tax}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Additional Tax </th>
+			<td>${additional_tax}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Post-tax Super </th>
+			<td>${post_tax_super}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-total">
+			<th colspan="2">Taxable Income (Net Stipend + Estimated Tax + Additional Tax + Post-Tax Super)</th>
+			<td>${taxable_income}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Pre-tax Super </th>
+			<td>${pre_tax_super}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Additional Life Cover (per month)</th>
+			<td>${additional_life_cover}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">MFB\'s</th>
+			<td>${mfb}</td>
+		</tr>
+		<tpl if="additional_housing &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Additional Housing Allowance</th>
+				<td>${additional_housing_allowance}</td>
+			</tr>
+		</tpl>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-total">
+			<th colspan="2">Financial Package </th>
+			<td>${financial_package}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Employer Super </th>
+			<td>${employer_super}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">MMR</th>
+			<td>${mmr}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Total Internal Transfers</th>
+			<td>${total_transfers}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Worker\'s Compensation</th>
+			<td>${workers_comp}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">CCCA Levy</th>
+			<td>${ccca_levy}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-total">
+			<th colspan="2">Total Monthly Needs</th>
+			<td>${tmn}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+	</table>
+	</div>
+	
+	<p>&nbsp;</p>
+	
+	<div class="tmn-stipend-summary">
+	<div class="header">Stipend Summary</div>
+	<table>
+		<tr class="tmn-data">
+			<th colspan="2">Stipend (Money in your account)</th>
+			<td>${stipend}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Housing Stipend (The amount of your stipend that will be used on housing)</th>
+			<td>${housing_stipend}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-total">
+			<th colspan="2">Net Stipend (Stipend + Housing Stipend)</th>
+			<td>${net_stipend}</td>
+		</tr>
+		<tr>
+		    <td colspan="3"><hr /></td>
+		</tr>
+	</table>
+	</div>
+	
+	<tpl if="housing &gt; 0">
+		<p>&nbsp;</p>
+		
+		<div class="tmn-housing-summary">
+		<div class="header">Housing Summary</div>
+		<table>
+			<tr class="tmn-data">
+				<th colspan="2">The amount that comes from your MFBs monthly</th>
+				<td>${housing_mfb}</td>
+			</tr>
+			<tr class="tmn-data">
+				<th colspan="2">The amount that comes from you Stipend monthly</th>
+				<td>${housing_stipend}</td>
+			</tr>
+			<tr class="tmn-data">
+				<th colspan="2">The amount that comes from Additional Housing Allowance monthly</th>
+				<td>${additional_housing}</td>
+			</tr>
+			<tr>
+				<td colspan="3"><hr /></td>
+			</tr>
+			<tr class="tmn-total">
+				<th colspan="2">Total Monthly Housing</th>
+				<td>${monthly_housing}</td>
+			</tr>
+			<tr>
+				<td colspan="3"><hr /></td>
+			</tr>
+			<tr>
+				<th style="text-align:center;" colspan="4">CCCA will pay ${housing} into your elected housing account {housing_frequency}.</th>
+			</tr>
+		</table>
+		</div>
+	</tpl>
+	
+	<tpl if="mfb &gt; 0">
+		<p>&nbsp;</p>
+	
+		<div class="tmn-mfb-summary">
+		<div class="header">Ministry Fringe Benifits Summary</div>
+		<table>
+			<tr>
+				<th colspan="2">MFB Rate</th>
+				<td>${mfb_rate}</td>
+			</tr>
+			<tr>
+				<td colspan="3"><hr /></td>
+			</tr>
+			<tr class="tmn-data">
+				<th colspan="2">The amount of your MFBs that you can make claims from</th>
+				<td>${claimable_mfb}</td>
+			</tr>
+			<tr class="tmn-data">
+				<th colspan="2">The amount of your MFBs that will go toward housing</th>
+				<td>${housing_mfb}</td>
+			</tr>
+			<tr>
+				<td colspan="3"><hr /></td>
+			</tr>
+			<tr class="tmn-total">
+				<th colspan="2">Total Ministry Fringe Benifits</th>
+				<td>${mfb}</td>
+			</tr>
+			<tr>
+			    <td colspan="3"><hr /></td>
+			</tr>
+		</table>
+		</div>
+	</tpl>
+	
+	<p>&nbsp;</p>
+	
+	<div class="tmn-super-summary">
+	<div class="header">Super Summary</div>
+	<table>
+		<tr class="tmn-data">
+			<th colspan="2">Post Tax Super</th>
+			<td>${post_tax_super}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Pre Tax Super</th>
+			<td>${pre_tax_super}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Employer Super</th>
+			<td>${employer_super}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr class="tmn-total">
+			<th colspan="2">Total Super</th>
+			<td>${total_super}</td>
+		</tr>
+		<tr>
+			<td colspan="3"><hr /></td>
+		</tr>
+		<tr>
+			<th colspan="2">Reportable Employer Super Contribution (RESC)</th>
+			<td>${resc}</td>
+		</tr>
+		<tr>
+			<th colspan="2">Super Choice</th>
+			<td>{super_fund}</td>
+		</tr>
+		<tpl if="additional_life_cover &gt; 0">
+			<tr>
+				<th colspan="2">Amount of Additional Life Cover</th>
+				<td>${additional_life_cover}</td>
+			</tr>
+		</tpl>
+		<tr>
+			<th colspan="2">Additional Income Protection Premium paid from</th>
+			<td>{income_protection_cover_source}</td>
+		</tr>
+	</table>
+	</div>
+	
+	<tpl if="total_transfers &gt; 0">
+		<p>&nbsp;</p>
+		
+		<div class="tmn-internal-transfer-summary">
+		<div class="header">Internal Transfer Summary</div>
+		<table>
+			<tr>
+				<th colspan="2">Internal Transfers: </th>
+				<td>Name</td>
+				<td>Amount</td>
+			</tr>
+			<tpl for="transfers">
+				<tr class="tmn-data">
+				    <th colspan="2"></th>
+				    <td>{name}</td>
+				    <td>${amount}</td>
+				</tr>
+			</tpl>
+			<tr>
+				<td colspan="4"><hr /></td>
+			</tr>
+			<tr class="tmn-total">
+				<th colspan="2">Total Internal Transfers</th>
+				<td colspan="2">${total_transfers}</td>
+			</tr>
+			<tr>
+			    <td colspan="4"><hr /></td>
+			</tr>
+		</table>
+		</div>
+	</tpl>
+	
+	<p>&nbsp;</p>
+	
+	<h2>Update Payment Methods</h2>
+	<p>
+		<u>If your bank or credit card details have changed</u>
+	</p>
+	<p>Please record them below.</p>
+
+	<tpl if="housing &gt; 0">
+		<p>&nbsp;</p>
+		
+		<div class="tmn-housing-payments">
+		<div class="header">Housing Payments</div>
+		<table>
+			<tr>
+				<td>
+					<strong>Bank Account (preferred)</strong>
+				</td>
+				<td>
+					<strong>Cheque</strong>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Name on Account:</p>
+					<p><br>___________________________________________</p>
+				</td>
+				<td>
+					<p>Name on Cheque:</p>
+					<p><br>___________________________________________</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>BSB:</p>
+					__ __ __ / __ __ __
+				</td>
+				<td>
+					<p>Postal Address:</p>
+					<p><br>___________________________________________</p>
+					<p><br>___________________________________________</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Account Number:</p>
+					<p><br>___________________________________________</p>
+				</td>
+				<td>
+					<p>Reference (if needed):</p>
+					<p><br>___________________________________________</p>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>
+					<strong>BPay:</strong>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>BPay Reference Number (this may or may not be your card number):</p>
+					<p><br>__ __ __ __ - __ __ __ __ - __ __ __ __ - __ __ __ __</p>
+				</td>
+				<td>
+					<p>BPay Biller Code:</p>
+					<p><br>__ __ __ __ - __ __ __ __</p>
+				</td>
+			</tr>
+		</table>
+		</div>
+	</tpl>
+	
+	<p>&nbsp;</p>
+	
+	<div class="tmn-stipend-payments">
+	<div class="header">Stipend Payments</div>
+	<table>
+		<tr>
+			<td>
+				<strong>Bank Account</strong>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Name on Account:</p>
+				<p><br>___________________________________________</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>BSB:</p>
+				<p><br>__ __ __ /__ __ __</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Account Number:</p>
+				<p><br>___________________________________________</p>
+			</td>
+		</tr>
+	</table>
+	</div>
+	
+	<br />
+	
+	<div class="tmn-mfb-payments">
+	<div class="header">MMR/MFB Reimbursements:</div>
+	<table>
+		<tr>
+			<td colspan="2">
+				<strong>Credit Card</strong>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Name on Card</p>
+				<p><br>___________________________________________</p>
+			</td>
+			<td>
+				<p>
+					<br><input type="checkbox" name="checkbox" value="checkbox"> Visa
+					<br><input type="checkbox" name="checkbox" value="checkbox"> MasterCard
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Financial Institution</p>
+				<p><br>___________________________________________</p>
+			</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				<p>BPay Reference Number (this may or may not be your card number):</p>
+				<p><br>__ __ __ __ - __ __ __ __ - __ __ __ __ - __ __ __ __</p>
+			</td>
+			<td>
+				<p>BPay Biller Code:</p>
+				<p><br>__ __ __ __ - __ __ __ __</p>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<p>&nbsp;</p>
+	
+	<div class="tmn-authorisation">
+	<div class="header">Authorisation</div>
+		<tpl if="auth_lv2 || auth_lv3">
+			<div class="reasons">
+				<tpl if="auth_lv2">
+			 		Your TMN must be approved by your NML because:
+			 		<tpl for="auth_lv2_reasons"><div class="indent">- {reason}</div></tpl>
+				</tpl>
+				<tpl if="auth_lv3"><br/>
+			 		Your TMN must be approved by your MGL because:
+			 		<tpl for="auth_lv3_reasons"><div class="indent">- {reason}</div></tpl>
+				</tpl>
+			</div>
+		</tpl>
+		<table>
+			<tr>
+				<td colspan="2"><b>Missionary:</b></td>
+			</tr>
+			<tr>
+				<td colspan="2">Name: {firstname} {surname}<hr /></td>
+			</tr>
+			<tr>
+				<td style="width: 70%">Signature: <hr /></td>
+				<td style="width: 30%">Date: <hr /></td>
+			</tr>
+			<tpl if="auth_lv1">
+				<tr>
+					<td colspan="2"><b>Ministry Overseer:</b></td>
+				</tr>
+				<tr>
+					<td colspan="2">Name:<hr /></td>
+				</tr>
+				<tr>
+					<td>Signature: <hr /></td>
+					<td>Date: <hr /></td>
+				</tr>
+			</tpl>
+			<tpl if="auth_lv2">
+				<tr>
+					<td colspan="2"><b>National Ministry Leader:</b></td>
+				</tr>
+				<tr>
+					<td colspan="2">Name: <hr /></td>
+				</tr>
+				<tr>
+					<td>Signature: <hr /></td>
+					<td>Date: <hr /></td>
+				</tr>
+			</tpl>
+			<tpl if="auth_lv3">
+				<tr>
+					<td colspan="2"><b>Ministry Group Leader:</b></td>
+				</tr>
+				<tr>
+					<td colspan="2">Name: <hr /></td>
+				</tr>
+				<tr>
+					<td>Signature: <hr /></td>
+					<td>Date: <hr /></td>
+				</tr>
+			</tpl>
+		</table>
+	</div>
+	<p class="footer">
+		$Rev$
+		 | 
+		$Date$
+	</p>
+</div>
+<!-- END aussie-based-single -->
+</body>
+</html>

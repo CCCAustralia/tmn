@@ -1,0 +1,91 @@
+
+/*changes the style of readonly fields so that people know that they can't edit them*/
+.x-form-readonly {
+	color:#333333;
+	background-color:#d2d1ca;
+    background-image:url(../images/custom/readonly-bg.gif);
+}
+
+/*changes the style of readonly fields so that people know that they can't edit them*/
+.x-form-readonly-red {
+	color:#333333;
+	background-color:#caa07a;
+    background-image:url(../images/custom/readonly-red-bg.gif);
+}
+
+/*makes sure everything is left aligned incase the panel's fall inside a center tag*/
+.x-panel {
+	text-align: left;
+}
+
+/*shows add symbol on the grid's add button*/
+.silk-add {
+	background-image: url(../images/custom/add.gif) !important;
+	background-repeat: no-repeat;
+}
+
+/*shows add symbol on the grid's add button*/
+.silk-delete {
+	background-image: url(../images/custom/delete.gif) !important;
+	background-repeat: no-repeat;
+}
+
+/*removes red triangle from grid cell (EXT2)*/
+.x-grid-dirty-cell {
+     background-image:none;
+}
+
+/*removes red triangle from grid cell (EXT3)*/
+.x-grid3-dirty-cell {
+     background-image:none;
+}
+
+/*styles for the TMN Print Page*/
+.tmn-page {margin:0; padding:10; background-image:none; background-color:#fff; font:16px tahoma,arial,helvetica,sans-serif;}
+.tmn-page table {width:100%;}
+.tmn-page h2 {font-size:24px;}
+
+.tmn-page .tmn-title {font-size:28px; text-align:center;}
+.tmn-page .tmn-logo {float:right; width:300px; height:100px;}
+.tmn-page .tmn-instructions div {font-size:16px}
+.tmn-page .tmn-goals th {text-align:center;}
+
+.tmn-page .tmn-note {}
+.tmn-page .indent {text-indent:25px;}
+.tmn-page .double-indent {text-indent:50px;}
+
+.tmn-page .header {height: 30px; padding-top:10px; color:#fff; font-size:18px; text-align:center; background-color:#36c; border-bottom: 2px solid #000;}
+.tmn-page .tmn-data th {text-indent:25px;}
+.tmn-page .tmn-data td {width:15%;}
+.tmn-page .tmn-total th {}
+.tmn-page .tmn-total td {width:15%;}
+
+.tmn-page .tmn-break-down, .tmn-page .tmn-international-break-down, .tmn-page .tmn-home-break-down, .tmn-page .tmn-stipend-summary, .tmn-page .tmn-housing-summary, .tmn-page .tmn-super-summary, .tmn-page .tmn-mfb-summary, .tmn-page .tmn-internal-transfer-summary
+{border: 2px solid #000;}
+.tmn-page .tmn-break-down .header, .tmn-page .tmn-international-break-down .header, .tmn-page .tmn-home-break-down .header, .tmn-page .tmn-stipend-summary .header, .tmn-page .tmn-housing-summary .header, .tmn-page .tmn-super-summary .header, .tmn-page .tmn-mfb-summary .header, .tmn-page .tmn-internal-transfer-summary .header
+{}
+.tmn-page .tmn-international-break-down .header
+{background-color:#093;}
+.tmn-page .tmn-home-break-down .header
+{background-color:#fc3; color:#000;}
+.tmn-page .tmn-break-down table, .tmn-page .tmn-international-break-down table, .tmn-page .tmn-home-break-down table, .tmn-page .tmn-stipend-summary table, .tmn-page .tmn-housing-summary table, .tmn-page .tmn-super-summary table, .tmn-page .tmn-mfb-summary table, .tmn-page .tmn-internal-transfer-summary table
+{padding:10px;}
+.tmn-page .tmn-break-down th, .tmn-page .tmn-international-break-down th, .tmn-page .tmn-home-break-down th, .tmn-page .tmn-stipend-summary table th, .tmn-page .tmn-housing-summary table th, .tmn-page .tmn-super-summary table th, .tmn-page .tmn-mfb-summary table th, .tmn-page .tmn-internal-transfer-summary table th
+{text-align: left; font-size:16px}
+.tmn-page .tmn-break-down td, .tmn-page .tmn-international-break-down td, .tmn-page .tmn-home-break-down td, .tmn-page .tmn-stipend-summary table td, .tmn-page .tmn-housing-summary table td, .tmn-page .tmn-super-summary table td, .tmn-page .tmn-mfb-summary table td, .tmn-page .tmn-internal-transfer-summary table td
+{text-align:center;}
+
+.tmn-page .tmn-housing-payments, .tmn-page .tmn-stipend-payments, .tmn-page .tmn-mfb-payments, .tmn-page .tmn-authorisation
+{border: 2px solid #000;}
+.tmn-page .tmn-housing-payments .header, .tmn-page .tmn-stipend-payments .header, .tmn-page .tmn-mfb-payments .header, .tmn-page .tmn-authorisation .header
+{background-color:#f93; color: #000;}
+.tmn-page .tmn-housing-payments table, .tmn-page .tmn-stipend-payments table, .tmn-page .tmn-mfb-payments table, .tmn-page .tmn-authorisation table
+{padding:15px;}
+.tmn-page .tmn-housing-payments table td, .tmn-page .tmn-stipend-payments table td, .tmn-page .tmn-mfb-payments table td, .tmn-page .tmn-authorisation table td
+{vertical-align: top;}
+
+.tmn-page .tmn-authorisation .reasons
+{padding: 15px; border-bottom: 2px solid #000; font-size:16px;}
+
+.tmn-page .footer
+{font-size:12px; text-align:right;}
