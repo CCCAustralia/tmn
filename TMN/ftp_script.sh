@@ -1,3 +1,4 @@
+mkdir ~/svn_temp
 cd ~/svn_temp
 svn export --force svn://harro@10.32.16.4/svn/tmn/tags/TMN%202.1.1
 cd ~/svn_temp/TMN\ 2.1.1
