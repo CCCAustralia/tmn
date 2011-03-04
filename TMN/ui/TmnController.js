@@ -449,6 +449,33 @@ tmn.TmnController = function() {
 		},
 		
 		/**
+		 * Handler for when the user selects that they want to load a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		onLoadSession: function(form_panel) {
+			form_panel.onLoadSession();
+		},
+		
+		/**
+		 * Handler for when the user selects that they want to save a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		onSaveSession: function(form_panel) {
+			form_panel.onSaveSession();
+		},
+		
+		/**
+		 * Handler for when the user selects that they want to delete a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		onDeleteSession: function(form_panel) {
+			form_panel.onDeleteSession();
+		},
+		
+		/**
 		 * Handler for when the user updates a piece of financial data (done using {@link tmn.view.FinancialDetailsForm}) and it needs to be processed.
 		 * 
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
@@ -630,6 +657,9 @@ tmn.TmnController = function() {
 			
 				//FinancialDetailsForm events
 			this.view.on('financialdataupdated', this.processFinancialData, this);
+			this.view.on('loadsession', this.onLoadSession, this);
+			this.view.on('savesession', this.onSaveSession, this);
+			this.view.on('deletesession', this.onDeleteSession, this);
 			
 			//load initial form
 			this.view.loadActiveForm();

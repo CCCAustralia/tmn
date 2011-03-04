@@ -2,7 +2,7 @@
 <head>
 <title>Aussie Based Single Summary Template</title>
 </head>
-<link rel="stylesheet" type="text/css" href="../lib/resources/css/customstyles.css'.$force_reload.'" />
+<link rel="stylesheet" type="text/css" href="../lib/resources/css/customstyles.css" />
 <body>
 <!-- Copy the code between the start and end comments (DO NOT Remove the start and end quotes)-->
 <!-- START aussie-based-single -->
@@ -13,18 +13,6 @@
 			<td><img class="tmn-logo" src="http://www.ccca.org.au/tntmpd/TntMPDCCCALogo-new.JPG" alt="CCCA Logo" /></td>
 		</tr>
 	</table>
-	
-	<div class="tmn-instructions">
-		<div>- Print a copy for your own records.</div>
-		<div>- Have it authorised by the appropriate people.</div>
-		<div>- Submit your TMN to Payroll (PO Box 565, Mulgrave, Vic, 3170 OR payroll@ccca.org.au).</div>
-		<div class="indent">- If this is your first TMN, submit to Member Care (PO Box 565, Mulgrave, Vic, 3170 OR mc.admin@ccca.org.au).</div>
-		<div class="indent">- If you would like to submit it by email, please print this page as a pdf.</div>
-		<div class="double-indent">- You should then attach the pdf to an email to the appropriate people for authorisation.</div>
-		<div class="double-indent">- It should be forwarded up the authority chain (as needed) and then forwarded to payroll@ccca.org.au.</div>
-		<div class="double-indent">- It is your responsibility to see that it reaches payroll.</div>
-		<div class="double-indent">- If you need software to print your TMN as a PDF then <a href="http://www.cutepdf.com/download/CuteWriter.exe" target="_blank">download</a> Cute PDF.</div>
-	</div>
 	
 	<table>
 		<tr>
@@ -82,9 +70,14 @@
 		<tr>
 			<td colspan="3"><hr /></td>
 		</tr>
+		
 		<tr class="tmn-data">
-			<th colspan="2">Net Stipend</th>
-			<td>${net_stipend}</td>
+			<th colspan="2">Stipend (Money in your account)</th>
+			<td>${stipend}</td>
+		</tr>
+		<tr class="tmn-data">
+			<th colspan="2">Housing Stipend (The amount of your stipend that will be used on housing)</th>
+			<td>${housing_stipend}</td>
 		</tr>
 		<tr class="tmn-data">
 			<th colspan="2">Estimated Tax </th>
@@ -102,7 +95,7 @@
 		    <td colspan="3"><hr /></td>
 		</tr>
 		<tr class="tmn-total">
-			<th colspan="2">Taxable Income (Net Stipend + Estimated Tax + Additional Tax + Post-Tax Super)</th>
+			<th colspan="2">Taxable Income ( Stipend + Housing Stipend + Estimated Tax + Additional Tax + Post-Tax Super)</th>
 			<td>${taxable_income}</td>
 		</tr>
 		<tr>
@@ -174,32 +167,6 @@
 		<tr class="tmn-total">
 			<th colspan="2">Total Monthly Needs</th>
 			<td>${tmn}</td>
-		</tr>
-		<tr>
-		    <td colspan="3"><hr /></td>
-		</tr>
-	</table>
-	</div>
-	
-	<p>&nbsp;</p>
-	
-	<div class="tmn-stipend-summary">
-	<div class="header">Stipend Summary</div>
-	<table>
-		<tr class="tmn-data">
-			<th colspan="2">Stipend (Money in your account)</th>
-			<td>${stipend}</td>
-		</tr>
-		<tr class="tmn-data">
-			<th colspan="2">Housing Stipend (The amount of your stipend that will be used on housing)</th>
-			<td>${housing_stipend}</td>
-		</tr>
-		<tr>
-			<td colspan="3"><hr /></td>
-		</tr>
-		<tr class="tmn-total">
-			<th colspan="2">Net Stipend (Stipend + Housing Stipend)</th>
-			<td>${net_stipend}</td>
 		</tr>
 		<tr>
 		    <td colspan="3"><hr /></td>

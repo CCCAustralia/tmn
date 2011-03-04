@@ -6,6 +6,42 @@
  * returns a json packet with the field names and values.
  */
 
+include_once('TmnSessionComboLoader.php');
+
+//set the log path
+$LOGFILE = "logs/combofill.log";
+
+if (isset($_POST['mode'])) {
+	
+	$tablename		= $_POST['mode'];
+		
+	if ($_POST['mode'] == 'Tmn_Sessions') {
+		
+		if (isset($_POST['aussie_form']) && isset($_POST['overseas_form']) && isset($_POST['home_assignment'])) {
+			
+			$aussie_form		= ($_POST['aussie_form'] == 'true' ? true : false);
+			$overseas_form		= ($_POST['overseas_form'] == 'true' ? true : false);
+			$home_assignment	= ($_POST['home_assignment'] == 'true' ? true : false);
+			
+			$comboLoader	= new TmnSessionComboLoader($LOGFILE, "Tmn_Sessions", $aussie_form, $overseas_form, $home_assignment);
+			
+		} else {
+			fb('Invalid get_session params');
+			die('{success: false}');
+		}
+		
+	} else {
+		$comboLoader	= new TmnComboLoader($LOGFILE, $tablename);
+	}
+	
+	echo $comboLoader->produceJson();
+	
+} else {
+	fb('Invalid params');
+	die('{success: false}');
+}
+
+/*
 include_once "dbconnect.php";
 include_once "logger.php";
 
@@ -51,5 +87,6 @@ echo '{	'.$tablename.':['.$returndata.'] }';
 
 //$connection.close();
 
+*/
 
 ?>

@@ -15,3 +15,5 @@ class MySqlDriver {
 		//mysql_close( $this->$connection );
 	}
 }
+
+?>

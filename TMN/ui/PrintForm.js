@@ -147,6 +147,8 @@ this.templates['home-assignment-auth']['spouse'] = new Ext.XTemplate('<!-- START
 	
 	//register events
 	this.addEvents(
+			'next',
+			
 			/**
 	         * @event loadsuccess
 	         * Fires when a form's load ajax request is a success.
@@ -192,7 +194,20 @@ this.templates['home-assignment-auth']['spouse'] = new Ext.XTemplate('<!-- START
 			id: this.id,
 			frame:true,
 			title: this.title,
-			bodyStyle: 'padding:0'
+			bodyStyle: 'padding:0',
+			tbar: [
+				{
+					itemId: 'submit_button',
+					text: 'Submit',
+					scope: this,
+					height: 100,
+					width: 870,
+					iconCls: 'x-form-submit-red',
+					handler: function(){
+						this.fireEvent('next');
+					}
+				}
+			]
 	};
 	
 	//this is a call to tmn.view.TmnView's parent constructor (Ext.FormPanel), this will give tmn.view.TmnView all the variables and methods that it's parent does
@@ -308,7 +323,7 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 				buttons: Ext.MessageBox.OK,
 				closable: false,
 				title: 'Warning',
-				msg: 'To save your TMN press the \'Print\' button in the bottom right corner.'
+				msg: 'DO NOT PRINT THIS! If you are happy with this TMN hit submit and you will be emailed instructions on how to complete your submition.'
 			});
 		} else {
 			//tell the user there is an error with displaying their values

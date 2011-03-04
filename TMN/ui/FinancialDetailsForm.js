@@ -133,7 +133,28 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 		 * @param {Ext.form.BasicForm}	form 		The Object that represents just the form (see {@link Ext.form.BasicForm})
 		 * @param {Ext.form.Action}		action 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
          */
-		'submitfailure'
+		'submitfailure',
+		
+		/**
+         * @event loadsession
+         * Fires when the user clicks load when a session is selected.
+		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
+         */
+		'loadsession',
+		
+		/**
+         * @event savesession
+         * Fires when the user clicks save when a session is selected.
+		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
+         */
+		'savesession',
+		
+		/**
+         * @event deletesession
+         * Fires when the user clicks delete when a session is selected.
+		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
+         */
+		'deletesession'
 	);
 	
 	/**
@@ -143,11 +164,76 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 	 */
 	this.config =  {
 		
-		id: this.id,
-		frame: true,
-		title: this.title,
+		id:		this.id,
+		frame:	true,
+		title:	this.title,
+		tbar:	[
+		    'Session: ', ' ',
+		    {
+		    	itemId: 'session_combo',
+	        	xtype: 'combo',
+	       		width: 200,
+			    fieldLabel: 'Session',
+			    valueField: 'SESSION_ID',
+			    hiddenName: 'SESSION_COMBO',
+			    hiddenId: 'SESSION_COMBO',
+			    displayField: 'DATE_MODIFIED',
+			    emptyText:'Select a Session or start typing...',
+			    triggerAction: 'all',
+	        	editable: false,
+			    forceSelection: true,
+			    allowBlank:true,
+			    
+			    mode: 'local',
+			    // store getting items from server
+			    store: new Ext.data.JsonStore({
+			        itemId:'session_store',
+			        root: 'Tmn_Sessions',
+			        fields:['SESSION_ID', 'DATE_MODIFIED'],
+			        url:'php/combofill.php',
+			        autoLoad: {
+			        	params: {mode: 'Tmn_Sessions', aussie_form:this.aussie_form, home_assignment:this.home_assignment, overseas_form:this.overseas_form}
+			        }
+			    })
+		    }, ' ', '-', ' ',
+		    {
+		    	itemId: 'load_session_button',
+				text: 'Load',
+				width: 100,
+				scope: this,
+				handler: function(){
+					if (this.getForm().items.map['session_combo'].getValue() != '') {
+						this.fireEvent('loadsession', this);
+					} else {
+						Ext.MessageBox.alert('Warning', 'A Session needs to be selected for the save function to work. If you have no Sessions available in the combo box just start typing in your values to start a new session.');
+					}
+				}
+		    }, ' ', '-', ' ',
+		    {
+		    	itemId: 'save_session_button',
+				text: 'Save',
+				width: 100,
+				scope: this,
+				handler: function(){
+					this.fireEvent('savesession', this);
+				}
+		    }, ' ', '-', ' ',
+		    {
+		    	itemId: 'delete_session_button',
+				text: 'Delete',
+				width: 100,
+				scope: this,
+				handler: function(){
+					if (this.getForm().items.map['session_combo'].getValue() != '') {
+						this.fireEvent('deletesession', this);
+					} else {
+						Ext.MessageBox.alert('Warning', 'A Session needs to be selected for the delete function to work. If you have no Sessions available in the combo box just start typing in your values to start a new session.');
+					}
+				}
+		    }, ' ', '-'
+		],
 		
-		items:[
+		items:	[
 		       
 		///////////////////////////////Assignment Dates Panel//////////////////////////////////////
 
@@ -1899,5 +1985,92 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 */
 	onProcessFinancialDataFailure: function(response, options) {
 		Ext.MessageBox.alert('Server Error', 'Server Could Not Calculate Values! Please Contact The Technology Team at tech.team@ccca.org.au');
+	},
+	
+	/**
+	 * Handler for when the user selects to load a session.
+	 */
+	onLoadSession: function() {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to load a session and that load succeeds.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onLoadSessionSuccess: function(response, options) {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to load a session and that load fails.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onLoadSessionFailure: function(response, options) {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to save a session.
+	 */
+	onSaveSession: function() {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to save a session and that save succeeds.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onSaveSessionSuccess: function(response, options) {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to save a session and that save fails.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onSaveSessionFailure: function(response, options) {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to delete a session.
+	 */
+	onDeleteSession: function() {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to delete a session and that delete succeeds.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onDeleteSessionSuccess: function(response, options) {
+		
+	},
+	
+	/**
+	 * Handler for when the user selects to delete a session and that delete fails.
+	 * 
+	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+	 * @param {Object} 				options: 			The parameter to the request call.
+	 */
+	onDeleteSessionFailure: function(response, options) {
+		
 	}
 });

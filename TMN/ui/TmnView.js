@@ -112,6 +112,20 @@ tmn.view.TmnView = function() {
 										'parttime'
                                      ]);
 	
+	// relay special Financial Details events
+	for (formCount = 1; formCount < 4; formCount++) {
+		this.relayEvents(this.forms[formCount], [
+											'loadsession',
+											'savesession',
+											'deletesession'
+	                                     ]);
+	}
+	
+	// relay special Print Form events
+	this.relayEvents(this.forms[4], [
+										'next'
+                                     ]);
+	
 	/**
 	 * The config that defines the physical layout of the panel.
 	 * It is only used in construtor so there is no use in changing it dynamically. Edit it in the source.

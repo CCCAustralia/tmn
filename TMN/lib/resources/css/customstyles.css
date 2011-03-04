@@ -6,6 +6,11 @@
     background-image:url(../images/custom/readonly-bg.gif);
 }
 
+/*changes the style of the final submit button to give it focus*/
+.x-form-submit-red {
+	background-image: url(../images/custom/submit.gif) !important;
+}
+
 /*changes the style of readonly fields so that people know that they can't edit them*/
 .x-form-readonly-red {
 	color:#333333;
