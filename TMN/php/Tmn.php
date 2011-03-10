@@ -3,10 +3,6 @@
 include_once('Reporter.php');
 include_once('TmnAuth.php');
 include_once('TmnDatabase.php');
-require_once("../lib/FirePHPCore/fb.php");
-
-$AUTHLOGFILE	= "logs/authenticator.log";
-$DBLOGFILE		= "logs/database.log";
 
 class Tmn extends Reporter {
 	
@@ -26,8 +22,8 @@ class Tmn extends Reporter {
 		
 		parent::__construct($logfile);
 		
-		$this->db			= TmnDatabase::getInstance($DBLOGFILE);
-		$this->auth			= TmnAuth::getInstance($AUTHLOGFILE);
+		$this->db			= TmnDatabase::getInstance($logfile);
+		$this->auth			= TmnAuth::getInstance($logfile);
 		$this->guid			= $this->auth->getGuid();
 	}
 	

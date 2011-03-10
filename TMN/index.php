@@ -28,6 +28,7 @@ include_once('lib/cas/cas.php');		//include the CAS module
 include_once('php/dbconnect.php');
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
+$_CAS_CLIENT_CALLED = 1;
 phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server
 phpCAS::forceAuthentication();		//require the user to log in to CAS
 

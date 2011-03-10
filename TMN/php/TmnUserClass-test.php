@@ -1,15 +1,14 @@
 <?php
 
-$DEBUG = 1;
-
 /*******************************************                                                        
 # index.php - Generic index for PHP GCX SSO login                    
 *******************************************/
 
 //GCX login
-include_once('../../lib/cas/cas.php');		//include the CAS module
+include_once('../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
+$_CAS_CLIENT_CALLED = 1;
 phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server
 phpCAS::forceAuthentication();		//require the user to log in to CAS
 
@@ -46,28 +45,54 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
-include_once('../Tmn.php');
-$LOGFILE	= "TmnClass-test.log";
+include_once('TmnUser.php');
+$LOGFILE	= "TmnUserClass-test.log";
+$DEBUG		= 1;
 
 	//Constructor test
 	
 fb("Constructor Test");
-$tmnObj	= new Tmn($LOGFILE);
+$user	= new TmnUser($LOGFILE);
+
+/*
+ * Expected output
+ * 
+ * Console Output:
+ * Constructor Test
+ * [<now>] User Authenticated: guid = 691EC152-0565-CEF4-B5D8-************
+ * 
+ * Screen Output:
+ * 
+ */
 
 	//Auth test
 
 fb("Auth Test");
-fb("isAuthenticated(): " . $tmnObj->isAuthenticated());
-fb("getAuthGuid(): " . $tmnObj->getAuthGuid());
-fb("getGuid(): " . $tmnObj->getAuthGuid());
-fb("getEmail(): " . $tmnObj->getEmail());
+fb("isAuthenticated(): " . $user->isAuthenticated());
+fb("getAuthGuid(): " . $user->getAuthGuid());
+fb("getGuid(): " . $user->getAuthGuid());
+fb("getEmail(): " . $user->getEmail());
 
-fb("setGuid('me')"); $tmnObj->setGuid('me');
-fb("getGuid(): " . $tmnObj->getAuthGuid());
-fb("setGuid('me')"); $tmnObj->setGuid('me');
+fb("setGuid('me')"); $user->setGuid('me');
+fb("getGuid(): " . $user->getAuthGuid());
+fb("setGuid('me')"); $user->setGuid('me');
 
-	//Database test
+/*
+ * Expected output
+ * 
+ * Console Output:
+ * Auth Test
+ * isAuthenticated(): 1
+ * getAuthGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * getEmail(): michael.harro@gmail.com
+ * setGuid('me')
+ * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * setGuid('me')
+ * 
+ * Screen Output:
+ * 
+ */
 
-fb("Database Test");
 
 ?>

@@ -174,7 +174,7 @@ class TmnSession extends TmnUser {
 	
 	private function create() {
 		
-		$sql		= "INSERT INTO " . $this->table_name . " VALUES ( , ?, , ?, ?, ?, , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,)";
+		$sql		= "INSERT INTO `" . $this->table_name . "` VALUES ( , ?, , ?, ?, ?, , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,)";
 		$types		= "is";
 		$values		= array($this->getFan(),$this->getAuthGuid());
 		$valueCount	= 2;
@@ -204,7 +204,7 @@ class TmnSession extends TmnUser {
 		}
 		
 		$sql				 = trim($sql, ", ");
-		$sql				.= " FROM " . $this->table_name . " WHERE `SESSION_ID` = ?";
+		$sql				.= " FROM `" . $this->table_name . "` WHERE `SESSION_ID` = ?";
 		
 		$result				 = $this->preparedSelect($sql, $values, $types, $resultTypes); //do query
 		
@@ -214,13 +214,13 @@ class TmnSession extends TmnUser {
 	}
 	
 	public function update() {
-		$sql				= "UPDATE " . $this->table_name . " SET ";
+		$sql				= "UPDATE `" . $this->table_name . "` SET ";
 		$types				= "";
 		$values				= array();
 		$valueCount			= 0;
 		
 		foreach ($this->session as $key=>$value) {
-			$sql					.= "`" . strtoupper($this->session[$key]) . "` = ?, ";
+			$sql					.= "`" . strtoupper($key) . "` = ?, ";
 			$values[$valueCount]	 =	$this->session[$key];
 			$types					.= $this->session_type[$key];
 			$valueCount++;
@@ -235,7 +235,7 @@ class TmnSession extends TmnUser {
 	}
 	
 	private function delete() {
-		$sql				= "DELETE FROM " . $this->table_name . " WHERE `SESSION_ID` = ?";
+		$sql				= "DELETE FROM `" . $this->table_name . "` WHERE `SESSION_ID` = ?";
 		$types				= "i";
 		$values				= array($this->session_id);
 		

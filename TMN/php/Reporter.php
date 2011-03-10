@@ -1,6 +1,8 @@
 <?php
 
 require_once("../lib/FirePHPCore/fb.php");
+class FatalException extends Exception {}
+class LightException extends Exception {}
 
 class Reporter {
 	
@@ -15,20 +17,72 @@ class Reporter {
 			///////////////////CONSTRUCTOR/////////////////////
 	
 	
-	public function __construct($logfile) {
+	//is protected so singleton classes can extend this class
+	protected function __construct($logfile) {
 		
 		$this->filename		= $logfile;
 		$this->DEBUG		= 1;
 	}
 	
+	//interface for creating an instance of this class
+	public static function newInstance($logfile) {
+		return new Reporter($logfile);
+	}
 	
-			///////////////////CONTROL FUNCTIONS/////////////////
+	
+			///////////////////EXCEPTION FUNCTIONS/////////////////////
 	
 	
+	//Handles exceptions based on their type
+	public function exceptionHandler($exception) {
+		
+		if ($exception instanceof FatalException) {
+			
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage();
+			
+			$tempPath = $this->getFilename();
+			$this->setFilename("logs/exceptions.log");
+			$this->logToFile($msg);
+			$this->setFilename($tempPath);
+			
+			$this->failWithMsg($msg);
+			
+		} elseif ($exception instanceof LightException) {
+			
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage();
+			
+			$tempPath = $this->getFilename();
+			$this->setFilename("logs/exceptions.log");
+			$this->logToFile($msg);
+			$this->setFilename($tempPath);
+			
+			$this->d($msg);
+			
+		} else {
+			
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage();
+			
+			$tempPath = $this->getFilename();
+			$this->setFilename("logs/exceptions.log");
+			$this->logToFile($msg);
+			$this->setFilename($tempPath);
+			
+			$this->d($msg);
+			
+		}
+		
+	}
+	
+	
+			///////////////////FAIL FUNCTIONS/////////////////
+	
+	
+	//kills script and returns failure message to front end
 	public function fail() {
 		die('{success: false}');
 	}
 	
+	//outputs message to console if debugging is on then kills script and returns failure message to front end
 	public function failWithMsg($message) {
 		$this->d($message);
 		$this->fail();
@@ -38,15 +92,20 @@ class Reporter {
 			///////////////////DEBUG FUNCTIONS/////////////////////
 	
 	
-	
+	//returns debug status
 	public function getDebug() {
 		return $this->DEBUG;
 	}
 	
-	public function setDebug($dbug) {
-		$this->DEBUG	= $dbug;
+	public function startDebug() {
+		$this->DEBUG	= 1;
 	}
 	
+	public function stopDebug() {
+		$this->DEBUG	= 0;
+	}
+	
+	//outputs a message to the console if debugging is on
 	public function d($message) {
 		if($this->DEBUG) {
 			fb($message);
@@ -58,11 +117,12 @@ class Reporter {
 			///////////////////LOGGING FUNCTIONS/////////////////////
 	
 	
-
+	//returns the logger's set path
 	public function getFilename() {
 		return $this->filename;
 	}
 	
+	//returns the logger's new path
 	public function setFilename($fname) {
 		$this->filename	= $fname;
 	}
@@ -85,11 +145,6 @@ class Reporter {
 		fclose($fd);
 	}
 	
-	//returns the logger's set path
-	public function getLogPath() {
-		return $this->filename;
-	}
-	
 	//returns the contents of the log
 	public function printLog() {
 		//open file
@@ -99,7 +154,7 @@ class Reporter {
 		$filedata = fread($fd, filesize($this->filename));
 		fclose($fd);
 		$fd = fopen($this->filename, "a");
-		fwrite($fd, "FILE READ");
+		fwrite($fd, "FILE READ\n");
 		fclose($fd);
 		
 		//return the data

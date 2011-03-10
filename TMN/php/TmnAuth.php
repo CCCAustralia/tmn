@@ -2,7 +2,6 @@
 
 include_once('Reporter.php');
 include_once('../lib/cas/cas.php');
-require_once("../lib/FirePHPCore/fb.php");
 
 //initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
 if ( !isset($_CAS_CLIENT_CALLED) ) {
@@ -24,13 +23,14 @@ class TmnAuth extends Reporter {
 			///////////////////CONSTRUCTOR/////////////////////
 	
 	
-	private function __construct($logfile) {
+	protected function __construct($logfile) {
+		parent::__construct($logfile);
 		
 		$this->guid			= null;
 		
 		//check if the user has been authenticated via the Key using phpCAS
 		if (!phpCAS::isAuthenticated()) { //if your not logged into gcx quit
-			$this->failWithMsg('Auth failed');
+			throw new FatalException('Authentication Exception: User Not Authenticated');
 		}
 		
 		//grab user's guid if its available
@@ -38,28 +38,29 @@ class TmnAuth extends Reporter {
 			$xmlstr			= str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject		= new SimpleXmlElement($xmlstr);
 			$this->guid		= $xmlobject->authenticationSuccess->attributes->ssoGuid;
+			$this->logToFile("User Authenticated: guid = " . substr($this->guid, 0, -12) . "************");
 		} else {
-			$this->failWithMsg('No Guid');
+			throw new FatalException("Authentication Exception: User's GUID Not Found");
 		}
 	}
 	
-	
+
 			///////////////////CONTROL FUNCTIONS/////////////////
 	
     // The singleton method
-    public static function getInstance($logfile) 
-    {
+    public static function getInstance($logfile) {
         if (!isset(self::$instance)) {
             self::$instance = new TmnAuth($logfile);
         }
 
+        self::$instance->setFilename($logfile);
         return self::$instance;
     }
     
     // Prevent users to clone the instance
     public function __clone()
     {
-        $this->d("Authenticator Error: Clone not allowed");
+        throw new LightException("Authentication Exception: TmnAuth Cannot be cloned");
     }
 	
     
@@ -85,7 +86,7 @@ class TmnAuth extends Reporter {
 	public function __destruct() {
 		parent::__destruct();
 	}
-	
+
 }
 
 ?>
