@@ -29,38 +29,56 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			
 	
 	public function getUserFan() {
-		$sql = "SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID = '". $this->getGuid() ."'";
-		$userQuery = $this->query($sql);
+		$sql 		= "SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID = :guid";
+		$values		= array(":guid" => $this->getAuthGuid());
 		
-		if ($userQuery->num_rows == 1) {
-			$userrow = $userQuery->fetch_assoc();
-			return $userrow['FIN_ACC_NUM'];
-		} else {
-			$this->failWithMsg('User Conflict');
+		try {
+			$userQuery = $this->db->prepare($sql);
+			$userQuery->execute($values);
+			
+			if ($userQuery->rowCount() == 1) {
+				$userrow = $userQuery->fetch(PDO::FETCH_ASSOC);
+				return $userrow['FIN_ACC_NUM'];
+			} else {
+				throw new FatalException("User Conflict.");
+			}
+			
+		} catch (Exception $e) {
+			throw new FatalException("SessionComboLoader Exception: Can't find User due to error; " . $e->getMessage());
 		}
+		
 	}	
 	
 		//overrides TmnComboLoader version
 	public function produceJson() {
 		
-		$fan = $this->getUserFan();
+		try {
 			
-		//form the sql statement
-		if ($this->aussie_form) {
-				$sql	= "SELECT SESSION_ID, DATE_MODIFIED FROM Tmn_Sessions WHERE FAN = ". $fan . " AND HOME_ASSIGNMENT_SESSION_ID = NULL AND INTERNATIONAL_ASSIGNMENT_SESSION_ID = NULL";
-		} elseif ($this->overseas_form) {
-			if ($this->home_assignment) {
-				$sql	= "SELECT SESSION_ID, DATE_MODIFIED FROM Tmn_Sessions WHERE FAN = ". $fan . " AND HOME_ASSIGNMENT_SESSION_ID = NULL AND INTERNATIONAL_ASSIGNMENT_SESSION_ID != NULL";
+			$values	= array(":fan" => $this->getUserFan());
+			
+			//form the sql statement
+			if ($this->aussie_form) {
+					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+			} elseif ($this->overseas_form) {
+				if ($this->home_assignment) {
+					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
+				} else {
+					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+				}
 			} else {
-				$sql	= "SELECT SESSION_ID, DATE_MODIFIED FROM Tmn_Sessions WHERE FAN = ". $fan . " AND HOME_ASSIGNMENT_SESSION_ID != NULL AND INTERNATIONAL_ASSIGNMENT_SESSION_ID = NULL";
+				throw new FatalException('SessionComboLoader Exception: Form not Aussie or Overseas');
 			}
-		} else {
-			$this->failWithMsg('Form not Aussie or Overseas');
+			
+			$stmt			= $this->db->prepare($sql);
+			$stmt->execute($values);
+			
+			$j				= parent::jsonFromStmt($stmt);
+			
+			return $j;
+			
+		} catch (Exception $e) {
+			throw new FatalException($e->getMessage());
 		}
-		
-		$j				= parent::jsonFromQuery($sql);
-		
-		return $j;
 	}
 	
 			///////////////////DECONSTRUCTOR/////////////////////

@@ -10,9 +10,7 @@ class TmnDatabase extends Reporter {
 	// Hold an instance of the class
     private static $instance;
 	
-	private $connection;
 	private $db;
-	private $dbi;
 	private static $db_name		= "mportal_tmn";
 	private static $db_server	= "localhost";
 	private static $db_username	= "mportal";
@@ -24,12 +22,10 @@ class TmnDatabase extends Reporter {
 	
 	protected function __construct($logfile) {
 		
-		$this->connection	= null;
 		$this->db			= null;
-		$this->dbi			= null;
 		
 		try {
-			$this->connectToDatabase();
+			$this->connect();
 		} catch (Exception $e) {
 			throw $e;
 		}
@@ -59,147 +55,69 @@ class TmnDatabase extends Reporter {
 			//////////////////DATABASE FUNCTIONS/////////////////
 	
 	
-    //connects to database using the original mysql functions (suseptable to sql injection)
-	public function connectToDatabaseOriginal() {
+	//connects to database using mysql via the PDO wrapper (can do prepared sql statements)
+	public function connect() {
 		
 		if ($this->db == null) {
-			$this->connection	= @mysql_connect(self::$db_server, self::$db_username, self::$db_password);
-			if (!$this->connection) {
-				$this->connection	= null;
-				throw new FatalException('Database Exception: Cannot Connect; Error no.: ' . mysql_error());
+			try {
+				$this->db = new PDO("mysql:host=" . self::$db_server . ";dbname=" . self::$db_name, self::$db_username, self::$db_password);
+				$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			}
-			$this->db			= @mysql_select_db(self::$db_name,$this->connection);
-			if (!$this->db) {
-				$this->db	= null;
-				throw new FatalException('Database Exception: Cannot Connect; Error no.: ' . mysql_error());
+			catch(PDOException $e)
+			{
+				throw new FatalException("Database Exception: " . $e->getMessage());
 			}
 		} else {
 			throw new LightException("Database Exception: Tried to connect to database that is already connected.");
 		}
 		
-	}
-	
-	//connects to database using the mysql improved class (can do prepared sql statements)
-	public function connectToDatabase() {
-		
-		if ($this->dbi == null) {
-			$this->dbi = new mysqli(self::$db_server, self::$db_username, self::$db_password, self::$db_name);
-			$this->d($this->dbi);
-			if(mysqli_connect_errno()) {
-				throw new FatalException('Database Exception: Cannot Connect; Error no.: ' . mysqli_connect_errno());
-			}
-		} else {
-			throw new LightException("Database Exception: Tried to connect to database that is already connected.");
-		}
-		
-	}
-	
-	//very primative check to see if a parameter includes sql (if is has spaces in it)
-	public function isSql($string) {
-		if (strstr($string, ' ')) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 	
 	//returns a statment object so that someone could create a custom prepared statment to be run on this database
-	public function newStmt() {
-		return $this->dbi->stmt_init();
-	}
-	
-	//run a non-prepared query on the database
-	public function query($sqlQuery) {
-		if ($this->dbi != null) {
-			return $this->dbi->query($sqlQuery);
-		} else {
-			return null;
-		}
-	}
-	
-	//takes an array $arr and returns an array of references to the $arr elements ie $refs[0] = &$arr[0]
-	public function refValues($arr){
-		
-		if (strnatcmp(phpversion(),'5.3') >= 0) {//Reference is required for PHP 5.3+
-			$refs = array();
-			
-			foreach($arr as $key => $value) {
-				$refs[$key] = &$arr[$key];
-			}
-			
-			return $refs;
-		}
-		
-		return $arr;
-	}
-	
-	
-	//takes a prepared sql statement, an array of values, a string of the types for the first array, a string of the types of the returned parameters
-	//and uses them to execute a prepared select statement
-	public function preparedSelect($sql, $values, $types, $resultTypes) {
-		if ($this->dbi != null) {
-			
-			$results = array();
-			if (!is_array($values))			{$values = array($values);}
-			if (!is_array($types))			{$types = array($types);}
-			for ($resultCount=0; $resultCount < strlen($resultTypes); $resultCount++) {
-				$results[$resultCount] = null;
-			}
-			
-			$queryStmt	= $this->dbi->prepare($sql);
-			call_user_func_array(array($queryStmt, "bind_param"), array_merge($types, $this->refValues($values)));
-			$queryStmt->execute();
-			call_user_func_array(array($queryStmt, "bind_result"), $this->refValues($results));
-			$queryStmt->fetch();
-			$queryStmt->close();
-			
-			return $results;
-		} else {
-			return null;
-		}
-	}
-	
-	//takes a prepared sql statement, an array of values, a string of the types for the first array
-	//and uses them to execute a prepared sql statement
-	public function preparedQuery($sql, $values, $types) {
-		if ($this->dbi != null) {
-			
-			if (!is_array($values)) {
-				$values = array($values);
-			}
-			
-			if (!is_array($types)) {
-				$types = array($types);
-			}
-			
-			$queryStmt	= $this->dbi->prepare($sql);
-			call_user_func_array(array($queryStmt, "bind_param"), array_merge($types, $this->refValues($values)));
-			$queryStmt->execute();
-			$create_id	= $queryStmt->insert_id;
-			$queryStmt->close();
-			
-			return $create_id;
-		} else {
-			return null;
-		}
-	}
-	
-	//disconnect standard mysql database connection if it exists
-	public function disconnectFromDatabaseOriginal() {
+	public function prepare($sqlQuery) {
 		if ($this->db != null) {
-			mysql_close($this->connection);
-			$this->connection	= null;
-			$this->db			= null;
+			return $this->db->prepare($sqlQuery);
 		} else {
-			throw new LightException("TmnDatabase Error: Tried to disconnect from a database that isn't yet connected.");
+			return null;
 		}
 	}
 	
-	//disconnect improved mysql database connection if it exists
-	public function disconnectFromDatabase() {
-		if ($this->dbi != null) {
-			mysqli_close($this->dbi);
-			$this->dbi = null;
+	//run a non-prepared query on the database (only use for queries that return 1 result)
+	public function exec($sqlQuery) {
+		if ($this->db != null) {
+			return $this->db->exec($sqlQuery);
+		} else {
+			return null;
+		}
+	}
+	
+	//run a non-prepared query on the database  (can return a set of results)
+	public function query($sqlQuery) {
+		if ($this->db != null) {
+			return $this->db->query($sqlQuery);
+		} else {
+			return null;
+		}
+	}
+	
+	//returns a bool to tell you if the string you passed it is sql or not
+	public function isSql($sqlString) {
+		if (!strstr($sqlString, ' ')) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	//returns the id of the last inserted row
+	public function lastInsertId() {
+		return $this->db->lastInsertId();
+	}
+	
+	//disconnect from database by destroying PDO object connection if it exists
+	public function disconnect() {
+		if ($this->db != null) {
+			$this->db = null;
 		} else {
 			throw new LightException("TmnDatabase Error: Tried to disconnect from a database that isn't yet connected.");
 		}

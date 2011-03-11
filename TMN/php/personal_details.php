@@ -33,13 +33,12 @@ if (isset($_SESSION['phpCAS'])) {
 
 $DEBUG = 1;
 if ($DEBUG) ob_start();
-$pd_logger = new logger("logs/personal_details.log", $DEBUG);
+$pd_logger = new logger("logs/personalDetails.log", $DEBUG);
 $pd_logger->setDebug($DEBUG);
 
 $connection = new MySqlDriver();	//set up the database connection
 
 $mode = $_REQUEST['mode'];		//get/set
-$method = $_REQUEST['method'];	//values(fieldnames)
 
 $personal_details = new PersonalDetails($guid, $DEBUG);
 if ($DEBUG) $personal_details->addLog($pd_logger);

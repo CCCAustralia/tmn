@@ -19,7 +19,7 @@ class TmnComboLoader extends Tmn {
 		parent::__construct($logfile);
 		
 		if (!$this->validRequest($tablename)) {
-				$this->failWithMsg("Not a valid Request");
+				throw new FatalException("ComboLoader Exception: Not a valid Request.");
 		}
 		
 		$this->table	= $tablename;
@@ -30,7 +30,7 @@ class TmnComboLoader extends Tmn {
 	
 	
 	private function validRequest($tablename) {
-		if ($tablename == 'User_Profiles' || $tablename == 'Sessions' || $tablename == 'Authorising' || $this->isSql($tablename)) {
+		if ($tablename == 'User_Profiles' || $tablename == 'Sessions' || $tablename == 'Authorising' || $this->db->isSql($tablename)) {
 			return false;
 		} else {
 			return true;
@@ -43,22 +43,28 @@ class TmnComboLoader extends Tmn {
 	
 	public function produceJson() {
 		
-		//form the sql statement
-		$sql			= "SELECT * FROM ".$this->table;
-		
-		$j				= $this->jsonFromQuery($sql);
-		
-		return $j;
+		try {
+			//form the sql statement
+			$sql			= "SELECT * FROM " . $this->table;
+			
+			$stmt			= $this->db->query($sql);
+			
+			$j				= $this->jsonFromStmt($stmt);
+			
+			return $j;
+		} catch (Exception $e) {
+			throw new FatalException("ComboLoader Exception: Can't Load Table data due to error; " . $e->getMessage());
+		}
 	}
 	
-	public function jsonFromQuery($sql) {
+	public function jsonFromStmt($stmt) {
 		
-		$query	= $this->query($sql);
+		$returndata = "";
 		
 		//form the returned json with the sql result:
 		//iterate through each returned row
-		for ($i = 0; $i < $query->num_rows; $i++) {
-			$r = $query->fetch_assoc();
+		for ($i = 0; $i < $stmt->rowCount(); $i++) {
+			$r = $stmt->fetch(PDO::FETCH_ASSOC);
 			$returndata .= "{";
 			//iterate through each field in the row
 			foreach ($r as $k=>$v) {
@@ -68,13 +74,11 @@ class TmnComboLoader extends Tmn {
 			$returndata .= "},";
 		}
 		
-		$query->free();
-		
 		//trim
 		$returndata = trim($returndata,",");
 		
 		//return
-		return '{	'.$this->table.':['.$returndata.'] }';
+		return '{'.$this->table.':['.$returndata.']}';
 	}
 	
 	

@@ -52,7 +52,12 @@ $DEBUG		= 1;
 	//Constructor test
 	
 fb("Constructor Test");
-$obj	= new TmnSession($LOGFILE);
+try {
+	$session	= new TmnSession($LOGFILE);
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+
 
 /*
  * Expected output
@@ -65,290 +70,179 @@ $obj	= new TmnSession($LOGFILE);
  * 
  */
 
-	//Auth test
+	//Access test
 
-fb("Auth Test");
-fb("isAuthenticated(): " . $obj->isAuthenticated());
-fb("getAuthGuid(): " . $obj->getAuthGuid());
-fb("getGuid(): " . $obj->getAuthGuid());
-fb("getEmail(): " . $obj->getEmail());
-
-fb("setGuid('me')"); $obj->setGuid('me');
-fb("getGuid(): " . $obj->getAuthGuid());
-fb("setGuid('me')"); $obj->setGuid('me');
+fb("Access Test");
+fb("getSessionID(): " . $session->getSessionID());
+fb("setSessionID('testsession'): " . $session->setSessionID('testsession'));
+fb("getSessionID(): " . $session->getSessionID());
+fb("resetSession()");$session->resetSession();
+fb("getSessionID(): " . $session->getSessionID());
 
 /*
  * Expected output
  * 
  * Console Output:
- * Auth Test
- * isAuthenticated(): 1
- * getAuthGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * getEmail(): michael.harro@gmail.com
- * setGuid('me')
- * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * setGuid('me')
+ * Access Test
+ * getFan(): 1012299
+ * getSpouseGuid():
+ * setSpouseGuid('me'):
+ * getSpouseGuid(): me
+ * getMpdGuid():
+ * setMpdGuid('you'):
+ * getMpdGuid(): you
+ * isAdmin(): 1
+ * resetUser()
+ * getFan(): 
  * 
  * Screen Output:
  * 
  */
 
-	//Database test
+	//Database Interaction test
 
-fb("Database Test");
-fb("disconnect");
-$obj->disconnectFromDatabase();
-fb("connect");
-$obj->connectToDatabase();
+fb("Database Interaction Test");
 
-fb("CREATE");
-fb("preparedQuery(sql, values, types)");
-$table_name	= "Tmn_Sessions";
-$sql		= "INSERT INTO " . $table_name . "(`FAN`, `GUID`, ";
-$types		= "is";
-$values		= array(1012299,"691EC152-0565-CEF4-B5D8-99286252652B");
-$valueCount	= 2;
-
-$session = array(
-		'home_assignment_session_id'			=>	null,
-		'international_assignment_session_id'	=>	null,
-		'date_modified'							=>	"2011-1-12",
-		'os_assignment_start_date'				=>	"2011-5-12",
-		'os_assignment_end_date'				=>	"2011-6-12",
-		'os_resident_for_tax_purposes'			=>	"Resident of Australia",
-		'net_stipend'							=>	1111,
-		'tax'									=>	5,
-		'additional_tax'						=>	0,
-		'post_tax_super'						=>	0,
-		'taxable_income'						=>	1234,
-		'pre_tax_super'							=>	0,
-		'additional_life_cover'					=>	0,
-		'mfb'									=>	0,
-		'additional_housing_allowance'			=>	0,
-		'os_overseas_housing_allowance'			=>	0,
-		'financial_package'						=>	0,
-		'employer_super'						=>	1,
-		'mmr'									=>	1,
-		'stipend'								=>	1,
-		'housing_stipend'						=>	1,
-		'housing_mfb'							=>	1,
-		'mfb_rate'								=>	"Full",
-		'claimable_mfb'							=>	1,
-		'total_super'							=>	1,
-		'resc'									=>	1,
-		'super_fund'							=>	"IOOF",
-		'income_protection_cover_source'		=>	"Support Account",
-		's_net_stipend'							=>	1,
-		's_tax'									=>	1,
-		's_additional_tax'						=>	1,
-		's_post_tax_super'						=>	1,
-		's_taxable_income'						=>	1,
-		's_pre_tax_super'						=>	1,
-		's_additional_life_cover'				=>	1,
-		's_mfb'									=>	1,
-		's_additional_housing_allowance'		=>	1,
-		's_os_overseas_housing_allowance'		=>	1,
-		's_financial_package'					=>	1,
-		's_employer_super'						=>	1,
-		's_mmr'									=>	1,
-		's_stipend'								=>	1,
-		's_housing_stipend'						=>	1,
-		's_housing_mfb'							=>	1,
-		's_mfb_rate'							=>	"Half",
-		's_claimable_mfb'						=>	1,
-		's_total_super'							=>	1,
-		's_resc'								=>	1,
-		's_super_fund'							=>	"Other",
-		's_income_protection_cover_source'		=>	"Support Account",
-		'joint_financial_package'				=>	1,
-		'total_transfers'						=>	1,
-		'workers_comp'							=>	1,
-		'ccca_levy'								=>	1,
-		'tmn'									=>	1,
-		'buffer'								=>	1,
-		'international_donations'				=>	1,
-		'additional_housing'					=>	1,
-		'monthly_housing'						=>	1,
-		'housing'								=>	1,
-		'housing_frequency'						=>	"Monthly"
-);
-
-$session_type = array(
-		'home_assignment_session_id'			=>	"i",
-		'international_assignment_session_id'	=>	"i",
-		'date_modified'							=>	"s",
-		'os_assignment_start_date'				=>	"s",
-		'os_assignment_end_date'				=>	"s",
-		'os_resident_for_tax_purposes'			=>	"s",
-		'net_stipend'							=>	"i",
-		'tax'									=>	"i",
-		'additional_tax'						=>	"i",
-		'post_tax_super'						=>	"i",
-		'taxable_income'						=>	"i",
-		'pre_tax_super'							=>	"i",
-		'additional_life_cover'					=>	"i",
-		'mfb'									=>	"i",
-		'additional_housing_allowance'			=>	"i",
-		'os_overseas_housing_allowance'			=>	"i",
-		'financial_package'						=>	"i",
-		'employer_super'						=>	"i",
-		'mmr'									=>	"i",
-		'stipend'								=>	"i",
-		'housing_stipend'						=>	"i",
-		'housing_mfb'							=>	"i",
-		'mfb_rate'								=>	"s",
-		'claimable_mfb'							=>	"i",
-		'total_super'							=>	"i",
-		'resc'									=>	"i",
-		'super_fund'							=>	"s",
-		'income_protection_cover_source'		=>	"s",
-		's_net_stipend'							=>	"i",
-		's_tax'									=>	"i",
-		's_additional_tax'						=>	"i",
-		's_post_tax_super'						=>	"i",
-		's_taxable_income'						=>	"i",
-		's_pre_tax_super'						=>	"i",
-		's_additional_life_cover'				=>	"i",
-		's_mfb'									=>	"i",
-		's_additional_housing_allowance'		=>	"i",
-		's_os_overseas_housing_allowance'		=>	"i",
-		's_financial_package'					=>	"i",
-		's_employer_super'						=>	"i",
-		's_mmr'									=>	"i",
-		's_stipend'								=>	"i",
-		's_housing_stipend'						=>	"i",
-		's_housing_mfb'							=>	"i",
-		's_mfb_rate'							=>	"s",
-		's_claimable_mfb'						=>	"i",
-		's_total_super'							=>	"i",
-		's_resc'								=>	"i",
-		's_super_fund'							=>	"s",
-		's_income_protection_cover_source'		=>	"s",
-		'joint_financial_package'				=>	"i",
-		'total_transfers'						=>	"i",
-		'workers_comp'							=>	"i",
-		'ccca_levy'								=>	"i",
-		'tmn'									=>	"i",
-		'buffer'								=>	"i",
-		'international_donations'				=>	"i",
-		'additional_housing'					=>	"i",
-		'monthly_housing'						=>	"i",
-		'housing'								=>	"i",
-		'housing_frequency'						=>	"s"
-);
-
-foreach ($session as $key=>$value) {
-	if ($value != NULL) {
-		$sql					.=	"`" . strtoupper($key) . "`, ";
-	}
-}
-
-$sql = trim($sql, ", ") . ") VALUES ( ?, ?, ";
-
-foreach ($session as $key=>$value) {
-	if ($value != NULL) {
-		$sql					.=	"?, ";
-		$values[$valueCount]	 =	$session[$key];
-		$types					.=	$session_type[$key];
-		$valueCount++;
-	}
-}
-
-$sql = trim($sql, ", ") . ")";
-
-fb($sql);
-fb($values);
-fb($types);
-$session_id	= $obj->preparedQuery($sql, $values, $types);
-fb($session_id);
-
-fb("RETRIEVE");
-fb("preparedSelect(sql, values, types, resultTypes)");
-$sql			= "SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = ?";
-$values 		= "StudentLife";
-$types			= "s";
-$resultTypes	= "si";
-
-fb($sql);
-fb($values);
-fb($types);
-fb($resultTypes);
-fb($obj->preparedSelect($sql, $values, $types, $resultTypes));
-
-fb("UPDATE");
-fb("preparedQuery(sql, values, types)");
-$sql				= "UPDATE `" . $table_name . "` SET ";
-$types				= "";
-$values				= array();
-$valueCount			= 0;
-
-$session['tax'] = 55555;
-
-foreach ($session as $key=>$value) {
-	if ($value != NULL) {
-		$sql					.= "`" . strtoupper($key) . "` = ?, ";
-		$values[$valueCount]	 =	$session[$key];
-		$types					.= $session_type[$key];
-		$valueCount++;
-	}
-}
-
-$sql				 = trim($sql, ", ");
-$sql				.= " WHERE `SESSION_ID` = ?";
-$values[$valueCount]	 = $session_id;
-$types				.= "i";
-
-fb($sql);
-fb($values);
-fb($types);
-fb($obj->preparedQuery($sql, $values, $types));
-
-
-fb("DELETE");
-fb("preparedQuery(sql, values, types)");
-$sql				= "DELETE FROM `" . $table_name . "` WHERE `SESSION_ID` = ?";
-$types				= "i";
-$values				= array($session_id);
+$jsonArray = $session->getJsonArray();
+foreach ($jsonArray as $jsonString) {
+	if ($jsonString != null) {
+		$jsonString = str_replace(array('"ministry_levy":MINISTRY_LEVY,', '"s_ministry_levy":S_MINISTRY_LEVY,', '"transfers":[TRANSFERS],'), "", $jsonString);
+		$jsonString = str_replace('"international_donations":"INTERNATIONAL_DONATIONS"', '"international_donations":0', $jsonString);
+		$jsonObj = json_decode($jsonString, true);
 		
-fb($sql);
-fb($values);
-fb($types);
-fb($obj->preparedQuery($sql, $values, $types));
-
+		if (isset($jsonObj['aussie-based'])) {
+			$id = $session->createSessionFromJson($jsonObj['aussie-based']);
+			fb("Session added at: " . $id);
+		} elseif (isset($jsonObj['tmn_data'])) {
+			$id = $session->createSessionFromJson($jsonObj['tmn_data']);
+			fb("Session added at: " . $id);
+		} elseif (isset($jsonObj['international-assignment'])) {
+			
+			//create each session
+			$ia_id = $session->createSessionFromJson($jsonObj['international-assignment']);
+			fb("Session added at: " . $ia_id);
+			$ha_id = $session->createSessionFromJson($jsonObj['home-assignment']);
+			fb("Session added at: " . $ha_id);
+			
+			//update international assignment session with home assignment ref
+			$session->resetSession();
+			$session->setSessionID($ia_id);
+			$session->retrieveSession();
+			$session->setHomeAssignmentID($ha_id);
+			$session->updateSession();
+			
+			//update home assignment session with international assignment ref
+			$session->resetSession();
+			$session->setSessionID($ha_id);
+			$session->retrieveSession();
+			$session->setInternationalAssignmentID($ia_id);
+			$session->updateSession();
+			
+		} else {
+			fb($jsonString);
+			fb("unknown json type: ");
+		}
+	}
+}
 
 /*
  * Expected output
  * 
  * Console Output:
- * Database Test
- * disconnect
- * connect
- * CREATE
- * preparedQuery(sql, values, types)
- * INSERT INTO Tmn_Sessions(`FAN`, `GUID`, `DATE_MODIFIED`, `OS_ASSIGNMENT_START_DATE`, `OS_ASSIGNMENT_END_DATE`, `OS_RESIDENT_FOR_TAX_PURPOSES`, `NET_STIPEND`, `TAX`, `TAXABLE_INCOME`, `EMPLOYER_SUPER`, `MMR`, `STIPEND`, `HOUSING_STIPEND`, `HOUSING_MFB`, `MFB_RATE`, `CLAIMABLE_MFB`, `TOTAL_SUPER`, `RESC`, `SUPER_FUND`, `INCOME_PROTECTION_COVER_SOURCE`, `S_NET_STIPEND`, `S_TAX`, `S_ADDITIONAL_TAX`, `S_POST_TAX_SUPER`, `S_TAXABLE_INCOME`, `S_PRE_TAX_SUPER`, `S_ADDITIONAL_LIFE_COVER`, `S_MFB`, `S_ADDITIONAL_HOUSING_ALLOWANCE`, `S_OS_OVERSEAS_HOUSING_ALLOWANCE`, `S_FINANCIAL_PACKAGE`, `S_EMPLOYER_SUPER`, `S_MMR`, `S_STIPEND`, `S_HOUSING_STIPEND`, `S_HOUSING_MFB`, `S_MFB_RATE`, `S_CLAIMABLE_MFB`, `S_TOTAL_SUPER`, `S_RESC`, `S_SUPER_FUND`, `S_INCOME_PROTECTION_COVER_SOURCE`, `JOINT_FINANCIAL_PACKAGE`, `TOTAL_TRANSFERS`, `WORKERS_COMP`, `CCCA_LEVY`, `TMN`, `BUFFER`, `INTERNATIONAL_DONATIONS`, `ADDITIONAL_HOUSING`, `MONTHLY_HOUSING`, `HOUSING`, `HOUSING_FREQUENCY`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
- * array('0'=> 1012299, '1'=>'691EC152-0565-CEF4-B5D8-99286252652B', '2'=> ... )
- * isssssiiiiiiiisiiissiiiiiiiiiiiiiiiisiiissiiiiiiiiiis
- * 8
- * RETRIEVE
- * preparedSelect(sql, values, types, resultTypes)
- * SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = ?
- * StudentLife
- * s
- * si
- * array('0'=> NULL, '1'=> NULL)
- * UPDATE
- * preparedQuery(sql, values, types)
- * UPDATE `Tmn_Sessions` SET `DATE_MODIFIED` = ?, `OS_ASSIGNMENT_START_DATE` = ?, `OS_ASSIGNMENT_END_DATE` = ?, `OS_RESIDENT_FOR_TAX_PURPOSES` = ?, `NET_STIPEND` = ?, `TAX` = ?, `TAXABLE_INCOME` = ?, `EMPLOYER_SUPER` = ?, `MMR` = ?, `STIPEND` = ?, `HOUSING_STIPEND` = ?, `HOUSING_MFB` = ?, `MFB_RATE` = ?, `CLAIMABLE_MFB` = ?, `TOTAL_SUPER` = ?, `RESC` = ?, `SUPER_FUND` = ?, `INCOME_PROTECTION_COVER_SOURCE` = ?, `S_NET_STIPEND` = ?, `S_TAX` = ?, `S_ADDITIONAL_TAX` = ?, `S_POST_TAX_SUPER` = ?, `S_TAXABLE_INCOME` = ?, `S_PRE_TAX_SUPER` = ?, `S_ADDITIONAL_LIFE_COVER` = ?, `S_MFB` = ?, `S_ADDITIONAL_HOUSING_ALLOWANCE` = ?, `S_OS_OVERSEAS_HOUSING_ALLOWANCE` = ?, `S_FINANCIAL_PACKAGE` = ?, `S_EMPLOYER_SUPER` = ?, `S_MMR` = ?, `S_STIPEND` = ?, `S_HOUSING_STIPEND` = ?, `S_HOUSING_MFB` = ?, `S_MFB_RATE` = ?, `S_CLAIMABLE_MFB` = ?, `S_TOTAL_SUPER` = ?, `S_RESC` = ?, `S_SUPER_FUND` = ?, `S_INCOME_PROTECTION_COVER_SOURCE` = ?, `JOINT_FINANCIAL_PACKAGE` = ?, `TOTAL_TRANSFERS` = ?, `WORKERS_COMP` = ?, `CCCA_LEVY` = ?, `TMN` = ?, `BUFFER` = ?, `INTERNATIONAL_DONATIONS` = ?, `ADDITIONAL_HOUSING` = ?, `MONTHLY_HOUSING` = ?, `HOUSING` = ?, `HOUSING_FREQUENCY` = ? WHERE `SESSION_ID` = ?
- * array('0'=>'2011-1-12', '1'=>'2011-5-12', '2'=> ... )
- * ssssiiiiiiiisiiissiiiiiiiiiiiiiiiisiiissiiiiiiiiiisi
- * 0
- * DELETE
- * preparedQuery(sql, values, types)
- * DELETE FROM `Tmn_Sessions` WHERE `SESSION_ID` = ?
- * array('0'=> 8)
- * i
- * 0
+ * Database Interaction Test
+ * Session added at: 1
+ * Session added at: 2
+ * Session added at: 3
+ * Session added at: 4
+ * Session added at: 5
+ * Session added at: 6
+ * Session added at: 7
+ * Session added at: 8
+ * Session added at: 9
+ * Session added at: 10
+ * Session added at: 11
+ * Session added at: 12
+ * Session added at: 13
+ * Session added at: 14
+ * Session added at: 15
+ * Session added at: 16
+ * Session added at: 17
+ * Session added at: 18
+ * Session added at: 19
+ * Session added at: 20
+ * Session added at: 21
+ * Session added at: 22
+ * Session added at: 23
+ * Session added at: 24
+ * Session added at: 25
+ * Session added at: 26
+ * Session added at: 27
+ * Session added at: 28
+ * Session added at: 29
+ * Session added at: 30
+ * Session added at: 31
+ * Session added at: 32
+ * Session added at: 33
+ * Session added at: 34
+ * Session added at: 35
+ * Session added at: 36
+ * Session added at: 37
+ * Session added at: 38
+ * Session added at: 39
+ * Session added at: 40
+ * Session added at: 41
+ * Session added at: 42
+ * Session added at: 43
+ * Session added at: 44
+ * Session added at: 45
+ * Session added at: 46
+ * Session added at: 47
+ * Session added at: 48
+ * Session added at: 49
+ * Session added at: 50
+ * Session added at: 51
+ * Session added at: 52
+ * Session added at: 53
+ * Session added at: 54
+ * Session added at: 55
+ * Session added at: 56
+ * Session added at: 57
+ * Session added at: 58
+ * Session added at: 59
+ * Session added at: 60
+ * Session added at: 61
+ * Session added at: 62
+ * Session added at: 63
+ * Session added at: 64
+ * Session added at: 65
+ * Session added at: 66
+ * Session added at: 67
+ * Session added at: 68
+ * Session added at: 69
+ * Session added at: 70
+ * Session added at: 71
+ * Session added at: 72
+ * Session added at: 73
+ * Session added at: 74
+ * Session added at: 75
+ * Session added at: 76
+ * Session added at: 77
+ * Session added at: 78
+ * Session added at: 79
+ * Session added at: 80
+ * Session added at: 81
+ * Session added at: 82
+ * Session added at: 83
+ * Session added at: 84
+ * Session added at: 85
+ * Session added at: 86
+ * Session added at: 87
+ * Session added at: 88
+ * Session added at: 89
+ * Session added at: 90
+ * Session added at: 91
+ * Session added at: 92
+ * Session added at: 93
  * 
  * Screen Output:
  * 

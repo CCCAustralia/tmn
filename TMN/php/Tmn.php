@@ -10,7 +10,7 @@ class Tmn extends Reporter {
 			///////////////////INSTANCE VARIABLES/////////////////////
 	
 	
-	private $db;
+	protected $db;
 	private $auth;
 	private $guid;
 	
@@ -50,46 +50,6 @@ class Tmn extends Reporter {
 	
 	public function getEmail() {
 		return $this->auth->getEmail();
-	}
-	
-	
-			//////////////////DATABASE FUNCTIONS/////////////////
-	
-	
-	public function connectToDatabaseOriginal() {
-		$this->db->connectToDatabaseOriginal();
-	}
-	
-	public function connectToDatabase() {
-		$this->db->connectToDatabase();
-	}
-	
-	public function isSql($string) {
-		$this->db->isSql($string);
-	}
-	
-	public function newStmt() {
-		return $this->db->newStmt();
-	}
-	
-	public function preparedSelect($sql, $values, $types, $resultTypes) {
-		return $this->db->preparedSelect($sql, $values, $types, $resultTypes);
-	}
-	
-	public function preparedQuery($sql, $values, $types) {
-		return $this->db->preparedQuery($sql, $values, $types);
-	}
-	
-	public function query($sqlQuery) {
-		return $this->db->query($sqlQuery);
-	}
-	
-	public function disconnectFromDatabaseOriginal() {
-		$this->db->disconnectFromDatabaseOriginal();
-	}
-	
-	public function disconnectFromDatabase() {
-		$this->db->disconnectFromDatabase();
 	}
 	
 	

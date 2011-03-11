@@ -21,28 +21,34 @@ $aussieObj		= $jsonObj['aussie-based'];
 */
 if (isset($_POST['mode'])) {
 	
-	$tablename		= $_POST['mode'];
+	try {
 		
-	if ($_POST['mode'] == 'Tmn_Sessions') {
-		
-		if (isset($_POST['aussie_form']) && isset($_POST['overseas_form']) && isset($_POST['home_assignment'])) {
+		$tablename		= $_POST['mode'];
 			
-			$aussie_form		= ($_POST['aussie_form'] == 'true' ? true : false);
-			$overseas_form		= ($_POST['overseas_form'] == 'true' ? true : false);
-			$home_assignment	= ($_POST['home_assignment'] == 'true' ? true : false);
+		if ($_POST['mode'] == 'Tmn_Sessions') {
 			
-			$comboLoader	= new TmnSessionComboLoader($LOGFILE, "Tmn_Sessions", $aussie_form, $overseas_form, $home_assignment);
+			if (isset($_POST['aussie_form']) && isset($_POST['overseas_form']) && isset($_POST['home_assignment'])) {
+				
+				$aussie_form		= ($_POST['aussie_form'] == 'true' ? true : false);
+				$overseas_form		= ($_POST['overseas_form'] == 'true' ? true : false);
+				$home_assignment	= ($_POST['home_assignment'] == 'true' ? true : false);
+				
+				$comboLoader	= new TmnSessionComboLoader($LOGFILE, "Tmn_Sessions", $aussie_form, $overseas_form, $home_assignment);
+				
+			} else {
+				fb('Invalid get_session params');
+				die('{success: false}');
+			}
 			
 		} else {
-			fb('Invalid get_session params');
-			die('{success: false}');
+			$comboLoader	= new TmnComboLoader($LOGFILE, $tablename);
 		}
-		
-	} else {
-		$comboLoader	= new TmnComboLoader($LOGFILE, $tablename);
-	}
 	
-	echo $comboLoader->produceJson();
+		echo $comboLoader->produceJson();
+		
+	} catch (Exception $e) {
+		Reporter::newInstance($LOGFILE)->exceptionHandler($e);
+	}
 	
 } else {
 	fb('Invalid params');

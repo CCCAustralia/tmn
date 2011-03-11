@@ -52,7 +52,12 @@ $DEBUG		= 1;
 	//Constructor test
 	
 fb("Constructor Test");
-$user	= new TmnUser($LOGFILE);
+try {
+	$user	= new TmnUser($LOGFILE);
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+
 
 /*
  * Expected output
@@ -65,34 +70,118 @@ $user	= new TmnUser($LOGFILE);
  * 
  */
 
-	//Auth test
+	//Access test
 
-fb("Auth Test");
-fb("isAuthenticated(): " . $user->isAuthenticated());
-fb("getAuthGuid(): " . $user->getAuthGuid());
-fb("getGuid(): " . $user->getAuthGuid());
-fb("getEmail(): " . $user->getEmail());
-
-fb("setGuid('me')"); $user->setGuid('me');
-fb("getGuid(): " . $user->getAuthGuid());
-fb("setGuid('me')"); $user->setGuid('me');
+fb("Access Test");
+fb("getFan(): " . $user->getFan());
+fb("getSpouseGuid(): " . $user->getSpouseGuid());
+try {
+	fb("setSpouseGuid('test'): " . $user->setSpouseGuid('test'));
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+fb("getSpouseGuid(): " . $user->getSpouseGuid());
+fb("getMpdGuid(): " . $user->getMpdGuid());
+try {
+	fb("setMpdGuid('testuserguid'): " . $user->setMpdGuid('testuserguid'));
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+fb("getMpdGuid(): " . $user->getMpdGuid());
+fb("isAdmin(): " . $user->isAdmin());
+fb("resetUser()");$user->resetUser();
+fb("getFan(): " . $user->getFan());
 
 /*
  * Expected output
  * 
  * Console Output:
- * Auth Test
- * isAuthenticated(): 1
- * getAuthGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * getEmail(): michael.harro@gmail.com
- * setGuid('me')
- * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
- * setGuid('me')
+ * Access Test
+ * getFan(): 1012299
+ * getSpouseGuid():
+ * setSpouseGuid('me'):
+ * getSpouseGuid(): me
+ * getMpdGuid():
+ * setMpdGuid('you'):
+ * getMpdGuid(): you
+ * isAdmin(): 1
+ * resetUser()
+ * getFan(): 
  * 
  * Screen Output:
  * 
  */
 
+
+	//CRUD test
+fb("CRUD Test");
+fb("CREATE");
+try {
+	fb("setGuid('duplicate')"); $user->setGuid('duplicate');
+	fb("createUser()"); $user->createUser();
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+
+fb("RETRIEVE");
+try {
+	fb("Error inducing setGuid()"); $user->setGuid('error-inducer');
+	fb("load via setGuid('test')"); $user->setGuid('test');
+	fb("getSpouseGuid(): " . $user->getSpouseGuid());
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+
+fb("UPDATE");
+try {
+	fb("setMpdGuid('testuserguid')"); $user->setMpdGuid('testuserguid');
+	fb("updateUser()"); $user->updateUser();
+	fb("resetUser()");$user->resetUser();
+	fb("retrieveUser()"); $user->retrieveUser();
+	fb("getMpdGuid(): " . $user->getMpdGuid());
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+
+/*
+fb("DELETE");
+try {
+	fb("setGuid('duplicate')"); $user->setGuid('duplicate');
+	fb("deleteUser()");$user->deleteUser();
+	fb("retrieveUser()"); $user->retrieveUser();
+} catch (Exception $e) {
+	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+}
+*/
+
+/*
+ * Expected output
+ * 
+ * Console Output:
+ * CRUD Test
+ * CREATE
+ * setGuid('duplicate')
+ * createUser()
+ * RETRIEVE
+ * Error inducing setGuid()
+ * [<now>] <path>/TmnUser.php; ln <line no.>; Light Exception; User Exception: Cannot Load User with guid=error-inducer. The previous guid was restored. The following Exception was thrown when load was attempted:User Exception: On Retrieve, User Not Found
+ * <path>/TmnUser.php; ln <line no.>; Light Exception; User Exception: Cannot Load User with guid=error-inducer. The previous guid was restored. The following Exception was thrown when load was attempted:User Exception: On Retrieve, User Not Found
+ * load via setGuid('test')
+ * getSpouseGuid():
+ * UPDATE
+ * setMpdGuid('testuserguid')
+ * updateUser()
+ * resetUser()
+ * retrieveUser()
+ * getMpdGuid(): testuserguid
+ * setGuid('duplicate')
+ * deleteUser()
+ * retrieveUser()
+ * [<now>] <path>/TmnUser.php; ln <line no.>; Light Exception; User Exception: Cannot Load User with guid=error-inducer. The previous guid was restored. The following Exception was thrown when load was attempted:User Exception: On Retrieve, User Not Found
+ * <path>/TmnUser.php; ln <line no.>; Light Exception; User Exception: Cannot Load User with guid=error-inducer. The previous guid was restored. The following Exception was thrown when load was attempted:User Exception: On Retrieve, User Not Found
+ * 
+ * Screen Output:
+ * 
+ */
 
 ?>

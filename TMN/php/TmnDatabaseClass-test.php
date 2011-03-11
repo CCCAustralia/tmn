@@ -46,16 +46,16 @@ try {
 fb("Database Test");
 
 fb("disconnect");
-$obj->disconnectFromDatabase();
+$obj->disconnect();
 fb("connect");
-$obj->connectToDatabase();
+$obj->connect();
 
 fb("CREATE");
 fb("preparedQuery(sql, values, types)");
 $table_name	= "Tmn_Sessions";
 $sql		= "INSERT INTO " . $table_name . "(`FAN`, `GUID`, ";
 $types		= "is";
-$values		= array(1012299,"691EC152-0565-CEF4-B5D8-99286252652B");
+$values		= array(":fan" => 1012299, ":guid" => "691EC152-0565-CEF4-B5D8-99286252652B");
 $valueCount	= 2;
 
 $session = array(
@@ -192,14 +192,14 @@ foreach ($session as $key=>$value) {
 	}
 }
 
-$sql = trim($sql, ", ") . ") VALUES ( ?, ?, ";
+$sql = trim($sql, ", ") . ") VALUES ( :fan, :guid, ";
 
 foreach ($session as $key=>$value) {
+	//if ($session_type[$key]) {throw new LightException("Session Exception: Type mismatch on INSERT. " . $key . "=" . $value . ". It should be of type: " . $session_type[$key]);}
 	if ($value != NULL) {
-		$sql					.=	"?, ";
-		$values[$valueCount]	 =	$session[$key];
-		$types					.=	$session_type[$key];
-		$valueCount++;
+		$variableName			 =	":" . $key;
+		$sql					.=	$variableName . ", ";
+		$values[$variableName]	 =	$session[$key];
 	}
 }
 
@@ -207,22 +207,24 @@ $sql = trim($sql, ", ") . ")";
 
 fb($sql);
 fb($values);
-fb($types);
-$session_id	= $obj->preparedQuery($sql, $values, $types);
+$stmt		= $obj->prepare($sql);
+$stmt->execute($values);
+$session_id	= $obj->lastInsertId();
 fb($session_id);
 
 fb("RETRIEVE");
 fb("preparedSelect(sql, values, types, resultTypes)");
-$sql			= "SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = ?";
+$sql			= "SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = :session_id";
 $values 		= "StudentLife";
 $types			= "s";
 $resultTypes	= "si";
 
 fb($sql);
 fb($values);
-fb($types);
-fb($resultTypes);
-fb($obj->preparedSelect($sql, $values, $types, $resultTypes));
+$stmt	= $obj->prepare($sql);
+$stmt->bindParam(":session_id", &$values);
+$stmt->execute();
+fb($stmt->fetch(PDO::FETCH_ASSOC));
 
 fb("UPDATE");
 fb("preparedQuery(sql, values, types)");
@@ -235,34 +237,31 @@ $session['tax'] = 55555;
 
 foreach ($session as $key=>$value) {
 	if ($value != NULL) {
-		$sql					.= "`" . strtoupper($key) . "` = ?, ";
-		$values[$valueCount]	 =	$session[$key];
-		$types					.= $session_type[$key];
-		$valueCount++;
+		$variableName			 =	":" . $key;
+		$sql					.= "`" . strtoupper($key) . "` = " . $variableName . ", ";
+		$values[$variableName]	 =	$session[$key];
 	}
 }
 
 $sql				 = trim($sql, ", ");
-$sql				.= " WHERE `SESSION_ID` = ?";
-$values[$valueCount]	 = $session_id;
-$types				.= "i";
+$sql				.= " WHERE `SESSION_ID` = :session_id";
+$values[":session_id"]	 = $session_id;
 
 fb($sql);
 fb($values);
-fb($types);
-fb($obj->preparedQuery($sql, $values, $types));
+$stmt	= $obj->prepare($sql);
+$stmt->execute($values);
 
 
 fb("DELETE");
 fb("preparedQuery(sql, values, types)");
-$sql				= "DELETE FROM `" . $table_name . "` WHERE `SESSION_ID` = ?";
-$types				= "i";
-$values				= array($session_id);
+$sql					= "DELETE FROM `" . $table_name . "` WHERE `SESSION_ID` = :session_id";
+$values					= array(":session_id" => $session_id);
 		
 fb($sql);
 fb($values);
-fb($types);
-fb($obj->preparedQuery($sql, $values, $types));
+$stmt	= $obj->prepare($sql);
+$stmt->execute($values);
 
 
 /*
@@ -274,29 +273,22 @@ fb($obj->preparedQuery($sql, $values, $types));
  * connect
  * CREATE
  * preparedQuery(sql, values, types)
- * INSERT INTO Tmn_Sessions(`FAN`, `GUID`, `DATE_MODIFIED`, `OS_ASSIGNMENT_START_DATE`, `OS_ASSIGNMENT_END_DATE`, `OS_RESIDENT_FOR_TAX_PURPOSES`, `NET_STIPEND`, `TAX`, `TAXABLE_INCOME`, `EMPLOYER_SUPER`, `MMR`, `STIPEND`, `HOUSING_STIPEND`, `HOUSING_MFB`, `MFB_RATE`, `CLAIMABLE_MFB`, `TOTAL_SUPER`, `RESC`, `SUPER_FUND`, `INCOME_PROTECTION_COVER_SOURCE`, `S_NET_STIPEND`, `S_TAX`, `S_ADDITIONAL_TAX`, `S_POST_TAX_SUPER`, `S_TAXABLE_INCOME`, `S_PRE_TAX_SUPER`, `S_ADDITIONAL_LIFE_COVER`, `S_MFB`, `S_ADDITIONAL_HOUSING_ALLOWANCE`, `S_OS_OVERSEAS_HOUSING_ALLOWANCE`, `S_FINANCIAL_PACKAGE`, `S_EMPLOYER_SUPER`, `S_MMR`, `S_STIPEND`, `S_HOUSING_STIPEND`, `S_HOUSING_MFB`, `S_MFB_RATE`, `S_CLAIMABLE_MFB`, `S_TOTAL_SUPER`, `S_RESC`, `S_SUPER_FUND`, `S_INCOME_PROTECTION_COVER_SOURCE`, `JOINT_FINANCIAL_PACKAGE`, `TOTAL_TRANSFERS`, `WORKERS_COMP`, `CCCA_LEVY`, `TMN`, `BUFFER`, `INTERNATIONAL_DONATIONS`, `ADDITIONAL_HOUSING`, `MONTHLY_HOUSING`, `HOUSING`, `HOUSING_FREQUENCY`) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
- * array('0'=> 1012299, '1'=>'691EC152-0565-CEF4-B5D8-99286252652B', '2'=> ... )
- * isssssiiiiiiiisiiissiiiiiiiiiiiiiiiisiiissiiiiiiiiiis
- * 8
+ * INSERT INTO Tmn_Sessions(`FAN`, `GUID`, `DATE_MODIFIED`, `OS_ASSIGNMENT_START_DATE`, `OS_ASSIGNMENT_END_DATE`, `OS_RESIDENT_FOR_TAX_PURPOSES`, `NET_STIPEND`, `TAX`, `TAXABLE_INCOME`, `EMPLOYER_SUPER`, `MMR`, `STIPEND`, `HOUSING_STIPEND`, `HOUSING_MFB`, `MFB_RATE`, `CLAIMABLE_MFB`, `TOTAL_SUPER`, `RESC`, `SUPER_FUND`, `INCOME_PROTECTION_COVER_SOURCE`, `S_NET_STIPEND`, `S_TAX`, `S_ADDITIONAL_TAX`, `S_POST_TAX_SUPER`, `S_TAXABLE_INCOME`, `S_PRE_TAX_SUPER`, `S_ADDITIONAL_LIFE_COVER`, `S_MFB`, `S_ADDITIONAL_HOUSING_ALLOWANCE`, `S_OS_OVERSEAS_HOUSING_ALLOWANCE`, `S_FINANCIAL_PACKAGE`, `S_EMPLOYER_SUPER`, `S_MMR`, `S_STIPEND`, `S_HOUSING_STIPEND`, `S_HOUSING_MFB`, `S_MFB_RATE`, `S_CLAIMABLE_MFB`, `S_TOTAL_SUPER`, `S_RESC`, `S_SUPER_FUND`, `S_INCOME_PROTECTION_COVER_SOURCE`, `JOINT_FINANCIAL_PACKAGE`, `TOTAL_TRANSFERS`, `WORKERS_COMP`, `CCCA_LEVY`, `TMN`, `BUFFER`, `INTERNATIONAL_DONATIONS`, `ADDITIONAL_HOUSING`, `MONTHLY_HOUSING`, `HOUSING`, `HOUSING_FREQUENCY`) VALUES ( :fan, :guid, :date_modified, :os_assignment_start_date, :os_assignment_end_date, :os_resident_for_tax_purposes, :net_stipend, :tax, :taxable_income, :employer_super, :mmr, :stipend, :housing_stipend, :housing_mfb, :mfb_rate, :claimable_mfb, :total_super, :resc, :super_fund, :income_protection_cover_source, :s_net_stipend, :s_tax, :s_additional_tax, :s_post_tax_super, :s_taxable_income, :s_pre_tax_super, :s_additional_life_cover, :s_mfb, :s_additional_housing_allowance, :s_os_overseas_housing_allowance, :s_financial_package, :s_employer_super, :s_mmr, :s_stipend, :s_housing_stipend, :s_housing_mfb, :s_mfb_rate, :s_claimable_mfb, :s_total_super, :s_resc, :s_super_fund, :s_income_protection_cover_source, :joint_financial_package, :total_transfers, :workers_comp, :ccca_levy, :tmn, :buffer, :international_donations, :additional_housing, :monthly_housing, :housing, :housing_frequency)
+ * array(':fan'=> 1012299, ':guid'=>'691EC152-0565-CEF4-B5D8-99286252652B', ':date_modified'=> ... )
+ * 21
  * RETRIEVE
  * preparedSelect(sql, values, types, resultTypes)
- * SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = ?
+ * SELECT `MINISTRY_ID`, `MINISTRY_LEVY` FROM `Ministry` WHERE `MINISTRY_ID` = :session_id
  * StudentLife
- * s
- * si
- * array('0'=> NULL, '1'=> NULL)
+ * array('MINISTRY_ID'=>'StudentLife', 'MINISTRY_LEVY'=>'2')
  * UPDATE
  * preparedQuery(sql, values, types)
- * UPDATE `Tmn_Sessions` SET `DATE_MODIFIED` = ?, `OS_ASSIGNMENT_START_DATE` = ?, `OS_ASSIGNMENT_END_DATE` = ?, `OS_RESIDENT_FOR_TAX_PURPOSES` = ?, `NET_STIPEND` = ?, `TAX` = ?, `TAXABLE_INCOME` = ?, `EMPLOYER_SUPER` = ?, `MMR` = ?, `STIPEND` = ?, `HOUSING_STIPEND` = ?, `HOUSING_MFB` = ?, `MFB_RATE` = ?, `CLAIMABLE_MFB` = ?, `TOTAL_SUPER` = ?, `RESC` = ?, `SUPER_FUND` = ?, `INCOME_PROTECTION_COVER_SOURCE` = ?, `S_NET_STIPEND` = ?, `S_TAX` = ?, `S_ADDITIONAL_TAX` = ?, `S_POST_TAX_SUPER` = ?, `S_TAXABLE_INCOME` = ?, `S_PRE_TAX_SUPER` = ?, `S_ADDITIONAL_LIFE_COVER` = ?, `S_MFB` = ?, `S_ADDITIONAL_HOUSING_ALLOWANCE` = ?, `S_OS_OVERSEAS_HOUSING_ALLOWANCE` = ?, `S_FINANCIAL_PACKAGE` = ?, `S_EMPLOYER_SUPER` = ?, `S_MMR` = ?, `S_STIPEND` = ?, `S_HOUSING_STIPEND` = ?, `S_HOUSING_MFB` = ?, `S_MFB_RATE` = ?, `S_CLAIMABLE_MFB` = ?, `S_TOTAL_SUPER` = ?, `S_RESC` = ?, `S_SUPER_FUND` = ?, `S_INCOME_PROTECTION_COVER_SOURCE` = ?, `JOINT_FINANCIAL_PACKAGE` = ?, `TOTAL_TRANSFERS` = ?, `WORKERS_COMP` = ?, `CCCA_LEVY` = ?, `TMN` = ?, `BUFFER` = ?, `INTERNATIONAL_DONATIONS` = ?, `ADDITIONAL_HOUSING` = ?, `MONTHLY_HOUSING` = ?, `HOUSING` = ?, `HOUSING_FREQUENCY` = ? WHERE `SESSION_ID` = ?
- * array('0'=>'2011-1-12', '1'=>'2011-5-12', '2'=> ... )
- * ssssiiiiiiiisiiissiiiiiiiiiiiiiiiisiiissiiiiiiiiiisi
- * 0
+ * UPDATE `Tmn_Sessions` SET `DATE_MODIFIED` = :date_modified, `OS_ASSIGNMENT_START_DATE` = :os_assignment_start_date, `OS_ASSIGNMENT_END_DATE` = :os_assignment_end_date, `OS_RESIDENT_FOR_TAX_PURPOSES` = :os_resident_for_tax_purposes, `NET_STIPEND` = :net_stipend, `TAX` = :tax, `TAXABLE_INCOME` = :taxable_income, `EMPLOYER_SUPER` = :employer_super, `MMR` = :mmr, `STIPEND` = :stipend, `HOUSING_STIPEND` = :housing_stipend, `HOUSING_MFB` = :housing_mfb, `MFB_RATE` = :mfb_rate, `CLAIMABLE_MFB` = :claimable_mfb, `TOTAL_SUPER` = :total_super, `RESC` = :resc, `SUPER_FUND` = :super_fund, `INCOME_PROTECTION_COVER_SOURCE` = :income_protection_cover_source, `S_NET_STIPEND` = :s_net_stipend, `S_TAX` = :s_tax, `S_ADDITIONAL_TAX` = :s_additional_tax, `S_POST_TAX_SUPER` = :s_post_tax_super, `S_TAXABLE_INCOME` = :s_taxable_income, `S_PRE_TAX_SUPER` = :s_pre_tax_super, `S_ADDITIONAL_LIFE_COVER` = :s_additional_life_cover, `S_MFB` = :s_mfb, `S_ADDITIONAL_HOUSING_ALLOWANCE` = :s_additional_housing_allowance, `S_OS_OVERSEAS_HOUSING_ALLOWANCE` = :s_os_overseas_housing_allowance, `S_FINANCIAL_PACKAGE` = :s_financial_package, `S_EMPLOYER_SUPER` = :s_employer_super, `S_MMR` = :s_mmr, `S_STIPEND` = :s_stipend, `S_HOUSING_STIPEND` = :s_housing_stipend, `S_HOUSING_MFB` = :s_housing_mfb, `S_MFB_RATE` = :s_mfb_rate, `S_CLAIMABLE_MFB` = :s_claimable_mfb, `S_TOTAL_SUPER` = :s_total_super, `S_RESC` = :s_resc, `S_SUPER_FUND` = :s_super_fund, `S_INCOME_PROTECTION_COVER_SOURCE` = :s_income_protection_cover_source, `JOINT_FINANCIAL_PACKAGE` = :joint_financial_package, `TOTAL_TRANSFERS` = :total_transfers, `WORKERS_COMP` = :workers_comp, `CCCA_LEVY` = :ccca_levy, `TMN` = :tmn, `BUFFER` = :buffer, `INTERNATIONAL_DONATIONS` = :international_donations, `ADDITIONAL_HOUSING` = :additional_housing, `MONTHLY_HOUSING` = :monthly_housing, `HOUSING` = :housing, `HOUSING_FREQUENCY` = :housing_frequency WHERE `SESSION_ID` = :session_id
+ * array(':date_modified'=>'2011-1-12', ':os_assignment_start_date'=>'2011-5-12', ':os_assignment_end_date'=> ... )
  * DELETE
  * preparedQuery(sql, values, types)
- * DELETE FROM `Tmn_Sessions` WHERE `SESSION_ID` = ?
- * array('0'=> 8)
- * i
- * 0
+ * DELETE FROM `Tmn_Sessions` WHERE `SESSION_ID` = :session_id
+ * array(':session_id'=>'21')
  * 
  * Screen Output:
  * 
