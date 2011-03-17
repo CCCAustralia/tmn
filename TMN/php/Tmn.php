@@ -1,8 +1,8 @@
 <?php
 
 include_once('Reporter.php');
-include_once('TmnAuth.php');
-include_once('TmnDatabase.php');
+include_once('TmnUser.php');
+include_once('TmnAuthenticator.php');
 
 class Tmn extends Reporter {
 	
@@ -10,9 +10,10 @@ class Tmn extends Reporter {
 			///////////////////INSTANCE VARIABLES/////////////////////
 	
 	
-	protected $db;
-	private $auth;
+	private $authenticator;
 	private $guid;
+	private $user;
+	private $logfile;
 	
 	
 			///////////////////CONSTRUCTOR/////////////////////
@@ -22,9 +23,9 @@ class Tmn extends Reporter {
 		
 		parent::__construct($logfile);
 		
-		$this->db			= TmnDatabase::getInstance($logfile);
-		$this->auth			= TmnAuth::getInstance($logfile);
-		$this->guid			= $this->auth->getGuid();
+		$this->authenticator= TmnAuthenticator::getInstance($logfile);
+		$this->user			= null;
+		$this->logfile		= $logfile;
 	}
 	
 	
@@ -32,24 +33,24 @@ class Tmn extends Reporter {
 	
 	
 	public function isAuthenticated() {
-		return $this->auth->isAuthenticated();
+		return $this->authenticator->isAuthenticated();
 	}
 	
-	public function getAuthGuid() {
+	public function getAuthenticatedGuid() {
 		//return "691EC152-0565-CEF4-B5D8-99286252652B";
-		return $this->auth->getGuid();
-	}
-	
-	public function getGuid() {
-		return $this->guid;
-	}
-	
-	public function setGuid($g) {
-		$this->guid = $g;
+		return $this->authenticator->getGuid();
 	}
 	
 	public function getEmail() {
-		return $this->auth->getEmail();
+		return $this->authenticator->getEmail();
+	}
+	
+	public function getUser() {
+		if ($this->user == null) {
+			$this->user = new TmnUser($this->logfile, $this->getAuthenticatedGuid());
+		}
+		
+		return $this->user;
 	}
 	
 	

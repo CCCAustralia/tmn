@@ -9,7 +9,7 @@ if ( !isset($_CAS_CLIENT_CALLED) ) {
 	$_CAS_CLIENT_CALLED = 1;
 }
 
-class TmnAuth extends Reporter {
+class TmnAuthenticator extends Reporter {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
@@ -50,7 +50,7 @@ class TmnAuth extends Reporter {
     // The singleton method
     public static function getInstance($logfile) {
         if (!isset(self::$instance)) {
-            self::$instance = new TmnAuth($logfile);
+            self::$instance = new TmnAuthenticator($logfile);
         }
 
         self::$instance->setFilename($logfile);
@@ -60,7 +60,7 @@ class TmnAuth extends Reporter {
     // Prevent users to clone the instance
     public function __clone()
     {
-        throw new LightException("Authentication Exception: TmnAuth Cannot be cloned");
+        throw new LightException("Authentication Exception: TmnAuthenticator Cannot be cloned");
     }
 	
     

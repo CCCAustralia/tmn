@@ -45,6 +45,7 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
+include_once('Tmn.php');
 include_once('TmnUser.php');
 $LOGFILE	= "TmnUserClass-test.log";
 $DEBUG		= 1;
@@ -53,7 +54,8 @@ $DEBUG		= 1;
 	
 fb("Constructor Test");
 try {
-	$user	= new TmnUser($LOGFILE);
+	$tmn			= new Tmn($LOGFILE);
+	$user			= new TmnUser($LOGFILE, $tmn->getAuthenticatedGuid());
 } catch (Exception $e) {
 	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
 }

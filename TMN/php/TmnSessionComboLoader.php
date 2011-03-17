@@ -8,6 +8,7 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			////////////////INSTANCE VARIABLES//////////////////
 	
 	
+	private $user;
 	private $aussie_form;
 	private $overseas_form;
 	private $home_assignment;
@@ -16,9 +17,10 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			///////////////////CONSTRUCTOR/////////////////////
 	
 	
-	public function __construct($logfile, $tablename, $aussie_form, $overseas_form, $home_assignment) {
+	public function __construct($logfile, $user, $tablename, $aussie_form, $overseas_form, $home_assignment) {
 		parent::__construct($logfile, $tablename);
 		
+		$this->user				= $user;
 		$this->aussie_form		= $aussie_form;
 		$this->overseas_form	= $overseas_form;
 		$this->home_assignment	= $home_assignment;
@@ -30,7 +32,7 @@ class TmnSessionComboLoader extends TmnComboLoader {
 	
 	public function getUserFan() {
 		$sql 		= "SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID = :guid";
-		$values		= array(":guid" => $this->getAuthGuid());
+		$values		= array(":guid" => $this->user->getGuid());
 		
 		try {
 			$userQuery = $this->db->prepare($sql);
@@ -54,16 +56,16 @@ class TmnSessionComboLoader extends TmnComboLoader {
 		
 		try {
 			
-			$values	= array(":fan" => $this->getUserFan());
+			$values	= array(":fan" => $this->user->getFan());
 			
 			//form the sql statement
 			if ($this->aussie_form) {
-					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 			} elseif ($this->overseas_form) {
 				if ($this->home_assignment) {
-					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
 				} else {
-					$sql	= "SELECT `SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 				}
 			} else {
 				throw new FatalException('SessionComboLoader Exception: Form not Aussie or Overseas');

@@ -1,6 +1,7 @@
 <?php
 
 include_once('TmnUser.php');
+include_once('TmnAuthorisor.php');
 
 class TmnSession extends TmnUser {
 	
@@ -9,8 +10,12 @@ class TmnSession extends TmnUser {
 	
 	private static $table_name	= "Tmn_Sessions";
 	protected $session_id		= null;
-	//private $guid = null;
-	//private $fan = null;
+	private $session_guid		= null;
+	private $session_fan		= null;
+	private $auth_session_id	= null;
+	
+	private $session_authorisor	= null;
+	
 	//private $firstname = null;
 	protected $session = array(
 			'home_assignment_session_id'			=>	null,
@@ -147,10 +152,15 @@ class TmnSession extends TmnUser {
 	public function __construct($logfile, $session_id=null) {
 		
 		parent::__construct($logfile);
+		$this->session_authorisor	= new TmnAuthorisor($logfile);
 		
 		if ($session_id != null) {
-			$this->session_id	= $session_id;
-			$this->retrieveSession();
+			$this->session_id		= $session_id;
+			try {
+				$this->retrieveSession();
+			} catch (LightException $e) {
+				throw new FatalException($e->getMessage());
+			}
 		}
 	}
 	
@@ -183,7 +193,11 @@ class TmnSession extends TmnUser {
 	}
 	
 	public function resetSession() {
-		$this->session_id = null;
+		$this->session_id		= null;
+		$this->session_guid		= null;
+		$this->session_fan		= null;
+		$this->auth_session_id	= null;
+		
 		foreach ($this->session as $key=>$value) {
 			$this->session[$key] = null;
 		}
@@ -218,7 +232,7 @@ class TmnSession extends TmnUser {
 		
 		//init variables for generating query
 		$sql		= "INSERT INTO `" . self::$table_name . "` (`FAN`, `GUID`, ";
-		//$values		= array(":fan" => $this->fan, ":guid" => $this->guid);
+		//$values		= array(":fan" => $this->session_fan, ":guid" => $this->session_guid);
 		$values		= array(":fan" => $this->getFan(), ":guid" => $this->getGuid());
 		
 		//add the sql query the fields to be INSERTed into database
@@ -264,7 +278,7 @@ class TmnSession extends TmnUser {
 	public function retrieveSession() {
 		
 		//init variables for generating query
-		$sql		= "SELECT ";
+		$sql		= "SELECT `AUTH_SESSION_ID`, `GUID`, `FAN`, ";
 		$values		= array();
 		
 		//create the sql SELECT query
@@ -286,6 +300,12 @@ class TmnSession extends TmnUser {
 				throw new LightException("Session Exception: On Retrieve, Session Not Found");
 			} elseif ($stmt->rowCount() == 1) {
 				//copy results into instance variables
+				$this->session_guid	= $results['GUID'];
+				$this->session_fan	= $results['FAN'];
+				
+				$this->auth_session_id		= $results['AUTH_SESSION_ID'];
+				$this->session_authorisor->loadAuthSession($this->auth_session_id);
+				
 				foreach ($this->session as $key=>$value) {
 					if (isset($results[strtoupper($key)])) {
 						$result = $results[strtoupper($key)];
@@ -390,8 +410,12 @@ class TmnSession extends TmnUser {
 	}
 	
 	
-			///////////////////CRUD BY JSON/////////////////////
+			///////////////////SESSION INTERFACE/////////////////////
 			
+	
+	public function authUserIsAuthorisor() {
+		return $this->session_authorisor->userIsAuthorisor($this->getAuthGuid());
+	}
 	
 	public function loadSessionFromJson($jsonObj) {
 		

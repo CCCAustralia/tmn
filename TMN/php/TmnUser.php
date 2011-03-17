@@ -1,12 +1,16 @@
 <?php
 
-include_once('Tmn.php');
+include_once('Reporter.php');
+include_once('TmnDatabase.php');
 
-class TmnUser extends Tmn {
+class TmnUser extends Reporter {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
 	
+	
+	private 		$db				= null;
+	private			$guid			= null;
 	private static 	$table_name 	= "User_Profiles";
 	private 		$user_id		= null;
 	protected 		$user			= array(
@@ -42,8 +46,10 @@ class TmnUser extends Tmn {
 		
 		parent::__construct($logfile);
 		
+		$this->db	= TmnDatabase::getInstance($logfile);
+		
 		if (isset($guid)) {
-			parent::setGuid($guid);
+			$this->guid = $guid;
 		}
 		
 		try {
@@ -57,15 +63,19 @@ class TmnUser extends Tmn {
 			////////////////ACCESSOR FUNCTIONS////////////////
 	
 	
+	public function getGuid() {
+		return $this->guid;
+	}
+	
 	public function setGuid($guid) {
 		
-		$tempGuid = $this->getGuid();
-		parent::setGuid($guid);
+		$tempGuid = $this->guid;
+		$this->guid = $guid;
 		
 		try {
 			$this->retrieveUser();
 		} catch (LightException $e) {
-			parent::setGuid($tempGuid);
+			$this->setGuid($tempGuid);
 			$this->exceptionHandler(new LightException("User Exception: Cannot Load User with guid=" . $guid . ". The previous guid was restored. The following Exception was thrown when load was attempted:" . $e->getMessage()));
 		}
 	}
@@ -144,7 +154,7 @@ class TmnUser extends Tmn {
 		
 		//init variables for generating query
 		$sql		= "INSERT INTO `" . self::$table_name . "` (`GUID`, ";
-		$values		= array(":guid" => $this->getGuid());
+		$values		= array(":guid" => $this->guid);
 		
 		//add the sql query the fields to be INSERTed into database
 		foreach ($this->user as $key=>$value) {
@@ -196,7 +206,7 @@ class TmnUser extends Tmn {
 		}
 		
 		$sql			= trim($sql, ", ") . " FROM `" . self::$table_name . "` WHERE `GUID` = :guid";
-		$values[":guid"]	= $this->getGuid();
+		$values[":guid"]	= $this->guid;
 
 		//run the query
 		try {
@@ -253,7 +263,7 @@ class TmnUser extends Tmn {
 		
 		$sql				 = trim($sql, ", ");
 		$sql				.= " WHERE `GUID` = :guid";
-		$values[":guid"]	 = $this->getGuid();
+		$values[":guid"]	 = $this->guid;
 		
 		//run the query
 		try {
@@ -268,7 +278,7 @@ class TmnUser extends Tmn {
 		
 		//init query
 		$sql					= "DELETE FROM `" . self::$table_name . "` WHERE `GUID` = :guid";
-		$values					= array(":guid" => $this->getGuid());
+		$values					= array(":guid" => $this->guid);
 		
 		//run the query
 		try {

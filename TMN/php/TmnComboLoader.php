@@ -1,14 +1,16 @@
 <?php
 
-include_once('Tmn.php');
+include_once('Reporter.php');
+include_once('TmnDatabase.php');
 
-class TmnComboLoader extends Tmn {
+class TmnComboLoader extends Reporter {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
 	
 	
-	protected $table;
+	protected  	$db;
+	protected	$table;
 	
 	
 			///////////////////CONSTRUCTOR/////////////////////
@@ -17,6 +19,8 @@ class TmnComboLoader extends Tmn {
 	public function __construct($logfile, $tablename) {
 		
 		parent::__construct($logfile);
+		
+		$this->db	= TmnDatabase::getInstance($logfile);
 		
 		if (!$this->validRequest($tablename)) {
 				throw new FatalException("ComboLoader Exception: Not a valid Request.");

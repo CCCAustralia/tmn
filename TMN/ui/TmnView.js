@@ -115,8 +115,10 @@ tmn.view.TmnView = function() {
 	// relay special Financial Details events
 	for (formCount = 1; formCount < 4; formCount++) {
 		this.relayEvents(this.forms[formCount], [
+		                                    'resetfinancialdata',
 											'loadsession',
 											'savesession',
+											'saveassession',
 											'deletesession'
 	                                     ]);
 	}

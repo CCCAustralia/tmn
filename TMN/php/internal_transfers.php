@@ -20,10 +20,7 @@ if (isset($_SESSION['phpCAS'])) {
 $connection = db_connect();
 $LOGFILE = "logs/internal_transfers.log";
 
-//session needs to be FAN, remove when multiple sessions is implemented
-$sql = mysql_query('SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID="'.$guid.'";');
-$res = mysql_fetch_assoc($sql);
-$session = $res['FIN_ACC_NUM'];
+$session = $_POST['session'];
 
 
 //////////////////////////////////FIX SQL INJECTION RISK//////////////////////////////////

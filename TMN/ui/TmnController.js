@@ -467,12 +467,30 @@ tmn.TmnController = function() {
 		},
 		
 		/**
+		 * Handler for when the user selects that they want to save a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		onSaveAsSession: function(form_panel) {
+			form_panel.onSaveAsSession();
+		},
+		
+		/**
 		 * Handler for when the user selects that they want to delete a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
 		 * 
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onDeleteSession: function(form_panel) {
 			form_panel.onDeleteSession();
+		},
+		
+		/**
+		 * Replaces financial_data with empty object for a particular form
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		resetFinancialData: function(form_panel) {
+			this.financial_data[form_panel.id] = {};
 		},
 		
 		/**
@@ -656,9 +674,11 @@ tmn.TmnController = function() {
 			this.view.on('mpdno', this.onMpd.createDelegate(this, [false], true), this);
 			
 				//FinancialDetailsForm events
+			this.view.on('resetfinancialdata', this.resetFinancialData, this);
 			this.view.on('financialdataupdated', this.processFinancialData, this);
 			this.view.on('loadsession', this.onLoadSession, this);
 			this.view.on('savesession', this.onSaveSession, this);
+			this.view.on('saveassession', this.onSaveAsSession, this);
 			this.view.on('deletesession', this.onDeleteSession, this);
 			
 			//load initial form
