@@ -1,6 +1,6 @@
 <?php
 
-include_once('Reporter.php');
+include_once('../classes/Reporter.php');
 
 class TmnDatabase extends Reporter {
 	

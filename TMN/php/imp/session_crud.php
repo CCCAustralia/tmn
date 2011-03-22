@@ -1,9 +1,9 @@
 <?php
 
-include_once('Tmn.php');
+include_once('../classes/Tmn.php');
 
 //set the log path
-$LOGFILE	= "logs/session_crud.log";
+$LOGFILE	= "../logs/session_crud.log";
 $tmn		= new Tmn($LOGFILE);
 
 if (isset($_POST['mode'])) {

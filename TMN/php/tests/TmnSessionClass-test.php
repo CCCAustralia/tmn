@@ -5,7 +5,7 @@
 *******************************************/
 
 //GCX login
-include_once('../lib/cas/cas.php');		//include the CAS module
+include_once('../../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 $_CAS_CLIENT_CALLED = 1;
@@ -45,17 +45,17 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
-include_once('TmnSession.php');
-$LOGFILE	= "TmnSessionClass-test.log";
+include_once('../classes/TmnCrudSession.php');
+$LOGFILE	= "../logs/TmnSessionClass-test.log";
 $DEBUG		= 1;
 
 	//Constructor test
 	
 fb("Constructor Test");
 try {
-	$session	= new TmnSession($LOGFILE);
+	$session	= new TmnCrudSession($LOGFILE);
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 

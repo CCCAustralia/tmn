@@ -4,8 +4,8 @@
 # Test Code                 
 *******************************************/
 
-include_once('Reporter.php');
-$LOGFILE	= "ReporterClass-test.log";
+include_once('../classes/Reporter.php');
+$LOGFILE	= "../logs/ReporterClass-test.log";
 $DEBUG = 1;
 
 	//Constructor test

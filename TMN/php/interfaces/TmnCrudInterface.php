@@ -31,6 +31,32 @@ interface TmnCrudInterface {
 	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
 	
 	
+	
+			///////////////////ACCESSOR FUNCTIONS/////////////////////
+			
+	
+	/**
+	 * 
+	 * Returns the value of a field you give it.
+	 * 
+	 * @param String $fieldname - name of a field you want to get
+	 * 
+	 * @return Mixed	- The value of the field or false
+	 */
+	public function getField($fieldname);
+	
+	/**
+	 * 
+	 * Sets the value for a field you give it.
+	 * 
+	 * @param String $fieldname - name of a field you want to get
+	 * @param Mixed $value - the value to be set
+	 * 
+	 * @return Bool		- true if it worked, false if it didn't
+	 */
+	public function setField($fieldname, $value);
+	
+	
 			///////////////////CRUD FUNCTIONS/////////////////////
 			
 	

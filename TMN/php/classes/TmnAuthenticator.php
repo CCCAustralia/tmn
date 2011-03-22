@@ -1,7 +1,7 @@
 <?php
 
-include_once('Reporter.php');
-include_once('../lib/cas/cas.php');
+include_once('../classes/Reporter.php');
+include_once('../../lib/cas/cas.php');
 
 //initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
 if ( !isset($_CAS_CLIENT_CALLED) ) {

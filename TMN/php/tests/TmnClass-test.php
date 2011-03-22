@@ -5,8 +5,7 @@
 *******************************************/
 
 //GCX login
-include_once('../lib/cas/cas.php');		//include the CAS module
-
+include_once('../../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 $_CAS_CLIENT_CALLED = 1;
@@ -46,59 +45,34 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
-include_once('TmnAuth.php');
-$LOGFILE	= "TmnAuthClass-test.log";
-$DEBUG = 1;
+include_once('../classes/Tmn.php');
+$LOGFILE	= "../logs/TmnClass-test.log";
+$DEBUG		= 1;
 
 	//Constructor test
-
+	
 fb("Constructor Test");
-try {
-	$authObj	= TmnAuth::getInstance($LOGFILE);
-} catch (Exception $e) {
-	Reporter::newInstance()->exceptionHandler($e);
-}
+$tmnObj	= new Tmn($LOGFILE);
 
 /*
  * Expected output
  * 
  * Console Output:
  * Constructor Test
+ * [<now>] User Authenticated: guid = 691EC152-0565-CEF4-B5D8-************
  * 
  * Screen Output:
- * 
- */
-
-/*
- * Expected output (With above GCX code commented out)
- * 
- * Console Output:
- * Constructor Test
- * <filename>; ln <line num>; Fatal Exception; Authentication Exception: User Not Authenticated
- * 
- * Screen Output:
- * {success:false}
- * 
- */
-
-/*
- * Expected output (with guid cookie missing)
- * 
- * Console Output:
- * Constructor Test
- * <filename>; ln <line num>; Fatal Exception; Authentication Exception: User's GUID Not Found
- * 
- * Screen Output:
- * {success:false}
  * 
  */
 
 	//Auth test
 
 fb("Auth Test");
-fb("isAuthenticated(): " . $authObj->isAuthenticated());
-fb("getGuid(): " . $authObj->getGuid());
-fb("getEmail(): " . $authObj->getEmail());
+fb("isAuthenticated(): " . $tmnObj->isAuthenticated());
+fb("getAuthenticatedGuid(): " . $tmnObj->getAuthenticatedGuid());
+fb("getEmail(): " . $tmnObj->getEmail());
+fb("getUser(): ");
+fb($tmnObj->getUser());
 
 /*
  * Expected output
@@ -106,36 +80,12 @@ fb("getEmail(): " . $authObj->getEmail());
  * Console Output:
  * Auth Test
  * isAuthenticated(): 1
- * getGuid(): <your guid>
- * getEmail(): <your email>
- * 
- * Screen Output:
- * 
- */
-
-	//Singleton test
-
-fb("Singleton Test");
-fb("this:"); fb($authObj);
-fb("::getInstance():"); fb(TmnAuth::getInstance($LOGFILE));
-fb("clone authObj: ");
-try {
-	clone $authObj;
-} catch (Exception $e) {
-	Reporter::newInstance()->exceptionHandler($e);
-}
-
-/*
- * Expected output
- * 
- * Console Output:
- * Singleton Test
- * this:
- * <instance of TmnAuth with your GCX data>
- * ::getInstance():
- * <same instance of TmnAuth with your GCX data>
- * clone authObj:
- * <filename>; ln <line num>; Light Exception; Authentication Exception: TmnAuth Cannot be cloned
+ * getAuthGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * getEmail(): michael.harro@gmail.com
+ * setGuid('me')
+ * getGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * setGuid('me')
  * 
  * Screen Output:
  * 

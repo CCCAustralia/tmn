@@ -1,8 +1,8 @@
 <?php
 
-include_once('Reporter.php');
-include_once('TmnUser.php');
-include_once('TmnAuthenticator.php');
+include_once('../classes/Reporter.php');
+include_once('../classes/TmnUser.php');
+include_once('../classes/TmnAuthenticator.php');
 
 class Tmn extends Reporter {
 	

@@ -1,7 +1,7 @@
 <?php
 
-include_once('Reporter.php');
-include_once('TmnDatabase.php');
+include_once('../classes/Reporter.php');
+include_once('../classes/TmnDatabase.php');
 
 class TmnComboLoader extends Reporter {
 	

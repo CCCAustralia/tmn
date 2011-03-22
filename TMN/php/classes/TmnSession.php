@@ -1,7 +1,7 @@
 <?php
 
-include_once('TmnUser.php');
-include_once('TmnAuthorisor.php');
+include_once('../classes/TmnUser.php');
+include_once('../classes/TmnAuthorisor.php');
 
 class TmnSession extends TmnUser {
 	

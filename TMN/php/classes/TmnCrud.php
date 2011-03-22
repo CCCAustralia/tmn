@@ -1,8 +1,8 @@
 <?php
 
-include_once('Reporter.php');
-include_once('TmnCrudInterface.php');
-include_once('TmnDatabase.php');
+include_once('../classes/Reporter.php');
+include_once('../interfaces/TmnCrudInterface.php');
+include_once('../classes/TmnDatabase.php');
 
 class TmnCrud extends Reporter implements TmnCrudInterface {
 	
@@ -68,6 +68,70 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			//if there is a problem with the Database kill the object
 			throw new FatalException(__CLASS__ . " Exception: Couldn't Connect to Database due to error; " . $e->getMessage());
 		}
+	}
+	
+	
+			///////////////////ACCESSOR FUNCTIONS/////////////////////
+			
+	
+	public function getField($fieldname) {
+		
+		//if $fieldname is in private_data return its value
+		if (isset($this->private_data[$fieldname])) {
+			return	$this->private_data[$fieldname];
+		}
+		
+		//if $fieldname is in public_data return its value
+		if (isset($this->public_data[$fieldname])) {
+			return	$this->public_data[$fieldname];
+		}
+		
+		//if it couldn't be found then return false
+		return false;
+	}
+	
+	public function setField($fieldname, $value) {
+		
+		//if $fieldname is in private_data set its value and return true
+		if (isset($this->private_data[$fieldname])) {
+			
+			//check type if correct set and return true
+			try {
+				if ($this->valueMatchesType($value, $this->private_types[$fieldname])) {
+					$this->private_data[$fieldname] = $value;
+					return true;
+				} else {
+					//if it isn't the correct type return false
+					return false;
+				}
+			} catch (Exception $e) {
+				//if it isn't the correct type return false
+				return false;
+			}
+			
+		}
+		
+		//if $fieldname is in public_data set its value and return true
+		if (isset($this->public_data[$fieldname])) {
+			
+			//check type if correct set and return true
+			try {
+				if ($this->valueMatchesType($value, $this->public_types[$fieldname])) {
+					$this->public_data[$fieldname] = $value;
+					return true;
+				} else {
+					//if it isn't the correct type return false
+					return false;
+				}
+			} catch (Exception $e) {
+				//if it isn't the correct type return false
+				return false;
+			}
+			
+		}
+		
+		//if it couldn't be found then return false 
+		return false;
 	}
 	
 	
@@ -426,34 +490,6 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		parent::__destruct();
 	}
 	
-}
-
-//This is an example of how to subclass TmnCrud
-class TmnCrudUser extends TmnCrud {
-	
-	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
-		
-		parent::__construct(
-			$logfile,						//path of logfile
-			"User_Profiles",				//name of table
-			"guid",							//name of table's primary key
-			array(							//an assoc array of private field names and there types
-				'guid'		=>	"s"
-			),
-			array(							//an assoc array of public field names and there types
-				'firstname'		=>	"s",
-				'surname'		=>	"s",
-				'spouse_guid'	=>	"s",
-				'ministry'		=>	"s",
-				'ft_pt_os'		=>	"i",
-				'days_per_week'	=>	"i",
-				'fin_acc_num'	=>	"i",
-				'mpd'			=>	"i",
-				'm_guid'		=>	"s",
-				'admin_tab'		=>	"i"
-			)
-		);
-	}
 }
 
 ?>

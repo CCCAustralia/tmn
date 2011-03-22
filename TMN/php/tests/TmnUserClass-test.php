@@ -5,7 +5,7 @@
 *******************************************/
 
 //GCX login
-include_once('../lib/cas/cas.php');		//include the CAS module
+include_once('../../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 $_CAS_CLIENT_CALLED = 1;
@@ -45,9 +45,9 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
-include_once('Tmn.php');
-include_once('TmnUser.php');
-$LOGFILE	= "TmnUserClass-test.log";
+include_once('../classes/Tmn.php');
+include_once('../classes/TmnUser.php');
+$LOGFILE	= "../logs/TmnUserClass-test.log";
 $DEBUG		= 1;
 
 	//Constructor test
@@ -57,7 +57,7 @@ try {
 	$tmn			= new Tmn($LOGFILE);
 	$user			= new TmnUser($LOGFILE, $tmn->getAuthenticatedGuid());
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 
@@ -80,14 +80,14 @@ fb("getSpouseGuid(): " . $user->getSpouseGuid());
 try {
 	fb("setSpouseGuid('test'): " . $user->setSpouseGuid('test'));
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 fb("getSpouseGuid(): " . $user->getSpouseGuid());
 fb("getMpdGuid(): " . $user->getMpdGuid());
 try {
 	fb("setMpdGuid('testuserguid'): " . $user->setMpdGuid('testuserguid'));
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 fb("getMpdGuid(): " . $user->getMpdGuid());
 fb("isAdmin(): " . $user->isAdmin());
@@ -122,7 +122,7 @@ try {
 	fb("setGuid('duplicate')"); $user->setGuid('duplicate');
 	fb("createUser()"); $user->createUser();
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 fb("RETRIEVE");
@@ -131,7 +131,7 @@ try {
 	fb("load via setGuid('test')"); $user->setGuid('test');
 	fb("getSpouseGuid(): " . $user->getSpouseGuid());
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 fb("UPDATE");
@@ -142,7 +142,7 @@ try {
 	fb("retrieveUser()"); $user->retrieveUser();
 	fb("getMpdGuid(): " . $user->getMpdGuid());
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 /*

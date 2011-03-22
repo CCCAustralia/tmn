@@ -27,6 +27,17 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 	//set config variable to passed or default
 	config = config || {};
 	
+	//holds the data for the minsitry combo
+	this.ministry_combo_store = new Ext.data.JsonStore({
+        itemId:'ministry_store',
+        root: 'Ministry',
+        fields:['MINISTRY_ID', 'MINISTRY_LEVY'],
+        url:'php/imp/combofill.php',
+        autoLoad: {
+        	params: {mode: 'Ministry'}
+        }
+    });
+	
 	//set config options to passed or default
 	/**
 	 * @cfg {String}	id				The id parameter of the html tag that contains the form.<br />
@@ -222,15 +233,7 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 						    
 						    mode: 'local',
 						    // store getting items from server
-						    store: new Ext.data.JsonStore({
-						        itemId:'ministry_store',
-						        root: 'Ministry',
-						        fields:['MINISTRY_ID', 'MINISTRY_LEVY'],
-						        url:'php/combofill.php',
-						        autoLoad: {
-						        	params: {mode: 'Ministry'}
-						        }
-						    })
+						    store: this.ministry_combo_store
 						},{
 				        	itemId: 'ftptos',
 				        	xtype: 'combo',
@@ -334,15 +337,7 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 						    
 						    mode: 'local',
 						    // store getting items from server
-						    store:new Ext.data.JsonStore({
-						        itemId:'ministry_store',
-						        root: 'Ministry',
-						        fields:['MINISTRY_ID', 'MINISTRY_LEVY'],
-						        url:'php/combofill.php',
-						        autoLoad: {
-						        	params: {mode: 'Ministry'}
-						        }
-						    })
+						    store:this.ministry_combo_store
 						},{
 				        	itemId: 's_ftptos',
 				        	xtype: 'combo',

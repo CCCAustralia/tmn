@@ -45,9 +45,9 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 	this.title				=	config.title || 'Financial Details';
 	/**
 	 * @cfg {String}	crud_url		The url of the server script that will process the form's crud (Create, Retrieve, Update, Delete) requests.<br />
-	 * 									Default: 'php/session_crud.php'
+	 * 									Default: 'php/imp/session_crud.php'
 	 */
-	this.crud_url			=	config.crud_url || 'php/session_crud.php';
+	this.crud_url			=	config.crud_url || 'php/imp/session_crud.php';
 	/**
 	 * @cfg {String}	load_url		The url of the server script that will process the forms load request.<br />
 	 * 									Default: 'php/load_financial_details.php'
@@ -211,7 +211,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 			        itemId:'session_store',
 			        root: 'Tmn_Sessions',
 			        fields:['SESSION_ID', 'SESSION_NAME'],
-			        url:'php/combofill.php',
+			        url:'php/imp/combofill.php',
 			        baseParams: {mode: 'Tmn_Sessions', aussie_form:this.aussie_form, home_assignment:this.home_assignment, overseas_form:this.overseas_form},
 			        autoLoad: true
 			    })

@@ -5,7 +5,7 @@
 *******************************************/
 
 //GCX login
-include_once('../lib/cas/cas.php');		//include the CAS module
+include_once('../../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
 phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 $_CAS_CLIENT_CALLED = 1;
@@ -45,9 +45,9 @@ function curPageURL() {
 # Test Code                 
 *******************************************/
 
-include_once('Tmn.php');
-include_once('TmnCrud.php');
-$LOGFILE	= "TmnCrudClass-test.log";
+include_once('../classes/Tmn.php');
+include_once('../classes/TmnCrudUser.php');
+$LOGFILE	= "../logs/TmnCrudClass-test.log";
 $DEBUG		= 1;
 
 	//Constructor test

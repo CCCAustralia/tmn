@@ -1,6 +1,6 @@
 <?php
 
-include_once('TmnComboLoader.php');
+include_once('../classes/TmnComboLoader.php');
 
 class TmnSessionComboLoader extends TmnComboLoader {
 	

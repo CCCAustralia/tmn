@@ -1,6 +1,6 @@
 <?php
 
-require_once("../lib/FirePHPCore/fb.php");
+require_once("../../lib/FirePHPCore/fb.php");
 class FatalException extends Exception {}
 class LightException extends Exception {}
 
@@ -41,7 +41,7 @@ class Reporter {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage();
 			
 			$tempPath = $this->getFilename();
-			$this->setFilename("logs/exceptions.log");
+			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			
@@ -52,7 +52,7 @@ class Reporter {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage();
 			
 			$tempPath = $this->getFilename();
-			$this->setFilename("logs/exceptions.log");
+			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			
@@ -63,7 +63,7 @@ class Reporter {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage();
 			
 			$tempPath = $this->getFilename();
-			$this->setFilename("logs/exceptions.log");
+			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			

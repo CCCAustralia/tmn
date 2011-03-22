@@ -4,8 +4,8 @@
 # Test Code                 
 *******************************************/
 
-include_once("TmnDatabase.php");
-$LOGFILE	= "TmnDatabaseClass-test.log";
+include_once("../classes/TmnDatabase.php");
+$LOGFILE	= "../logs/TmnDatabaseClass-test.log";
 $DEBUG = 1;
 
 	//Constructor test
@@ -14,7 +14,7 @@ fb("Constructor Test");
 try {
 	$obj	= TmnDatabase::getInstance($LOGFILE);
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 /*
@@ -303,7 +303,7 @@ fb("clone obj: ");
 try {
 	clone $obj;
 } catch (Exception $e) {
-	Reporter::newInstance("logs/default.log")->exceptionHandler($e);
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
 
 /*
