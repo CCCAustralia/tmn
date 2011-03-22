@@ -11,6 +11,7 @@ class TmnUser extends Reporter {
 	
 	private 		$db				= null;
 	private			$guid			= null;
+	private 		$spouse			= null;
 	private static 	$table_name 	= "User_Profiles";
 	private 		$user_id		= null;
 	protected 		$user			= array(
@@ -46,14 +47,16 @@ class TmnUser extends Reporter {
 		
 		parent::__construct($logfile);
 		
-		$this->db	= TmnDatabase::getInstance($logfile);
-		
-		if (isset($guid)) {
-			$this->guid = $guid;
-		}
-		
 		try {
+			
+			$this->db	= TmnDatabase::getInstance($logfile);
+			
+			if (isset($guid)) {
+				$this->guid = $guid;
+			}
+			
 			$this->retrieveUser();
+			
 		} catch (LightException $e) {
 			throw new FatalException("User Exception: Couldn't Load User's Profile due to error; " . $e->getMessage());
 		}
@@ -82,6 +85,14 @@ class TmnUser extends Reporter {
 	
 	public function getFan() {
 		return $this->user['fin_acc_num'];
+	}
+	
+	public function getSpouse() {
+		if ($this->spouse == null) {
+			$this->spouse = new TmnUser($this->logfile, $this->getSpouseGuid());
+		}
+		
+		return $this->spouse;
 	}
 	
 	public function getSpouseGuid() {
