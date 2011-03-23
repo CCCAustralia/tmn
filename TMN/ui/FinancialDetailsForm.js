@@ -31,6 +31,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 	config = config || {};
 
 	this.saved				=	true;
+	this.locked				=	false;
 	
 	//set config options to passed or default
 	/**
@@ -269,7 +270,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 					if (!this.saved) {
 						Ext.MessageBox.confirm(
 								'Warning',
-								'Are you sure you want to delete this session?',
+								'Are you sure you want to clear your changes to this session?',
 								function(btn) {
 									if (btn == 'yes') {
 										this.resetForm();
@@ -1567,6 +1568,32 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	
 	/**
+	 * Sets the session as locked and stops the user from saving or deleting the session,
+	 * they can only load a new one, save as a new version or reset the session
+	 */
+	lock: function() {
+		Ext.MessageBox.show({
+			icon: Ext.MessageBox.WARNING,
+			buttons: Ext.MessageBox.OK,
+			closable: false,
+			title: 'Warning!',
+			msg: "This session is Locked because it has been submitted. You can't save your changes to this session or delete this session. If you would like to save changes to this session, please use Save As to save a new version of the session."
+		});
+		this.getTopToolbar().items.map['save_session_button'].disable();
+		this.getTopToolbar().items.map['delete_session_button'].disable();
+		this.locked = true;
+	},
+	
+	/**
+	 * Sets the session as unlocked and allows the user to do what they will to the session.
+	 */
+	unlock: function() {
+		this.getTopToolbar().items.map['save_session_button'].enable();
+		this.getTopToolbar().items.map['delete_session_button'].enable();
+		this.locked = false;
+	},
+	
+	/**
 	 * Returns the current session that is being modified.
 	 * @returns {number}			A number that is the id of the user's session.
 	 */
@@ -2102,10 +2129,14 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		var return_object = Ext.util.JSON.decode(response.responseText);
 		var data = return_object['data'];
 		
-		this.resetForm();
-		
 		//load the data into the form
 		if (data !== undefined) {
+			
+			//save the session combo's state before the form is reset
+			var sessionIDtemp = this.getTopToolbar().items.map['session_combo'].getValue();
+			
+			this.resetForm();
+			
 			for (field in data) {
 				if (this.getForm().items.map[field.toLowerCase()] !== undefined) {
 					this.getForm().items.map[field.toLowerCase()].setValue(data[field]);
@@ -2120,20 +2151,31 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 					this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
 			}
-		}
+			
+			//if the session has been submitted then set it as locked
+			if (data.auth_session_id !== undefined) {
+				this.lock();
+			} else {
+				this.unlock();
+			}
 		
-		//set the form's session now that it is loaded
-		if ( !isNaN(parseInt(this.getTopToolbar().items.map['session_combo'].getValue())) ) {
-			this.setSession(parseInt(this.getTopToolbar().items.map['session_combo'].getValue()));
-		}
+			//put the session combo's value back
+			this.getTopToolbar().items.map['session_combo'].setValue(sessionIDtemp);
+			if (!isNaN(parseInt(sessionIDtemp))) {
+				sessionIDtemp = parseInt(sessionIDtemp);
+			}
+			//set the form's session now that it is loaded
+			this.setSession(sessionIDtemp);
+
+			//load the session's internal transfers
+			this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
 		
-		//load the session's internal transfers
-		this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
+			//mark form as saved
+			this.saved = true;
+
+		}
 		
 		this.el.unmask();
-		
-		//mark form as saved
-		this.saved = true;
 	},
 	
 	/**
@@ -2230,6 +2272,13 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				this.setSession(data['session_id']);
 				this.getTopToolbar().items.map['session_combo'].getStore().reload({callback:this.onSessionComboReload, scope:this});
 			}
+			
+			//if the session has been submitted then set it as locked
+			if (data.auth_session_id !== undefined) {
+				this.lock();
+			} else {
+				this.unlock();
+			}
 		}
 		
 		this.el.unmask();
@@ -2299,9 +2348,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	onDeleteSessionSuccess: function(response, options) {
 		Ext.MessageBox.alert('Message', 'Delete Success');
 		
-		//clear the selected session in the combo
-		this.getTopToolbar().items.map['session_combo'].clearValue();
-		this.setSession('');
+		//reload the session combo box
 		this.getTopToolbar().items.map['session_combo'].getStore().reload();
 		
 		this.resetForm();
@@ -2344,6 +2391,16 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', false);
 		this.fireEvent('financialdataupdated', this, this.getForm().items.map['mfb_rate'], this.getForm().items.map['mfb_rate'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, this.getForm().items.map['s_mfb_rate'], this.getForm().items.map['s_mfb_rate'].getValue(), false);
+		
+		//clear the selected session in the combo
+		this.getTopToolbar().items.map['session_combo'].clearValue();
+		this.setSession('');
+		
+		//set the state to unsaved
+		this.saved = false;
+		
+		//make sure the session is unlocked
+		this.unlock();
 		
 	}
 });

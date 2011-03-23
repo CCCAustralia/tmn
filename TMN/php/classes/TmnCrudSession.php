@@ -19,13 +19,13 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			"Tmn_Sessions",					//name of table
 			"session_id",					//name of table's primary key
 			array(							//an assoc array of private field names and there types
-				'auth_session_id'						=>	"i",
 				'fan'									=>	"i",
 				'guid'									=>	"s"
 			),
 			array(							//an assoc array of public field names and there types
 				'session_id'							=>	"i",
 				'session_name'							=>	"s",
+				'auth_session_id'						=>	"i",
 				'home_assignment_session_id'			=>	"i",
 				'international_assignment_session_id'	=>	"i",
 				'date_modified'							=>	"s",

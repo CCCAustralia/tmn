@@ -388,6 +388,20 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		return json_encode($data);
 	}
 	
+	public function produceAssocArray() {
+		
+		$data = array();
+		//grab all non null fields
+		foreach ($this->public_data as $key=>$value) {
+			if ($value != "__") {
+				$data[$key] = $value;
+			}
+		}
+		
+		//return those fields in an associative array
+		return $data;
+	}
+	
 	public function loadDataFromJsonString($string) {
 		//parse json string
 		$jsonObj	= json_decode($string, true);

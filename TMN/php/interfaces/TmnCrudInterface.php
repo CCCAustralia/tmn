@@ -125,6 +125,14 @@ interface TmnCrudInterface {
 	
 	/**
 	 * 
+	 * Takes the values stored in the object and creates an associative array from them.
+	 * 
+	 * @return Assoc Array - associative array filled with the data in the object at that time
+	 */
+	public function produceAssocArray();
+	
+	/**
+	 * 
 	 * Takes a json string, parses it and loads any values it finds that relate to its fields
 	 * @param String		$string - json string that contains data to be loaded
 	 * 								$string needs to be in the form { ..., data:{ <field name>: <value>, ... }, ...}
