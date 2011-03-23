@@ -5,6 +5,7 @@
 # Test Code                 
 *******************************************/
 
+include_once('../classes/Tmn.php');
 include_once('../classes/TmnCrudSession.php');
 $LOGFILE	= "../logs/TmnSessionClass-test.log";
 $DEBUG		= 1;
@@ -34,126 +35,89 @@ try {
 	//Access test
 
 fb("Access Test");
-//getOwner
-//setOwner
-//getOwnerGuid
-//setOwnerGuid
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwner(tmn->getUser())");
+$session->setOwner($tmn->getUser());
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwner()");
+$session->setOwner();
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwnerGuid('testuserguid')");
+$session->setOwnerGuid('testuserguid');
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwnerGuid(tmn->getAuthenticatedGuid())");
+$session->setOwnerGuid($tmn->getAuthenticatedGuid());
+fb("getOwnerGuid()");
+fb($session->getOwnerGuid());
 
 /*
  * Expected output
  * 
  * Console Output:
  * Access Test
- * 
+ * getOwner()
+ * FALSE
+ * setOwner(tmn->getUser())
+ * getOwner()
+ * TmnCrudUser('db'=>TmnDatabase('instance'=>'** Recursion (TmnDatabase) **', 'db'=>PDO(), 'db_name'=> ... ), 'table_name'=>'User_Profiles', 'primarykey_name'=> ... )
+ * setOwner()
+ * getOwner()
+ * FALSE
+ * setOwnerGuid('testuserguid')
+ * getOwner()
+ * TmnCrudUser('db'=>TmnDatabase('instance'=>'** Recursion (TmnDatabase) **', 'db'=>PDO(), 'db_name'=> ... ), 'table_name'=>'User_Profiles', 'primarykey_name'=> ... )
+ * setOwnerGuid(tmn->getAuthenticatedGuid())
+ * getOwnerGuid()
+ * 691EC152-0565-CEF4-B5D8-99286252652B
  * 
  * Screen Output:
  * 
  */
 
-	//Database Interaction test
+/*TODO: uncomment when TmnAuthorisationProcessor is done
+	//Authorisation Test
 
-fb("Database Interaction Test");
+fb("Authorisation Test");
 
+$dud	= new TmnCrudUser($LOGFILE);
+$dud->loadUserWithName("Kent", "Keller");
+$user	= new TmnCrudUser($LOGFILE);
+$user->loadUserWithName("Michael", "Harrison");
+$level1	= new TmnCrudUser($LOGFILE);
+$level1->loadUserWithName("Thomas", "Flynn");
+$level2	= new TmnCrudUser($LOGFILE);
+$level2->loadUserWithName("test", "user");
+$level3	= new TmnCrudUser($LOGFILE);
+$level3->loadUserWithName("debug", "user");
+$data = json_decode('{"session_name":"test","date_modified":"2011-03-16 20:05:21","os_resident_for_tax_purposes":"","net_stipend":950,"tax":30,"post_tax_super":84,"taxable_income":1069,"pre_tax_super":96,"mfb":1069,"financial_package":2234,"employer_super":96,"mmr":200,"stipend":950,"housing_mfb":236,"mfb_rate":"Full","claimable_mfb":833,"total_super":276,"super_fund":"IOOF","income_protection_cover_source":"Support Account","s_mfb_rate":"Full","s_super_fund":"IOOF","s_income_protection_cover_source":"Support Account","joint_financial_package":2234,"total_transfers":92,"workers_comp":34,"ccca_levy":295,"tmn":2951,"buffer":4426,"monthly_housing":236,"housing":236,"housing_frequency":"Monthly"}', true);
 
+fb("submit(user, level1, level2, level3, data): ");
+fb($session->submit($user, $level1, $level2, $level3, $data));
+fb("userIsAuthoriser(level1): ");
+fb($session->userIsAuthoriser($level1));
+fb("userIsAuthoriser(dud): ");
+fb($session->userIsAuthoriser($dud));
+fb("authorise(2,1): ");
+fb($session->authorise(2,1));
+*/
 
 /*
  * Expected output
  * 
  * Console Output:
- * Database Interaction Test
- * Session added at: 1
- * Session added at: 2
- * Session added at: 3
- * Session added at: 4
- * Session added at: 5
- * Session added at: 6
- * Session added at: 7
- * Session added at: 8
- * Session added at: 9
- * Session added at: 10
- * Session added at: 11
- * Session added at: 12
- * Session added at: 13
- * Session added at: 14
- * Session added at: 15
- * Session added at: 16
- * Session added at: 17
- * Session added at: 18
- * Session added at: 19
- * Session added at: 20
- * Session added at: 21
- * Session added at: 22
- * Session added at: 23
- * Session added at: 24
- * Session added at: 25
- * Session added at: 26
- * Session added at: 27
- * Session added at: 28
- * Session added at: 29
- * Session added at: 30
- * Session added at: 31
- * Session added at: 32
- * Session added at: 33
- * Session added at: 34
- * Session added at: 35
- * Session added at: 36
- * Session added at: 37
- * Session added at: 38
- * Session added at: 39
- * Session added at: 40
- * Session added at: 41
- * Session added at: 42
- * Session added at: 43
- * Session added at: 44
- * Session added at: 45
- * Session added at: 46
- * Session added at: 47
- * Session added at: 48
- * Session added at: 49
- * Session added at: 50
- * Session added at: 51
- * Session added at: 52
- * Session added at: 53
- * Session added at: 54
- * Session added at: 55
- * Session added at: 56
- * Session added at: 57
- * Session added at: 58
- * Session added at: 59
- * Session added at: 60
- * Session added at: 61
- * Session added at: 62
- * Session added at: 63
- * Session added at: 64
- * Session added at: 65
- * Session added at: 66
- * Session added at: 67
- * Session added at: 68
- * Session added at: 69
- * Session added at: 70
- * Session added at: 71
- * Session added at: 72
- * Session added at: 73
- * Session added at: 74
- * Session added at: 75
- * Session added at: 76
- * Session added at: 77
- * Session added at: 78
- * Session added at: 79
- * Session added at: 80
- * Session added at: 81
- * Session added at: 82
- * Session added at: 83
- * Session added at: 84
- * Session added at: 85
- * Session added at: 86
- * Session added at: 87
- * Session added at: 88
- * Session added at: 89
- * Session added at: 90
- * Session added at: 91
- * Session added at: 92
- * Session added at: 93
+ * Authorisation Test
+ * submit(user, level1, level2, level3, data): 
+ * TRUE
+ * userIsAuthoriser(level1): 
+ * TRUE
+ * userIsAuthoriser(dud): 
+ * FALSE
+ * authorise(2,1): 
+ * TRUE
  * 
  * Screen Output:
  * 

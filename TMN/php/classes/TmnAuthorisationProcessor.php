@@ -24,7 +24,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes) {
+	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
 		
 	}
 	

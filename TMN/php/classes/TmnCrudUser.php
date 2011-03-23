@@ -66,11 +66,18 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	}
 	
 	public function getSpouse() {
-		if ($this->spouse == null) {
-			$this->spouse = TmnCrudUser::make($this->logfile, $this->getSpouseGuid());
+		if ($this->getSpouseGuid() != null) {
+			if ($this->spouse == null) {
+				$this->spouse = TmnCrudUser::make($this->logfile, $this->getSpouseGuid());
+			}
+			
+			return $this->spouse;
+		} else {
+			//if no guid set then make sure spouse is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->spouse = null;
+			return false;
 		}
-		
-		return $this->spouse;
 	}
 	
 	public function getSpouseGuid() {
@@ -91,7 +98,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($guid != null) {
 			$this->setField('spouse_guid', $guid);
 		} else {
-			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
 	
@@ -113,7 +120,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($guid != null) {
 			$this->setField('m_guid', $guid);
 		} else {
-			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
 	
@@ -129,7 +136,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		
 		//if there is something to find, run the query and return the user's guid
 		if ($firstname != null && $surname != null) {
-			$sql	= "SELECT `GUID` FROM `" . self::$table_name . "` WHERE `FIRSTNAME` = :firstname AND `SURNAME` = :surname";
+			$sql	= "SELECT `GUID` FROM `" . $this->table_name . "` WHERE `FIRSTNAME` = :firstname AND `SURNAME` = :surname";
 			$values = array(":firstname"=>$firstname, ":surname"=>$surname);
 			
 			try {
@@ -160,7 +167,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($guid == null) {
 			return false;
 		} else {
-			$sql	= "SELECT `GUID` FROM `" . self::$table_name . "` WHERE `GUID` = :guid";
+			$sql	= "SELECT `GUID` FROM `" . $this->table_name . "` WHERE `GUID` = :guid";
 			try {
 				$stmt		= $this->db->prepare($sql);
 				$stmt->execute(array(":guid" => $guid));
@@ -187,7 +194,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 			$this->setField('guid', $guid);
 			$this->retrieve();
 		} else {
-			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
 }

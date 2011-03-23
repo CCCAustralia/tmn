@@ -9,8 +9,12 @@ interface TmnCrudInterface {
 	 * 
 	 * Creates an object that will interact with a Database table on your behalf.
 	 * The object can be loaded with data from JSON strings or Assoc Arrays.
+	 * 
 	 * It also has CRUD methods available so that you can push data from the object
 	 * into the table or pull data from the table into the object.
+	 * 
+	 * Its also inherits from  Reporter so look at ReporterInterface.php to see what
+	 * other methods are available to this class.
 	 * 
 	 * Note: "__" is used to represent null within this class (this lets us differentiate between a field that
 	 * doesn't exist and one that is set to null). So if you are subclassing this and are accessing the arrays

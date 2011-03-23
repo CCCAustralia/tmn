@@ -10,8 +10,12 @@ interface TmnCrudUserInterface {
 	 * Creates a user object that will load data into itself from JSON, Assoc Arrays or the Database.
 	 * You can then manipulate it before you output it to the database or a JSON String.
 	 * The object can be loaded with data from JSON strings or Assoc Arrays.
+	 * 
 	 * It also has CRUD methods available so that you can push data from the object
 	 * into the table or pull data from the table into the object.
+	 * 
+	 * It also inherits from TmnCrud so have a look at TmnCrudInterface.php more methods
+	 * that are available to this class.
 	 * 
 	 * @param String		$logfile - path of the file used to log any exceptions or interactions
 	 * @param String		$tablename - not used
@@ -50,9 +54,7 @@ interface TmnCrudUserInterface {
 	
 	/**
 	 * Will load the user's data into this object before setting the value of the user's guid to the passed value.
-	 * If the user can't be found, the guid and associated data will left as it was.
-	 * 
-	 * @return string
+	 * If the user can't be found, the guid and associated data will be left as it was.
 	 * 
 	 * Note: will throw LightException if it can't complete this task.
 	 */

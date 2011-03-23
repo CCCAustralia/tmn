@@ -15,8 +15,8 @@ interface TmnAuthorisationProcessorInterface {
 	 * @param Assoc Array	$privatetypes - not used
 	 * @param Assoc Array	$publictypes - not used
 	 * 
-	 * @example $user = new TmnCrudUser("logfile.log");					will create an empty TmnAuthoristationProcessor
-	 * @example $user = TmnCrudUser::make("logfile.log", "your_auth_session_id");	will create a TmnAuthoristationProcessor filled with the data associated with your_auth_session_id
+	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log");					will create an empty TmnAuthoristationProcessor
+	 * @example $user = TmnAuthorisationProcessorInterface::make("logfile.log", "your_auth_session_id");	will create a TmnAuthoristationProcessor filled with the data associated with your_auth_session_id
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */

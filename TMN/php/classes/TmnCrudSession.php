@@ -1,15 +1,16 @@
 <?php
 
+include_once('../interfaces/TmnCrudSessionInterface.php');
+
 include_once('../classes/TmnCrud.php');
 include_once('../classes/TmnCrudUser.php');
-//TODO: when finished uncomment
-//include_once('../classes/TmnAuthorisationProcessor.php');
+include_once('../classes/TmnAuthorisationProcessor.php');
 
 //This is an example of how to subclass TmnCrud
-class TmnCrudSession extends TmnCrud {
+class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
-	private owner					=	null;
-	private authorisatoionProcessor	=	null;
+	private $owner					=	null;
+	private $authorisatoionProcessor	=	null;
 	
 	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
 		
@@ -107,13 +108,22 @@ class TmnCrudSession extends TmnCrud {
 			return $this->owner;
 			
 		} else {
-			//if no guid set return false
+			//if no guid set then make sure owner is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->owner = null;
 			return false;
 		}
 	}
 	
 	public function setOwner(TmnCrudUser $owner = null) {
 		$this->owner	=	$owner;
+		if ($owner != null) {
+			$this->setField('guid', $this->owner->getGuid());
+			$this->setField('fan', $this->owner->getFan());
+		} else {
+			$this->setField('guid', null);
+			$this->setField('fan', null);
+		}
 	}
 	
 	public function getOwnerGuid() {
@@ -132,17 +142,19 @@ class TmnCrudSession extends TmnCrud {
 		
 		//if the owner creation/switching worked without throwing an exception then update the guid field
 		$this->setField('guid', $guid);
+		$this->setField('fan', $this->owner->getFan());
 	}
 	
 	
 			///////////////////////AUTHORISATION METHODS////////////////////////
 			
 	
-	/*TODO: When finished uncomment this
+	
 	public function submit( TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser,  $data ) {
 		
 		//load data into the session object
 		$this->loadDataFromAssocArray($data);
+		$this->setOwner($user);
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
 		$this->authorisatoionProcessor	= new TmnAuthorisationProcessor($this->logfile);
@@ -178,7 +190,7 @@ class TmnCrudSession extends TmnCrud {
 	public function authorise($level, $response) {
 		$this->authorisationProcessor->authorise($level, $response);
 	}
-	*/
+	
 }
 
 ?>

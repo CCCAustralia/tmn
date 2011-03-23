@@ -16,6 +16,7 @@ fb("Constructor Test");
 try {
 	$tmn			= new Tmn($LOGFILE);
 	$crud			= new TmnCrudUser($LOGFILE);
+	$user			= new TmnCrudUser($LOGFILE);
 } catch (Exception $e) {
 	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
@@ -32,8 +33,97 @@ try {
  * 
  */
 
+	//Accessor test
+
+$guid = 'testuserguid';
+$firstname = 'test';
+$surname = 'user';
+$sguid = '691EC152-0565-CEF4-B5D8-99286252652B';
+$sfirstname = 'Michael';
+$ssurname = 'Harrison';
+$mguid = 'test';
+$mfirstname = 'debug';
+$msurname = 'user';
+
+fb("Accessor test");
+fb("getGuid(): " . $user->getGuid());
+fb("setGuid(guid)");
+$user->setGuid($guid);
+fb("getGuid(): " . $user->getGuid());
+fb("getFan(): " . $user->getFan());
+fb("getSpouse()");
+fb($user->getSpouse());
+fb("getSpouseGuid(): " . $user->getSpouseGuid());
+fb("setSpouseGuid(sguid)");
+$user->setSpouseGuid($sguid);
+fb("getSpouseGuid(): " . $user->getSpouseGuid());
+fb("setSpouseWithName(sfirstname, ssurname)");
+$user->setSpouseWithName($sfirstname, $ssurname);
+fb("getSpouseGuid(): " . $user->getSpouseGuid());
+fb("getMpdGuid(): " . $user->getMpdGuid());
+fb("setMpdGuid(mguid)");
+$user->setMpdGuid($mguid);
+fb("getMpdGuid(): " . $user->getMpdGuid());
+fb("setMpdWithName(mfirstname, msurname)");
+$user->setMpdWithName($mfirstname, $msurname);
+fb("getMpdGuid(): " . $user->getMpdGuid());
+
+
+/*
+ * Expected output
+ * 
+ * Console Output:
+ * Accessor test
+ * getGuid():
+ * setGuid(guid)
+ * getGuid(): testuserguid
+ * getFan(): 1012849
+ * getSpouse()
+ * TmnCrudUser('db'=>TmnDatabase('instance'=>'** Recursion (TmnDatabase) **', 'db'=>PDO(), 'db_name'=> ... ), 'table_name'=>'User_Profiles', 'primarykey_name'=> ... )
+ * getSpouseGuid(): 08D40370-99EE-4938-98B2-86BAB75D9DF6
+ * setSpouseGuid(sguid)
+ * getSpouseGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * setSpouseWithName(sfirstname, ssurname)
+ * getSpouseGuid(): 691EC152-0565-CEF4-B5D8-99286252652B
+ * getMpdGuid(): testpartnerguid
+ * setMpdGuid(mguid)
+ * getMpdGuid(): test
+ * setMpdWithName(mfirstname, msurname)
+ * getMpdGuid(): test
+ * 
+ * Screen Output:
+ * 
+ */
+	
+	
+	//ACTION test
+fb("ACTION test");
+fb("isAdmin(): " . $user->isAdmin());
+fb("loadUserWithGuid(tmn->getAuthenticatedGuid())");
+$user->loadUserWithGuid($tmn->getAuthenticatedGuid());
+fb($user);
+fb("loadUserWithName(firstname, surname)");
+$user->loadUserWithName($firstname, $surname);
+fb($user);
+
+/*
+ * Expected output
+ * 
+ * Console Output:
+ * ACTION test
+ * isAdmin():
+ * loadUserWithGuid(tmn->getAuthenticatedGuid())
+ * TmnCrudUser('db'=>TmnDatabase('instance'=>'** Recursion (TmnDatabase) **', 'db'=>PDO(), 'db_name'=> ... ), 'table_name'=>'User_Profiles', 'primarykey_name'=> ... )
+ * loadUserWithName(firstname, surname)
+ * TmnCrudUser('db'=>TmnDatabase('instance'=>'** Recursion (TmnDatabase) **', 'db'=>PDO(), 'db_name'=> ... ), 'table_name'=>'User_Profiles', 'primarykey_name'=> ... )
+ * 
+ * Screen Output:
+ * 
+ */
+
+
 	//JSON test
-fb("JSON Test");
+fb("JSON & DB Test");
 $guidArray	=	array('data' => array('guid' => "testtesttest"));
 $assocArray	=	array(
 		'guid'			=>	"testtesttest",
