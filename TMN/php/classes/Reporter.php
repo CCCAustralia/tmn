@@ -1,10 +1,14 @@
 <?php
 
+include_once('../interfaces/ReporterInterface.php');
+
 require_once("../../lib/FirePHPCore/fb.php");
+
+//defines the two types of exceptions used in this project
 class FatalException extends Exception {}
 class LightException extends Exception {}
 
-class Reporter {
+class Reporter implements ReporterInterface {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
@@ -36,37 +40,49 @@ class Reporter {
 	//Handles exceptions based on their type
 	public function exceptionHandler($exception) {
 		
+		//for a fatal exception
 		if ($exception instanceof FatalException) {
 			
+			//construct the message
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage();
 			
+			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getFilename();
 			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			
+			//kill the script leaving the message on the console if in debug mode
 			$this->failWithMsg($msg);
-			
+		
+		//for a light exception
 		} elseif ($exception instanceof LightException) {
 			
+			//construct the message
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage();
 			
+			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getFilename();
 			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			
+			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);
 			
+		//for an unknown exception
 		} else {
 			
+			//construct the message
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage();
 			
+			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getFilename();
 			$this->setFilename("../logs/exceptions.log");
 			$this->logToFile($msg);
 			$this->setFilename($tempPath);
 			
+			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);
 			
 		}

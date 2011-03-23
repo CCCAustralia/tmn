@@ -1,8 +1,10 @@
 <?php
 
+include_once('../interfaces/TmnDatabaseInterface.php');
+
 include_once('../classes/Reporter.php');
 
-class TmnDatabase extends Reporter {
+class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////

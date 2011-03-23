@@ -1,10 +1,12 @@
 <?php
 
+include_once('../interfaces/TmnInterface.php');
+
 include_once('../classes/Reporter.php');
-include_once('../classes/TmnUser.php');
+include_once('../classes/TmnCrudUser.php');
 include_once('../classes/TmnAuthenticator.php');
 
-class Tmn extends Reporter {
+class Tmn extends Reporter implements TmnInterface {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
@@ -31,6 +33,13 @@ class Tmn extends Reporter {
 	
 			////////////////AUTHENTICATION FUNCTIONS//////////////
 	
+	public function authenticate() {
+		$this->authenticator->authenticate();
+	}
+	
+	public function logout() {
+		$this->authenticator->logout();
+	}
 	
 	public function isAuthenticated() {
 		return $this->authenticator->isAuthenticated();
@@ -46,10 +55,12 @@ class Tmn extends Reporter {
 	}
 	
 	public function getUser() {
+		//if the user hasn't be created yet then make it
 		if ($this->user == null) {
-			$this->user = new TmnUser($this->logfile, $this->getAuthenticatedGuid());
+			$this->user = TmnCrudUser::make($this->logfile, $this->getAuthenticatedGuid());
 		}
 		
+		//return the user object
 		return $this->user;
 	}
 	

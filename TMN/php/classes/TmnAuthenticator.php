@@ -1,15 +1,11 @@
 <?php
 
+include_once('../interfaces/TmnAuthenticatorInterface.php');
+
 include_once('../classes/Reporter.php');
 include_once('../../lib/cas/cas.php');
 
-//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
-if ( !isset($_CAS_CLIENT_CALLED) ) {
-	phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
-	$_CAS_CLIENT_CALLED = 1;
-}
-
-class TmnAuthenticator extends Reporter {
+class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
@@ -28,6 +24,12 @@ class TmnAuthenticator extends Reporter {
 		
 		$this->guid			= null;
 		
+		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
+		if ( !isset($GLOBALS['_CAS_CLIENT_CALLED']) ) {
+			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
+			$GLOBALS['_CAS_CLIENT_CALLED'] = 1;
+		}
+		
 		//check if the user has been authenticated via the Key using phpCAS
 		if (!phpCAS::isAuthenticated()) { //if your not logged into gcx quit
 			throw new FatalException('Authentication Exception: User Not Authenticated');
@@ -37,7 +39,7 @@ class TmnAuthenticator extends Reporter {
 		if (isset($_SESSION['phpCAS'])) {
 			$xmlstr			= str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject		= new SimpleXmlElement($xmlstr);
-			$this->guid		= $xmlobject->authenticationSuccess->attributes->ssoGuid;
+			$this->guid		= (string) $xmlobject->authenticationSuccess->attributes->ssoGuid;
 			$this->logToFile("User Authenticated: guid = " . substr($this->guid, 0, -12) . "************");
 		} else {
 			throw new FatalException("Authentication Exception: User's GUID Not Found");
@@ -67,6 +69,48 @@ class TmnAuthenticator extends Reporter {
 			////////////////AUTHENTICATION FUNCTIONS//////////////
 	
 	
+	//GCX login
+	public function authenticate() {
+
+    	//include the CAS module if it's not already there
+		include_once('../../lib/cas/cas.php');
+		
+		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
+		if ( !isset($GLOBALS['_CAS_CLIENT_CALLED']) ) {
+			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
+			$GLOBALS['_CAS_CLIENT_CALLED'] = 1;
+		}
+		
+		phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server
+		phpCAS::forceAuthentication();		//require the user to log in to CAS
+		
+		
+		//user is now authenticated by the CAS server and the user's login name can be read with phpCAS::getUser()
+		
+		//fetch a ticket if absent
+		if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
+		{
+		    header("Location: https://signin.mygcx.org/cas/login?service=".$this->curPageURL());
+		}
+    }
+    
+    //constructs the url of this file based on the server settings found in $_SERVER
+	private function curPageURL() {
+		$pageURL = 'http';
+		if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+		$pageURL .= "://";
+		if ($_SERVER["SERVER_PORT"] != "80") {
+			$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+		} else {
+			$pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+		}
+		return $pageURL;
+	}
+	
+	public function logout() {
+		phpCAS::logout();
+	}
+    
 	public function isAuthenticated() {
 		return phpCAS::isAuthenticated();
 	}

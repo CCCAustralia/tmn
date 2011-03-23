@@ -1,9 +1,10 @@
 <?php
 
+include_once('../interfaces/TmnCrudUserInterface.php');
+
 include_once('../classes/TmnCrud.php');
 
-//This is an example of how to subclass TmnCrud
-class TmnCrudUser extends TmnCrud {
+class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	
 	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
 		
@@ -12,7 +13,7 @@ class TmnCrudUser extends TmnCrud {
 			"User_Profiles",				//name of table
 			"guid",							//name of table's primary key
 			array(							//an assoc array of private field names and there types
-				'guid'		=>	"s"
+				'guid'			=>	"s"
 			),
 			array(							//an assoc array of public field names and there types
 				'firstname'		=>	"s",
@@ -29,6 +30,19 @@ class TmnCrudUser extends TmnCrud {
 		);
 	}
 	
+	public function make($logfile, $guid) {
+		
+		$newObj = new TmnCrudUser($logfile);
+		
+		$newObj->setGuid($guid);
+		
+		return $newObj;
+	}
+	
+	
+			///////////////////ACCESSOR FUNCTIONS/////////////////////
+	
+	
 	public function getGuid() {
 		return $this->getField('guid');
 	}
@@ -36,13 +50,14 @@ class TmnCrudUser extends TmnCrud {
 	public function setGuid($guid) {
 		
 		$tempGuid = $this->guid;
+		
 		$this->setField('guid', $guid);
 		
 		try {
 			$this->retrieve();
 		} catch (LightException $e) {
 			$this->setField('guid', $tempGuid);
-			$this->exceptionHandler(new LightException("User Exception: Cannot Load User with guid=" . $guid . ". The previous guid was restored. The following Exception was thrown when load was attempted:" . $e->getMessage()));
+			$this->exceptionHandler(new LightException("User Exception: Cannot Load User with guid=" . substr($this->guid, 0, -12) . "************ . The previous guid was restored. The following Exception was thrown when load was attempted:" . $e->getMessage()));
 		}
 	}
 	
@@ -52,7 +67,7 @@ class TmnCrudUser extends TmnCrud {
 	
 	public function getSpouse() {
 		if ($this->spouse == null) {
-			$this->spouse = new TmnUser($this->logfile, $this->getSpouseGuid());
+			$this->spouse = TmnCrudUser::make($this->logfile, $this->getSpouseGuid());
 		}
 		
 		return $this->spouse;
@@ -70,6 +85,16 @@ class TmnCrudUser extends TmnCrud {
 		}
 	}
 	
+	public function setSpouseWithName($firstname, $surname) {
+		$guid = $this->findUserWithName($firstname, $surname);
+		
+		if ($guid != null) {
+			$this->setField('spouse_guid', $guid);
+		} else {
+			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+		}
+	}
+	
 	public function getMpdGuid() {
 		return $this->getField('m_guid');
 	}
@@ -82,11 +107,52 @@ class TmnCrudUser extends TmnCrud {
 		}
 	}
 	
+	public function setMpdWithName($firstname, $surname) {
+		$guid = $this->findUserWithName($firstname, $surname);
+		
+		if ($guid != null) {
+			$this->setField('m_guid', $guid);
+		} else {
+			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+		}
+	}
+	
 	public function isAdmin() {
 		if ($this->getField('admin_tab') == 1) {
 			return true;
 		} else {
 			return false;
+		}
+	}
+	
+	private function findUserWithName($firstname, $surname) {
+		
+		//if there is something to find, run the query and return the user's guid
+		if ($firstname != null && $surname != null) {
+			$sql	= "SELECT `GUID` FROM `" . self::$table_name . "` WHERE `FIRSTNAME` = :firstname AND `SURNAME` = :surname";
+			$values = array(":firstname"=>$firstname, ":surname"=>$surname);
+			
+			try {
+				//prepare and execute the query
+				$stmt		= $this->db->prepare($sql);
+				$stmt->execute($values);
+				
+				//if it's found return the guid
+				if ($stmt->rowCount() == 1) {
+					$user = $stmt->fetch(PDO::FETCH_ASSOC);
+					return $user['GUID'];
+				} else {
+					//if not found then return null
+					return null;
+				}
+				
+			} catch (PDOException $e) {
+				//if not found then return null
+				return null;
+			}
+		} else {
+			//if there is nothing to find return null
+			return null;
 		}
 	}
 	
@@ -112,6 +178,17 @@ class TmnCrudUser extends TmnCrud {
 	//alias for setGuid($guid)
 	public function loadUserWithGuid($guid) {
 		$this->setGuid($guid);
+	}
+	
+	public function loadUserWithName($firstname, $surname) {
+		$guid = $this->findUserWithName($firstname, $surname);
+		
+		if ($guid != null) {
+			$this->setField('guid', $guid);
+			$this->retrieve();
+		} else {
+			throw new LightExcpetion(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+		}
 	}
 }
 

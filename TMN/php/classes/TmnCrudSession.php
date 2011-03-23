@@ -1,9 +1,15 @@
 <?php
 
 include_once('../classes/TmnCrud.php');
+include_once('../classes/TmnCrudUser.php');
+//TODO: when finished uncomment
+//include_once('../classes/TmnAuthorisationProcessor.php');
 
 //This is an example of how to subclass TmnCrud
 class TmnCrudSession extends TmnCrud {
+	
+	private owner					=	null;
+	private authorisatoionProcessor	=	null;
 	
 	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
 		
@@ -88,29 +94,91 @@ class TmnCrudSession extends TmnCrud {
 	////////////////////////ACCESSOR FUNCTIONS////////////////////////////
 	
 	
-	public function getSessionID() {
-		return $this->getField('session_id');
+	public function getOwner() {
+		//if a guid is set
+		if ($this->getField('guid') != null) {
+			
+			//if the user object hasn't been made from the guid then create it
+			if ($this->owner == null) {
+				$this->owner = TmnCrudUser::make($this->logfile, $this->getField('guid'));
+			}
+		
+			//if it is already there or creation happened without throwing exceptions then return the object
+			return $this->owner;
+			
+		} else {
+			//if no guid set return false
+			return false;
+		}
 	}
 	
-	public function setSessionID($session_id) {
-		$this->setField('session_id', $session_id);
+	public function setOwner(TmnCrudUser $owner = null) {
+		$this->owner	=	$owner;
 	}
 	
-	public function getHomeAssignmentID() {
-		return $this->getField('home_assignment_session_id');
+	public function getOwnerGuid() {
+		return $this->getField('guid');
 	}
 	
-	public function setHomeAssignmentID($session_id) {
-		$this->setField('home_assignment_session_id', $session_id);
+	public function setOwnerGuid($guid) {
+		
+			//if an owner already exists then load the user from the Database
+		if ($this->owner != null) {
+			$this->owner->setGuid($guid);
+		} else {
+			//if the owner object doesn't exist then make it
+			$this->owner = TmnCrudUser::make($this->logfile, $guid);
+		}
+		
+		//if the owner creation/switching worked without throwing an exception then update the guid field
+		$this->setField('guid', $guid);
 	}
 	
-	public function getInternationalAssignmentID() {
-		return $this->getField('international_assignment_session_id');
+	
+			///////////////////////AUTHORISATION METHODS////////////////////////
+			
+	
+	/*TODO: When finished uncomment this
+	public function submit( TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser,  $data ) {
+		
+		//load data into the session object
+		$this->loadDataFromAssocArray($data);
+		
+		//initiate the authorisation process and if it works store the id of the session authorisation process
+		$this->authorisatoionProcessor	= new TmnAuthorisationProcessor($this->logfile);
+		$ap_id = $this->authorisatoionProcessor->submit($user, $level1Authoriser, $level2Authoriser, $level3Authoriser);
+		$this->setField('auth_session_id', $ap_id);
+		
+		//if initiating the authorisation process worked with out throwing an exception put the data from the object into the database
+		if ($this->getField('session_id') == null) {
+			$this->create();
+		} else {
+			$this->update();
+		}
+		
+		return true;
 	}
 	
-	public function setInternationalAssignmentID($session_id) {
-		$this->setField('international_assignment_session_id', $session_id);
+	public function userIsAuthoriser(TmnCrudUser $user) {
+		//make sure that the session has been authorised first
+		if ($this->getField('auth_session_id') != null) {
+			
+			//if the 
+			if ($this->authorisationProcessor == null) {
+				$this->authorisationProcessor = TmnAuthorisationProcessor::make($this->logfile, $this->getField('auth_session_id'));
+			}
+			
+			$this->authorisationProcessor->userIsAuthoriser($user);
+			
+		} else {
+			throw new LightException(__CLASS__ . " Exception: Can't check if user is an Authoriser because the session has not been submitted.");;
+		}
 	}
+	
+	public function authorise($level, $response) {
+		$this->authorisationProcessor->authorise($level, $response);
+	}
+	*/
 }
 
 ?>

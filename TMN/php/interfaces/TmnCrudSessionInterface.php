@@ -12,11 +12,6 @@ interface TmnCrudInterface {
 	 * It also has CRUD methods available so that you can push data from the object
 	 * into the table or pull data from the table into the object.
 	 * 
-	 * Note: "__" is used to represent null within this class (this lets us differentiate between a field that
-	 * doesn't exist and one that is set to null). So if you are subclassing this and are accessing the arrays
-	 * directly bare that in mind. If you use any of the methods below they will give and take null as a value,
-	 * you will only have an issue if you try to access the array's directly
-	 * 
 	 * @param String		$logfile - path of the file used to log any exceptions or interactions
 	 * @param String		$tablename - The name of the table you want to interact with
 	 * @param String		$primarykey - The name of the Primary Key for the above table

@@ -6,7 +6,7 @@
 *******************************************/
 
 include_once('../classes/Tmn.php');
-include_once('../classes/TmnCrud.php');
+include_once('../classes/TmnCrudUser.php');
 $LOGFILE	= "../logs/TmnCrudClass-test.log";
 $DEBUG		= 1;
 
@@ -15,26 +15,7 @@ $DEBUG		= 1;
 fb("Constructor Test");
 try {
 	$tmn			= new Tmn($LOGFILE);
-	$crud			= new TmnCrud(
-			$LOGFILE,
-			"User_Profiles",				//name of table
-			"guid",							//name of table's primary key
-			array(							//an assoc array of private field names and there types
-				'guid'		=>	"s"
-			),
-			array(							//an assoc array of public field names and there types
-				'firstname'		=>	"s",
-				'surname'		=>	"s",
-				'spouse_guid'	=>	"s",
-				'ministry'		=>	"s",
-				'ft_pt_os'		=>	"i",
-				'days_per_week'	=>	"i",
-				'fin_acc_num'	=>	"i",
-				'mpd'			=>	"i",
-				'm_guid'		=>	"s",
-				'admin_tab'		=>	"i"
-			)
-	);
+	$crud			= new TmnCrudUser($LOGFILE);
 } catch (Exception $e) {
 	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }

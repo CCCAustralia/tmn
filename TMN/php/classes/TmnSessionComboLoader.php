@@ -30,27 +30,6 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			///////////////////LOADER FUNCTIONS/////////////////
 			
 	
-	public function getUserFan() {
-		$sql 		= "SELECT FIN_ACC_NUM FROM User_Profiles WHERE GUID = :guid";
-		$values		= array(":guid" => $this->user->getGuid());
-		
-		try {
-			$userQuery = $this->db->prepare($sql);
-			$userQuery->execute($values);
-			
-			if ($userQuery->rowCount() == 1) {
-				$userrow = $userQuery->fetch(PDO::FETCH_ASSOC);
-				return $userrow['FIN_ACC_NUM'];
-			} else {
-				throw new FatalException("User Conflict.");
-			}
-			
-		} catch (Exception $e) {
-			throw new FatalException("SessionComboLoader Exception: Can't find User due to error; " . $e->getMessage());
-		}
-		
-	}	
-	
 		//overrides TmnComboLoader version
 	public function produceJson() {
 		

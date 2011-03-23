@@ -1,7 +1,8 @@
 <?php
 
-include_once('../classes/Reporter.php');
 include_once('../interfaces/TmnCrudInterface.php');
+
+include_once('../classes/Reporter.php');
 include_once('../classes/TmnDatabase.php');
 
 class TmnCrud extends Reporter implements TmnCrudInterface {
@@ -43,7 +44,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//setup data array's for private fields
 		if (isset($privatetypes)) {
 			foreach ($privatetypes as $key=>$value) {
-				$this->private_data[$key]	= null;
+				$this->private_data[$key]	= "__";
 				$this->private_types[$key]	= $value;
 			}
 		} else {
@@ -53,7 +54,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//setup data array's for public fields
 		if (isset($publictypes)) {
 			foreach ($publictypes as $key=>$value) {
-				$this->public_data[$key]	= null;
+				$this->public_data[$key]	= "__";
 				$this->public_types[$key]	= $value;
 			}
 		} else {
@@ -76,21 +77,34 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	
 	public function getField($fieldname) {
 		
+		//if it couldn't be found then return false
+		$returnValue		= false;
+		
 		//if $fieldname is in private_data return its value
 		if (isset($this->private_data[$fieldname])) {
-			return	$this->private_data[$fieldname];
+			$returnValue	= $this->private_data[$fieldname];
 		}
 		
 		//if $fieldname is in public_data return its value
 		if (isset($this->public_data[$fieldname])) {
-			return	$this->public_data[$fieldname];
+			$returnValue	= $this->public_data[$fieldname];
 		}
 		
-		//if it couldn't be found then return false
-		return false;
+		//"__" means null internal to this class so before the value leaves the class
+		//it needs to be changed back to null
+		if ($returnValue == "__") {
+			$returnValue = null;
+		}
+		
+		return $returnValue;
 	}
 	
 	public function setField($fieldname, $value) {
+		
+		//convert null to "__" so that we can distinguish between empty fields and non existant fields
+		if ($value == null) {
+			$value = "__";
+		}
 		
 		//if $fieldname is in private_data set its value and return true
 		if (isset($this->private_data[$fieldname])) {
@@ -98,13 +112,16 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			//check type if correct set and return true
 			try {
 				if ($this->valueMatchesType($value, $this->private_types[$fieldname])) {
+					
 					$this->private_data[$fieldname] = $value;
 					return true;
+					
 				} else {
 					//if it isn't the correct type return false
 					return false;
 				}
 			} catch (Exception $e) {
+				
 				//if it isn't the correct type return false
 				return false;
 			}
@@ -147,7 +164,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		
 		//add the sql query the fields to be INSERTed into database
 		foreach ($data as $key=>$value) {
-			if ($value != NULL) {
+			if ($value != "__") {
 				try {
 					//check type of value before the field is added to the sql statement
 					if ($this->valueMatchesType($data[$key], $types[$key])) {
@@ -166,7 +183,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//check and add the values to the query
 		foreach ($data as $key=>$value) {
 			
-			if ($value != NULL) {
+			if ($value != "__") {
 				
 				try {
 					//check type of value before the field is added to the sql statement
@@ -293,7 +310,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//check and add the values to the query
 		foreach ($data as $key=>$value) {
 			
-			if ($value != NULL) {
+			if ($value != "__") {
 				
 				try {
 					//check the fields type before adding it to the sql statement
@@ -362,7 +379,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		$data = array();
 		//grab all non null fields
 		foreach ($this->public_data as $key=>$value) {
-			if ($value != null) {
+			if ($value != "__") {
 				$data[$key] = $value;
 			}
 		}
@@ -404,7 +421,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				}
 			} else {
 				//if there is no data then reset its value to null
-				$this->private_data[$key] = null;
+				$this->private_data[$key] = "__";
 			}
 		}
 		
@@ -422,7 +439,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				}
 			} else {
 				//if there is no data then reset its value to null
-				$this->public_data[$key] = null;
+				$this->public_data[$key] = "__";
 			}
 		}
 	}
@@ -434,12 +451,12 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	public function reset() {
 		//go through all private fields setting their values to null
 		foreach ($this->private_data as $key=>$value) {
-			$this->private_data[$key] = null;
+			$this->private_data[$key] = "__";
 		}
 		
 		//go through all public fields setting their values to null
 		foreach ($this->public_data as $key=>$value) {
-			$this->public_data[$key] = null;
+			$this->public_data[$key] = "__";
 		}
 	}
 	
@@ -461,7 +478,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				}
 			break;
 			case 'n':
-				if (!is_null($value)) {
+				if (!($value == "__" || is_null($value))) {
 					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: NULL");
 				}
 			break;

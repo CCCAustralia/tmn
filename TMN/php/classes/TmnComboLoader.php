@@ -1,9 +1,11 @@
 <?php
 
+include_once('../interfaces/TmnComboLoaderInterface.php');
+
 include_once('../classes/Reporter.php');
 include_once('../classes/TmnDatabase.php');
 
-class TmnComboLoader extends Reporter {
+class TmnComboLoader extends Reporter implements TmnComboLoaderInterface {
 	
 	
 			///////////////////INSTANCE VARIABLES/////////////////////
@@ -61,7 +63,7 @@ class TmnComboLoader extends Reporter {
 		}
 	}
 	
-	public function jsonFromStmt($stmt) {
+	protected function jsonFromStmt($stmt) {
 		
 		$returndata = "";
 		
