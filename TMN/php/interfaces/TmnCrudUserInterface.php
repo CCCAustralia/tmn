@@ -37,6 +37,8 @@ interface TmnCrudUserInterface {
 	 * @param string $logfile	- Path of the file used to log any exceptions or interactions
 	 * @param string $guid		- Global User ID for user you want to load into this class
 	 * 
+	 * @return TmnCrudUser
+	 * 
 	 * Note: will throw LightException if it can't complete this task.
 	 */
 	public function make($logfile, $guid);

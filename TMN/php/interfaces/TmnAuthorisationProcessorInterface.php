@@ -30,6 +30,8 @@ interface TmnAuthorisationProcessorInterface {
 	 * @param string $logfile			- Path of the file used to log any exceptions or interactions
 	 * @param string $auth_session_id	- Unique ID for the authorisation session you want to load into this class
 	 * 
+	 * @return TmnAuthorisationProcessor
+	 * 
 	 * Note: will throw LightException if it can't complete this task.
 	 */
 	public function make($logfile, $auth_session_id);
@@ -40,16 +42,22 @@ interface TmnAuthorisationProcessorInterface {
 			
 	/**
 	 * 
-	 * Enter description here ...
-	 * @param int $level
-	 * @param int $response
+	 * Applies the specified authorisation response to the appropriate session in the database, then takes action based on the next level of authorisation required.
+	 * 
+	 * @param TmnCrudUser $user
+	 * @param string $response 		- Possible values are "Yes", "No", "Pending"
 	 */
-	public function authorise($level, $response);
+	public function authorise(TmnCrudUser $user, $response);
 	
 	/**
+	 * Determines if the specified user is a valid authoriser for the authsession defined at construction.
 	 * 
-	 * Enter description here ...
 	 * @param TmnCrudUser $user
+	 * 
+	 * @return Integer 		- The specifed user's authorisation level with possible values:
+	 * 						NULL	= not an authoriser
+	 * 						0		= user (submit)
+	 * 						1-3		= authoriser lvl. 1-3
 	 */
 	public function userIsAuthoriser(TmnCrudUser $user);
 	
