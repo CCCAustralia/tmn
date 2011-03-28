@@ -1,4 +1,33 @@
 
+/* styles for the icon combo */
+.x-icon-combo-locked {
+    background-image:url(../images/default/grid/hmenu-lock.png) !important;
+}
+
+.x-icon-combo-unlocked {
+    background-image:url(../images/custom/hmenu-unlock.png) !important;
+}
+ 
+/* Ext.ux.IconCombo mandatory styles */
+.x-icon-combo-icon {
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    width: 16px;
+    height: 16px;
+}
+.x-icon-combo-input {
+    padding-left: 25px;
+}
+.x-form-field-wrap .x-icon-combo-icon {
+    top: 3px;
+    left: 5px;
+}
+.x-icon-combo-item {
+    background-repeat: no-repeat !important;
+    background-position: 3px 50% !important;
+    padding-left: 24px;
+}
+
 /*changes the style of readonly fields so that people know that they can't edit them*/
 .x-form-readonly {
 	color:#333333;

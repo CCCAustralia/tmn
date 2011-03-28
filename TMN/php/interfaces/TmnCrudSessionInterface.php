@@ -22,7 +22,7 @@ interface TmnCrudSessionInterface {
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $session_id);
+	//public function __construct($logfile, $session_id);
 	
 	
 			/////////////////ACCESSOR FUNCTIONS////////////////

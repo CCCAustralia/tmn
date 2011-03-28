@@ -39,23 +39,57 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			
 			//form the sql statement
 			if ($this->aussie_form) {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 			} elseif ($this->overseas_form) {
 				if ($this->home_assignment) {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
 				} else {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 				}
 			} else {
 				throw new FatalException('SessionComboLoader Exception: Form not Aussie or Overseas');
 			}
 			
+			//execute the statement
 			$stmt			= $this->db->prepare($sql);
 			$stmt->execute($values);
 			
-			$j				= parent::jsonFromStmt($stmt);
+			//grab the result as an array
+			$table_array				= parent::arrayFromStmt($stmt);
+			$array						= $table_array[$this->table];
 			
-			return $j;
+			//change having an auth session id into a locked flag
+			//go through each row
+			for ($rowCount = 0; $rowCount < count($array); $rowCount++) {
+				
+				//create an empty row
+				$row	= array();
+				
+				//reform the row with locked instead of auth_session_id
+					foreach ($array[$rowCount] as $key=>$value) {
+						
+						//if the field is auth_session_id make a field in the new row called locked
+						if ($key == 'AUTH_SESSION_ID') {
+							//if auth_session_id is not set then the session is not locked
+							if ($value == null) {
+								$row['LOCKED'] = false;
+							//if auth_session_id is set then lock the session
+							} else {
+								$row['LOCKED'] = true;
+							}
+						//if its a regular field just copy it into the new row
+						} else {
+							$row[$key] = $value;
+						}
+					}
+					
+				//put the row back into array
+				$array[$rowCount]	= $row;
+			}
+			
+			$table_array[$this->table]	= $array;
+			
+			return json_encode($table_array);
 			
 		} catch (Exception $e) {
 			throw new FatalException($e->getMessage());

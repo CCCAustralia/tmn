@@ -55,7 +55,7 @@ class TmnComboLoader extends Reporter implements TmnComboLoaderInterface {
 			
 			$stmt			= $this->db->query($sql);
 			
-			$j				= $this->jsonFromStmt($stmt);
+			$j				= json_encode($this->arrayFromStmt($stmt));
 			
 			return $j;
 		} catch (Exception $e) {
@@ -69,12 +69,15 @@ class TmnComboLoader extends Reporter implements TmnComboLoaderInterface {
 		
 		//form the returned json with the sql result:
 		//iterate through each returned row
-		for ($i = 0; $i < $stmt->rowCount(); $i++) {
-			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+		for ($rowCount = 0; $rowCount < $stmt->rowCount(); $rowCount++) {
+			$row	= array();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			//iterate through each field in the row
 			foreach ($result as $key=>$value) {
-				$returndata[$key] = $result[$key];
+				$row[$key] = $result[$key];
 			}
+			
+			$returndata[$rowCount]	= $row;
 		}
 		
 		//return
@@ -87,12 +90,12 @@ class TmnComboLoader extends Reporter implements TmnComboLoaderInterface {
 		
 		//form the returned json with the sql result:
 		//iterate through each returned row
-		for ($i = 0; $i < $stmt->rowCount(); $i++) {
-			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+		for ($rowCount = 0; $rowCount < $stmt->rowCount(); $rowCount++) {
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			$returndata .= "{";
 			//iterate through each field in the row
-			foreach ($r as $k=>$v) {
-				$returndata .= "\"".$k."\": \"".$r[$k]."\",";
+			foreach ($result as $key=>$value) {
+				$returndata .= "\"".$key."\": \"".$result[$key]."\",";
 			}
 			$returndata = trim($returndata, ",");
 			$returndata .= "},";

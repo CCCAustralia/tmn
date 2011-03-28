@@ -222,6 +222,9 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				$this->public_data[$this->primarykey_name] = $this->db->lastInsertId();
 			}
 			
+			//return the primary key of the newly created row
+			return $this->db->lastInsertId();
+			
 		} catch (PDOException $e) {
 			//if the INSERT didn't work, throw an exception
 			throw new LightException(__CLASS__ . " Exception: " . $e->getMessage());
@@ -421,9 +424,21 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	}
 	
 	public function loadDataFromAssocArray($array) {
+		
+		//make sure all keys in array are lowercase
+		foreach ($array as $key=>$value) {
+			$array[strtolower($key)] = $value;
+		}
+		
 		foreach ($this->private_data as $key=>$value) {
-			//check if their is data for this private field
+			//check if there is data for this private field
 			if (isset($array[$key])) {
+				
+				//if an integer apprears as a string then convert it
+				if (is_numeric($array[$key])) {
+					$array[$key] = (int)$array[$key];
+				}
+				
 				//check type
 				try {
 					if ($this->valueMatchesType($array[$key], $this->private_types[$key])) {
@@ -440,8 +455,14 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		}
 		
 		foreach ($this->public_data as $key=>$value) {
-			//check if their is data for this private field
+			//check if there is data for this private field
 			if (isset($array[$key])) {
+				
+				//if an integer apprears as a string then convert it
+				if (is_numeric($array[$key])) {
+					$array[$key] = (int)$array[$key];
+				}
+				
 				//check type
 				try {
 					if ($this->valueMatchesType($array[$key], $this->public_types[$key])) {

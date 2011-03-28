@@ -77,6 +77,8 @@ interface TmnCrudInterface {
 	 * 
 	 * Note:	- Data can be loaded into the object using loadDataFromAssocArray($array) or loadDataFromJsonString($string)
 	 * 			- Method will throw LightException if it can't complete this task.
+	 * 
+	 * @return	mixed	- primary key value of newly created row
 	 */
 	public function create();
 	

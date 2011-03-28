@@ -117,6 +117,7 @@ tmn.view.TmnView = function() {
 		this.relayEvents(this.forms[formCount], [
 		                                    'resetfinancialdata',
 											'loadsession',
+											'loadsessionsuccess',
 											'savesession',
 											'saveassession',
 											'deletesession'

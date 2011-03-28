@@ -152,15 +152,25 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 		
 		/**
          * @event loadsession
-         * Fires when the user clicks load when a session is selected.
+         * Fires when a session is selected.
 		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
          */
 		'loadsession',
 		
 		/**
+         * @event loadsessionsuccess
+         * Fires when the user clicks load when a session is selected.
+		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
+         */
+		'loadsessionsuccess',
+		
+		/**
          * @event savesession
          * Fires when the user clicks save when a session is selected.
 		 * @param {Ext.form.FormPanel}	this 		A reference to the form that called it (ie send it this)
+		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+		 * @param {Object} 				options: 			The parameter to the request call.
          */
 		'savesession',
 		
@@ -190,16 +200,16 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 		frame:	true,
 		title:	this.title,
 		tbar:	[
-		    '->',' ',' ','Session:         ', ' ',
-		    {
+		    ' ',' ','Session:         ', ' ',
+		    new Ext.ux.IconCombo({
 		    	itemId: 'session_combo',
-	        	xtype: 'combo',
 	       		width: 200,
 			    fieldLabel: 'Session',
 			    valueField: 'SESSION_ID',
 			    hiddenName: 'SESSION_COMBO',
 			    hiddenId: 'SESSION_COMBO',
 			    displayField: 'SESSION_NAME',
+                lockedField: 'LOCKED',
 			    emptyText:'Select a Session or start typing...',
 			    triggerAction: 'all',
 	        	editable: false,
@@ -211,25 +221,31 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 			    store: new Ext.data.JsonStore({
 			        itemId:'session_store',
 			        root: 'Tmn_Sessions',
-			        fields:['SESSION_ID', 'SESSION_NAME'],
+			        fields:['SESSION_ID', 'SESSION_NAME', 'LOCKED'],
 			        url:'php/imp/combofill.php',
 			        baseParams: {mode: 'Tmn_Sessions', aussie_form:this.aussie_form, home_assignment:this.home_assignment, overseas_form:this.overseas_form},
 			        autoLoad: true
-			    })
-		    }, ' ', ' ', '-', ' ',
+			    }),
+			    listeners: {
+			    	scope: this,
+			    	select: function(combo, record, index) {
+			    		this.fireEvent('loadsession', this);
+			    	}
+			    }
+		    }),/* ' ', ' ', '-', ' ',
 		    {
 		    	itemId: 'load_session_button',
 				text: 'Load',
 				width: 100,
 				scope: this,
 				handler: function(){
-					if (this.getTopToolbar().items.map['session_combo'].getValue() != '') {
+					if (this.getSelectedSession() != '') {
 						this.fireEvent('loadsession', this);
 					} else {
 						Ext.MessageBox.alert('Warning', 'A Session needs to be selected for the load function to work. If you have no Sessions available in the combo box just start typing in your values to start a new session.');
 					}
 				}
-		    }, ' ', '-', ' ',
+		    }, */' ', '-', ' ',
 		    {
 		    	itemId: 'save_session_button',
 				text: 'Save',
@@ -254,10 +270,10 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				width: 100,
 				scope: this,
 				handler: function(){
-					if (this.getTopToolbar().items.map['session_combo'].getValue() != '') {
+					if (this.getSelectedSession() != '') {
 						this.fireEvent('deletesession', this);
 					} else {
-						Ext.MessageBox.alert('Warning', 'A Session needs to be selected for the delete function to work. If you have no Sessions available in the combo box just start typing in your values to start a new session.');
+						Ext.MessageBox.alert('Warning', 'A Saved Session needs to be loaded for the delete function to work. If you have no Sessions available in the combo box there is no need to delete.');
 					}
 				}
 		    }, ' ', '-', ' ',
@@ -1568,6 +1584,27 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	
 	/**
+	 * Returns whether the loaded session is locked or not
+	 * 
+	 * @returns {bool}		Whether the loaded session is locked or not
+	 */
+	sessionIsLocked: function() {
+		var session_store	= this.getTopToolbar().items.map['session_combo'].getStore();
+		var session_record	= session_store.getAt(session_store.find('SESSION_ID' , this.getSession() + ''));
+
+		if (session_record !== undefined) {
+			console.log(session_record.data.LOCKED);
+			if (session_record.data.LOCKED == 'true' || session_record.data.LOCKED == 'TRUE' || session_record.data.LOCKED == 'True' || session_record.data.LOCKED == true) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	},
+	
+	/**
 	 * Sets the session as locked and stops the user from saving or deleting the session,
 	 * they can only load a new one, save as a new version or reset the session
 	 */
@@ -1591,6 +1628,23 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.getTopToolbar().items.map['save_session_button'].enable();
 		this.getTopToolbar().items.map['delete_session_button'].enable();
 		this.locked = false;
+	},
+	
+	/**
+	 * Returns the session id of the session selected in the session combo
+	 */
+	getSelectedSession: function() {
+		return this.getTopToolbar().items.map['session_combo'].getValue();
+	},
+	
+	/**
+	 * Sets the session selected in the session combo
+	 */
+	setSelectedSession: function(session) {
+		//make sure the value is a string
+		session += '';
+		//set the combos value
+		this.getTopToolbar().items.map['session_combo'].setValue(session);
 	},
 	
 	/**
@@ -1843,7 +1897,6 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * It will fire the loadsuccess or loadfailure when the ajax request returns.
 	 */
 	loadForm: function (local_data) {
-
 		//hide stuff that shouldnt be seen
 		if (this.hasSpouse()){
 			this.doMarriedLayout();
@@ -2097,7 +2150,6 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	},
 	
 	onLoadConfirm: function() {
-		//Ext.MessageBox.alert('Message', 'Load');
 		//hide last TMN window
 		tmn.view.LastTMN.hide();
 		
@@ -2108,9 +2160,11 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			url: this.crud_url,
 			params: {
 				mode: 'r',
-				data: Ext.util.JSON.encode({session: this.getTopToolbar().items.map['session_combo'].getValue()})
+				data: Ext.util.JSON.encode({session_id: this.getSelectedSession()})
 			},
-			success: this.onLoadSessionSuccess,
+			success: function(response, options){
+				this.fireEvent('loadsessionsuccess', this, response, options);
+			},
 			failure: this.onLoadSessionFailure,
 			scope: this
 		});
@@ -2119,30 +2173,21 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	/**
 	 * Handler for when the user selects to load a session and that load succeeds.
 	 * 
-	 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
-	 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
-	 * @param {Object} 				options: 			The parameter to the request call.
+	 * @param {Object} 				data: 			An assoc array of the parsed json that was returned from the server
 	 */
-	onLoadSessionSuccess: function(response, options) {
-		
-		//Ext.MessageBox.alert('Message', 'Load Success');
-		var return_object = Ext.util.JSON.decode(response.responseText);
-		var data = return_object['data'];
+	onLoadSessionSuccess: function(data) {
 		
 		//load the data into the form
 		if (data !== undefined) {
 			
 			//save the session combo's state before the form is reset
-			var sessionIDtemp = this.getTopToolbar().items.map['session_combo'].getValue();
+			var sessionIDtemp = this.getSelectedSession();
 			
 			this.resetForm();
 			
 			for (field in data) {
 				if (this.getForm().items.map[field.toLowerCase()] !== undefined) {
 					this.getForm().items.map[field.toLowerCase()].setValue(data[field]);
-					this.fireEvent('financialdataupdated', this, this.getForm().items.map[field.toLowerCase()], data[field], false);
-				} else {
-					this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return this.name;}, name:field}, data[field], false);
 				}
 			}
 			
@@ -2151,21 +2196,21 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 					this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
 			}
-			
-			//if the session has been submitted then set it as locked
-			if (data.auth_session_id !== undefined) {
-				this.lock();
-			} else {
-				this.unlock();
-			}
 		
 			//put the session combo's value back
-			this.getTopToolbar().items.map['session_combo'].setValue(sessionIDtemp);
+			this.setSelectedSession(sessionIDtemp);
 			if (!isNaN(parseInt(sessionIDtemp))) {
 				sessionIDtemp = parseInt(sessionIDtemp);
 			}
 			//set the form's session now that it is loaded
 			this.setSession(sessionIDtemp);
+			
+			//if the session has been submitted then set it as locked
+			if (this.sessionIsLocked()) {//data.auth_session_id !== undefined) {
+				this.lock();
+			} else {
+				this.unlock();
+			}
 
 			//load the session's internal transfers
 			this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
@@ -2193,16 +2238,22 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	/**
 	 * Handler for when the user selects to save a session.
 	 */
-	onSaveAsSession: function() {
-		Ext.MessageBox.alert('Message', 'Save As');
-		var date = new Date();
+	onSaveAsSession: function(data) {
+		var date			= new Date();
+		var default_name	= date.format('Y-m-d H:i:s');
+		
+		//if a name exists for the current session then set the default name to that
+		if (!(this.getSessionName() === undefined || this.getSessionName() == null)) {
+			default_name	= this.getSessionName() + " copy";
+		}
+		
 		Ext.MessageBox.prompt(
 				"Save As",
 				"Give your session a name:",
 				this.onSaveAsConfirm,
 				this,
 				false,
-				date.format('Y-m-d H:i:s')
+				default_name
 		);
 	},
 	
@@ -2230,28 +2281,21 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	/**
 	 * Handler for when the user selects to save a session.
 	 */
-	onSaveSession: function() {
-		Ext.MessageBox.alert('Message', 'Save');
+	onSaveSession: function(data) {
 		
-		if (this.getSession() == '' || this.getSession() === undefined) {
-			//create new session
-			this.onSaveAsSession();
-		} else {
-			
-			this.el.mask("Saving");
-			
-			//update session
-			Ext.Ajax.request({
-				url: this.crud_url,
-				params: {
-					mode: 'u',
-					data: Ext.util.JSON.encode(this.financial_data)
-				},
-				success: this.onSaveSessionSuccess,
-				failure: this.onSaveSessionFailure,
-				scope: this
-			});
-		}
+		this.el.mask("Saving");
+		
+		//update session
+		Ext.Ajax.request({
+			url: this.crud_url,
+			params: {
+				mode: 'u',
+				data: Ext.util.JSON.encode(data)
+			},
+			success: this.onSaveSessionSuccess,
+			failure: this.onSaveSessionFailure,
+			scope: this
+		});
 	},
 	
 	/**
@@ -2262,7 +2306,6 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * @param {Object} 				options: 			The parameter to the request call.
 	 */
 	onSaveSessionSuccess: function(response, options) {
-		Ext.MessageBox.alert('Message', 'Save Success');
 		
 		var return_object = Ext.util.JSON.decode(response.responseText);
 		var data = return_object['data'];
@@ -2274,7 +2317,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			}
 			
 			//if the session has been submitted then set it as locked
-			if (data.auth_session_id !== undefined) {
+			if (this.sessionIsLocked()) { //data.auth_session_id !== undefined) {
 				this.lock();
 			} else {
 				this.unlock();
@@ -2288,7 +2331,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	},
 	
 	onSessionComboReload: function() {
-		this.getTopToolbar().items.map['session_combo'].setValue(this.getSession());
+		this.setSelectedSession(this.getSession());
 	},
 	
 	/**
@@ -2320,7 +2363,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	},
 	
 	onDeleteConfirm: function() {
-		Ext.MessageBox.alert('Message', 'Delete');
+		
 		//hide last TMN window
 		tmn.view.LastTMN.hide();
 		
@@ -2331,7 +2374,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			url: this.crud_url,
 			params: {
 				mode: 'd',
-				data: Ext.util.JSON.encode(this.financial_data)},
+				data: Ext.util.JSON.encode({session_id: this.getSession()})
+			},
 			success: this.onDeleteSessionSuccess,
 			failure: this.onDeleteSessionFailure,
 			scope: this
@@ -2346,15 +2390,11 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * @param {Object} 				options: 			The parameter to the request call.
 	 */
 	onDeleteSessionSuccess: function(response, options) {
-		Ext.MessageBox.alert('Message', 'Delete Success');
 		
 		//reload the session combo box
 		this.getTopToolbar().items.map['session_combo'].getStore().reload();
 		
 		this.resetForm();
-
-		//load the session's internal transfers
-		this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
 		
 		this.el.unmask();
 		
@@ -2394,7 +2434,10 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		
 		//clear the selected session in the combo
 		this.getTopToolbar().items.map['session_combo'].clearValue();
-		this.setSession('');
+		this.setSession(null);
+		
+		//load the session's internal transfers
+		this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
 		
 		//set the state to unsaved
 		this.saved = false;

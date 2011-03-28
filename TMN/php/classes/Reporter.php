@@ -95,7 +95,7 @@ class Reporter implements ReporterInterface {
 	
 	//kills script and returns failure message to front end
 	public function fail() {
-		die('{success: false}');
+		die(json_encode(array("success"=>false)));
 	}
 	
 	//outputs message to console if debugging is on then kills script and returns failure message to front end

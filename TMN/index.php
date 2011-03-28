@@ -76,7 +76,7 @@ if (mysql_num_rows($sql) == 1){
 	echo '<script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";</script>';
 	
 	if ($DEBUG) {
-		echo '<script type="text/javascript" src="lib/DateRangeValidationType.js'.$force_reload.'"></script><script type="text/javascript" src="lib/statusbar/StatusBar.js'.$force_reload.'"></script><script type="text/javascript" src="lib/statusbar/ValidationStatus.js'.$force_reload.'"></script><script type="text/javascript" src="lib/Printer-all.js'.$force_reload.'"></script>';
+		echo '<script type="text/javascript" src="lib/DateRangeValidationType.js'.$force_reload.'"></script><script type="text/javascript" src="lib/statusbar/StatusBar.js'.$force_reload.'"></script><script type="text/javascript" src="lib/statusbar/ValidationStatus.js'.$force_reload.'"></script><script type="text/javascript" src="lib/Printer-all.js'.$force_reload.'"></script><script type="text/javascript" src="lib/iconcombo/Ext.ux.IconCombo.js'.$force_reload.'"></script>';
 	} else {
 		echo '<script type="text/javascript" src="lib/custom-libraries-all.js'.$force_reload.'"></script>';
 	}

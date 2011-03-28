@@ -40,7 +40,7 @@ echo 'Compressing ExtJS Files ...'
 cat ext-base.js ext-all.js > ext.js
 
 echo 'Compressing Custom Library Files ...'
-cat DateRangeValidationType.js statusbar/StatusBar.js statusbar/ValidationStatus.js Printer-all.js > custom-libraries-all_long.js
+cat DateRangeValidationType.js statusbar/StatusBar.js statusbar/ValidationStatus.js Printer-all.js iconcombo/Ext.ux.IconCombo.js > custom-libraries-all_long.js
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o custom-libraries-all.js custom-libraries-all_long.js
 rm custom-libraries-all_long.js
 
