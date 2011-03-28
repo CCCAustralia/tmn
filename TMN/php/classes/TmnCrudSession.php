@@ -9,10 +9,10 @@ include_once('../classes/TmnAuthorisationProcessor.php');
 //This is an example of how to subclass TmnCrud
 class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
-	private $owner					=	null;
+	private $owner						=	null;
 	private $authorisatoionProcessor	=	null;
 	
-	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
+	public function __construct($logfile, $session_id=null) {
 		
 		parent::__construct(
 			$logfile,						//path of logfile
@@ -89,6 +89,15 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'housing_frequency'						=>	"s"
 			)
 		);
+		
+		try {
+			if (isset($session_id)) {
+				$this->setField('session_id', $session_id);
+				$this->retrieve();
+			}
+		} catch (Exception $e) {
+			throw new FatalException(__CLASS__ . " Exception: " . $e->getMessage());
+		}
 	}
 	
 	
@@ -101,7 +110,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//if the user object hasn't been made from the guid then create it
 			if ($this->owner == null) {
-				$this->owner = TmnCrudUser::make($this->logfile, $this->getField('guid'));
+				$this->owner = new TmnCrudUser($this->logfile, $this->getField('guid'));
 			}
 		
 			//if it is already there or creation happened without throwing exceptions then return the object
@@ -137,7 +146,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$this->owner->setGuid($guid);
 		} else {
 			//if the owner object doesn't exist then make it
-			$this->owner = TmnCrudUser::make($this->logfile, $guid);
+			$this->owner = new TmnCrudUser($this->logfile, $guid);
 		}
 		
 		//if the owner creation/switching worked without throwing an exception then update the guid field
@@ -177,7 +186,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//if the 
 			if ($this->authorisationProcessor == null) {
-				$this->authorisationProcessor = TmnAuthorisationProcessor::make($this->logfile, $this->getField('auth_session_id'));
+				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
 			}
 			
 			$this->authorisationProcessor->userIsAuthoriser($user);

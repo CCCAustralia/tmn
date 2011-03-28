@@ -6,7 +6,7 @@ include_once('../classes/TmnCrud.php');
 
 class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	
-	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
+	public function __construct($logfile, $guid=null) {
 		
 		parent::__construct(
 			$logfile,						//path of logfile
@@ -28,15 +28,15 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 				'admin_tab'		=>	"i"
 			)
 		);
-	}
-	
-	public function make($logfile, $guid) {
 		
-		$newObj = new TmnCrudUser($logfile);
+		try {
+			if (isset($guid)) {
+				$this->setGuid($guid);
+			}
+		} catch (Exception $e) {
+			throw new FatalException(__CLASS__ . " Exception: " . $e->getMessage());
+		}
 		
-		$newObj->setGuid($guid);
-		
-		return $newObj;
 	}
 	
 	
@@ -57,7 +57,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 			$this->retrieve();
 		} catch (LightException $e) {
 			$this->setField('guid', $tempGuid);
-			$this->exceptionHandler(new LightException("User Exception: Cannot Load User with guid=" . substr($this->guid, 0, -12) . "************ . The previous guid was restored. The following Exception was thrown when load was attempted:" . $e->getMessage()));
+			$this->exceptionHandler(new LightException(__CLASS__ . " Exception: Cannot Load User with guid=" . substr($this->guid, 0, -12) . "************ . The previous guid was restored. The following Exception was thrown when load was attempted:" . $e->getMessage()));
 		}
 	}
 	
@@ -68,7 +68,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	public function getSpouse() {
 		if ($this->getSpouseGuid() != null) {
 			if ($this->spouse == null) {
-				$this->spouse = TmnCrudUser::make($this->logfile, $this->getSpouseGuid());
+				$this->spouse = new TmnCrudUser($this->logfile, $this->getSpouseGuid());
 			}
 			
 			return $this->spouse;
@@ -88,7 +88,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($this->doesUserExist($guid)) {
 			$this->setField('spouse_guid', $guid);
 		} else {
-			throw new LightException("User Exception: Spouse couldn't be found.");
+			throw new LightException(__CLASS__ . " Exception: Spouse couldn't be found.");
 		}
 	}
 	
@@ -98,7 +98,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($guid != null) {
 			$this->setField('spouse_guid', $guid);
 		} else {
-			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+			throw new LightException(__CLASS__ . " Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
 	
@@ -110,7 +110,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($this->doesUserExist($guid)) {
 			$this->setField('m_guid', $guid);
 		} else {
-			throw new LightException("User Exception: MDP Supervisor couldn't be found.");
+			throw new LightException(__CLASS__ . " Exception: MDP Supervisor couldn't be found.");
 		}
 	}
 	
@@ -120,7 +120,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		if ($guid != null) {
 			$this->setField('m_guid', $guid);
 		} else {
-			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
+			throw new LightException(__CLASS__ . " Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
 	

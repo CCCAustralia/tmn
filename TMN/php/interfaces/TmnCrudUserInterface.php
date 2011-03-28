@@ -17,31 +17,16 @@ interface TmnCrudUserInterface {
 	 * It also inherits from TmnCrud so have a look at TmnCrudInterface.php more methods
 	 * that are available to this class.
 	 * 
-	 * @param String		$logfile - path of the file used to log any exceptions or interactions
-	 * @param String		$tablename - not used
-	 * @param String		$primarykey - not used
-	 * @param Assoc Array	$privatetypes - not used
-	 * @param Assoc Array	$publictypes - not used
+	 * @param String		$logfile	- path of the file used to log any exceptions or interactions
+	 * @param string		$guid		- Global User ID for user you want to load into this class
 	 * 
 	 * @example $user = new TmnCrudUser("logfile.log");					will create an empty user
-	 * @example $user = TmnCrudUser::make("logfile.log", "your_guid");	will create a user filled with the data associated with your_guid
+	 * @example $user = new TmnCrudUser("logfile.log", "your_guid");	will create a user filled with the data associated with your_guid
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
-	
-	
-	/**
-	 * Will create an instance of TmnCrudUser and will prefill it with the data associated with the guid passed to it.
-	 * 
-	 * @param string $logfile	- Path of the file used to log any exceptions or interactions
-	 * @param string $guid		- Global User ID for user you want to load into this class
-	 * 
-	 * @return TmnCrudUser
-	 * 
-	 * Note: will throw LightException if it can't complete this task.
-	 */
-	public function make($logfile, $guid);
+	//this line is commented out to avoid conflicts with sub-classes, please leave commented
+	//public function __construct($logfile, $guid);
 	
 	
 			///////////////////ACCESSOR FUNCTIONS/////////////////////

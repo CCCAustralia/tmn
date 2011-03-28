@@ -9,18 +9,15 @@ interface TmnAuthorisationProcessorInterface {
 	 * 
 	 * Flynn to Insert Description
 	 * 
-	 * @param String		$logfile - path of the file used to log any exceptions or interactions
-	 * @param String		$tablename - not used
-	 * @param String		$primarykey - not used
-	 * @param Assoc Array	$privatetypes - not used
-	 * @param Assoc Array	$publictypes - not used
+	 * @param String		$logfile	- path of the file used to log any exceptions or interactions
+	 * @param String		$id			- id of authorisation session to be loaded into object
 	 * 
-	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log");					will create an empty TmnAuthoristationProcessor
-	 * @example $user = TmnAuthorisationProcessorInterface::make("logfile.log", "your_auth_session_id");	will create a TmnAuthoristationProcessor filled with the data associated with your_auth_session_id
+	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log");							will create an empty TmnAuthoristationProcessor
+	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log", "your_auth_session_id");	will create a TmnAuthoristationProcessor filled with the data associated with your_auth_session_id
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
+	public function __construct($logfile, $id);
 	
 	
 	/**

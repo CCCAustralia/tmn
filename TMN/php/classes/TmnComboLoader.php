@@ -63,6 +63,24 @@ class TmnComboLoader extends Reporter implements TmnComboLoaderInterface {
 		}
 	}
 	
+	protected function arrayFromStmt($stmt) {
+		
+		$returndata = array();
+		
+		//form the returned json with the sql result:
+		//iterate through each returned row
+		for ($i = 0; $i < $stmt->rowCount(); $i++) {
+			$r = $stmt->fetch(PDO::FETCH_ASSOC);
+			//iterate through each field in the row
+			foreach ($result as $key=>$value) {
+				$returndata[$key] = $result[$key];
+			}
+		}
+		
+		//return
+		return array( $this->table => $returndata);
+	}
+	
 	protected function jsonFromStmt($stmt) {
 		
 		$returndata = "";

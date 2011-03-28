@@ -17,23 +17,12 @@ interface TmnCrudSessionInterface {
 	 * It also inherits from TmnCrud so have a look at TmnCrudInterface.php more methods
 	 * that are available to this class.
 	 * 
-	 * @param String		$logfile - path of the file used to log any exceptions or interactions
-	 * @param String		$tablename - The name of the table you want to interact with
-	 * @param String		$primarykey - The name of the Primary Key for the above table
-	 * @param Assoc Array	$privatetypes - An Assoc array of fields in the array that you
-	 * 						need within the class but don't want to be outputed from the object.
-	 * 						Will have the form array("<field name>" => "<field type>", ...)
-	 * 						<field name> needs to be lowercase here and uppercase in the database
-	 * 						<field type> can be "s" - string, "i" - integer, "n" - null, "b" - bool
-	 * @param Assoc Array	$publictypes - An Assoc array of fields in the array that you
-	 * 						need within the class and will output from the class.
-	 * 						Will have the form array("<field name>" => "<field type>", ...)
-	 * 						<field name> needs to be lowercase here and uppercase in the database
-	 * 						<field type> can be "s" - string, "i" - integer, "n" - null, "b" - bool
+	 * @param String		$logfile	- path of the file used to log any exceptions or interactions
+	 * @param String		$session_id	- session ID for the session you want to load into this class
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
+	public function __construct($logfile, $session_id);
 	
 	
 			/////////////////ACCESSOR FUNCTIONS////////////////

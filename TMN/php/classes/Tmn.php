@@ -57,7 +57,7 @@ class Tmn extends Reporter implements TmnInterface {
 	public function getUser() {
 		//if the user hasn't be created yet then make it
 		if ($this->user == null) {
-			$this->user = TmnCrudUser::make($this->logfile, $this->getAuthenticatedGuid());
+			$this->user = new TmnCrudUser($this->logfile, $this->getAuthenticatedGuid());
 		}
 		
 		//return the user object

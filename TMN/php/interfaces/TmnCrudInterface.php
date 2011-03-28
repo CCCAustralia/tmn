@@ -37,7 +37,8 @@ interface TmnCrudInterface {
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
+	//this line is commented out to avoid conflicts with sub-classes, please leave commented
+	//public function __construct($logfile, $tablename, $primarykey, $privatetypes, $publictypes);
 	
 	
 	
