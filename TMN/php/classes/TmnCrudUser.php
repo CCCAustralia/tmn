@@ -49,7 +49,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	
 	public function setGuid($guid) {
 		
-		$tempGuid = $this->guid;
+		$tempGuid = $this->getGuid();
 		
 		$this->setField('guid', $guid);
 		

@@ -92,10 +92,10 @@ interface TmnCrudSessionInterface {
 	/**
 	 * Sets a response for the an authoriser of this session.
 	 * 
-	 * @param int $level		- the level of the authoriser
+	 * @param TmnCrudUser $user		- the authoriser
 	 * @param string $response	- the response of that authoriser
 	 */
-	public function authorise($level, $response);
+	public function authorise(TmnCrudUser $user, $response);
 	
 }
 

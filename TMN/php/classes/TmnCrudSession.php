@@ -7,12 +7,14 @@ include_once('../classes/TmnCrudUser.php');
 include_once('../classes/TmnAuthorisationProcessor.php');
 
 //This is an example of how to subclass TmnCrud
-class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
+class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 	
 	private $owner						=	null;
-	private $authorisatoionProcessor	=	null;
+	private $authorisationProcessor		=	null;
+	private $logfile;
 	
 	public function __construct($logfile, $session_id=null) {
+		$this->logfile = $logfile;
 		
 		parent::__construct(
 			$logfile,						//path of logfile
@@ -184,7 +186,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//make sure that the session has been authorised first
 		if ($this->getField('auth_session_id') != null) {
 			
-			//if the 
+			//if the authprocessor exists, create one
 			if ($this->authorisationProcessor == null) {
 				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
 			}
@@ -196,8 +198,13 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		}
 	}
 	
-	public function authorise($level, $response) {
-		$this->authorisationProcessor->authorise($level, $response);
+	public function authorise(TmnCrudUser $user, $response) {
+		if ($this->authorisationProcessor == null) {
+			$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+			fb("auth_session_id = ".$this->getField('auth_session_id'));
+		}
+		
+		$this->authorisationProcessor->authorise($user, $response);
 	}
 	
 }

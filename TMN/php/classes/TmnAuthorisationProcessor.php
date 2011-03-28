@@ -31,16 +31,39 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $tablename=null, $primarykey=null, $privatetypes=null, $publictypes=null) {
+	public function __construct($logfile, $auth_session_id) {
 		$this->logfile = $logfile;
-		if (!file_exists($this->logfile)) {
-			$log = fopen($this->logfile, "c");
-			fclose($log);
-		}
 
-		parent::__construct($this->logfile);
+		parent::__construct(		//construct a new object with crud 
+			$this->logfile,
+			"Auth_Table", 
+			"AUTH_SESSION_ID", 
+			array(
+				'AUTH_SESSION_ID'		=> "i",
+				'AUTH_USER' 			=> "s",
+				'AUTH_LEVEL_1' 			=> "s",
+				'AUTH_LEVEL_2'			=> "s",
+				'AUTH_LEVEL_3'			=> "s"
+			),
+			array(
+				'USER_RESPONSE'			=> "s",
+				'LEVEL_1_RESPONSE'		=> "s",
+				'LEVEL_2_RESPONSE'		=> "s",
+				'LEVEL_3_RESPONSE'		=> "s",
+				'FINANCE_RESPONSE'		=> "s"
+			)
+		);
 
+		//set up the authsessionid
+		$this->authsessionid			= $auth_session_id;
 		
+		//$this->authcrud = $newObj;
+		//$this->d($this);
+		
+	
+		//define which row
+		$this->setField('AUTH_SESSION_ID', $this->authsessionid);
+		$this->retrieve();
 	}
 
 	
@@ -101,7 +124,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$authlevel = $this->userIsAuthoriser($user);
 		$fieldname = "";	//initialise
 		
-		if ($authlevel) {
+		if (!is_null($authlevel)) {
 			//Form the identifying field name string for the level of authentication for which the user is valid
 			if ($authlevel == 0) {
 				$fieldname = "USER";
@@ -109,10 +132,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				$fieldname = "LEVEL_".$authlevel;
 			}
 			
-			//define which row to set the response
-			$this->authcrud->loadDataFromAssocArray(array("AUTH_SESSION_ID" => $this->authsessionid));
 			//set the response
-			$this->authcrud->setField($fieldname."_RESPONSE", $response);
+			$this->setField($fieldname."_RESPONSE", $response);
+			fb($this);
+			$this->update();
 			
 			//TODO: Workflow - email the appropriate recipiants
 			
@@ -124,8 +147,25 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	
 
 	public function userIsAuthoriser(TmnCrudUser $user) {
-		//fetch the authorisers
+		$returndata = null;
+		
+		$authorisers = array(
+			0	=> $this->getField("AUTH_USER"),
+			1	=> $this->getField("AUTH_LEVEL_1"),
+			2	=> $this->getField("AUTH_LEVEL_2"),
+			3	=> $this->getField("AUTH_LEVEL_3")
+		);
+		for ($i = 0; $i <= 3; $i++) {
+			if ($user->getGuid() == $authorisers[$i]) {
+				$returndata = $i;
+			}
+		}
+		
+		fb("userIsAuthoriser returning value:".$returndata);
+		
 		//check if user
+		return $returndata;
+		
 		//check if authoriser lev 1-3
 		//return the user's authorisation level (0 is user)
 	}

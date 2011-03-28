@@ -7,6 +7,7 @@
 
 include_once('../classes/Tmn.php');
 include_once('../classes/TmnAuthorisationProcessor.php');
+include_once('../classes/TmnCrudSession.php');
 $LOGFILE	= "../logs/TmnAuthorisationProcessorClass-test.log";
 $DEBUG		= 1;
 
@@ -15,7 +16,10 @@ $DEBUG		= 1;
 fb("Constructor Test");
 try {
 	$tmn		= new Tmn($LOGFILE);
-	$session	= new TmnAuthorisationProcessor($LOGFILE);
+	$user 		= new TmnCrudUser($LOGFILE, "test");
+	$session	= new TmnCrudSession($LOGFILE, 1234);
+	//$authproc	= new TmnAuthorisationProcessor($LOGFILE, );
+	
 } catch (Exception $e) {
 	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
@@ -31,14 +35,44 @@ try {
  * Screen Output:
  * 
  */
+/*
+fb("Session Test");
+
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwner(tmn->getUser())");
+$session->setOwner($tmn->getUser());
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwner()");
+$session->setOwner();
+fb("getOwner()");
+fb($session->getOwner());
+fb("setOwnerGuid('test')");
+$session->setOwnerGuid('test');
+fb("getOwner()");
+fb($session->getOwner());
+//fb("setOwnerGuid(tmn->getAuthenticatedGuid())");
+//$session->setOwnerGuid($tmn->getAuthenticatedGuid());
+fb("getOwnerGuid()");
+fb($session->getOwnerGuid());
+*/
+
+fb("setOwnerGuid('test')");
+$session->setOwnerGuid('test');
 
 	//Access test
 
 fb("Access Test");
-//getOwner
-//setOwner
-//getOwnerGuid
-//setOwnerGuid
+//userIsAuthoriser
+try {
+	//fb($user);
+	//fb($session);
+	$session->authorise($session->getOwner(), "Yes");
+
+} catch (Exception $e) {
+	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
+}
 
 /*
  * Expected output

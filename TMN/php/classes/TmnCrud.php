@@ -255,7 +255,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			
 			//make sure only one row was pulled (it should be unique having used the primary key) throw exceptions if something went wrong
 			if ($stmt->rowCount() == 0) {
-				throw new LightException(__CLASS__ . " Exception: On Retrieve, User Not Found");
+				throw new LightException(__CLASS__ . " Exception: On Retrieve, No Rows Returned");
 			} elseif ($stmt->rowCount() == 1) {
 				
 				//clear old values before the new ones are loaded in

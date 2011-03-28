@@ -15,7 +15,7 @@ $DEBUG		= 1;
 fb("Constructor Test");
 try {
 	$tmn		= new Tmn($LOGFILE);
-	$session	= new TmnCrudSession($LOGFILE);
+	$session	= new TmnCrudSession($LOGFILE, 1234);
 } catch (Exception $e) {
 	Reporter::newInstance($LOGFILE)->exceptionHandler($e);
 }
