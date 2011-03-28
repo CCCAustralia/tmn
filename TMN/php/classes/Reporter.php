@@ -24,7 +24,7 @@ class Reporter implements ReporterInterface {
 	//is protected so singleton classes can extend this class
 	protected function __construct($logfile) {
 		
-		$this->filename		= $logfile;
+		$this->setFilename($logfile);
 		$this->DEBUG		= 1;
 	}
 	
@@ -140,7 +140,11 @@ class Reporter implements ReporterInterface {
 	
 	//returns the logger's new path
 	public function setFilename($fname) {
-		$this->filename	= $fname;
+		$this->filename	= $fname;		
+		if (!file_exists($this->filename)) {
+			$log = fopen($this->filename, "c");
+			fclose($log);
+		}
 	}
 	
 	//logs a message to the file with a timestamp
