@@ -391,16 +391,16 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Financial Packages
 		if (!$iscouple) {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing'], ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing'], PHP_ROUND_HALF_UP);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		=	0;
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'];
 		} else {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
-			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), ROUND_HALF_UP);
+			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_lafha']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_overseas_housing_allowance']);
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'] + $this->financial_data['S_FINANCIAL_PACKAGE'];

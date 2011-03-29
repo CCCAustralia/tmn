@@ -75,24 +75,26 @@ tmn.TmnController = function() {
 		 */
 		getForm: function(form_name) {
 			var form = null;
+
 			switch (form_name) {
 				case 'international-assignment':
-					for (id in this.financial_data) {
-						form = Ext.getCmp(id);
+					
+					for (var formCount = 0; formCount < this.view.length(); formCount++) {
+						form = this.view.getFormAt(formCount);
 						if (form.aussie_form == false && form.overseas_form == true && form.home_assignment == false)
 							break;
 					}
 					break;
 				case 'home-assignment':
-					for (id in this.financial_data) {
-						form = Ext.getCmp(id);
+					for (var formCount=0; formCount < this.view.length(); formCount++) {
+						form = this.view.getFormAt(formCount);
 						if (form.aussie_form == false && form.overseas_form == true && form.home_assignment == true)
 							break;
 					}
 					break;
 				case 'aussie-based':
-					for (id in this.financial_data) {
-						form = Ext.getCmp(id);
+					for (var formCount=0; formCount < this.view.length(); formCount++) {
+						form = this.view.getFormAt(formCount);
 						if (form.aussie_form == true && form.overseas_form == false)
 							break;
 					}
@@ -154,7 +156,29 @@ tmn.TmnController = function() {
 		 * (submit can have success or failure, look at those handlers to see what happens after submit)
 		 */
 		onNext: function() {
-			this.view.submitActiveForm();
+			var form = this.view.getActiveForm();
+			
+			//the following will make the user save before they continue
+			
+			//if its not a financial details form (ie its for both aussies and internationals) then just submit
+			if (form.aussie_form && form.overseas_form) {
+				this.view.submitActiveForm();
+			//if its a financial details form
+			} else {
+				//if the form is saved then submit the form
+				if (form.saved) {
+					this.view.submitActiveForm();
+				//if it isn't saved ask the user to save
+				} else {
+					Ext.MessageBox.show({
+						icon: Ext.MessageBox.WARNING,
+						buttons: Ext.MessageBox.OK,
+						closable: false,
+						title: 'Warning!',
+						msg: 'You have unsaved changes on this page, you must save before you can continue.'
+					});
+				}
+			}
 		},
 		
 		/**
@@ -197,6 +221,9 @@ tmn.TmnController = function() {
 			this.view.changeNextText('Next');	//make sure the buttons say the right thing
 			Ext.History.add(index);				//update history
 			this.view.changeForm(index);		//hides the current form and shows the form with the index we just passed it
+
+			//resize the view to better fit the form that was just switched to
+			this.doResize();
 		},
 		
 		/**
@@ -313,6 +340,10 @@ tmn.TmnController = function() {
 			} else {
 				this.view.loadActiveForm();						//loads the new form
 			}
+			
+
+			//resize the view to better fit the form that was just switched to
+			this.doResize();
 		},
 		
 		/**
@@ -461,7 +492,61 @@ tmn.TmnController = function() {
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onLoadSession: function(form_panel) {
-			form_panel.onLoadSession();
+			var dataObject	= {session_id:form_panel.getSelectedSession()};
+			
+			//if its an aussie form do appropriate checks before loading the session
+			if (form_panel.aussie_form) {
+				//check that it has been saved
+				if (form_panel.saved == true) {
+					//load the session
+					form_panel.onLoadSession(dataObject);
+				//if not confirm that they want to load the session and lose there changes
+				} else {
+					Ext.MessageBox.confirm(
+						'Warning',
+						'Are you sure you want to load a new session without saving the last one?',
+						function(btn) {
+							if (btn == 'yes') {
+								//if they want to load the session then do it
+								this.form.onLoadSession(this.data);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
+							} else {
+								this.form.setSelectedSession(this.form.getSession());
+							}
+						},
+						{form:form_panel, data:dataObject} //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+					);
+				}
+			}
+			
+			//if its an overseas form do appropriate checks before loading the session
+			if (form_panel.overseas_form) {
+				//grab the forms
+				var home_assignment_form			= this.getForm('home-assignment');
+				var international_assignment_form	= this.getForm('international-assignment');
+				//create the data packet to be sent to the backend
+				var dataObject	= {session_id:form_panel.getSelectedSession()};
+				
+				//if both are saved
+				if (home_assignment_form.saved && international_assignment_form.saved) {
+					//load the new session
+					form_panel.onLoadSession(dataObject);
+				//if not confirm that they want to load the session and lose there changes
+				} else {
+					Ext.MessageBox.confirm(
+						'Warning',
+						'You have unsaved changes on one of your pages. Are you sure you want to load a new session without saving the last one?',
+						function(btn) {
+							if (btn == 'yes') {
+								//if they want to load the session then do it
+								this.form.onLoadSession(this.data);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
+							} else {
+								this.form.setSelectedSession(this.form.getSession());
+							}
+						},
+						{form:form_panel, data:dataObject} //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+					);
+				}
+			}
 		},
 		
 		/**
@@ -477,46 +562,28 @@ tmn.TmnController = function() {
 			this.response[form_panel.id] = response.responseText;
 			//parse repsonse
 			var return_object = Ext.util.JSON.decode(response.responseText);
-			this.financial_data[form_panel.id] = return_object['data'];
 			
-			if (form_panel.overseas) {
-				
-				if (form_panel.home_assignment) {
-					
-					//grab international assignment form
-					international_assignment_form = this.getForm('international-assignment');
-					//if there is an international_assignment_session_id then load it
-					if (this.financial_data[form_panel.id]['international_assignment_session_id'] !== undefined) {
-						//make sure it hasn't already been loaded
-						if (this.financial_data[form_panel.id]['international_assignment_session_id'] != international_assignment_form.getSession()) {
-							//set the session to be loaded
-							international_assignment_form.setSession(this.financial_data[form_panel.id]['international_assignment_session_id']);
-							//load the session
-							this.onLoadSession(international_assignment_form);
-						}
-					}
-					
-				} else {
-					
-					//grab home assignment form
-					home_assignment_form = this.getForm('home-assignment');
-					//if there is an home_assignment_session_id then load it
-					if (this.financial_data[form_panel.id]['home_assignment_session_id'] !== undefined) {
-						//make sure it hasn't already been loaded
-						if (this.financial_data[form_panel.id]['home_assignment_session_id'] != home_assignment_form.getSession()) {
-							//set the session to be loaded
-							home_assignment_form.setSession(this.financial_data[form_panel.id]['home_assignment_session_id']);
-							//load the session
-							this.onLoadSession(home_assignment_form);
-						}
-					}
-					
-				}
-				
+			if (form_panel.aussie_form) {
+				//save the returned data
+				this.financial_data[form_panel.id] = return_object.data;
+				//load the data into the forms
+				form_panel.onLoadSessionSuccess(this.financial_data[form_panel.id]);
 			}
 			
-			//let the form process the response
-			form_panel.onLoadSessionSuccess(this.financial_data[form_panel.id]);
+			if (form_panel.overseas_form) {
+				//grab the forms
+				var home_assignment_form			= this.getForm('home-assignment');
+				var international_assignment_form	= this.getForm('international-assignment');
+				
+				//save the returned data
+				this.financial_data[home_assignment_form.id]			= return_object.data['home-assignment'];
+				this.financial_data[international_assignment_form.id]	= return_object.data['international-assignment'];
+				
+				//load the data into the forms
+				home_assignment_form.onLoadSessionSuccess(this.financial_data[home_assignment_form.id]);
+				international_assignment_form.onLoadSessionSuccess(this.financial_data[international_assignment_form.id]);
+			}
+			
 		},
 		
 		/**
@@ -534,9 +601,30 @@ tmn.TmnController = function() {
 			//otherwise do a normal save
 			} else {
 				
-				this.linkOverseasSessions(form_panel);
+				//if this is a form just save the aussie form
+				if (form_panel.aussie_form) {
+					form_panel.onSaveSession(this.financial_data[form_panel.id]);
+				}
 				
-				form_panel.onSaveSession(this.financial_data[form_panel.id]);
+				//if its an overseas form combine the data of the two sessions into an object and save that
+				if (form_panel.overseas_form) {
+					//grab the forms
+					var home_assignment_form				= this.getForm('home-assignment');
+					var international_assignment_form		= this.getForm('international-assignment');
+					//save the returned data
+					var dataObject	= {};
+					dataObject['international-assignment']	= this.financial_data[international_assignment_form.id];
+					//if the user has created data for the home assignment then save it otherwise save a copy of the international assignment
+					if (this.financial_data[home_assignment_form.id] !== undefined) {
+						dataObject['home-assignment']		= this.financial_data[home_assignment_form.id];
+					} else {
+						dataObject['home-assignment']		= this.financial_data[international_assignment_form.id];
+					}
+					
+					//save the data for both forms (it doesn't matter which form you use)
+					form_panel.onSaveSession(dataObject);
+				}
+				
 			}
 			
 		},
@@ -548,56 +636,173 @@ tmn.TmnController = function() {
 		 */
 		onSaveAsSession: function(form_panel) {
 			
-			this.linkOverseasSessions(form_panel);
+			var date			= new Date();
+			var default_name	= date.format('Y-m-d H:i:s');
 			
-			//remove session id, it is about to be copied and given a new id
-			if (this.financial_data[form_panel.id]['session_id'] !== undefined) {
-				delete this.financial_data[form_panel.id]['session_id'];
+			//if a name exists for the current session then set the default name to that
+			if (!(form_panel.getSessionName() === undefined || form_panel.getSessionName() == null)) {
+				default_name	= form_panel.getSessionName() + " copy";
 			}
 			
-			//remove auth session id, it is about to be copied and the new session will not have an auth session
-			if (this.financial_data[form_panel.id]['auth_session_id'] !== undefined) {
-				delete this.financial_data[form_panel.id]['auth_session_id'];
-			}
 			
-			form_panel.onSaveAsSession(this.financial_data[form_panel.id]);
+			if (form_panel.aussie_form) {
+				
+				var dataObject = this.financial_data[form_panel.id];
+				
+				//remove session id, it is about to be copied and given a new id
+				if (dataObject['session_id'] !== undefined) {
+					delete dataObject['session_id'];
+				}
+				
+				//remove auth session id, it is about to be copied and the new session will not have an auth session
+				if (dataObject['auth_session_id'] !== undefined) {
+					delete dataObject['auth_session_id'];
+				}
+				
+				Ext.MessageBox.prompt(
+						"Save As",
+						"Give your session a name:",
+						function(btn, text) {
+							if (btn == 'ok') {
+								//set the session name
+								this.form.setSessionName(text);
+								this.data.session_name	= text;
+								
+								//create the session in the database
+								this.form.onSaveAsSession(this.data);
+							}
+						},
+						{form:form_panel, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+						false,
+						default_name
+				);
+
+			} //eo aussie code
+			
+			
+			if (form_panel.overseas_form) {
+				
+				//grab the forms
+				var home_assignment_form				= this.getForm('home-assignment');
+				var international_assignment_form		= this.getForm('international-assignment');
+				
+				var dataObject = {};
+				 //use the international data because the user will be made to save for the first time on the international form
+				//so save as will never have access to home assignment data as it won't yet exist
+				dataObject['home-assignment']			= this.financial_data[international_assignment_form.id];
+				dataObject['international-assignment']	= this.financial_data[international_assignment_form.id];
+				
+				//make sure there is data for home assignment before running through it
+				if (dataObject['home-assignment']  !== undefined) {
+					//remove session id, it is about to be copied and given a new id
+					if (dataObject['home-assignment']['session_id'] !== undefined) {
+						delete dataObject['home-assignment']['session_id'];
+					}
+					
+					//remove auth session id, it is about to be copied and the new session will not have an auth session
+					if (dataObject['home-assignment']['auth_session_id'] !== undefined) {
+						delete dataObject['home-assignment']['auth_session_id'];
+					}
+				}
+			
+				//make sure there is data for international assignment before running through it
+				if (dataObject['international-assignment']  !== undefined) {
+					//remove session id, it is about to be copied and given a new id
+					if (dataObject['international-assignment']['session_id'] !== undefined) {
+						delete dataObject['international-assignment']['session_id'];
+					}
+					
+					//remove auth session id, it is about to be copied and the new session will not have an auth session
+					if (dataObject['international-assignment']['auth_session_id'] !== undefined) {
+						delete dataObject['international-assignment']['auth_session_id'];
+					}
+				}
+				
+				Ext.MessageBox.prompt(
+						"Save As",
+						"Give your session a name:",
+						function(btn, text) {
+							if (btn == 'ok') {
+								
+								//set the session name for the forms
+								this.home_form.setSessionName(text);
+								this.international_form.setSessionName(text);
+								this.data['home-assignment']['session_name'] = text;
+								this.data['international-assignment']['session_name'] = text;
+								
+								//create the session in the database
+								this.form.onSaveAsSession(this.data);
+							}
+						},
+						{form: form_panel, home_form:home_assignment_form, international_form:international_assignment_form, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+						false,
+						default_name
+				);
+
+			} //eo overseas code
+
 		},
 		
 		/**
-		 * For a particular form it will set home_assignment_session_id and international_assignment_session_id to the session loaded in the respecive form
+		 * Handler for when the user selects that they want to save a new session and it succeeds form (done using {@link tmn.view.FinancialDetailsForm}).
 		 * 
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+		 * @param {Object} 				options: 			The parameter to the request call.
 		 */
-		linkOverseasSessions: function(form_panel) {
-			//if we are saving an aussie form clear the home_assignment - international_assignment linking
+		onSaveAsSessionSuccess: function(form_panel, response, options) {
+			//save response text
+			this.response[form_panel.id]	= response.responseText;
+			//parse repsonse
+			var return_object				= Ext.util.JSON.decode(response.responseText);
+			var data						= return_object['data'];
+			
 			if (form_panel.aussie_form) {
-				delete this.financial_data[form_panel.id]['home_assignment_session_id'];
-				delete this.financial_data[form_panel.id]['international_assignment_session_id'];
+				if (data !== undefined) {
+					if (data['session_id']) {
+						form_panel.setSession(data['session_id']);
+						form_panel.reloadSessionCombo();
+						form_panel.onSaveSessionSuccess();
+					}
+				}
 			}
 			
-			//if we are saving an overseas form then do the home_assignment - international_assignment linking
 			if (form_panel.overseas_form) {
-				var international_assignment_form	= this.getForm('international-assignment');
+				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
+				var international_assignment_form	= this.getForm('international-assignment');
+				//grab the returned data
+				var data							= return_object.data;
 				
-				//if the form is for the home assignment or the home assignment isn't set then clear the home_assignment_session_id
-				if (home_assignment_form.getSession() === undefined || home_assignment_form.getSession() == null
-						|| home_assignment_form.getSession() == '' || form_panel.home_assignment) {
-					delete this.financial_data[form_panel.id]['home_assignment_session_id'];
-				//otherwise set it to the home assignment form's session id
-				} else {
-					this.financial_data[form_panel.id]['home_assignment_session_id']			= home_assignment_form.getSession();
-				}
-				
-				//if the form is for the international assignment or the international assignment isn't set then clear the international_assignment_session_id
-				if (international_assignment_form.getSession() === undefined || international_assignment_form.getSession() == null
-						|| international_assignment_form.getSession() == '' || !form_panel.home_assignment) {
-					delete this.financial_data[form_panel.id]['international_assignment_session_id'];
-				//otherwise set it to the international assignment form's session id
-				} else {
-					this.financial_data[form_panel.id]['international_assignment_session_id']	= international_assignment_form.getSession();
+				if (data !== undefined) {
+					
+					//grab data for each of the forms
+					var home_assignment_data				= data['home-assignment'];
+					var international_assignment_data		= data['international-assignment'];
+					
+					//if a session id was returned for home assignment set it
+					if (home_assignment_data['session_id']) {
+						//set the new session id
+						home_assignment_form.setSession(home_assignment_data['session_id']);
+						//reload the forms session combo
+						home_assignment_form.reloadSessionCombo();
+						//let the form deal with the newly saved session
+						home_assignment_form.onSaveSessionSuccess();
+					}
+
+					//if a session id was returned for international assignment set it
+					if (international_assignment_data['session_id']) {
+						//set the new session id
+						international_assignment_form.setSession(international_assignment_data['session_id']);
+						//reload the forms session combo
+						international_assignment_form.reloadSessionCombo();
+						//let the form deal with the newly saved session
+						international_assignment_form.onSaveSessionSuccess();
+					}
 				}
 			}
+			
 		},
 		
 		/**
@@ -606,7 +811,140 @@ tmn.TmnController = function() {
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onDeleteSession: function(form_panel) {
-			form_panel.onDeleteSession();
+
+			var dataObject	= {};
+			
+			//if there is no session to delete then show a warning and don't proceed any further
+			if (form_panel.getSession() == '' || form_panel.getSession() == null || form_panel.getSession() === undefined) {
+				Ext.MessageBox.alert('Warning', 'A Saved Session needs to be loaded for the delete function to work. If you have no Sessions available in the combo box there is no need to delete.');
+				return;
+			}
+			
+			if (form_panel.aussie_form) {
+				//create the data object filled with the session id's to be deleted
+				dataObject.session_id					= form_panel.getSession();
+			}
+			
+			if (form_panel.overseas_form) {
+				//grab the forms
+				var home_assignment_form				= this.getForm('home-assignment');
+				var international_assignment_form		= this.getForm('international-assignment');
+				
+				//create the data object filled with the session id's to be deleted
+				dataObject['home-assignment']			= {session_id: home_assignment_form.getSession()};
+				dataObject['international-assignment']	= {session_id: international_assignment_form.getSession()};
+			}
+			
+			Ext.MessageBox.confirm(
+					'Warning',
+					'Are you sure you want to delete this session?',
+					function(btn) {
+						if (btn == 'yes') {
+							this.form.onDeleteSession(this.data);
+						}
+					},
+					{form:form_panel, data:dataObject} //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+			);
+		},
+		
+		/**
+		 * Handler for when the user selects that they want to delete a session and it succeeds form (done using {@link tmn.view.FinancialDetailsForm}).
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
+		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
+		 * @param {Object} 				options: 			The parameter to the request call.
+		 */
+		onDeleteSessionSuccess: function(form_panel, response, options) {
+			
+			if (form_panel.aussie_form) {
+				//get form to clean itself up
+				form_panel.onDeleteSessionSuccess();
+			}
+			
+			if (form_panel.overseas_form) {
+				//grab the forms
+				var home_assignment_form			= this.getForm('home-assignment');
+				var international_assignment_form	= this.getForm('international-assignment');
+				
+				//get form's to clean themselves up
+				home_assignment_form.onDeleteSessionSuccess();
+				international_assignment_form.onDeleteSessionSuccess();
+				
+				//if the user is on the home assignment form then move them back to the international assignment form
+				if (form_panel.home_assignment) {
+					this.onPrevious();
+				}
+			}
+			
+		},
+		
+		/**
+		 * Clears the form or forms (for an overseas missionary) of all data associated with the current session
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		onResetSession: function(form_panel) {
+			
+			if (form_panel.aussie_form) {
+				//if the form has unsaved changes check whether they want to save first
+				if (!form_panel.saved) {
+					Ext.MessageBox.confirm(
+							'Warning',
+							'Are you sure you want to clear your changes to this session?',
+							function(btn) {
+								if (btn == 'yes') {
+									//when they confirm get form to clean itself up
+									this.resetForm();
+								}
+							},
+							form_panel
+					);
+					
+				//otherwise just get form to clean itself up
+				} else {
+					form_panel.resetForm();
+				}
+			}
+			
+			if (form_panel.overseas_form) {
+				//grab the forms
+				var home_assignment_form			= this.getForm('home-assignment');
+				var international_assignment_form	= this.getForm('international-assignment');
+				
+				//if the form has unsaved changes check whether they want to save first
+				if (!home_assignment_form.saved || !international_assignment_form.saved) {
+					Ext.MessageBox.confirm(
+							'Warning',
+							'Are you sure you want to clear your changes to this session?',
+							function(btn) {
+								if (btn == 'yes') {
+									//get form's to clean themselves up
+									this.home.resetForm();
+									this.international.resetForm();
+									
+									//if the user is on the home assignment form then move them back to the international assignment form
+									if (this.form.home_assignment) {
+										this.controller.onPrevious();
+									}
+								}
+							},
+							{controller:this, form:form_panel, home:home_assignment_form, international:international_assignment_form} //set scope to an object that contains the data the callback needs
+					);
+					
+				//otherwise just get form to clean itself up
+				} else {
+					//get form's to clean themselves up
+					home_assignment_form.resetForm();
+					international_assignment_form.resetForm();
+					
+					//if the user is on the home assignment form then move them back to the international assignment form
+					if (form_panel.home_assignment) {
+						this.onPrevious();
+					}
+				}
+				
+			}
 		},
 		
 		/**
@@ -748,6 +1086,22 @@ tmn.TmnController = function() {
 				});
 			}
 		},
+		
+		/**
+		 * Resizes the view's height to the height of the avaiable space in the browser.
+		 */
+		doResize: function() {
+            var windowHeight = Ext.getDoc().getViewSize(false).height;
+
+            var warnEl = Ext.get('fb');
+            var warnHeight	= warnEl ? warnEl.getHeight() : 0;
+
+            var availHeight	= windowHeight - 14 - warnHeight;
+            var minHeight	= 400;
+            availHeight		= (availHeight > minHeight) ? availHeight : minHeight;
+
+            this.view.setHeight(availHeight);
+        },
 
 		/**
 		 * Initialises the TmnController. This is where event handlers are registered.<br />See {@link tmn.view.TmnView#on}
@@ -777,6 +1131,14 @@ tmn.TmnController = function() {
 			//create view
 			this.view = new tmn.view.TmnView;
 			
+			///////////////Init Resize//////////////////////
+	        
+	        // Resize on demand
+	        Ext.EventManager.onWindowResize(this.doResize, this);
+	        
+	        //resize the form
+	        this.doResize();
+			
 			//register event handlers (see the API doc for tmn.view.TmnView.on() to find out how to do this )
 				//view events
 			this.view.on('next', this.onNext, this);
@@ -805,7 +1167,10 @@ tmn.TmnController = function() {
 			this.view.on('loadsessionsuccess', this.onLoadSessionSuccess, this);
 			this.view.on('savesession', this.onSaveSession, this);
 			this.view.on('saveassession', this.onSaveAsSession, this);
+			this.view.on('saveassessionsuccess', this.onSaveAsSessionSuccess, this);
 			this.view.on('deletesession', this.onDeleteSession, this);
+			this.view.on('deletesessionsuccess', this.onDeleteSessionSuccess, this);
+			this.view.on('resetsession', this.onResetSession, this);
 			
 			//load initial form
 			this.view.loadActiveForm();

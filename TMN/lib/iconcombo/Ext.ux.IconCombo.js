@@ -53,7 +53,9 @@ Ext.extend(Ext.ux.IconCombo, Ext.form.ComboBox, {
  
     setValue: function(value) {
         Ext.ux.IconCombo.superclass.setValue.call(this, value);
-        this.setIconCls();
+        if (this.rendered) {
+        	this.setIconCls();
+        }
     }
  
 }); // end of extend

@@ -10,6 +10,8 @@ include_once('../classes/TmnAuthorisationProcessor.php');
 class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 	
 	private $owner						=	null;
+	private $homeAssignment				=	null;
+	private $internationalAssignment	=	null;
 	private $authorisationProcessor		=	null;
 	private $logfile;
 	
@@ -33,7 +35,7 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 				'date_modified'							=>	"s",
 				'os_assignment_start_date'				=>	"s",
 				'os_assignment_end_date'				=>	"s",
-				'os_resident_for_tax_purposes'			=>	"s",
+				'os_resident_for_tax_purposes'			=>	"i",
 				'net_stipend'							=>	"i",
 				'tax'									=>	"i",
 				'additional_tax'						=>	"i",
@@ -50,12 +52,12 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 				'stipend'								=>	"i",
 				'housing_stipend'						=>	"i",
 				'housing_mfb'							=>	"i",
-				'mfb_rate'								=>	"s",
+				'mfb_rate'								=>	"i",
 				'claimable_mfb'							=>	"i",
 				'total_super'							=>	"i",
 				'resc'									=>	"i",
-				'super_fund'							=>	"s",
-				'income_protection_cover_source'		=>	"s",
+				'super_fund'							=>	"i",
+				'income_protection_cover_source'		=>	"i",
 				's_net_stipend'							=>	"i",
 				's_tax'									=>	"i",
 				's_additional_tax'						=>	"i",
@@ -72,12 +74,12 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 				's_stipend'								=>	"i",
 				's_housing_stipend'						=>	"i",
 				's_housing_mfb'							=>	"i",
-				's_mfb_rate'							=>	"s",
+				's_mfb_rate'							=>	"i",
 				's_claimable_mfb'						=>	"i",
 				's_total_super'							=>	"i",
 				's_resc'								=>	"i",
-				's_super_fund'							=>	"s",
-				's_income_protection_cover_source'		=>	"s",
+				's_super_fund'							=>	"i",
+				's_income_protection_cover_source'		=>	"i",
 				'joint_financial_package'				=>	"i",
 				'total_transfers'						=>	"i",
 				'workers_comp'							=>	"i",
@@ -88,7 +90,7 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 				'additional_housing'					=>	"i",
 				'monthly_housing'						=>	"i",
 				'housing'								=>	"i",
-				'housing_frequency'						=>	"s"
+				'housing_frequency'						=>	"i"
 			)
 		);
 		
@@ -134,6 +136,64 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 		} else {
 			$this->setField('guid', null);
 			$this->setField('fan', null);
+		}
+	}
+	
+	public function getHomeAssignment() {
+		//if an id is set
+		if ($this->getField('home_assignment_session_id') != null) {
+			
+			//and if the homeAssignment object hasn't been made from the home_assignment_session_id then create it
+			if ($this->homeAssignment == null) {
+				$this->homeAssignment = new TmnCrudSession($this->logfile, $this->getField('home_assignment_session_id'));
+			}
+		
+			//if it is already there or creation happened without throwing exceptions then return the object
+			return $this->homeAssignment;
+			
+		} else {
+			//if no home_assignment_session_id set then make sure owner is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->homeAssignment = null;
+			return false;
+		}
+	}
+	
+	public function setHomeAssignment(TmnCrudSession $home_assignment = null) {
+		$this->homeAssignment	=	$home_assignment;
+		if ($home_assignment != null) {
+			$this->setField('home_assignment_session_id', $this->homeAssignment->getField('session_id'));
+		} else {
+			$this->setField('home_assignment_session_id', null);
+		}
+	}
+	
+	public function getInternationalAssignment() {
+		//if an id is set
+		if ($this->getField('international_assignment_session_id') != null) {
+			
+			//and if the internationalAssignment object hasn't been made from the international_assignment_session_id then create it
+			if ($this->internationalAssignment == null) {
+				$this->internationalAssignment = new TmnCrudSession($this->logfile, $this->getField('international_assignment_session_id'));
+			}
+		
+			//if it is already there or creation happened without throwing exceptions then return the object
+			return $this->internationalAssignment;
+			
+		} else {
+			//if no international_assignment_session_id set then make sure owner is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->internationalAssignment = null;
+			return false;
+		}
+	}
+	
+	public function setInternationalAssignment(TmnCrudSession $international_assignment = null) {
+		$this->internationalAssignment	=	$international_assignment;
+		if ($international_assignment != null) {
+			$this->setField('international_assignment_session_id', $this->internationalAssignment->getField('session_id'));
+		} else {
+			$this->setField('international_assignment_session_id', null);
 		}
 	}
 	

@@ -59,6 +59,42 @@ interface TmnCrudSessionInterface {
 	 */
 	public function setOwnerGuid($guid);
 	
+	/**
+	 * Returns a TmnCrudSession object that is filled with the data of the session that is linked to this session
+	 * (given that this session is an international assignment session).
+	 * 
+	 * @return TmnCrudSession
+	 */
+	public function getHomeAssignment();
+	
+	/**
+	 * Sets the owner to be TmnCrudSession object that is filled with the data of the session that is linked to this session.
+	 * (given that this session is an international assignment session).
+	 * 
+	 * @param TmnCrudUser $home_assignment - the session object that represents the home assignment linked to this session
+	 * 
+	 * @example setHomeAssignment(); will set the homeAssignment to null
+	 */
+	public function setHomeAssignment(TmnCrudSession $home_assignment = null);
+	
+	/**
+	 * Returns a TmnCrudSession object that is filled with the data of the session that is linked to this session
+	 * (given that this session is an home assignment session).
+	 * 
+	 * @return TmnCrudSession
+	 */
+	public function getInternationalAssignment();
+	
+	/**
+	 * Sets the owner to be TmnCrudSession object that is filled with the data of the session that is linked to this session.
+	 * (given that this session is an home assignment session).
+	 * 
+	 * @param TmnCrudUser $international_assignment - the session object that represents the home assignment linked to this session
+	 * 
+	 * @example setInternationalAssignment(); will set the homeAssignment to null
+	 */
+	public function setInternationalAssignment(TmnCrudSession $international_assignment = null);
+	
 	
 			////////////////AUTHORISATION METHODS///////////////
 			

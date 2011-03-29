@@ -120,7 +120,10 @@ tmn.view.TmnView = function() {
 											'loadsessionsuccess',
 											'savesession',
 											'saveassession',
-											'deletesession'
+											'saveassessionsuccess',
+											'deletesession',
+											'deletesessionsuccess',
+											'resetsession'
 	                                     ]);
 	}
 	
@@ -138,6 +141,7 @@ tmn.view.TmnView = function() {
 			frame: true,header: false,
 			renderTo: 'tmn-cont',
 			width:900,
+			autoScroll: true,
 			items: [this.forms[0]],
 			bbar: [
 					{
