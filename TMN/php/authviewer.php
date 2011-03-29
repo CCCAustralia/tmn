@@ -1,9 +1,10 @@
 <?php
-$DEBUG = 0;
+$DEBUG = 1;
 
 include_once "dbconnect.php";
 include_once "logger.php";
 include_once("FinancialSubmitter.php");
+
 if($DEBUG) require_once("../lib/FirePHPCore/fb.php");
 
 //Authenticate the user in GCX with phpCAS
@@ -30,7 +31,9 @@ if (!isset($_POST["mode"]))
 	die('{"success": false}');
 
 if ($_POST["mode"] == "load") {
-	$rows = "SELECT SESSION_ID, SESSION_NAME FROM Sessions";
+	if ($DEBUG) {$guid="test";}
+	$rows = "SELECT SESSION_ID, SESSION_NAME FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE AUTH_USER = '".$guid."')";
+	if($DEBUG) {fb($rows);}
 	$rows = mysql_query($rows);
 	$returndata = "";
 	
@@ -48,11 +51,20 @@ if ($_POST["mode"] == "load") {
 	
 	echo '{"data":['.$returndata.'] }';
 } else if ($_POST["mode"] == "get") {
+	
+	$crudsession = new TmnCrudSession("./logs/authviewer.log", $_POST["session"]);
+	$crudsession->retrieve();
+	fb($crudsession->produceJson());
+	
+	/** Viewer/Reprocessor code
 	//return the user's submitted json packet
 	$rows = "SELECT JSON FROM Sessions WHERE SESSION_ID=".$_POST["session"];
+	
 	$rows = mysql_query($rows);
 	$row = mysql_fetch_assoc($rows);
-	echo '{"success": true, "tmn_data": '.$row["JSON"].'}';
+	$row = array("aussie-based" => $row);
+	echo '{"success": true, "tmn_data": '.json_encode($row).'}';
+	*/
 } else if ($_POST["mode"] == "reprocess") {
 	//grab the user's submitted json packet
 	$rows = "SELECT JSON FROM Sessions WHERE SESSION_ID=".$_POST["session"];
