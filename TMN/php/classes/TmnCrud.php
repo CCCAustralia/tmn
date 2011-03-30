@@ -92,7 +92,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		
 		//"__" means null internal to this class so before the value leaves the class
 		//it needs to be changed back to null
-		if ($returnValue == "__") {
+		if ($returnValue === "__") {
 			$returnValue = null;
 		}
 		
@@ -164,7 +164,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		
 		//add the sql query the fields to be INSERTed into database
 		foreach ($data as $key=>$value) {
-			if ($value != "__") {
+			if ($value !== "__") {
 				try {
 					//check type of value before the field is added to the sql statement
 					if ($this->valueMatchesType($data[$key], $types[$key])) {
@@ -183,7 +183,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//check and add the values to the query
 		foreach ($data as $key=>$value) {
 			
-			if ($value != "__") {
+			if ($value !== "__") {
 				
 				try {
 					//check type of value before the field is added to the sql statement
@@ -313,7 +313,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		//check and add the values to the query
 		foreach ($data as $key=>$value) {
 			
-			if ($value != "__") {
+			if ($value !== "__") {
 				
 				try {
 					//check the fields type before adding it to the sql statement
@@ -379,13 +379,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	
 	public function produceJson() {
 		
-		$data = array();
-		//grab all non null fields
-		foreach ($this->public_data as $key=>$value) {
-			if ($value != "__") {
-				$data[$key] = $value;
-			}
-		}
+		$data = $this->produceAssocArray();
 		
 		//return those fields as a json encoded string
 		return json_encode($data);
@@ -396,7 +390,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		$data = array();
 		//grab all non null fields
 		foreach ($this->public_data as $key=>$value) {
-			if ($value != "__") {
+			if ($value !== "__") {
 				$data[$key] = $value;
 			}
 		}
@@ -513,7 +507,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				}
 			break;
 			case 'n':
-				if (!($value == "__" || is_null($value))) {
+				if (!($value === "__" || is_null($value))) {
 					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: NULL");
 				}
 			break;

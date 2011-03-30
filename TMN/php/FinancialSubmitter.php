@@ -85,8 +85,8 @@ class FinancialSubmitter extends FinancialProcessor {
 						s_additional_life_cover			=>	"__",
 						income_protection_cover_source	=>	"__",
 						s_income_protection_cover_source=>	"__",
-						mfb								=>	"__",
-						s_mfb							=>	"__",
+						max_mfb							=>	"__",
+						s_max_mfb						=>	"__",
 						claimable_mfb					=>	"__",
 						s_claimable_mfb					=>	"__",
 						housing_mfb						=>	"__",
@@ -309,8 +309,8 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['housing_frequency']			=	($this->financial_data['HOUSING_FREQUENCY'] ? "Fortnightly" : "Monthly");
 		
 		//Additional Life Cover
-		$this->data['additional_life_cover']		=	round($this->financial_data['LIFE_COVER'] * 52 / 12);
-		$this->data['s_additional_life_cover']		=	round($this->financial_data['S_LIFE_COVER'] * 52 / 12);
+		$this->data['additional_life_cover']		=	round($this->financial_data['ADDITIONAL_LIFE_COVER'] * 52 / 12);
+		$this->data['s_additional_life_cover']		=	round($this->financial_data['S_ADDITIONAL_LIFE_COVER'] * 52 / 12);
 		
 		//INCOME_PROTECTION Cover Source
 		//(index: 0=Support Account, 1=Super Fund)
@@ -346,9 +346,9 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Ministry Fringe Benefits
 		$this->financial_data['MAX_MFB']				=	$this->calculateMaxMFB($this->data['taxable_income'], $mfb_rate, $this->data['days_per_wk']);
-		$this->data['mfb']								=	$this->financial_data['MAX_MFB'];
+		$this->data['max_mfb']							=	$this->financial_data['MAX_MFB'];
 		$this->financial_data['S_MAX_MFB']				=	$this->calculateMaxMFB($this->data['s_taxable_income'], $mfb_rate, $this->data['s_days_per_wk']);
-		$this->data['s_mfb']							=	$this->financial_data['S_MAX_MFB'];
+		$this->data['s_max_mfb']							=	$this->financial_data['S_MAX_MFB'];
 		
 		//Claimable Ministry Fringe Benefits
 		$this->financial_data['CLAIMABLE_MFB']		=	$this->getClaimableMfb(0);//$this->financial_data['CLAIMABLE_MFB'];
@@ -391,16 +391,16 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Financial Packages
 		if (!$iscouple) {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing'], PHP_ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing'], PHP_ROUND_HALF_UP);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		=	0;
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'];
 		} else {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
-			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
+			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_max_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_lafha']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_overseas_housing_allowance']);
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'] + $this->financial_data['S_FINANCIAL_PACKAGE'];
@@ -423,8 +423,8 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Super fund choice
 		//(index: 0=Other, 1=IOOF)
-		$this->data['super_fund']					=	($this->financial_data['IOOF'] ? 'IOOF' : 'Other');
-		$this->data['s_super_fund']					=	($this->financial_data['S_IOOF'] ? 'IOOF' : 'Other');
+		$this->data['super_fund']					=	($this->financial_data['SUPER_FUND'] ? 'IOOF' : 'Other');
+		$this->data['s_super_fund']					=	($this->financial_data['S_SUPER_FUND'] ? 'IOOF' : 'Other');
 
 		
 		//Monthly Ministry Reimbursements
@@ -643,8 +643,8 @@ class FinancialSubmitter extends FinancialProcessor {
 			$err .= "S_NET_STIPEND:\"You cannot have a stipend less than $".$this->NET_STIPEND_MIN.".\", ";
 			
 		//check that housing is less than total mfbs
-		//if ($this->data['housing'] > ($this->data['mfb']+$this->data['s_mfb']))
-		//	$err .= "HOUSING:\"You cannot have a housing amount greater than your total MFB\'s ($".($this->data['mfb']+$this->data['s_mfb']).").\", ";
+		//if ($this->data['housing'] > ($this->data['max_mfb']+$this->data['s_max_mfb']))
+		//	$err .= "HOUSING:\"You cannot have a housing amount greater than your total MFB\'s ($".($this->data['max_mfb']+$this->data['s_max_mfb']).").\", ";
 
 		if ($err == '') {
 			$result = array('success'=>'true');

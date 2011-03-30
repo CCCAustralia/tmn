@@ -106,7 +106,7 @@ class FinancialProcessor {
 		if (isset($_SESSION['phpCAS'])) {
 			$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject = new SimpleXmlElement($xmlstr);
-			$this->guid = $xmlobject->authenticationSuccess->attributes->ssoGuid;
+			$this->guid = (string)$xmlobject->authenticationSuccess->attributes->ssoGuid;
 		}
 		$this->spouse = $this->financial_data['spouse'];
 		$this->DEBUG = $dbug;
@@ -158,22 +158,24 @@ class FinancialProcessor {
 			}
 			
 			//spouse
-			//calculate the extra stipend
-			$s_overflow = $this->financial_data['S_STIPEND'] - $this->OS_STIPEND_MAX;
-			//check if it is over the limit
-			if ($s_overflow > 0) {
-				//truncate the stipend
-				$this->financial_data['S_STIPEND'] = $this->financial_data['S_STIPEND'] - $s_overflow;
-				
-				//add the overflow to LAFHA
-				$this->financial_data['S_OS_LAFHA'] += $s_overflow;
-				
-				//return warnings explaining the changes
-				$warnings['S_STIPEND']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
-				$warnings['S_OS_LAFHA']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
-			} else {
-				if (!isset($this->financial_data['S_OS_LAFHA']))
-					$this->financial_data['S_OS_LAFHA'] = 0;
+			if ($this->spouse) {
+				//calculate the extra stipend
+				$s_overflow = $this->financial_data['S_STIPEND'] - $this->OS_STIPEND_MAX;
+				//check if it is over the limit
+				if ($s_overflow > 0) {
+					//truncate the stipend
+					$this->financial_data['S_STIPEND'] = $this->financial_data['S_STIPEND'] - $s_overflow;
+					
+					//add the overflow to LAFHA
+					$this->financial_data['S_OS_LAFHA'] += $s_overflow;
+					
+					//return warnings explaining the changes
+					$warnings['S_STIPEND']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
+					$warnings['S_OS_LAFHA']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
+				} else {
+					if (!isset($this->financial_data['S_OS_LAFHA']))
+						$this->financial_data['S_OS_LAFHA'] = 0;
+				}
 			}
 
 			if($this->DEBUG) fb($this->financial_data['OS_LAFHA']);
@@ -192,15 +194,17 @@ class FinancialProcessor {
 				}	
 			}
 			//spouse
-			if ($s_overflow <= 0 && $this->financial_data['S_OS_LAFHA'] != 0) {
-				$s_difference = $this->OS_STIPEND_MAX - $this->financial_data['S_STIPEND'];
-				if ($this->financial_data['S_OS_LAFHA'] > $s_difference) {
-					$this->financial_data['S_STIPEND'] += $s_difference;
-					$this->financial_data['S_OS_LAFHA'] = $this->financial_data['S_OS_LAFHA'] - $s_difference;
-				} else {
-					$this->financial_data['S_STIPEND'] += $this->financial_data['S_OS_LAFHA'];
-					$this->financial_data['S_OS_LAFHA'] = 0;
-				}	
+			if ($this->spouse) {
+				if ($s_overflow <= 0 && $this->financial_data['S_OS_LAFHA'] != 0) {
+					$s_difference = $this->OS_STIPEND_MAX - $this->financial_data['S_STIPEND'];
+					if ($this->financial_data['S_OS_LAFHA'] > $s_difference) {
+						$this->financial_data['S_STIPEND'] += $s_difference;
+						$this->financial_data['S_OS_LAFHA'] = $this->financial_data['S_OS_LAFHA'] - $s_difference;
+					} else {
+						$this->financial_data['S_STIPEND'] += $this->financial_data['S_OS_LAFHA'];
+						$this->financial_data['S_OS_LAFHA'] = 0;
+					}	
+				}
 			}
 		}
 		
@@ -248,39 +252,41 @@ class FinancialProcessor {
 		
 		
 		//Spouse Taxable Income Panel
-		if (isset($this->financial_data['S_STIPEND'])){
-					//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
-					$this->financial_data['S_HOUSING_STIPEND'] = 0;
+		if ($this->spouse) {
+			if (isset($this->financial_data['S_STIPEND'])){
+						//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
+						$this->financial_data['S_HOUSING_STIPEND'] = 0;
+					
+				//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
+				$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
 				
-			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
-			$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
+				//check min stipend
+				$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
+				
+				$s_annum = $this->financial_data['S_NET_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];	//calculate yearly figure
+				
+				$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum);
+				$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME']);
+				$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
+			}
 			
-			//check min stipend
-			$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
+			//Spouse Maximum MFB && Pre Tax Super
+			if (isset($this->financial_data['S_TAXABLE_INCOME'])) {
 			
-			$s_annum = $this->financial_data['S_NET_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];	//calculate yearly figure
-			
-			$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum);
-			$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME']);
-			$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
-		}
-		
-		//Spouse Maximum MFB && Pre Tax Super
-		if (isset($this->financial_data['S_TAXABLE_INCOME'])) {
-		
-			//enumerate mfb rate
-			$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
-			
-			//Spouse Pre Tax Super (if its not set then set it to the min)
-			$this->financial_data['S_PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
-			
-			//Fetch the user's days per week
-			$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek(1);
-			
-			$this->financial_data['S_MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
-			
-			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-			$this->financial_data['S_CLAIMABLE_MFB'] = $this->getClaimableMfb(1);//1 for spouse claimable mfb
+				//enumerate mfb rate
+				$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
+				
+				//Spouse Pre Tax Super (if its not set then set it to the min)
+				$this->financial_data['S_PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
+				
+				//Fetch the user's days per week
+				$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek(1);
+				
+				$this->financial_data['S_MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
+				
+				//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
+				$this->financial_data['S_CLAIMABLE_MFB'] = $this->getClaimableMfb(1);//1 for spouse claimable mfb
+			}
 		}
 		
 		

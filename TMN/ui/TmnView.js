@@ -201,6 +201,7 @@ Ext.extend(tmn.view.TmnView, Ext.Panel, {
 					this.remove(active_form, false);									//remove the active form from this objects items array/collection (the false mean it will not be destroyed but will remain a member of the forms array)
 					this.doLayout();													//renders these changes to the browser
 					next_form.el.fadeIn();												//fades in the next form so when it is rendered it looks good
+					
 				}.createDelegate(this, [active_form, next_form])});
 			}
 		}

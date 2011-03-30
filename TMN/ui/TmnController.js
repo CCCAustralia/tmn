@@ -558,8 +558,6 @@ tmn.TmnController = function() {
 		 * @param {Object} 				options: 			The parameter to the request call.
 		 */
 		onLoadSessionSuccess: function(form_panel, response, options) {
-			//save response text
-			this.response[form_panel.id] = response.responseText;
 			//parse repsonse
 			var return_object = Ext.util.JSON.decode(response.responseText);
 			
@@ -703,6 +701,16 @@ tmn.TmnController = function() {
 					if (dataObject['home-assignment']['auth_session_id'] !== undefined) {
 						delete dataObject['home-assignment']['auth_session_id'];
 					}
+					
+					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
+					if (dataObject['home-assignment']['home_assignment_session_id'] !== undefined) {
+						delete dataObject['home-assignment']['home_assignment_session_id'];
+					}
+					
+					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
+					if (dataObject['home-assignment']['international_assignment_session_id'] !== undefined) {
+						delete dataObject['home-assignment']['international_assignment_session_id'];
+					}
 				}
 			
 				//make sure there is data for international assignment before running through it
@@ -715,6 +723,16 @@ tmn.TmnController = function() {
 					//remove auth session id, it is about to be copied and the new session will not have an auth session
 					if (dataObject['international-assignment']['auth_session_id'] !== undefined) {
 						delete dataObject['international-assignment']['auth_session_id'];
+					}
+					
+					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
+					if (dataObject['international-assignment']['home_assignment_session_id'] !== undefined) {
+						delete dataObject['international-assignment']['home_assignment_session_id'];
+					}
+					
+					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
+					if (dataObject['international-assignment']['international_assignment_session_id'] !== undefined) {
+						delete dataObject['international-assignment']['international_assignment_session_id'];
 					}
 				}
 				
@@ -752,8 +770,6 @@ tmn.TmnController = function() {
 		 * @param {Object} 				options: 			The parameter to the request call.
 		 */
 		onSaveAsSessionSuccess: function(form_panel, response, options) {
-			//save response text
-			this.response[form_panel.id]	= response.responseText;
 			//parse repsonse
 			var return_object				= Ext.util.JSON.decode(response.responseText);
 			var data						= return_object['data'];

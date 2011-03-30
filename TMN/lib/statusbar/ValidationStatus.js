@@ -68,7 +68,7 @@ Ext.ux.ValidationStatus = Ext.extend(Ext.Component, {
                     if(action.type == 'submit'){
                         // Ignore monitoring while submitting otherwise the field validation
                         // events cause the status message to reset too early
-                        this.monitor = false;
+                        //this.monitor = false;
                     }
                 }, this);
                 var startMonitor = function(){
@@ -117,6 +117,11 @@ Ext.ux.ValidationStatus = Ext.extend(Ext.Component, {
         Ext.ux.ValidationStatus.superclass.onDestroy.call(this);
     },
     
+    // public
+    onSubmitFailure : function() {
+    	this.showErrors();
+    },
+    
     // private
     onFieldValidation : function(f, msg){
         if(!this.monitor){
@@ -142,7 +147,7 @@ Ext.ux.ValidationStatus = Ext.extend(Ext.Component, {
         if(this.errors.getCount() > 0){
 	        var msg = '<ul>';
 	        this.errors.each(function(err){
-	            msg += ('<li id="x-err-'+ err.field.id +'"><a href="#">' + err.msg + '</a></li>');
+	            msg += ('<li id="x-err-'+ err.field.id +'"><a href="#">' + err.field.fieldLabel + ": " + err.msg + '</a></li>');
 	        }, this);
 	        this.getMsgEl().update(msg+'</ul>');
         }else{

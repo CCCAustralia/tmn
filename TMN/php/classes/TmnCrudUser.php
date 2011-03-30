@@ -18,6 +18,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 			array(							//an assoc array of public field names and there types
 				'firstname'		=>	"s",
 				'surname'		=>	"s",
+				'email'			=>	"s",
 				'spouse_guid'	=>	"s",
 				'ministry'		=>	"s",
 				'ft_pt_os'		=>	"i",

@@ -30,8 +30,22 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 	//set config variable to passed or default
 	config = config || {};
 
+	/**
+	 * Tells you if the form is saved or has unsaved data on it
+	 * @type {bool}
+	 */
 	this.saved				=	true;
+	/**
+	 * Tells you if the form can be saved and deleted by the user or if the user is locked out from those features
+	 * (locking happens when the user has submitted the session)
+	 * @type {bool}
+	 */
 	this.locked				=	false;
+	/**
+	 * Tells you if the form is allowing data to be sent to the back end for processing
+	 * @type {bool}
+	 */
+	this.processingAllowed	=	true;
 	
 	//set config options to passed or default
 	/**
@@ -263,20 +277,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 					    		this.fireEvent('loadsession', this);
 					    	}
 					    }
-				    }),/* ' ', ' ', '-', ' ',
-				    {
-				    	itemId: 'load_session_button',
-						text: 'Load',
-						width: 80,
-						scope: this,
-						handler: function(){
-							if (this.getSelectedSession() != '') {
-								this.fireEvent('loadsession', this);
-							} else {
-								Ext.MessageBox.alert('Warning', 'A Session needs to be selected for the load function to work. If you have no Sessions available in the combo box just start typing in your values to start a new session.');
-							}
-						}
-				    }, */' ', '-', ' ',
+				    }), ' ', '-', ' ',
 				    {
 				    	itemId: 'save_session_button',
 						text: 'Save',
@@ -684,7 +685,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 					            listeners: {
 									scope: this,
 				                	select: function(combo, record, index) {
-										this.fireEvent('financialdataupdated', this, combo, index, true);
+										this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 				                	}
 					            }
 							}
@@ -765,7 +766,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 		                listeners: {
 							scope: this,
 		                	select: function(combo, record, index) {
-								this.fireEvent('financialdataupdated', this, combo, index, true);
+								this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 		                	}
 		                }
 					}
@@ -918,7 +919,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				                listeners: {
 									scope: this,
 				                	select: function(combo, record, index) {
-										this.fireEvent('financialdataupdated', this, combo, index, true);
+										this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 				                	},
 									render: function(c) {
 										Ext.QuickTips.register({
@@ -994,7 +995,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				                listeners: {
 									scope: this,
 				                	select: function(combo, record, index) {
-										this.fireEvent('financialdataupdated', this, combo, index, true);
+										this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 				                	},
 									render: function(c) {
 										Ext.QuickTips.register({
@@ -1096,10 +1097,10 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										//update the mode to manual
 										//(need to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
 										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'manual', true);
+										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'manual', this.processingAllowed);
 										//add update listener
 										this.getForm().items.map['pre_tax_super'].enableKeyEvents = true;
-										this.getForm().items.map['pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), true);}, this, {buffer: this.keyup_timeout});
+										this.getForm().items.map['pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), this.processingAllowed);}, this, {buffer: this.keyup_timeout});
 									} else {
 										//stops it updating on change
 										this.getForm().items.map['pre_tax_super'].purgeListeners();
@@ -1110,7 +1111,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										//update the mode to auto
 										//(need to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
 										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', true);
+										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', this.processingAllowed);
 									}
 								}
 							},
@@ -1132,12 +1133,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 							},
 							{
 								width: 140,
-				            	itemId: 'ioof',
+				            	itemId: 'super_fund',
 				           		xtype: 'combo',
 				           		fieldLabel: 'Is your super fund IOOF?',
-				           		name: 'IOOF',
-				            	hiddenName: 'IOOF',
-				            	hiddenId: 'IOOF_hidden',
+				           		name: 'SUPER_FUND',
+				            	hiddenName: 'SUPER_FUND',
+				            	hiddenId: 'SUPER_FUND_hidden',
 				           		triggerAction:'all',
 				           		emptyText: 'Enter Yes or No...',
 				           		validationEvent: 'blur',
@@ -1184,12 +1185,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				            	},
 				            	items: [
 				            		{
-						            	itemId: 'life_cover_amount',
+						            	itemId: 'additional_life_cover',
 						           		xtype: 'combo',
 						           		fieldLabel: 'Weekly Life Cover Amount',
-						           		name: 'LIFE_COVER',
-						            	hiddenName: 'LIFE_COVER',
-						            	hiddenId: 'LIFE_COVER_hidden',
+						           		name: 'ADDITIONAL_LIFE_COVER',
+						            	hiddenName: 'ADDITIONAL_LIFE_COVER',
+						            	hiddenId: 'ADDITIONAL_LIFE_COVER_hidden',
 						           		triggerAction:'all',
 						           		emptyText: 'Enter Amount of Life Cover...',
 						           		validationEvent: 'blur',
@@ -1209,7 +1210,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 											scope: this,
 						                	select: function(combo, record, index) {
 						                		Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.zip" target="_blank">this</a> form for the change to apply.');
-												this.fireEvent('financialdataupdated', this, combo, index, true);
+												this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 						                	},
 											render: function(c) {
 												Ext.QuickTips.register({
@@ -1300,10 +1301,10 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										//update the mode to manual
 										//(needs to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
 										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'manual', true);
+										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'manual', this.processingAllowed);
 										//add update listener
 										this.getForm().items.map['s_pre_tax_super'].enableKeyEvents = true;
-										this.getForm().items.map['s_pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), true);}, this, {buffer: this.keyup_timeout});
+										this.getForm().items.map['s_pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), this.processingAllowed);}, this, {buffer: this.keyup_timeout});
 									} else {
 										//stops it updating on change
 										this.getForm().items.map['s_pre_tax_super'].purgeListeners();
@@ -1314,7 +1315,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										//update the mode to auto
 										//(need to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
 										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', true);
+										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', this.processingAllowed);
 									}
 								}
 							},
@@ -1336,12 +1337,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 							},
 							{
 								width: 140,
-				            	itemId: 's_ioof',
+				            	itemId: 's_super_fund',
 				           		xtype: 'combo',
 				           		fieldLabel: 'Is your super fund IOOF?',
-				           		name: 'S_IOOF',
-				            	hiddenName: 'S_IOOF',
-				            	hiddenId: 'S_IOOF_hidden',
+				           		name: 'S_SUPER_FUND',
+				            	hiddenName: 'S_SUPER_FUND',
+				            	hiddenId: 'S_SUPER_FUND_hidden',
 				           		triggerAction:'all',
 				           		emptyText: 'Enter Yes or No...',
 				           		validationEvent: 'blur',
@@ -1388,12 +1389,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				            	},
 				            	items: [
 				            		{
-						            	itemId: 's_life_cover_amount',
+						            	itemId: 's_additional_life_cover',
 						           		xtype: 'combo',
 						           		fieldLabel: 'Weekly Life Cover Amount',
-						           		name: 'S_LIFE_COVER',
-						            	hiddenName: 'S_LIFE_COVER',
-						            	hiddenId: 'S_LIFE_COVER_hidden',
+						           		name: 'S_ADDITIONAL_LIFE_COVER',
+						            	hiddenName: 'S_ADDITIONAL_LIFE_COVER',
+						            	hiddenId: 'S_ADDITIONAL_LIFE_COVER_hidden',
 						           		triggerAction:'all',
 						           		emptyText: 'Enter Amount of Life Cover...',
 						           		validationEvent: 'blur',
@@ -1413,7 +1414,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 											scope: this,
 						                	select: function(combo, record, index) {
 												Ext.Msg.alert('Life Cover Change!', 'If you are changing your Life Cover you need to fill out <a href="pdf/ioof_lifecover_change.zip" target="_blank">this</a> form for the change to apply.');
-												this.fireEvent('financialdataupdated', this, combo, index, true);
+												this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
 						                	},
 											render: function(c) {
 												Ext.QuickTips.register({
@@ -1588,7 +1589,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 		if (item.cls === undefined) {														//any field that is read only should have cls registered so the user can see its read only
 			item.enableKeyEvents = true;
 			item.on('keyup', function(field, event) {
-				this.fireEvent('financialdataupdated', this, field, field.getValue(), true);	//add listener
+				this.fireEvent('financialdataupdated', this, field, field.getValue(), this.processingAllowed);	//add listener
 				//mark form as unsaved
 				this.saved	= false;
 			}, this, {buffer: this.keyup_timeout});
@@ -2022,7 +2023,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.fireEvent('financialdataupdated', this, form.items.map['mfb_rate'], form.items.map['mfb_rate'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, form.items.map['s_mfb_rate'], form.items.map['s_mfb_rate'].getValue(), false);
 		//fires an update event that will send an ajax request
-		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), true);
+		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
 	},
 	
 	/**
@@ -2050,7 +2051,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.fireEvent('financialdataupdated', this, form.items.map['mfb_rate'], form.items.map['mfb_rate'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, form.items.map['s_mfb_rate'], form.items.map['s_mfb_rate'].getValue(), false);
 		//fires an update event that will send an ajax request
-		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), true);
+		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
 	},
 	
 	/**
@@ -2095,6 +2096,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
         switch (action.failureType) {
             case Ext.form.Action.CLIENT_INVALID:
             	Ext.Msg.show({icon: Ext.MessageBox.WARNING, buttons: Ext.MessageBox.OK, closable: false, title: 'User Error', msg: 'Form fields may not be submitted with invalid values. The Toolbar at the top of the page has a list of errors to assist you.'});
+            	this.getTopToolbar().plugins.onSubmitFailure();
                 break;
             case Ext.form.Action.CONNECT_FAILURE:
     			Ext.Msg.show({icon: Ext.MessageBox.WARNING, buttons: Ext.MessageBox.OK, closable: false, title: 'Server Error', msg: 'Could Not Connect to Server! Please Contact The Technology Team at <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>'});
@@ -2217,9 +2219,33 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				
 				this.resetForm();
 				
+				//stop financial data being sent to the backend for processing while data is loaded into the form
+				this.processingAllowed	= false;
+				
+				//load pre tax super mode first if it exists
+				if (data['pre_tax_super_mode'] !== undefined) {
+					if (data['pre_tax_super_mode'] == 'manual') {
+						this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_mode').toggle(false);
+					} else {
+						this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_mode').toggle(true);
+					}
+				}
+				
+				//load pre tax super mode first if it exists
+				if (data['s_pre_tax_super_mode'] !== undefined) {
+					if (data['s_pre_tax_super_mode'] == 'manual') {
+						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_mode').toggle(false);
+					} else {
+						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_mode').toggle(true);
+					}
+				}
+				
 				for (field in data) {
 					if (this.getForm().items.map[field.toLowerCase()] !== undefined) {
 						this.getForm().items.map[field.toLowerCase()].setValue(data[field]);
+						this.fireEvent('financialdataupdated', this, this.getForm().items.map[field.toLowerCase()], data[field], false);
+					} else {
+						this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return this.name;}, name:field}, data[field], false);
 					}
 				}
 				
@@ -2246,6 +2272,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	
 				//load the session's internal transfers
 				this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
+				
+				//restart financial data being sent to the backend for processing now that the data is loaded
+				this.processingAllowed	= true;
 			
 				//mark form as saved
 				this.saved = true;
@@ -2451,12 +2480,12 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		}
 		
 		//update backend with defaults
-		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], this.getForm().items.map['os_resident_for_tax_purposes'].getValue(), false);
+		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], 1, false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', false);
-		this.fireEvent('financialdataupdated', this, this.getForm().items.map['mfb_rate'], this.getForm().items.map['mfb_rate'].getValue(), false);
-		this.fireEvent('financialdataupdated', this, this.getForm().items.map['s_mfb_rate'], this.getForm().items.map['s_mfb_rate'].getValue(), false);
+		this.fireEvent('financialdataupdated', this, this.getForm().items.map['mfb_rate'], 2, false);
+		this.fireEvent('financialdataupdated', this, this.getForm().items.map['s_mfb_rate'], 2, false);
 		
 		//clear the selected session in the combo
 		this.getTopToolbar().items.map['session_combo'].clearValue();
