@@ -45,8 +45,8 @@ tmn.viewer = function() {
 						    	select: function(combo, record, index) {
 						    		
 						    		tmn.viewer.session = record.get('SESSION_ID');
-						    		Ext.getCmp('reprocess').enable();
-						    		Ext.getCmp('print').enable();
+						    		Ext.getCmp('confirm').enable();
+						    		Ext.getCmp('reject').enable();
 						    		
 						    		Ext.Ajax.request({
 										url: './php/auth/authviewer.php',
@@ -67,40 +67,23 @@ tmn.viewer = function() {
 					columnWidth:.25,
 					items: [
 						{
-						    id: 'reprocess',
+						    id: 'confirm',
 				        	xtype: 'button',
 				        	disabled: true,
-						    text: 'View This TMN Reprocessed',
+						    text: 'Confirm this TMN Session',
 						    width: 100,
 						    handler: function(button, event) {
-						    	if(button.getText() == 'View This TMN Reprocessed') {
-									if (tmn.viewer.session != '') {
-										button.setText('View Original');
-										Ext.Ajax.request({
-											url: './php/auth/authviewer.php',
-							    			scope: tmn.viewer,
-											params: {
-												mode: 'reprocess',
-												session: tmn.viewer.session
-											},
-											callback: tmn.viewer.display
-										});
-									}
-						    	} else {
-									
-									if (tmn.viewer.session != '') {
-						    			button.setText('View This TMN Reprocessed');
-										Ext.Ajax.request({
-											url: './php/auth/authviewer.php',
-							    			scope: tmn.viewer,
-											params: {
-												mode: 'get',
-												session: tmn.viewer.session
-											},
-											callback: tmn.viewer.display
-										});
-									}
-						    	}
+								if (tmn.viewer.session != '') {
+									Ext.Ajax.request({
+										url: './php/auth/authprocessor.php',
+										scope: tmn.viewer,
+										params: {
+											response: 'Yes',
+											session: tmn.viewer.session
+										},
+										callback: alert('Confirmed')
+									});
+								}
 						    }
 						}
 					]
@@ -110,13 +93,21 @@ tmn.viewer = function() {
 					columnWidth:.25,
 					items: [
 						{
-						    id: 'print',
+						    id: 'reject',
 				        	xtype: 'button',
 				        	disabled: true,
-						    text: 'Print',
+						    text: 'Reject this TMN Session',
 						    width: 100,
 						    handler: function(button, event) {
-								Ext.ux.Printer.print(tmn.viewer.view);
+								Ext.Ajax.request({
+									url: './php/auth/authprocessor.php',
+									scope: tmn.viewer,
+									params: {
+										response: 'No',
+										session: tmn.viewer.session
+									},
+									callback: alert('Rejected')
+								});
 						    }
 						}
 					]
@@ -167,6 +158,8 @@ tmn.viewer = function() {
 					this.view.values['aussie-based'] = json;
 				}
 				
+				Ext.getCmp('confirm').enable();
+				
 				this.view.loadForm();
 				
 			} else {
@@ -190,13 +183,6 @@ tmn.viewer = function() {
 						msg: 'You don\'t have access to this information. It either doesn\'t exist or you don\'t have permission to see it. If you think this is incorrect please contact <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>.'
 					});
 				}
-				
-				//change text on reprocess button back to what it was
-				if(Ext.getCmp('reprocess').getText() == 'View This TMN Reprocessed') {
-					Ext.getCmp('reprocess').setText('View Original');
-		    	} else {
-		    		Ext.getCmp('reprocess').setText('View This TMN Reprocessed');
-		    	}
 			}
 		},
 		

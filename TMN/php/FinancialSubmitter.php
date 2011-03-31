@@ -49,86 +49,86 @@ class FinancialSubmitter extends FinancialProcessor {
 	
 	//DATA ARRAY SETUP//
 	private $data = array(
-						firstname						=>	"__",
-						s_firstname						=>	"__",
-						surname							=>	"__",
-						s_surname						=>	"__",
-						date							=>	"__",
-						s_date							=>	"__",
-						fan								=>	"__",
-						s_fan							=>	"__",
+						'firstname'							=>	"__",
+						's_firstname'						=>	"__",
+						'surname'							=>	"__",
+						's_surname'							=>	"__",
+						'date'								=>	"__",
+						's_date'							=>	"__",
+						'fan'								=>	"__",
+						's_fan'								=>	"__",
 						
-						ministry						=>	"__",
-						s_ministry						=>	"__",
+						'ministry'							=>	"__",
+						's_ministry'						=>	"__",
 						
-						ft_pt_os						=>	"__",
-						s_ft_pt_os						=>	"__",
-						days_per_wk						=>	"__",
-						s_days_per_wk					=>	"__",
+						'ft_pt_os'							=>	"__",
+						's_ft_pt_os'						=>	"__",
+						'days_per_wk'						=>	"__",
+						's_days_per_wk'						=>	"__",
 						
-						stipend							=>	"__",
-						s_stipend						=>	"__",
-						housing_stipend					=>	"__",
-						s_housing_stipend				=>	"__",
-						net_stipend						=>	"__",
-						s_net_stipend					=>	"__",
-						tax								=>	"__",
-						s_tax							=>	"__",
-						additional_tax					=>	"__",
-						s_additional_tax				=>	"__",
-						post_tax_super					=>	"__",
-						s_post_tax_super				=>	"__",
+						'stipend'							=>	"__",
+						's_stipend'							=>	"__",
+						'housing_stipend'					=>	"__",
+						's_housing_stipend'					=>	"__",
+						'net_stipend'						=>	"__",
+						's_net_stipend'						=>	"__",
+						'tax'								=>	"__",
+						's_tax'								=>	"__",
+						'additional_tax'					=>	"__",
+						's_additional_tax'					=>	"__",
+						'post_tax_super'					=>	"__",
+						's_post_tax_super'					=>	"__",
 						
-						taxable_income					=>	"__",
-						s_taxable_income				=>	"__",
-						pre_tax_super					=>	"__",
-						s_pre_tax_super					=>	"__",
-						housing							=>	"__",
-						monthly_housing					=>	"--",
-						housing_frequency				=>	"__",
-						additional_housing				=>	"__",
-						additional_housing_allowance	=>	"__",
-						s_additional_housing_allowance	=>	"__",
-						additional_life_cover			=>	"__",
-						s_additional_life_cover			=>	"__",
-						income_protection_cover_source	=>	"__",
-						s_income_protection_cover_source=>	"__",
-						max_mfb							=>	"__",
-						s_max_mfb						=>	"__",
-						claimable_mfb					=>	"__",
-						s_claimable_mfb					=>	"__",
-						housing_mfb						=>	"__",
-						s_housing_mfb					=>	"__",
-						mfb_rate						=>	"__",
-						s_mfb_rate						=>	"__",
-						mmr								=>	"__",
-						s_mmr							=>	"__",
-						financial_package				=>	"__",
-						s_financial_package				=>	"__",
-						joint_financial_package			=>	"__",
-						ministry_levy					=>	"__",
-						s_ministry_levy					=>	"__",
+						'taxable_income'					=>	"__",
+						's_taxable_income'					=>	"__",
+						'pre_tax_super'						=>	"__",
+						's_pre_tax_super'					=>	"__",
+						'housing'							=>	"__",
+						'monthly_housing'					=>	"--",
+						'housing_frequency'					=>	"__",
+						'additional_housing'				=>	"__",
+						'additional_housing_allowance'		=>	"__",
+						's_additional_housing_allowance'	=>	"__",
+						'additional_life_cover'				=>	"__",
+						's_additional_life_cover'			=>	"__",
+						'income_protection_cover_source'	=>	"__",
+						's_income_protection_cover_source'	=>	"__",
+						'max_mfb'							=>	"__",
+						's_max_mfb'							=>	"__",
+						'claimable_mfb'						=>	"__",
+						's_claimable_mfb'					=>	"__",
+						'housing_mfb'						=>	"__",
+						's_housing_mfb'						=>	"__",
+						'mfb_rate'							=>	"__",
+						's_mfb_rate'						=>	"__",
+						'mmr'								=>	"__",
+						's_mmr'								=>	"__",
+						'financial_package'					=>	"__",
+						's_financial_package'				=>	"__",
+						'joint_financial_package'			=>	"__",
+						'ministry_levy'						=>	"__",
+						's_ministry_levy'					=>	"__",
 						
-						pre_tax_super					=>	"__",
-						s_pre_tax_super					=>	"__",
-						employer_super					=>	"__",
-						s_employer_super				=>	"__",
-						total_super						=>	"__",
-						s_total_super					=>	"__",
-						resc							=>	"__",
-						s_resc							=>	"__",
-						super_fund						=>	"__",
-						s_super_fund					=>	"__",
+						'pre_tax_super'						=>	"__",
+						's_pre_tax_super'					=>	"__",
+						'employer_super'					=>	"__",
+						's_employer_super'					=>	"__",
+						'total_super'						=>	"__",
+						's_total_super'						=>	"__",
+						'resc'								=>	"__",
+						's_resc'							=>	"__",
+						'super_fund'						=>	"__",
+						's_super_fund'						=>	"__",
 						
 						//overseas data
-						os_assignment_start_date		=>	"__",
-						os_assignment_end_date			=>	"__",
-						os_lafha						=>	0,
-						s_os_lafha						=>	0,
-						os_resident_for_tax_purposes	=>	"__",
-						os_overseas_housing_allowance	=>	"__",
-						s_os_overseas_housing_allowance	=>	"__",
-						os_overseas_housing				=>	"__",
+						'os_assignment_start_date'			=>	"__",
+						'os_assignment_end_date'			=>	"__",
+						'os_lafha'							=>	0,
+						's_os_lafha'						=>	0,
+						'os_resident_for_tax_purposes'		=>	"__",
+						'os_overseas_housing_allowance'		=>	"__",
+						's_os_overseas_housing_allowance'	=>	"__",
+						'os_overseas_housing'				=>	"__",
 						
 						
 						//joint data
@@ -137,23 +137,23 @@ class FinancialSubmitter extends FinancialProcessor {
 						//-joint_financial_package
 						
 						
-						transfers						=>	"",
-						total_transfers					=>	"",
+						'transfers'							=>	"",
+						'total_transfers'					=>	"",
 						
-						workers_comp					=>	"__",
+						'workers_comp'						=>	"__",
 						
-						buffer							=>	"__",
+						'buffer'							=>	"__",
 						
-						international_donations			=> 	0,
-						ccca_levy						=>	"__",
+						'international_donations'			=> 	0,
+						'ccca_levy'							=>	"__",
 						
-						tmn								=>	"__",
+						'tmn'								=>	"__",
 						
-						auth_lv1						=>	0,
-						auth_lv2						=>	0,
-						auth_lv2_reasons				=>  array(),
-						auth_lv3						=>	0,
-						auth_lv3_reasons				=>	array()
+						'auth_lv1'							=>	0,
+						'auth_lv2'							=>	0,
+						'auth_lv2_reasons'					=>  array(),
+						'auth_lv3'							=>	0,
+						'auth_lv3_reasons'					=>	array()
 					);
 	//END DATA ARRAY SETUP//
 	
@@ -277,11 +277,14 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['housing_stipend']				=	$this->getHousingStipend();
 		$this->data['s_housing_stipend']			=	0;
 		
+		
+		fb("findat[NS]:"); fb($this->financial_data['NET_STIPEND']);
+		fb("data[NS]:");	fb($this->data['net_stipend']);
 		//Net Stipend
 		//-from Form on Page
 		//NOTE: The old TMN refers to and displays this as Gross Stipend.
 		//Either way, this value is as such: <Net/Gross Stipend> + <Additional Tax> + <Post-Tax Super> = Taxable Income
-		$this->financial_data['NET_STIPEND']		=	$this->data['stipend'] + $this->data['housing_stipend'];
+		$this->financial_data['NET_STIPEND']	=	$this->data['stipend'] + $this->data['housing_stipend'];
 		$this->data['net_stipend']					=	$this->financial_data['NET_STIPEND'];
 		$this->financial_data['S_NET_STIPEND']		=	$this->data['s_stipend'] + $this->data['s_housing_stipend'];
 		$this->data['s_net_stipend']				=	$this->financial_data['S_NET_STIPEND'];
@@ -519,7 +522,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['total_transfers']				=	(is_null($total_transfers) ? 0 : $total_transfers);
 		
 		//International Donations
-		if($this->financial_data['INTERNATIONAL_DONATIONS'] < ($subtotal + $transfers_total))
+		if(is_null($this->financial_data['INTERNATIONAL_DONATIONS']) || $this->financial_data['INTERNATIONAL_DONATIONS'] < ($subtotal + $transfers_total))
 			$this->data['international_donations']=	$this->financial_data['INTERNATIONAL_DONATIONS'];
 		else
 			$err .= "INTERNATIONAL_DONATIONS:\"This figure must be smaller than your TMN.\", ";

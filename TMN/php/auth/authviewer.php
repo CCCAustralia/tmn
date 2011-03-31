@@ -58,12 +58,26 @@ if ($_POST["mode"] == "load") {
 	$crudsession->retrieve();
 	$cruddata = $crudsession->produceAssocArray();
 	$cruddata['session'] = $cruddata['session_id'];
+	foreach ($cruddata as $key=>$value) {
+		$cruddata[strtoupper($key)] = $value;
+	}
 	fb("cruddata:");
 	fb($cruddata);
 	//$cruddata = "{\"success\": true, \"tmn_data\": {\"aussie-based\":".$cruddata."}}";
 	
 	$finsub = new FinancialSubmitter($cruddata, 1);
 	$returndata = $finsub->submit();
+	
+						//grab the response of the submittion process
+	$obj = json_decode($returndata, true);
+	if ($obj["success"] == "true" || $obj["success"] == true){	//if the reprocessing worked prepare a packet so that it looks like it came from the database
+		$json["aussie-based"] = $obj["tmn_data"];					//put the data into an associative array field called aussie-based
+		
+		$return["success"] = true;									//add a success field to the return packet
+		$return["tmn_data"] = $json;								//copy the json field into the return packet
+		$returndata = json_encode($return);									//return the encoded packet
+	}
+	
 	fb("returndata:");
 	fb($returndata);
 	echo $returndata;
