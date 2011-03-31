@@ -1,10 +1,18 @@
 <?php
-include_once("mysqldriver.php");
-include_once("logger.php");
-include_once("../lib/FirePHPCore/fb.php");
+if (file_exists("mysqldriver.php")) {
+	include_once("mysqldriver.php");
+	include_once("logger.php");
+	include_once("../lib/FirePHPCore/fb.php");
+	include_once('../lib/cas/cas.php');		//include the CAS module
+} else {
+	include_once("../mysqldriver.php");
+	include_once("../logger.php");
+	include_once("../../lib/FirePHPCore/fb.php");
+	include_once('../../lib/cas/cas.php');		//include the CAS module
+}
+
 
 //Authenticate the user in GCX with phpCAS
-include_once('../lib/cas/cas.php');		//include the CAS module
 if ( !isset($CAS_CLIENT_CALLED) ) {
 	phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 	$CAS_CLIENT_CALLED = 1;

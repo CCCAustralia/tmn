@@ -1,11 +1,19 @@
 <?php
-include_once("mysqldriver.php");
-include_once("logger.php");
-include_once("FinancialProcessor.php");
-include_once("../lib/FirePHPCore/fb.php");
+if(file_exists("FinancialProcessor.php")) {
+	include_once("mysqldriver.php");
+	include_once("logger.php");
+	include_once("FinancialProcessor.php");
+	include_once("../lib/FirePHPCore/fb.php");
+	include_once('../lib/cas/cas.php');		//include the CAS module
+} else {
+	include_once("../mysqldriver.php");
+	include_once("../logger.php");
+	include_once("../FinancialProcessor.php");
+	include_once("../../lib/FirePHPCore/fb.php");
+	include_once('../../lib/cas/cas.php');		//include the CAS module
+}
 
 //Authenticate the user in GCX with phpCAS
-include_once('../lib/cas/cas.php');		//include the CAS module
 if ( !isset($CAS_CLIENT_CALLED) ) {
 	phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 	$CAS_CLIENT_CALLED = 1;
@@ -157,6 +165,7 @@ class FinancialSubmitter extends FinancialProcessor {
 	public function __construct($findat, $dbug) {
 		parent::setFinancialData($findat);
 		
+		
 		if (isset($_SESSION['phpCAS'])) {
 			$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject = new SimpleXmlElement($xmlstr);
@@ -180,6 +189,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			$this->b = $this->b_non_resident;
 		}
 		if($this->DEBUG) fb($this->x);
+		if($this->DEBUG) fb($this);
 	}
 	
 	
@@ -636,6 +646,7 @@ class FinancialSubmitter extends FinancialProcessor {
 				unset($this->data[$k]);
 		}
 		
+		//fb("net stipend:"); fb($this->financial_data['net_stipend']);
 		//check that net stipend for both spouses is over $100
 		if ($this->data['net_stipend'] < $this->NET_STIPEND_MIN)
 			$err .= "NET_STIPEND:\"You cannot have a stipend less than $".$this->NET_STIPEND_MIN.".\", ";
