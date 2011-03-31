@@ -47,6 +47,14 @@ interface TmnAuthorisationProcessorInterface {
 	public function authorise(TmnCrudUser $user, $response);
 	
 	/**
+	 * Determines the next authoriser, and emails them.
+	 * 
+	 * @param unknown_type $authlevel	- Auth Level of the current user.
+	 */
+	//private function notifyNext($authlevel);
+	
+	
+	/**
 	 * Determines if the specified user is a valid authoriser for the authsession defined at construction.
 	 * 
 	 * @param TmnCrudUser $user

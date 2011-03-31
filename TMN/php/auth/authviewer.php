@@ -1,14 +1,15 @@
 <?php
 $DEBUG = 1;
 
-include_once "dbconnect.php";
-include_once "logger.php";
-include_once("FinancialSubmitter.php");
+if($DEBUG) require_once("../../lib/FirePHPCore/fb.php");
+include_once "../dbconnect.php";
+include_once "../logger.php";
+include_once("../FinancialSubmitter.php");
+include_once("../classes/TmnCrudSession.php");
 
-if($DEBUG) require_once("../lib/FirePHPCore/fb.php");
 
 //Authenticate the user in GCX with phpCAS
-include_once('../lib/cas/cas.php');		//include the CAS module
+include_once('../../lib/cas/cas.php');		//include the CAS module
 if ( !isset($CAS_CLIENT_CALLED) ) {
 	phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
 	$CAS_CLIENT_CALLED = 1;
@@ -52,9 +53,20 @@ if ($_POST["mode"] == "load") {
 	echo '{"data":['.$returndata.'] }';
 } else if ($_POST["mode"] == "get") {
 	
-	$crudsession = new TmnCrudSession("./logs/authviewer.log", $_POST["session"]);
+	$crudsession = new TmnCrudSession("../logs/authviewer.log", (int)$_POST["session"]);
+	//$crudsession->setField("SESSION_ID", $_POST["session"]);
 	$crudsession->retrieve();
-	fb($crudsession->produceJson());
+	$cruddata = $crudsession->produceAssocArray();
+	$cruddata['session'] = $cruddata['session_id'];
+	fb("cruddata:");
+	fb($cruddata);
+	//$cruddata = "{\"success\": true, \"tmn_data\": {\"aussie-based\":".$cruddata."}}";
+	
+	$finsub = new FinancialSubmitter($cruddata, 1);
+	$returndata = $finsub->submit();
+	fb("returndata:");
+	fb($returndata);
+	echo $returndata;
 	
 	/** Viewer/Reprocessor code
 	//return the user's submitted json packet

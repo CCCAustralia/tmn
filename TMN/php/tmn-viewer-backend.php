@@ -1,5 +1,5 @@
 <?php
-$DEBUG = 0;
+$DEBUG = 1;
 
 include_once "dbconnect.php";
 include_once "logger.php";

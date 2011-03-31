@@ -1,7 +1,7 @@
 <?php
 
 include_once('../interfaces/TmnAuthorisationProcessorInterface.php');
-
+include_once('../classes/email.php');
 include_once('../classes/TmnCrud.php');
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
@@ -9,7 +9,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			////Instance Variables////
 	private $logfile;
 	private $authsessionid;
-	private $authcrud;
+	//private $authcrud;
 	
 	
 	
@@ -138,10 +138,28 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$this->update();
 			
 			//TODO: Workflow - email the appropriate recipiants
+			$this->notifyNext($authlevel);
 			
 		} else {
 			throw new LightException("Specified user is not an authoriser");
 		}
+		
+	}
+	
+	private function notifyNext($authlevel) {
+		$fieldname 	= "AUTH_LEVEL_".(string)((int)$authlevel+1);
+		fb($fieldname);
+		$nextguid 	= $this->getField($fieldname);
+		fb("nextguid:");
+		fb($nextguid);
+		$nextauthuser = new TmnCrudUser($this->logfile, $nextguid);
+		fb("nextauthuser");
+		fb($nextauthuser);
+		
+		$addr = "tom.flynn@ccca.org.au";//$nextauthuser->getEmail();
+		$notifyemail = new Email($addr, "SUBJECT", "BODY", "Tom Flynn <tom.moose@gmail.com>\r\nReply-To: noreply@ccca.org.au");
+		fb($notifyemail);
+		$notifyemail->send();
 		
 	}
 	
@@ -181,6 +199,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	public function submit(TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser) {
 		
 	}
+	
+	
 	
 }
 
