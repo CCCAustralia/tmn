@@ -7,16 +7,14 @@ include_once('../classes/TmnCrudUser.php');
 include_once('../classes/TmnAuthorisationProcessor.php');
 
 //This is an example of how to subclass TmnCrud
-class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
+class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	private $owner						=	null;
 	private $homeAssignment				=	null;
 	private $internationalAssignment	=	null;
 	private $authorisationProcessor		=	null;
-	private $logfile;
 	
 	public function __construct($logfile, $session_id=null) {
-		$this->logfile = $logfile;
 		
 		parent::__construct(
 			$logfile,						//path of logfile
@@ -101,7 +99,7 @@ class TmnCrudSession extends TmnCrud {// implements TmnCrudSessionInterface {
 		
 		try {
 			if (isset($session_id)) {
-				$this->setField('session_id', $session_id);
+				$this->setField('session_id', (int)$session_id);
 				$this->retrieve();
 			}
 		} catch (Exception $e) {

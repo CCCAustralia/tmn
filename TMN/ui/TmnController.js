@@ -166,7 +166,7 @@ tmn.TmnController = function() {
 			//if its a financial details form
 			} else {
 				//if the form is saved then submit the form
-				if (form.saved) {
+				if (form.isSaved()) {
 					this.view.submitActiveForm();
 				//if it isn't saved ask the user to save
 				} else {
@@ -497,7 +497,7 @@ tmn.TmnController = function() {
 			//if its an aussie form do appropriate checks before loading the session
 			if (form_panel.aussie_form) {
 				//check that it has been saved
-				if (form_panel.saved == true) {
+				if (form_panel.isSaved() == true) {
 					//load the session
 					form_panel.onLoadSession(dataObject);
 				//if not confirm that they want to load the session and lose there changes
@@ -527,7 +527,7 @@ tmn.TmnController = function() {
 				var dataObject	= {session_id:form_panel.getSelectedSession()};
 				
 				//if both are saved
-				if (home_assignment_form.saved && international_assignment_form.saved) {
+				if (home_assignment_form.isSaved() && international_assignment_form.isSaved()) {
 					//load the new session
 					form_panel.onLoadSession(dataObject);
 				//if not confirm that they want to load the session and lose there changes
@@ -804,7 +804,7 @@ tmn.TmnController = function() {
 						//reload the forms session combo
 						home_assignment_form.reloadSessionCombo();
 						//let the form deal with the newly saved session
-						home_assignment_form.onSaveSessionSuccess();
+						home_assignment_form.onSaveAsSessionSuccess(home_assignment_data['session_id']);
 					}
 
 					//if a session id was returned for international assignment set it
@@ -814,7 +814,7 @@ tmn.TmnController = function() {
 						//reload the forms session combo
 						international_assignment_form.reloadSessionCombo();
 						//let the form deal with the newly saved session
-						international_assignment_form.onSaveSessionSuccess();
+						international_assignment_form.onSaveAsSessionSuccess(international_assignment_data['session_id']);
 					}
 				}
 			}
@@ -904,7 +904,7 @@ tmn.TmnController = function() {
 			
 			if (form_panel.aussie_form) {
 				//if the form has unsaved changes check whether they want to save first
-				if (!form_panel.saved) {
+				if (!form_panel.isSaved()) {
 					Ext.MessageBox.confirm(
 							'Warning',
 							'Are you sure you want to clear your changes to this session?',
@@ -929,7 +929,7 @@ tmn.TmnController = function() {
 				var international_assignment_form	= this.getForm('international-assignment');
 				
 				//if the form has unsaved changes check whether they want to save first
-				if (!home_assignment_form.saved || !international_assignment_form.saved) {
+				if (!home_assignment_form.isSaved() || !international_assignment_form.isSaved()) {
 					Ext.MessageBox.confirm(
 							'Warning',
 							'Are you sure you want to clear your changes to this session?',

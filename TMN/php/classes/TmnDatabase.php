@@ -75,6 +75,21 @@ class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 		
 	}
 	
+	//calls beginTransaction on the database connection
+	public function beginTransaction() {
+		return $this->db->beginTransaction();
+	}
+	
+	//calls rollback on the database connection
+	public function rollback($sqlQuery) {
+		return $this->db->rollBack();
+	}
+	
+	//calls commit on the database connection
+	public function commit() {
+		return $this->db->commit();
+	}
+	
 	//returns a statment object so that someone could create a custom prepared statment to be run on this database
 	public function prepare($sqlQuery) {
 		if ($this->db != null) {

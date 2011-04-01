@@ -259,7 +259,7 @@ if (isset($_POST['mode'])) {
 	}
 	
 } else {
-	fb('Invalid params');
+	fb('Missing params');
 	die(json_encode(array("success"=>false)));
 }
 

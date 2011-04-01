@@ -98,10 +98,10 @@ fb("d('debugging is back on')"); $reporterObj->d('debugging is back on');
 	//Logging test
 
 fb("Logging Test");
-fb("getFilename(): " . $reporterObj->getFilename());
+fb("getLogfile(): " . $reporterObj->getLogfile());
 fb("logToFile('logging is on')"); $reporterObj->logToFile('logging is on');
 fb("stopDebug()"); $reporterObj->stopDebug();
-fb("setFilename('ReporterClass-test-otherlog.log')"); $reporterObj->setFilename('ReporterClass-test-otherlog.log');
+fb("setLogfile('ReporterClass-test-otherlog.log')"); $reporterObj->setLogfile('ReporterClass-test-otherlog.log');
 fb("logToFile('logging to a new file')"); $reporterObj->logToFile('logging to a new file');
 fb("printLog()"); fb($reporterObj->printLog());
 fb("printLog()"); fb($reporterObj->printLog());
@@ -111,12 +111,12 @@ fb("printLog()"); fb($reporterObj->printLog());
  * 
  * Console Output:
  * Logging Test
- * getFilename(): ReporterClass-test.log
+ * getLogfile(): ReporterClass-test.log
  * logToFile('logging is on')
  * [<timestamp of call>] logging is on
  * stopDebug()
- * setFilename('ReporterClass-test-otherlog.log')
- * getFilename(): ReporterClass-test-otherlog.log
+ * setLogfile('ReporterClass-test-otherlog.log')
+ * getLogfile(): ReporterClass-test-otherlog.log
  * logToFile('logging to a new file')
  * printLog()
  * [<timestamp of call>] logging to a new file

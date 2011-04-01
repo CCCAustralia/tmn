@@ -88,7 +88,7 @@ interface ReporterInterface {
 	 * 
 	 * Returns the logger's set path
 	 */
-	public function getFilename();
+	public function getLogfile();
 	
 	/**
 	 * 
@@ -96,7 +96,7 @@ interface ReporterInterface {
 	 * 
 	 * @param String $fname - path of the new file that log statements will be outputed to
 	 */
-	public function setFilename($fname);
+	public function setLogfile($fname);
 	
 	/**
 	 * 

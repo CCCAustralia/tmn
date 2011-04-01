@@ -55,7 +55,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
             self::$instance = new TmnAuthenticator($logfile);
         }
 
-        self::$instance->setFilename($logfile);
+        self::$instance->setLogfile($logfile);
         return self::$instance;
     }
     

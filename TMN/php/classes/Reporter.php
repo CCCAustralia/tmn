@@ -14,7 +14,7 @@ class Reporter implements ReporterInterface {
 			///////////////////INSTANCE VARIABLES/////////////////////
 
 	
-	private $filename;
+	private $logfile;
 	private $DEBUG;
 	
 	
@@ -24,7 +24,7 @@ class Reporter implements ReporterInterface {
 	//is protected so singleton classes can extend this class
 	protected function __construct($logfile) {
 		
-		$this->setFilename($logfile);
+		$this->setLogfile($logfile);
 		$this->DEBUG		= 1;
 	}
 	
@@ -47,10 +47,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getFilename();
-			$this->setFilename("../logs/exceptions.log");
+			$tempPath = $this->getLogfile();
+			$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setFilename($tempPath);
+			$this->setLogfile($tempPath);
 			
 			//kill the script leaving the message on the console if in debug mode
 			$this->failWithMsg($msg);
@@ -62,10 +62,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getFilename();
-			$this->setFilename("../logs/exceptions.log");
+			$tempPath = $this->getLogfile();
+			$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setFilename($tempPath);
+			$this->setLogfile($tempPath);
 			
 			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);
@@ -77,10 +77,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getFilename();
-			$this->setFilename("../logs/exceptions.log");
+			$tempPath = $this->getLogfile();
+			$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setFilename($tempPath);
+			$this->setLogfile($tempPath);
 			
 			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);
@@ -132,17 +132,16 @@ class Reporter implements ReporterInterface {
 	
 			///////////////////LOGGING FUNCTIONS/////////////////////
 	
-	
 	//returns the logger's set path
-	public function getFilename() {
-		return $this->filename;
+	public function getLogfile() {
+		return $this->logfile;
 	}
 	
 	//returns the logger's new path
-	public function setFilename($fname) {
-		$this->filename	= $fname;		
-		if (!file_exists($this->filename)) {
-			$log = fopen($this->filename, "c");
+	public function setLogfile($fname) {
+		$this->logfile	= $fname;
+		if (!file_exists($this->logfile) && $this->logfile !== null) {
+			$log = fopen($this->logfile, "c");
 			fclose($log);
 		}
 	}
@@ -150,7 +149,7 @@ class Reporter implements ReporterInterface {
 	//logs a message to the file with a timestamp
 	public function logToFile($msg) { 
 		// open file
-		$fd = fopen($this->filename, "a");
+		$fd = fopen($this->logfile, "a");
 		
 		// append message to date/time
 		$str = "[" . date("Y/m/d h:i:s", mktime()) . "] " . $msg;
@@ -168,12 +167,12 @@ class Reporter implements ReporterInterface {
 	//returns the contents of the log
 	public function printLog() {
 		//open file
-		$fd = fopen($this->filename, "r");
+		$fd = fopen($this->logfile, "r");
 		
 		//read contents of file
-		$filedata = fread($fd, filesize($this->filename));
+		$filedata = fread($fd, filesize($this->logfile));
 		fclose($fd);
-		$fd = fopen($this->filename, "a");
+		$fd = fopen($this->logfile, "a");
 		fwrite($fd, "FILE READ\n");
 		fclose($fd);
 		

@@ -1601,6 +1601,15 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	
 	/**
+	 * Returns whether the loaded session is saved or not
+	 * 
+	 * @returns {bool}		Whether the loaded session is locked or not
+	 */
+	isSaved: function() {
+		return (this.saved && this.getComponent('internal_transfers_panel').isSaved());
+	},
+	
+	/**
 	 * Returns whether the loaded session is locked or not
 	 * 
 	 * @returns {bool}		Whether the loaded session is locked or not
@@ -1680,7 +1689,11 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Sets the id of the current session that is being modified.
 	 * @param {number}	session		The number representing the user's session.
 	 */
-	setSession: function(session) {this.financial_data.session_id = session; this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_id';}}, session, false);},
+	setSession: function(session) {
+		this.financial_data.session_id = session;
+		this.getComponent('internal_transfers_panel').setSession(session);
+		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_id';}}, session, false);
+	},
 	/**
 	 * Returns the current session that is being modified.
 	 * @returns {number}			A number that is the id of the user's session.
@@ -1944,10 +1957,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			this.doAussieLayout();
 		}
 		
-		console.log(this.id + ": Session on Load: " + this.getSession());
 		//if a session has been set prior to this to be loaded then load the session
 		if (this.getSession() !== undefined && this.getSession() != '' && this.getSession() != null) {
-			console.log(this.id + ": Loading Session: " + this.getSession());
 			//load this session
 			this.fireEvent('loadsession', this);
 			
@@ -2334,6 +2345,20 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	},
 	
 	/**
+	 * Handler for when the user selects to save as a session and that save succeeds.
+	 * 
+	 * @param {int} id	- session id of the newly created session
+	 */
+	onSaveAsSessionSuccess: function(id) {
+		
+		//copy all the internal transfers to the newly created session
+		this.getComponent('internal_transfers_panel').saveAsInternalTransfers(id);
+		
+		this.onSaveSessionSuccess();
+		
+	},
+	
+	/**
 	 * Handler for when the user selects to save a session.
 	 */
 	onSaveSession: function(data) {
@@ -2355,6 +2380,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			failure: this.onSaveSessionFailure,
 			scope: this
 		});
+		
+		//save the internal transfers too
+		this.getComponent('internal_transfers_panel').saveInternalTransfers();
 	},
 	
 	/**
@@ -2429,6 +2457,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			failure: this.onDeleteSessionFailure,
 			scope: this
 		});
+		
+		//delete all the internal transfers for this session
+		this.getComponent('internal_transfers_panel').deleteInternalTransfers();
 	},
 	
 	/**
@@ -2492,7 +2523,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.setSession(null);
 		
 		//load the session's internal transfers
-		this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
+		this.getComponent('internal_transfers_panel').resetInternalTransfers();
 		
 		//set the state to unsaved
 		this.saved = false;
