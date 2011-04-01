@@ -32,8 +32,12 @@ if (!isset($_POST["mode"]))
 	die('{"success": false}');
 
 if ($_POST["mode"] == "load") {
-	if ($DEBUG) {$guid="test";}
-	$rows = "SELECT SESSION_ID, SESSION_NAME FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE AUTH_USER = '".$guid."')";
+	//if ($DEBUG) {$guid="test";}
+	$rows = "SELECT SESSION_ID, SESSION_NAME FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
+	$rows .= "(AUTH_LEVEL_1 = '".$guid."' ".	"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
+	$rows .= "(AUTH_LEVEL_2 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
+	$rows .= "(AUTH_LEVEL_3 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".			" && FINANCE_RESPONSE = 'Pending'))";
+	//TODO: USE PREPAREDSTATEMENTS
 	if($DEBUG) {fb($rows);}
 	$rows = mysql_query($rows);
 	$returndata = "";
@@ -56,19 +60,21 @@ if ($_POST["mode"] == "load") {
 	$crudsession = new TmnCrudSession("../logs/authviewer.log", (int)$_POST["session"]);
 	//$crudsession->setField("SESSION_ID", $_POST["session"]);
 	$crudsession->retrieve();
-	$cruddata = $crudsession->produceAssocArray();
-	$cruddata['session'] = $cruddata['session_id'];
+	$cruddata = $crudsession->produceJson();
+	/*$cruddata['session'] = $cruddata['session_id'];
 	foreach ($cruddata as $key=>$value) {
 		$cruddata[strtoupper($key)] = $value;
-	}
+	}*/
 	fb("cruddata:");
 	fb($cruddata);
 	//$cruddata = "{\"success\": true, \"tmn_data\": {\"aussie-based\":".$cruddata."}}";
 	
-	$finsub = new FinancialSubmitter($cruddata, 1);
-	$returndata = $finsub->submit();
-	
+	//$finsub = new FinancialSubmitter($cruddata, 1);
+	//$returndata = $finsub->submit();
+	//fb("finsub->submit():"); fb($returndata);
 						//grab the response of the submittion process
+						
+	/*
 	$obj = json_decode($returndata, true);
 	if ($obj["success"] == "true" || $obj["success"] == true){	//if the reprocessing worked prepare a packet so that it looks like it came from the database
 		$json["aussie-based"] = $obj["tmn_data"];					//put the data into an associative array field called aussie-based
@@ -77,9 +83,15 @@ if ($_POST["mode"] == "load") {
 		$return["tmn_data"] = $json;								//copy the json field into the return packet
 		$returndata = json_encode($return);									//return the encoded packet
 	}
-	
+	*/
+	$cruddata = (array)json_decode($cruddata);
+	//TODO: ADD AUTH DATA FROM AUTH_TABLE(TO BE MODIFIED, WITH SUBMITTER)
+	//$cruddata['session'] = $cruddata['session_id'];
+	$returndata = array("success" => true, "tmn_data" => array('aussie-based'=>$cruddata));
+	$returndata = json_encode($returndata);
 	fb("returndata:");
 	fb($returndata);
+	//TODO: HANDLE OVERSEAS MISSIONARIES
 	echo $returndata;
 	
 	/** Viewer/Reprocessor code

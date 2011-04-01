@@ -38,13 +38,14 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 if (isset($_SESSION['phpCAS'])) {
 	$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 	$xmlobject = new SimpleXmlElement($xmlstr);
-	$guid = $xmlobject->authenticationSuccess->attributes->ssoGuid;
+	$guid = (string)$xmlobject->authenticationSuccess->attributes->ssoGuid;
 }
+fb($guid);
 
 /*********************************************************
 # GENERIC PHP CAS SSO/FIREBUG/GUID INITIALISATION SCRIPT #                 
 *********************************************************/
-$guid = "test";
+//$guid = "test";
 //Create the objects required for authorisation
 try {
 	$logfile			= "../logs/authprocessor.php.log";								//required for logging
