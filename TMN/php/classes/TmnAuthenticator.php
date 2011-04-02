@@ -40,7 +40,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 			$xmlstr			= str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject		= new SimpleXmlElement($xmlstr);
 			$this->guid		= (string) $xmlobject->authenticationSuccess->attributes->ssoGuid;
-			$this->logToFile("User Authenticated: guid = " . substr($this->guid, 0, -12) . "************");
+			//$this->logToFile("User Authenticated: guid = " . substr($this->guid, 0, -12) . "************");
 		} else {
 			throw new FatalException("Authentication Exception: User's GUID Not Found");
 		}

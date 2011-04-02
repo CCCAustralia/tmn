@@ -168,6 +168,7 @@ interface TmnCrudInterface {
 	 * 
 	 * Takes a value and a type and checks whether the type of value matches type
 	 * 
+	 * @param String		$key - key of assoc array that holds value
 	 * @param Mixed			$value - value of a field, will have its type checked against type
 	 * @param String		$type - a one character string that represents they type this value should be
 	 * 						needs to be one of "s" - string, "i" - integer, "n" - null, "b" - bool
@@ -176,7 +177,7 @@ interface TmnCrudInterface {
 	 * 
 	 * Note: Method will throw LightException if the type is wrong
 	 */
-	public function valueMatchesType($value, $type);
+	public function valueMatchesType($key, $value, $type);
 	
 }
 

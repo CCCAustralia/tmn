@@ -81,7 +81,7 @@ class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 	}
 	
 	//calls rollback on the database connection
-	public function rollback($sqlQuery) {
+	public function rollback() {
 		return $this->db->rollBack();
 	}
 	

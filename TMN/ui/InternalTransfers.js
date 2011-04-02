@@ -65,13 +65,10 @@ tmn.view.InternalTransfers = function(config) {
     this.saved			= true;
     
    this.setParams	= function(store, action, record, options, arg) {
-	   //copy the reader's meta info across to the writer this needs to be done because of
-	   //a bug in this version of ExtJS where they forget to do this.
-	   this.Writer.meta = this.Reader.meta;
 	   
 	   //set params for request
 	   options.params.session		= this.getSession();
-	   
+
 	   switch (action) {
 	   		case 'create':
 	   			options.params.mode	= 'add';
@@ -92,10 +89,11 @@ tmn.view.InternalTransfers = function(config) {
 	             		    {name: 'transfer_name',		type: 'string'},
 	             		    {name: 'transfer_amount',	type: 'int'}
 	             		]);
-	
+
 	 //the json writer to write json from the data store to a request that will go to the server
     this.Writer			= new Ext.data.JsonWriter({
 							encode:			true,
+							encodeDelete:	true,
 							writeAllFields:	true
 					    });
     
@@ -141,7 +139,7 @@ tmn.view.InternalTransfers = function(config) {
 	    selModel: new Ext.grid.RowSelectionModel({singleSelect:true}),
 	    
 	    //the store for the data to go in
-	    store: new Ext.data.JsonStore({
+	    store: new Ext.data.Store({
 			itemId:			'internal_transfers_store',
 			autoDestroy:	true,
 			proxy:			this.Proxy,
@@ -152,11 +150,20 @@ tmn.view.InternalTransfers = function(config) {
         	listeners: {
         		//before requests are sent change the params so that the session at that time is sent in the request
         		beforewrite: 	this.setParams,
-        		save:			function() {
-        			this.getView().refresh();
-        		},
-        		load:			function() {
-        			this.getView().refresh();//TODO: get grid to show returned data
+        		exception:		function(proxy, type, action, options, res, arg) {
+        			console.warn("load exception");
+        			console.warn('proxy');
+        			console.warn(proxy);
+        			console.warn('type');
+        			console.warn(type);
+        			console.warn('action');
+        			console.warn(action);
+        			console.warn('options');
+        			console.warn(options);
+        			console.warn('res');
+        			console.warn(res);
+        			console.warn('arg');
+        			console.warn(arg);
         		},
         		scope: 			this
         	}
@@ -197,11 +204,9 @@ tmn.view.InternalTransfers = function(config) {
 		    		//mark the grid as unsaved
 		    		this.saved = false;
 		    		
-	    			var grid = this;
-	                var transfer = new this.Transfer({			//create a new one with
-	                    TRANSFER_NAME: '',						//a blank name
-	                    TRANSFER_AMOUNT: 0						//and zero dollars
-	                });
+	    			var grid	= this;
+	    			var store	= this.getStore();
+	                var transfer = new store.recordType({transfer_name:'', transfer_amount:0});
 	                grid.stopEditing(true);						//stop what is happening
 	                index = grid.getStore().getCount();			//grab the index of the new record (to put after the last one)
 	                grid.getStore().insert(index, transfer);	//add it
@@ -262,11 +267,11 @@ tmn.view.InternalTransfers = function(config) {
 	    		if (recordArray.data !== undefined) {
 	    			recordArray = [recordArray];
 	    		}
-	    		console.log(recordArray);
+
 	    		//loop through all the records adding their json to the transfer array
 	    		for (recordCount = 0; recordCount < recordArray.length; recordCount++) {
 	    			record	= recordArray[recordCount];
-	    			console.log(record);
+
 	    			if (record != 0 && record !== undefined) {
 		    			if (editedRecord.id != record.id && editedRecord.data.transfer_name == record.data.transfer_name) {
 		    				//add the amount just entered to the existing record
@@ -283,6 +288,10 @@ tmn.view.InternalTransfers = function(config) {
 		    					title: 'Naming Error',
 		    					msg: "You can't have two transfers with the same name. The amount from the transfer you just created has been added to the existing transfer with the same name."
 		    				});
+		    				
+		    				//let the user add and delete again
+		    				this.getTopToolbar().items.map['add'].enable();
+							this.getTopToolbar().items.map['remove'].enable();
 		    				
 		    				break;
 		    			}
@@ -328,6 +337,9 @@ Ext.extend(tmn.view.InternalTransfers, Ext.grid.EditorGridPanel, {
 	 */
 	loadInternalTransfers: function(session) {
 		
+		//clear the data from this grid before loading the new stuff
+		this.resetInternalTransfers();
+		
 		//set the grid's session to the one passed in load
 		this.setSession(session);
 		
@@ -335,7 +347,7 @@ Ext.extend(tmn.view.InternalTransfers, Ext.grid.EditorGridPanel, {
 			params:		{mode: 'get', session: this.getSession()},
 			add:		false,
 			scope:		this,
-			callback:	function() {
+			callback:	function(records, options, success) {
 				this.getTopToolbar().items.map['add'].enable();
 				this.getTopToolbar().items.map['remove'].enable();
 			}
@@ -371,7 +383,7 @@ Ext.extend(tmn.view.InternalTransfers, Ext.grid.EditorGridPanel, {
 			url: this.update_url,
 			scope: this,
 			params: {
-				mode:		'add',
+				mode:		'saveas',
 				session:	this.getSession(),
 				transfers:	Ext.encode(transferArray)
 			},
@@ -409,10 +421,14 @@ Ext.extend(tmn.view.InternalTransfers, Ext.grid.EditorGridPanel, {
 		//grab all the records in the store
 		var recordArray		= this.getStore().getRange();
 		
+		//if its only one record
+		if (recordArray.data !== undefined) {
+			recordArray	= [recordArray];
+		}
+		
 		//loop through all the records adding their json to the transfer array
 		for (recordCount = 0; recordCount < recordArray.length; recordCount++) {
-			transferArray[recordCount]	= recordArray[recordCount].json;
-			recordCount++;
+			transferArray[recordCount]	= recordArray[recordCount].data;
 		}
 		
 		return transferArray;
@@ -424,6 +440,9 @@ Ext.extend(tmn.view.InternalTransfers, Ext.grid.EditorGridPanel, {
 		
 		//clear the data from this grid
 		this.getStore().removeAll();
+		//make sure that all records in store are reset to unmarked
+		this.getStore().removed		= [];
+		this.getStore().modified	= [];
 
 		//mark the grid as saved
 		this.saved = true;

@@ -2344,15 +2344,18 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		});
 	},
 	
+	saveAsInternalTransfers: function(session_id) {
+		//copy all the internal transfers to the newly created session
+		//(done here so only one copy gets created and we don't have duplicates)
+		this.getComponent('internal_transfers_panel').saveAsInternalTransfers(session_id);
+	},
+	
 	/**
 	 * Handler for when the user selects to save as a session and that save succeeds.
 	 * 
 	 * @param {int} id	- session id of the newly created session
 	 */
 	onSaveAsSessionSuccess: function(id) {
-		
-		//copy all the internal transfers to the newly created session
-		this.getComponent('internal_transfers_panel').saveAsInternalTransfers(id);
 		
 		this.onSaveSessionSuccess();
 		
@@ -2443,6 +2446,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			this.el.mask("Deleting");
 		}
 		
+		//delete all the internal transfers for this session
+		this.getComponent('internal_transfers_panel').deleteInternalTransfers();
+		
 		//delete session
 		Ext.Ajax.request({											//send all the data about the misso to the server for processing
 			url: this.crud_url,
@@ -2458,8 +2464,6 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			scope: this
 		});
 		
-		//delete all the internal transfers for this session
-		this.getComponent('internal_transfers_panel').deleteInternalTransfers();
 	},
 	
 	/**

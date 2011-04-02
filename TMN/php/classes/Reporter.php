@@ -44,7 +44,7 @@ class Reporter implements ReporterInterface {
 		if ($exception instanceof FatalException) {
 			
 			//construct the message
-			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage();
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getLogfile();
@@ -59,7 +59,7 @@ class Reporter implements ReporterInterface {
 		} elseif ($exception instanceof LightException) {
 			
 			//construct the message
-			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage();
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getLogfile();
@@ -74,7 +74,7 @@ class Reporter implements ReporterInterface {
 		} else {
 			
 			//construct the message
-			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage();
+			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
 			$tempPath = $this->getLogfile();

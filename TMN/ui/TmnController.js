@@ -778,8 +778,9 @@ tmn.TmnController = function() {
 				if (data !== undefined) {
 					if (data['session_id']) {
 						form_panel.setSession(data['session_id']);
+						form_panel.saveAsInternalTransfers(data['session_id']);
 						form_panel.reloadSessionCombo();
-						form_panel.onSaveSessionSuccess();
+						form_panel.onSaveAsSessionSuccess();
 					}
 				}
 			}
@@ -816,6 +817,8 @@ tmn.TmnController = function() {
 						//let the form deal with the newly saved session
 						international_assignment_form.onSaveAsSessionSuccess(international_assignment_data['session_id']);
 					}
+					
+					form_panel.saveAsInternalTransfers(international_assignment_data['session_id']);
 				}
 			}
 			

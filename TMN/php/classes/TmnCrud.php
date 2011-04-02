@@ -111,7 +111,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			
 			//check type if correct set and return true
 			try {
-				if ($this->valueMatchesType($value, $this->private_types[$fieldname])) {
+				if ($this->valueMatchesType($fieldname, $value, $this->private_types[$fieldname])) {
 					
 					$this->private_data[$fieldname] = $value;
 					return true;
@@ -133,7 +133,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			
 			//check type if correct set and return true
 			try {
-				if ($this->valueMatchesType($value, $this->public_types[$fieldname])) {
+				if ($this->valueMatchesType($fieldname, $value, $this->public_types[$fieldname])) {
 					$this->public_data[$fieldname] = $value;
 					return true;
 				} else {
@@ -167,7 +167,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			if ($value !== "__") {
 				try {
 					//check type of value before the field is added to the sql statement
-					if ($this->valueMatchesType($data[$key], $types[$key])) {
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
 						$sql					.=	"`" . strtoupper($key) . "`, ";
 					}
 				} catch (LightException $e) {
@@ -187,7 +187,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				
 				try {
 					//check type of value before the field is added to the sql statement
-					if ($this->valueMatchesType($data[$key], $types[$key])) {
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
 						//make the variable in the form that the PDO prepared statement needs ie ":<field name>"
 						$variableName			 =	":" . $key;
 						//add this field's sql to the prepared statement in the form ":<field name>, "
@@ -213,17 +213,24 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			//bind and execute the statement
 			$stmt->execute($values);
 			
+			//grab new id
+			$id	= $this->db->lastInsertId();
+			//if numeric convert
+			if (is_numeric($id)) {
+				$id = (int)$id;
+			}
+			
 			//if the insert worked find which array the primary key is in
 			if (isset($this->private_data[$this->primarykey_name])) {
 				//update the value of the primary key
-				$this->private_data[$this->primarykey_name] = $this->db->lastInsertId();
+				$this->private_data[$this->primarykey_name] = $id;
 			} else {
 				//update the value of the primary key
-				$this->public_data[$this->primarykey_name] = $this->db->lastInsertId();
+				$this->public_data[$this->primarykey_name] = $id;
 			}
 			
 			//return the primary key of the newly created row
-			return $this->db->lastInsertId();
+			return $id;
 			
 		} catch (PDOException $e) {
 			//if the INSERT didn't work, throw an exception
@@ -317,7 +324,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				
 				try {
 					//check the fields type before adding it to the sql statement
-					if ($this->valueMatchesType($data[$key], $types[$key])) {
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
 						//make the variable in the form that the PDO prepared statement needs ie ":<field name>"
 						$variableName			 =	":" . $key;
 						//add this field's sql to the prepared statement in the form "`<field name in uppercase>` = :<field name>"
@@ -435,7 +442,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				
 				//check type
 				try {
-					if ($this->valueMatchesType($array[$key], $this->private_types[$key])) {
+					if ($this->valueMatchesType($key, $array[$key], $this->private_types[$key])) {
 						//set the field if the type is correct
 						$this->private_data[$key] = $array[$key];
 					}
@@ -459,7 +466,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 				
 				//check type
 				try {
-					if ($this->valueMatchesType($array[$key], $this->public_types[$key])) {
+					if ($this->valueMatchesType($key, $array[$key], $this->public_types[$key])) {
 						//set the field if the type is correct
 						$this->public_data[$key] = $array[$key];
 					}
@@ -491,36 +498,35 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	
 	
 	//type checks the fields for the user and throws an exception if anything is wrong
-	public function valueMatchesType($value, $type) {
-		
+	public function valueMatchesType($key, $value, $type) {
 		//for each possible type run appropriate type checking
 		switch ($type) {
 			case 's':
 				if (!is_string($value)) {
 					//if type check fails throw exception
-					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: String");
+					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $key . "=" . $value . " should be of type: String");
 				}
 			break;
 			case 'i':
 				if (!is_int($value)) {
-					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: Integer");
+					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $key . "=" . $value . " should be of type: Integer");
 				}
 			break;
 			case 'n':
 				if (!($value === "__" || is_null($value))) {
-					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: NULL");
+					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $key . "=" . $value . " should be of type: NULL");
 				}
 			break;
 			case 'b':
 				if (!is_bool($value)) {
-					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $value . " should be of type: Bool");
+					throw new LightException(__CLASS__ . " Exception: Type mismatch. " . $key . "=" . $value . " should be of type: Bool");
 				}
 			break;
 			case 'l':
 			break;
 			
 			default:
-				throw new LightException("User Exception: Unable to check type; " . $type . " is not a known type.");
+				throw new LightException("User Exception: Unable to check type; " . $key . "=" . $type . " is not a known type.");
 			break;
 		}
 		

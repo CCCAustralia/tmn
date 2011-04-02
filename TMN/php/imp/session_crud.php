@@ -81,12 +81,12 @@ if (isset($_POST['mode'])) {
 							//set the owner to be the user that is currently logged in
 						$new_international_session->setOwner($tmn->getUser());
 							//set the home assignement id to the id of the home assignment session that was just created
-						$new_international_session->setField('home_assignment_session_id', (int)$home_session_id);
+						$new_international_session->setField('home_assignment_session_id', $home_session_id);
 							//create the session in the database
 						$new_international_id = $new_international_session->create();
 						
 						//update the home assignment's international assignement session id to the id of the international assignment just created
-						$new_home_session->setField('international_assignment_session_id', (int)$new_international_id);
+						$new_home_session->setField('international_assignment_session_id', $new_international_id);
 						//push that change to the database
 						$new_home_session->update();
 						
