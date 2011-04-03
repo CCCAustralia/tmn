@@ -1066,11 +1066,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						
 						items: [
 							{
-								itemId: 'pre_tax_super',
-								name: 'PRE_TAX_SUPER',
-								cls: 'x-form-readonly',
-								value: 0,
-								fieldLabel: 'Pre Tax Super',
+								itemId:				'pre_tax_super',
+								name:				'PRE_TAX_SUPER',
+								cls:				'x-form-readonly',
+								value:				0,
+								fieldLabel:			'Pre Tax Super',
+								enableKeyEvents:	true,
 								listeners: {
 									focus: function(field){field.blur();},
 									render: function(c) {
@@ -1177,6 +1178,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				                }
 				            },
 				            {
+				            	itemId: 'additional_life_cover_panel',
 				            	xtype: 'panel',
 				            	layout: 'form',
 				            	//collapsed: true,
@@ -1270,11 +1272,12 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						
 						items: [
 							{
-								itemId: 's_pre_tax_super',
-								name: 'S_PRE_TAX_SUPER',
-								cls: 'x-form-readonly',
-								fieldLabel: 'Pre Tax Super',
-								value: 0,
+								itemId:				's_pre_tax_super',
+								name:				'S_PRE_TAX_SUPER',
+								cls:				'x-form-readonly',
+								fieldLabel:			'Pre Tax Super',
+								value:				0,
+								enableKeyEvents:	true,
 								listeners: {
 									scope: this,
 									render: function(c) {
@@ -1381,6 +1384,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 				                }
 				            },
 				            {
+				            	itemId: 's_additional_life_cover_panel',
 				            	xtype: 'panel',
 				            	layout: 'form',
 				            	//collapsed: true,
@@ -2233,22 +2237,45 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				//stop financial data being sent to the backend for processing while data is loaded into the form
 				this.processingAllowed	= false;
 				
+				//checks if housing stipend should be hidden
+				if ((data['housing_stipend'] !== undefined && data['housing_stipend'] > 0) || (data['s_housing_stipend'] !== undefined && data['s_housing_stipend'] > 0)) {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').show();
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').show();
+				} else {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+				}
+				
 				//load pre tax super mode first if it exists
 				if (data['pre_tax_super_mode'] !== undefined) {
 					if (data['pre_tax_super_mode'] == 'manual') {
-						this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_mode').toggle(false);
-					} else {
 						this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_mode').toggle(true);
+					} else {
+						this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_mode').toggle(false);
 					}
 				}
 				
 				//load pre tax super mode first if it exists
 				if (data['s_pre_tax_super_mode'] !== undefined) {
 					if (data['s_pre_tax_super_mode'] == 'manual') {
-						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_mode').toggle(false);
-					} else {
 						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_mode').toggle(true);
+					} else {
+						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_mode').toggle(false);
 					}
+				}
+				
+				//checks if super fund should be hidden
+				if ((data['super_fund'] !== undefined && data['super_fund'] == 1)) {
+					this.getComponent('super_panel').getComponent('my').getComponent('additional_life_cover_panel').expand();
+				} else {
+					this.getComponent('super_panel').getComponent('my').getComponent('additional_life_cover_panel').collapse();
+				}
+				
+				//checks if spouse super fund should be hidden
+				if ((data['s_super_fund'] !== undefined && data['s_super_fund'] == 1)) {
+					this.getComponent('super_panel').getComponent('spouse').getComponent('s_additional_life_cover_panel').expand();
+				} else {
+					this.getComponent('super_panel').getComponent('spouse').getComponent('s_additional_life_cover_panel').collapse();
 				}
 				
 				for (field in data) {
