@@ -5,12 +5,16 @@ if(file_exists("FinancialProcessor.php")) {
 	include_once("FinancialProcessor.php");
 	include_once("../lib/FirePHPCore/fb.php");
 	include_once('../lib/cas/cas.php');		//include the CAS module
+	include_once('classes/TmnAuthorisationProcessor.php');
+	include_once('classes/TmnCrudUser.php');
 } else {
 	include_once("../mysqldriver.php");
 	include_once("../logger.php");
 	include_once("../FinancialProcessor.php");
 	include_once("../../lib/FirePHPCore/fb.php");
 	include_once('../../lib/cas/cas.php');		//include the CAS module
+	include_once('../classes/TmnAuthorisationProcessor.php');
+	include_once('../classes/TmnCrudUser.php');
 }
 
 //Authenticate the user in GCX with phpCAS
@@ -149,7 +153,13 @@ class FinancialSubmitter extends FinancialProcessor {
 						
 						'tmn'								=>	"__",
 						
+					
+		////////////////////////////                       IMPORTANT:                       ////////////////////////////
+		//The auth reasons fields in the database are 1500 chars long (the longest single reason is ~300 chars long)  //
+		//If you add more possible reasons, or the length of them, make sure they won't be truncated by the database. //
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						'auth_lv1'							=>	0,
+						'auth_lv1_reasons'					=>	array(),
 						'auth_lv2'							=>	0,
 						'auth_lv2_reasons'					=>  array(),
 						'auth_lv3'							=>	0,
@@ -170,6 +180,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 			$xmlobject = new SimpleXmlElement($xmlstr);
 			$this->guid = $xmlobject->authenticationSuccess->attributes->ssoGuid;
+			$this->guid = (string)$this->guid;
 			$this->setGuid($this->guid);
 		}
 		$this->spouse = $this->financial_data['spouse'];
@@ -575,8 +586,14 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		if($this->DEBUG) fb($this->data);
 		
+		////////////////////////////                       IMPORTANT:                       ////////////////////////////
+		//The auth reasons fields in the database are 1500 chars long (the longest single reason is ~300 chars long)  //
+		//If you add more possible reasons, or the length of them, make sure they won't be truncated by the database. //
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		//TMN BANDS
-		$this->data['auth_lv1'] = 1;
+		$this->data['auth_lv1'] = 1; //always require level 1 auth
+		
 		if ($iscouple) {
 			//check min bound
 			if($this->data['tmn'] < $this->BAND_TMN_COUPLE_MIN) {
@@ -625,13 +642,55 @@ class FinancialSubmitter extends FinancialProcessor {
 				}
 			}
 		}
-		
 		//ADDITIONAL HOUSING AUTH CHECK
 		if ($this->data['additional_housing'] != 0) {
 			$this->data['auth_lv1'] = 1;
 			$this->data['auth_lv2'] = 1;
 			$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'You have an Additional Housing Allowance.');
 		}
+		
+		
+		////////////////////////////                       IMPORTANT:                       ////////////////////////////
+		//The auth reasons fields in the database are 1500 chars long (the longest single reason is ~300 chars long)  //
+		//If you add more possible reasons, or the length of them, make sure they won't be truncated by the database. //
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		//Grab the guids for the specified authorisers
+		
+		//Add the reasons to the database
+		$reasons = array(	1 => $this->data['auth_lv1_reasons'],
+							2 => $this->data['auth_lv2_reasons'],
+							3 => $this->data['auth_lv3_reasons']
+						);
+						
+		//bug out (softly) if the database will clip the reasons
+		foreach ($reasons as $k => $v) {
+			if (strlen(json_encode($v)) > 1500) {
+				die(json_encode(array('success' => false, 'alert' => 'FinancialSubmitter.php Level '.$k.' reasons json object is too long for the database')));
+			}
+		}
+		
+		//$sql = "SELECT AUTH_SESSION_ID FROM Tmn_Sessions WHERE SESSION_ID = ".$this->financial_data['sessionid']
+		fb("665: financial_data");
+		fb($this->financial_data);
+		fb("667: data");
+		fb($this->data);
+		fb($this);
+
+		
+		
+		$authproc = new TmnAuthorisationProcessor($this->logger->getLogPath(), null);
+		
+		$authproc->make($this->guid,
+						$this->data['auth_lv1'],
+						json_encode($this->data['auth_lv1_reasons']),
+						$this->data['auth_lv2'],
+						json_encode($this->data['auth_lv2_reasons']),
+						$this->data['auth_lv3'],
+						json_encode($this->data['auth_lv3_reasons'])
+						);
+		fb("authproc after make()");
+		fb($authproc);
 		
 		//MPD AUTH CHECK
 		if ($row['MPD'] == 1) {

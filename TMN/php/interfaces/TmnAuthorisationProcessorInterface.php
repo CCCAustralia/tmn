@@ -9,29 +9,30 @@ interface TmnAuthorisationProcessorInterface {
 	 * 
 	 * Flynn to Insert Description
 	 * 
-	 * @param String		$logfile	- path of the file used to log any exceptions or interactions
-	 * @param String		$id			- id of authorisation session to be loaded into object
+	 * @param String		$logfile					- path of the file used to log any exceptions or interactions
+	 * @param String		$auth_session_id			- id of authorisation session to be loaded into object. If $auth_session_id is null, a new, blank row will be created and make() must be used to fill it.
 	 * 
 	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log");							will create an empty TmnAuthoristationProcessor
 	 * @example $user = new TmnAuthorisationProcessorInterface("logfile.log", "your_auth_session_id");	will create a TmnAuthoristationProcessor filled with the data associated with your_auth_session_id
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $id);
+	public function __construct($logfile, $auth_session_id);
 	
 	
 	/**
-	 * Will create an instance of TmnAuthoristationProcessor and will prefill it with the data associated
-	 * with the id passed to it.
+	 * Will fill the row in Auth_Table with the specified auth data.
 	 * 
-	 * @param string $logfile			- Path of the file used to log any exceptions or interactions
-	 * @param string $auth_session_id	- Unique ID for the authorisation session you want to load into this class
+	 * @param $auth_user
+	 * @param $auth_level_1
+	 * @param $auth_level_1_reasons
+	 * @param $auth_level_2
+	 * @param $auth_level_2_reasons
+	 * @param $auth_level_3
+	 * @param $auth_level_3_reasons
 	 * 
-	 * @return TmnAuthorisationProcessor
-	 * 
-	 * Note: will throw LightException if it can't complete this task.
 	 */
-	public function make($logfile, $auth_session_id);
+	public function make($auth_user, $auth_level_1 = null, $auth_level_1_reasons = null, $auth_level_2 = null, $auth_level_2_reasons = null, $auth_level_3 = null, $auth_level_3_reasons = null);
 	
 	
 	

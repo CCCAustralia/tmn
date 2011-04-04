@@ -42,7 +42,7 @@ interface TmnCrudSessionInterface {
 	 * 
 	 * @example setOwner(); will set the owner to null
 	 */
-	public function setOwner(TmnCrudUser $owner);
+	public function setOwner(TmnCrudUser $owner=null);
 	
 	/**
 	 * Returns the currently set Global User ID for the owner

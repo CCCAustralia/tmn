@@ -1,8 +1,13 @@
 <?php
-
-include_once('../interfaces/TmnAuthorisationProcessorInterface.php');
-include_once('../classes/email.php');
-include_once('../classes/TmnCrud.php');
+if (file_exists('../classes/TmnCrud.php')) {
+	include_once('../interfaces/TmnAuthorisationProcessorInterface.php');
+	include_once('../classes/email.php');
+	include_once('../classes/TmnCrud.php');
+} else {
+	include_once('interfaces/TmnAuthorisationProcessorInterface.php');
+	include_once('classes/email.php');
+	include_once('classes/TmnCrud.php');
+}
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
 	
@@ -43,7 +48,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				'AUTH_USER' 			=> "s",
 				'AUTH_LEVEL_1' 			=> "s",
 				'AUTH_LEVEL_2'			=> "s",
-				'AUTH_LEVEL_3'			=> "s"
+				'AUTH_LEVEL_3'			=> "s",
+				'AUTH_LEVEL_1_REASONS'	=> "s",
+				'AUTH_LEVEL_2_REASONS' 	=> "s",
+				'AUTH_LEVEL_3_REASONS'	=> "s"
 			),
 			array(
 				'USER_RESPONSE'			=> "s",
@@ -62,45 +70,28 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 	
 		//define which row
-		$this->setField('AUTH_SESSION_ID', $this->authsessionid);
-		$this->retrieve();
+		if ($this->authsessionid) {
+			$this->setField('AUTH_SESSION_ID', $this->authsessionid);
+			$this->retrieve();
+		} else {
+			$this->authsessionid = $this->create();
+			$this->setField('AUTH_SESSION_ID', $this->authsessionid);
+			$this->retrieve();
+		}
 	}
 
 	
-	
-	/**
-	 * Will create an instance of TmnAuthorisationProcessor and will prefill it with the data associated
-	 * with the id passed to it.
-	 * 
-	 * @param string $logfile			- Path of the file used to log any exceptions or interactions
-	 * @param string $auth_session_id	- Unique ID for the authorisation session you want to load into this class
-	 * 
-	 * Note: will throw LightException if it can't complete this task.
-	 */
-	public function make($logfile, $auth_session_id) {
-		$this->authsessionid = $auth_session_id;		//store the authsessionid
-		$newObj = new TmnAuthorisationProcessor(		//construct a new object with crud 
-			$this->logfile,
-			"Auth_Table", 
-			"AUTH_SESSION_ID", 
-			array(
-				'AUTH_USER' 			=> "s",
-				'AUTH_LEVEL_1' 			=> "s",
-				'AUTH_LEVEL_2'			=> "s",
-				'AUTH_LEVEL_3'			=> "s"
-			),
-			array(
-				'USER_RESPONSE'			=> "s",
-				'LEVEL_1_RESPONSE'		=> "s",
-				'LEVEL_2_RESPONSE'		=> "s",
-				'LEVEL_3_RESPONSE'		=> "s",
-				'FINANCE_RESPONSE'		=> "s"
-			)
-		);
+	public function make($auth_user, $auth_level_1 = null, $auth_level_1_reasons = null, $auth_level_2 = null, $auth_level_2_reasons = null, $auth_level_3 = null, $auth_level_3_reasons = null) {
+									$this->setField("AUTH_USER", 			$auth_user);
+		if ($auth_level_1){ 		$this->setField("AUTH_LEVEL_1", 		$auth_level_1); 		}
+		if ($auth_level_1_reasons){	$this->setField("AUTH_LEVEL_1_REASONS",	$auth_level_1_reasons);	}
+		if ($auth_level_2){			$this->setField("AUTH_LEVEL_2",			$auth_level_2); 		}
+		if ($auth_level_2_reasons){	$this->setField("AUTH_LEVEL_2_REASONS", $auth_level_2_reasons);	}
+		if ($auth_level_3){			$this->setField("AUTH_LEVEL_3",			$auth_level_3);			}
+		if ($auth_level_3_reasons){	$this->setField("AUTH_LEVEL_3_REASONS", $auth_level_3_reasons);	}
 		
-		$this->authcrud = $newObj;
-		$this->d($newObj);
-		//TODO: complete make(), confirm output, once interface bug is fixed
+		$this->update();
+		
 		
 	}
 	

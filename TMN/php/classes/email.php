@@ -1,5 +1,9 @@
 <?php
-include_once('../interfaces/emailInterface.php');
+if (file_exists('../interfaces/emailInterface.php')) {
+	include_once('../interfaces/emailInterface.php');
+} else {
+	include_once('interfaces/emailInterface.php');
+}
 
 class Email implements emailInterface{
 	

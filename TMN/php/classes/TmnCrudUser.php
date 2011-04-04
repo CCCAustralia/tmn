@@ -1,8 +1,11 @@
 <?php
-
-include_once('../interfaces/TmnCrudUserInterface.php');
-
-include_once('../classes/TmnCrud.php');
+if(file_exists('../classes/TmnCrud.php')) {
+	include_once('../interfaces/TmnCrudUserInterface.php');
+	include_once('../classes/TmnCrud.php');
+} else {
+	include_once('interfaces/TmnCrudUserInterface.php');
+	include_once('classes/TmnCrud.php');
+}
 
 class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	

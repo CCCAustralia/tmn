@@ -1,9 +1,13 @@
 <?php
-
-include_once('../interfaces/TmnCrudInterface.php');
-
-include_once('../classes/Reporter.php');
-include_once('../classes/TmnDatabase.php');
+if (file_exists('../interfaces/TmnCrudInterface.php')) {
+	include_once('../interfaces/TmnCrudInterface.php');
+	include_once('../classes/Reporter.php');
+	include_once('../classes/TmnDatabase.php');
+} else {
+	include_once('interfaces/TmnCrudInterface.php');
+	include_once('classes/Reporter.php');
+	include_once('classes/TmnDatabase.php');
+}
 
 class TmnCrud extends Reporter implements TmnCrudInterface {
 	
