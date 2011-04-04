@@ -13,15 +13,12 @@
 			<td><img class="tmn-logo" src="http://www.ccca.org.au/tntmpd/TntMPDCCCALogo-new.JPG" alt="CCCA Logo" /></td>
 		</tr>
 	</table>
-	
+	<div>(You may want to save/print a copy for your own records.)<p>&nbsp;</p></div>
 	<table>
 		<tr>
 			<td style="width:50%;"><b>Name: </b>{firstname} {surname}</td>
 			<td style="width:25%;"><b>Date: </b>{date}</td>
 			<td style="width:25%;"><b>Support Account: </b>{fan}</td>
-		</tr>
-		<tr>
-			<td colspan="3"><div class="tmn-note"><b>Note:</b> From this year on your support account no. will have the form 101#### instead of 800####.</div></td>
 		</tr>
 		<tr>
 			<td colspan="3">
@@ -40,7 +37,22 @@
 			<td colspan="3"><hr /></td>
 		</tr>
 	</table>
-	
+	<p>&nbsp;</p>
+	<div class="tmn-authorisation">
+	<div class="header">Authorisation</div>
+		<tpl if="auth_lv2 || auth_lv3">
+			<div class="reasons">
+				<tpl if="auth_lv2">
+			 		Your TMN must be approved by your NML because:
+			 		<tpl for="auth_lv2_reasons"><div class="indent">- {reason}</div></tpl>
+				</tpl>
+				<tpl if="auth_lv3"><br/>
+			 		Your TMN must be approved by your MGL because:
+			 		<tpl for="auth_lv3_reasons"><div class="indent">- {reason}</div></tpl>
+				</tpl>
+			</div>
+		</tpl>
+	</div>
 	<p>&nbsp;</p>
 	
 	<div class="tmn-break-down">
@@ -323,219 +335,8 @@
 		</table>
 		</div>
 	</tpl>
-	
 	<p>&nbsp;</p>
 	
-	<h2>Update Payment Methods</h2>
-	<p>
-		<u>If your bank or credit card details have changed</u>
-	</p>
-	<p>Please record them below.</p>
-
-	<tpl if="housing &gt; 0">
-		<p>&nbsp;</p>
-		
-		<div class="tmn-housing-payments">
-		<div class="header">Housing Payments</div>
-		<table>
-			<tr>
-				<td>
-					<strong>Bank Account (preferred)</strong>
-				</td>
-				<td>
-					<strong>Cheque</strong>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>Name on Account:</p>
-					<p><br>___________________________________________</p>
-				</td>
-				<td>
-					<p>Name on Cheque:</p>
-					<p><br>___________________________________________</p>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>BSB:</p>
-					__ __ __ / __ __ __
-				</td>
-				<td>
-					<p>Postal Address:</p>
-					<p><br>___________________________________________</p>
-					<p><br>___________________________________________</p>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>Account Number:</p>
-					<p><br>___________________________________________</p>
-				</td>
-				<td>
-					<p>Reference (if needed):</p>
-					<p><br>___________________________________________</p>
-				</td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
-			</tr>
-			<tr>
-				<td>
-					<strong>BPay:</strong>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>BPay Reference Number (this may or may not be your card number):</p>
-					<p><br>__ __ __ __ - __ __ __ __ - __ __ __ __ - __ __ __ __</p>
-				</td>
-				<td>
-					<p>BPay Biller Code:</p>
-					<p><br>__ __ __ __ - __ __ __ __</p>
-				</td>
-			</tr>
-		</table>
-		</div>
-	</tpl>
-	
-	<p>&nbsp;</p>
-	
-	<div class="tmn-stipend-payments">
-	<div class="header">Stipend Payments</div>
-	<table>
-		<tr>
-			<td>
-				<strong>Bank Account</strong>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<p>Name on Account:</p>
-				<p><br>___________________________________________</p>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<p>BSB:</p>
-				<p><br>__ __ __ /__ __ __</p>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<p>Account Number:</p>
-				<p><br>___________________________________________</p>
-			</td>
-		</tr>
-	</table>
-	</div>
-	
-	<br />
-	
-	<div class="tmn-mfb-payments">
-	<div class="header">MMR/MFB Reimbursements:</div>
-	<table>
-		<tr>
-			<td colspan="2">
-				<strong>Credit Card</strong>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<p>Name on Card</p>
-				<p><br>___________________________________________</p>
-			</td>
-			<td>
-				<p>
-					<br><input type="checkbox" name="checkbox" value="checkbox"> Visa
-					<br><input type="checkbox" name="checkbox" value="checkbox"> MasterCard
-				</p>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<p>Financial Institution</p>
-				<p><br>___________________________________________</p>
-			</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td>
-				<p>BPay Reference Number (this may or may not be your card number):</p>
-				<p><br>__ __ __ __ - __ __ __ __ - __ __ __ __ - __ __ __ __</p>
-			</td>
-			<td>
-				<p>BPay Biller Code:</p>
-				<p><br>__ __ __ __ - __ __ __ __</p>
-			</td>
-		</tr>
-	</table>
-	</div>
-	<p>&nbsp;</p>
-	
-	<div class="tmn-authorisation">
-	<div class="header">Authorisation</div>
-		<tpl if="auth_lv2 || auth_lv3">
-			<div class="reasons">
-				<tpl if="auth_lv2">
-			 		Your TMN must be approved by your NML because:
-			 		<tpl for="auth_lv2_reasons"><div class="indent">- {reason}</div></tpl>
-				</tpl>
-				<tpl if="auth_lv3"><br/>
-			 		Your TMN must be approved by your MGL because:
-			 		<tpl for="auth_lv3_reasons"><div class="indent">- {reason}</div></tpl>
-				</tpl>
-			</div>
-		</tpl>
-		<table>
-			<tr>
-				<td colspan="2"><b>Missionary:</b></td>
-			</tr>
-			<tr>
-				<td colspan="2">Name: {firstname} {surname}<hr /></td>
-			</tr>
-			<tr>
-				<td style="width: 70%">Signature: <hr /></td>
-				<td style="width: 30%">Date: <hr /></td>
-			</tr>
-			<tpl if="auth_lv1">
-				<tr>
-					<td colspan="2"><b>Ministry Overseer:</b></td>
-				</tr>
-				<tr>
-					<td colspan="2">Name:<hr /></td>
-				</tr>
-				<tr>
-					<td>Signature: <hr /></td>
-					<td>Date: <hr /></td>
-				</tr>
-			</tpl>
-			<tpl if="auth_lv2">
-				<tr>
-					<td colspan="2"><b>National Ministry Leader:</b></td>
-				</tr>
-				<tr>
-					<td colspan="2">Name: <hr /></td>
-				</tr>
-				<tr>
-					<td>Signature: <hr /></td>
-					<td>Date: <hr /></td>
-				</tr>
-			</tpl>
-			<tpl if="auth_lv3">
-				<tr>
-					<td colspan="2"><b>Ministry Group Leader:</b></td>
-				</tr>
-				<tr>
-					<td colspan="2">Name: <hr /></td>
-				</tr>
-				<tr>
-					<td>Signature: <hr /></td>
-					<td>Date: <hr /></td>
-				</tr>
-			</tpl>
-		</table>
-	</div>
 	<p class="footer">
 		$Rev$
 		 | 
