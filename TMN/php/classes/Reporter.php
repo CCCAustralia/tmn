@@ -3,11 +3,16 @@
 if (file_exists('../interfaces/ReporterInterface.php')) {
 	include_once('../interfaces/ReporterInterface.php');
 	require_once("../../lib/FirePHPCore/fb.php");
-} else {
+}
+if (file_exists('php/interfaces/ReporterInterface.php')) {
+	include_once('php/interfaces/ReporterInterface.php');
+	require_once("lib/FirePHPCore/fb.php");
+}
+if (file_exists('interfaces/ReporterInterface.php')) {
 	include_once('interfaces/ReporterInterface.php');
 	require_once("../lib/FirePHPCore/fb.php");
-	
 }
+
 //defines the two types of exceptions used in this project
 class FatalException extends Exception {}
 class LightException extends Exception {}

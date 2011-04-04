@@ -2,9 +2,14 @@
 if(file_exists('../classes/TmnCrud.php')) {
 	include_once('../interfaces/TmnCrudUserInterface.php');
 	include_once('../classes/TmnCrud.php');
-} else {
+}
+if(file_exists('classes/TmnCrud.php')) {
 	include_once('interfaces/TmnCrudUserInterface.php');
 	include_once('classes/TmnCrud.php');
+}
+if(file_exists('php/classes/TmnCrud.php')) {
+	include_once('php/interfaces/TmnCrudUserInterface.php');
+	include_once('php/classes/TmnCrud.php');
 }
 
 class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {

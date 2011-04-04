@@ -3,10 +3,16 @@ if (file_exists('../interfaces/TmnCrudInterface.php')) {
 	include_once('../interfaces/TmnCrudInterface.php');
 	include_once('../classes/Reporter.php');
 	include_once('../classes/TmnDatabase.php');
-} else {
+}
+if (file_exists('interfaces/TmnCrudInterface.php')) {
 	include_once('interfaces/TmnCrudInterface.php');
 	include_once('classes/Reporter.php');
 	include_once('classes/TmnDatabase.php');
+}
+if (file_exists('php/interfaces/TmnCrudInterface.php')) {
+	include_once('php/interfaces/TmnCrudInterface.php');
+	include_once('php/classes/Reporter.php');
+	include_once('php/classes/TmnDatabase.php');
 }
 
 class TmnCrud extends Reporter implements TmnCrudInterface {

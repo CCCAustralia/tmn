@@ -1,11 +1,23 @@
 <?php
 
-include_once('../interfaces/TmnInterface.php');
-
-include_once('../classes/Reporter.php');
-include_once('../classes/TmnCrudUser.php');
-include_once('../classes/TmnAuthenticator.php');
-
+if (file_exists('../interfaces/TmnInterface.php')) {
+	include_once('../interfaces/TmnInterface.php');
+	include_once('../classes/Reporter.php');
+	include_once('../classes/TmnCrudUser.php');
+	include_once('../classes/TmnAuthenticator.php');
+}
+if (file_exists('php/interfaces/TmnInterface.php')) {
+	include_once('php/interfaces/TmnInterface.php');
+	include_once('php/classes/Reporter.php');
+	include_once('php/classes/TmnCrudUser.php');
+	include_once('php/classes/TmnAuthenticator.php');
+}
+if (file_exists('interfaces/TmnInterface.php')) {
+	include_once('interfaces/TmnInterface.php');
+	include_once('classes/Reporter.php');
+	include_once('classes/TmnCrudUser.php');
+	include_once('classes/TmnAuthenticator.php');
+}
 class Tmn extends Reporter implements TmnInterface {
 	
 	

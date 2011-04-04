@@ -2,9 +2,14 @@
 if (file_exists('../interfaces/TmnDatabaseInterface.php')) {
 	include_once('../interfaces/TmnDatabaseInterface.php');
 	include_once('../classes/Reporter.php');
-} else {
+}
+if (file_exists('interfaces/TmnDatabaseInterface.php')) {
 	include_once('interfaces/TmnDatabaseInterface.php');
 	include_once('classes/Reporter.php');
+}
+if (file_exists('php/interfaces/TmnDatabaseInterface.php')) {
+	include_once('php/interfaces/TmnDatabaseInterface.php');
+	include_once('php/classes/Reporter.php');
 }
 class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 	

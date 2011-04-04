@@ -1,9 +1,19 @@
 <?php
-
-include_once('../interfaces/TmnAuthenticatorInterface.php');
-
-include_once('../classes/Reporter.php');
-include_once('../../lib/cas/cas.php');
+if (file_exists('../interfaces/TmnAuthenticatorInterface.php')) {
+	include_once('../interfaces/TmnAuthenticatorInterface.php');
+	include_once('../classes/Reporter.php');
+	include_once('../../lib/cas/cas.php');
+}
+if (file_exists('interfaces/TmnAuthenticatorInterface.php')) {
+	include_once('interfaces/TmnAuthenticatorInterface.php');
+	include_once('classes/Reporter.php');
+	include_once('../lib/cas/cas.php');
+}
+if (file_exists('php/interfaces/TmnAuthenticatorInterface.php')) {
+	include_once('php/interfaces/TmnAuthenticatorInterface.php');
+	include_once('php/classes/Reporter.php');
+	include_once('lib/cas/cas.php');
+}
 
 class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 	
@@ -73,7 +83,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 	public function authenticate() {
 
     	//include the CAS module if it's not already there
-		include_once('../../lib/cas/cas.php');
+		//include_once('../../lib/cas/cas.php');
 		
 		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
 		if ( !isset($GLOBALS['_CAS_CLIENT_CALLED']) ) {
