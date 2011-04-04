@@ -21,75 +21,32 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 	die('{success: false}');
 
 class FinancialProcessor {
-	//TODO: grab these values from DB
-	//financial values
-	private $STIPEND_MIN		=	100;
-	private $MIN_SUPER_RATE		= 	0.09; 	//for employer super
-	private $MIN_ADD_SUPER_RATE	=	0.09; 	//for pre-tax super
-	private $OS_STIPEND_MAX		=	850;	//overseas maximum stipend (surplus is LAFHA)
+
+	private $STIPEND_MIN;//100;
+	private $MIN_SUPER_RATE;//0.09; 	//for employer super
+	private $MIN_ADD_SUPER_RATE;//0.09; 	//for pre-tax super
+	private $OS_STIPEND_MAX;//850;	//overseas maximum stipend (surplus is LAFHA)
+	private $MAX_HOUSING_MFB;
+	private $MAX_HOUSING_MFB_COUPLES;
+	
 	
 	//tax values
 	//formula and values grabbed from:
 	//Statement of formulas for calculating amounts to be withheld
 	
 	//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
-	private $x_resident = array(
-					198,
-					342,
-					402,
-					576,
-					673,
-					1225,
-					1538,
-					3461,
-					PHP_INT_MAX //this is the highest number possible
-				);
+	private $x_resident;
 				
-	private $a_resident = array(
-					0.000,
-					0.150,
-					0.250,
-					0.165,
-					0.185,
-					0.335,
-					0.315,
-					0.395,
-					0.465
-				);
+	private $a_resident;
 				
-	private $b_resident = array(
-					0.0000,
-					29.7115,
-					63.9308,
-					29.7117,
-					41.2502,
-					142.2117,
-					117.6925,
-					240.7694,
-					483.0771
-				);
+	private $b_resident;
 				
 	//Scale 3 (Foreign Residents)
-	private $x_non_resident = array(
-					673,
-					1538,
-					3461,
-					PHP_INT_MAX	//this is the highest number possible
-				);
+	private $x_non_resident;
 				
-	private $a_non_resident = array(
-					0.2900,
-					0.3000,
-					0.3800,
-					0.4500
-				);
+	private $a_non_resident;
 	
-	private $b_non_resident = array(
-					0.2900,
-					6.7308,
-					129.8077,
-					372.1154
-				);
+	private $b_non_resident;
 	
 	//personal details
 	private $guid;
@@ -109,6 +66,43 @@ class FinancialProcessor {
 	//						$dbug		- (number 0,1) tells the object if it should use debug mode or not
 	//returns				n/a
 	public function __construct($findat, $dbug) {
+		//////////  SET UP CONSTANTS  //////////
+		include_once('classes/TmnConstants.php');
+		$constants = getConstants(array(	"STIPEND_MIN", 
+											"MIN_SUPER_RATE", 
+											"MIN_ADD_SUPER_RATE", 
+											"OS_STIPEND_MAX", 
+											"x_resident", 
+											"a_resident", 
+											"b_resident", 
+											"x_non_resident", 
+											"a_non_resident", 
+											"b_non_resident",
+											"MAX_HOUSING_MFB",
+											"MAX_HOUSING_MFB_COUPLES"
+								));
+		//financial values
+		$this->STIPEND_MIN			=	$constants['STIPEND_MIN'];//100;
+		$this->MIN_SUPER_RATE		= 	$constants['MIN_SUPER_RATE'];//0.09; 	//for employer super
+		$this->MIN_ADD_SUPER_RATE	=	$constants['MIN_ADD_SUPER_RATE'];//0.09; 	//for pre-tax super
+		$this->OS_STIPEND_MAX		=	$constants['OS_STIPEND_MAX'];//850;	//overseas maximum stipend (surplus is LAFHA)
+		
+		//tax values
+		//formula and values grabbed from:
+		//Statement of formulas for calculating amounts to be withheld
+		
+		//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
+		$this->x_resident 		= json_decode($constants['x_resident']);
+		$this->a_resident 		= json_decode($constants['a_resident']);
+		$this->b_resident 		= json_decode($constants['b_resident']);
+		$this->x_non_resident 	= json_decode($constants['x_non_resident']);
+		$this->a_non_resident 	= json_decode($constants['a_non_resident']);
+		$this->b_non_resident 	= json_decode($constants['b_non_resident']);
+		
+		$this->MAX_HOUSING_MFB 			= $constants['MAX_HOUSING_MFB'];
+		$this->MAX_HOUSING_MFB_COUPLES 	= $constants['MAX_HOUSING_MFB_COUPLES'];
+		//////////      DONE      //////////
+						
 		$this->financial_data = $findat;
 			//grab guid
 		if (isset($_SESSION['phpCAS'])) {
@@ -607,7 +601,8 @@ class FinancialProcessor {
 	//params:				n/a
 	//returns				max housing mfb (a number > 0)
 	public function getMaxHousingMfb(){
-		return $this->spouse ? 1600 : 960;
+		//update 2011 - fetch from database as a constant. was 960/1600c
+		return $this->spouse ? $this->MAX_HOUSING_MFB_COUPLES : $this->MAX_HOUSING_MFB;
 	}
 	
 	

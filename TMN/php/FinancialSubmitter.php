@@ -35,21 +35,21 @@ class FinancialSubmitter extends FinancialProcessor {
 	private $guid;
 	private $spouse;
 	
-	//TODO: put in DB
 	//Member Care constants
-	private $WORKERS_COMP_RATE = 0.015;
-	private $CCCA_LEVY_RATE = 0.1;
-	private $MIN_ADD_SUPER_RATE = 0.09;	//Minimum Additional CCCA Pre-tax Super - rate for Full MFB
-	private $NET_STIPEND_MIN = 100;
+	private $WORKERS_COMP_RATE;// = 0.015;
+	private $CCCA_LEVY_RATE;// = 0.1;
+	private $MIN_ADD_SUPER_RATE;// = 0.09;	//Minimum Additional CCCA Pre-tax Super - rate for Full MFB
+	private $NET_STIPEND_MIN;// = 100;		//2011: USING STIPEND_MIN VALUE (from FinancialProcessor)
 	
 	//Band values
+	private $BAND_FP_COUPLE;//			=	6000;
+	private $BAND_FP_SINGLE;//			=	3600;
+	private $BAND_TMN_COUPLE_MIN;//	=	3600;
+	private $BAND_TMN_COUPLE_MAX;//	=	7200;
+	private $BAND_TMN_SINGLE_MIN;//	=	2400;
+	private $BAND_TMN_SINGLE_MAX;//	=	4100;
+	
 	private $MULTIPLIER				=	1;
-	private $BAND_FP_COUPLE			=	6000;
-	private $BAND_FP_SINGLE			=	3600;
-	private $BAND_TMN_COUPLE_MIN	=	3600;
-	private $BAND_TMN_COUPLE_MAX	=	7200;
-	private $BAND_TMN_SINGLE_MIN	=	2400;
-	private $BAND_TMN_SINGLE_MAX	=	4100;
 	
 	//DATA ARRAY SETUP//
 	private $data = array(
@@ -173,6 +173,35 @@ class FinancialSubmitter extends FinancialProcessor {
 	//						$dbug		- (number 0,1) tells the object if it should use debug mode or not
 	//returns				n/a
 	public function __construct($findat, $dbug) {
+		
+		//////////  SET UP CONSTANTS  //////////
+		include_once('classes/TmnConstants.php');
+		$constants = getConstants(array(	"WORKERS_COMP_RATE", 
+											"CCCA_LEVY_RATE", 
+											"MIN_ADD_SUPER_RATE", 
+											"STIPEND_MIN", 
+											"BAND_FP_COUPLE", 
+											"BAND_FP_SINGLE", 
+											"BAND_TMN_COUPLE_MIN", 
+											"BAND_TMN_COUPLE_MAX", 
+											"BAND_TMN_SINGLE_MIN", 
+											"BAND_TMN_SINGLE_MAX"
+								));
+		//Member Care constants
+		$this->WORKERS_COMP_RATE	= 	$constants['WORKERS_COMP_RATE'];
+		$this->CCCA_LEVY_RATE		=	$constants['CCCA_LEVY_RATE'];
+		$this->MIN_ADD_SUPER_RATE	=	$constants['MIN_ADD_SUPER_RATE'];	//using same as FinancialProcessor
+		$this->NET_STIPEND_MIN		=	$constants['STIPEND_MIN']; 			//using same as FinancialProcessor
+		
+		//Band values
+		$this->BAND_FP_COUPLE 		= 	$constants['BAND_FP_COUPLE'];//				=	6000;
+		$this->BAND_FP_SINGLE 		= 	$constants['BAND_FP_SINGLE'];//				=	3600;
+		$this->BAND_TMN_COUPLE_MIN 	= 	$constants['BAND_TMN_COUPLE_MIN'];//		=	3600;
+		$this->BAND_TMN_COUPLE_MAX 	= 	$constants['BAND_TMN_COUPLE_MAX'];//		=	7200;
+		$this->BAND_TMN_SINGLE_MIN 	= 	$constants['BAND_TMN_SINGLE_MIN'];//		=	2400;
+		$this->BAND_TMN_SINGLE_MAX 	= 	$constants['BAND_TMN_SINGLE_MAX'];//		=	4100;
+		//////////      DONE      //////////
+		
 		parent::setFinancialData($findat);
 		
 		

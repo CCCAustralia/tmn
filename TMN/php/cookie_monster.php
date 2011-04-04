@@ -1,4 +1,5 @@
 <?php
+
 $DEBUG = 1;
 
 include_once("FinancialProcessor.php");

@@ -1,8 +1,9 @@
 <?php
-
+include_once('php/classes/TmnConstants.php');
+$constants = getConstants(array("VERSIONNUMBER"));
 $DEBUG = 1;
 $NEWVERSION = 1;
-$VERSIONNUMBER = "2-1-1";
+$VERSIONNUMBER = $constants['VERSIONNUMBER'];//"2-1-1";
 
 if ($DEBUG) {
 	$force_debug = "-debug";
