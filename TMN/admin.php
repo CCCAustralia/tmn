@@ -45,40 +45,55 @@ foreach ($constants as $fieldname => $value) {
 		
 		//echo "<tr><td>".$savestring."</td><td></td></tr>";
 		
-		//array output
+//////  array output  //////
 		if (is_array(json_decode($value))) {
-						//output array (edit mode - text box and save button)
+	////edit mode - text box and save button
 			if ($_REQUEST['edit'] == $fieldname) {
+		////array name
 				echo "<tr><td>".$fieldname."</td><td>";
 				foreach (json_decode($value) as $key => $subvalue) {
-					echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='save' /><br />";
+					if ($subvalue == PHP_INT_MAX) {
+						echo $subvalue."<br />";	//don't allow them to edit intmax
+					} else {
+		////edit array elements
+						echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='save' /><br />";
+					}
 				}
 				echo "</tr>";
-			} else {	//output array (normal mode - link to edit mode)
+			} else {	
+	////normal mode - link to edit mode
+		////link to edit mode for array
 				echo "<tr><td><a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td><td>";
 				foreach (json_decode($value) as $subvalue) {
 					echo $subvalue."<br />";
 				}
 				echo "</tr>";
 			}
-			
+//////  value output  //////
 		} else {
-						//output value (edit mode - text box and save button)
+	////edit mode - text box and save button
 			if ($_REQUEST['edit'] == $fieldname) {
+		////value name, edit box and save button
 				echo "<tr><td>".$fieldname."</td><td><input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='save' /></td></tr>";
-			} else {	//output value (normal mode - link to edit mode)
+			} else {	
+	////normal mode - link to edit mode
+		////value name, value
 				echo "<tr><td><a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td><td>".$value."</td></tr>";
-				
 			}
 		}
 	}
 	
 }
+
+//form the save sql
 if ($savefield != "") {
 	$sql = "UPDATE `Constants` SET `".$savefield."` = '".$savestring."' WHERE VERSIONNUMBER = '".$versionnumber."'";
 	$sql = mysql_query($sql);
 	mysql_close($connection);
 	
 }
-echo "</table></form>$sql</body></html>";
+echo "</table></form>";
+
+//ministry leader input
+echo "</body></html>";
 ?>
