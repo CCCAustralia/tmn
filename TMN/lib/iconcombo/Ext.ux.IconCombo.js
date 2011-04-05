@@ -56,6 +56,13 @@ Ext.extend(Ext.ux.IconCombo, Ext.form.ComboBox, {
         if (this.rendered) {
         	this.setIconCls();
         }
+    },
+    
+    clearValue: function() {
+    	Ext.ux.IconCombo.superclass.clearValue.call(this);
+        if (this.rendered) {
+        	this.flag.className = 'x-icon-combo-icon x-icon-combo-unlocked';
+        }
     }
  
 }); // end of extend

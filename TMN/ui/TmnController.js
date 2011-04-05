@@ -329,11 +329,8 @@ tmn.TmnController = function() {
 			if (this.view.getActiveForm().home_assignment == true) {
 				this.view.loadActiveForm(this.getFinancialData('international-assignment'));		//loads the new form with local data
 				
-				//make the end date of the International Assignment be the start date of the Home assignment
-				var date = this.view.getFormAt(this.view.active - 1).getEndDate();
-				this.view.getActiveForm().setStartDate(date);
-				this.view.getActiveForm().startDate().setMinValue(date);
-				this.view.getActiveForm().endDate().setMinValue(date);
+				this.view.getActiveForm().disableStartDate();
+				
 				this.view.getActiveForm().onLoadSuccess(this.view.getActiveForm().getForm());
 			} else if (this.view.active == this.view.indexOfLastAussieForm() || this.view.active == this.view.indexOfLastOverseasForm()) {
 				this.view.loadActiveForm(this.response);
@@ -619,6 +616,12 @@ tmn.TmnController = function() {
 						dataObject['home-assignment']		= this.financial_data[international_assignment_form.id];
 					}
 					
+					//if the international end date is set copy it to the start date of the home assignment
+					if (dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] !== undefined && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != null && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != '') {
+						//set the home assignment start date to international end data
+						dataObject['home-assignment']['OS_ASSIGNMENT_START_DATE'] = dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'];
+					}
+					
 					//save the data for both forms (it doesn't matter which form you use)
 					form_panel.onSaveSession(dataObject);
 				}
@@ -662,15 +665,30 @@ tmn.TmnController = function() {
 						"Give your session a name:",
 						function(btn, text) {
 							if (btn == 'ok') {
-								//set the session name
-								this.form.setSessionName(text);
-								this.data.session_name	= text;
-								
-								//create the session in the database
-								this.form.onSaveAsSession(this.data);
+								if (text == '' || this.form.nameAlreadyExists(text)) {
+									//If the user enters a name that already exists get them to try again
+									Ext.MessageBox.show({
+										icon: Ext.MessageBox.WARNING,
+										buttons: Ext.MessageBox.OK,
+										closable: false,
+										title: 'Warning',
+										msg: 'You entered a blank name or a name that already exists. Please enter another name.',
+										scope: this,
+										fn: function(btn, options) {
+											this.controller.onSaveAsSession(this.form);
+										}
+									});
+								} else {
+									//set the session name
+									this.form.setSessionName(text);
+									this.data.session_name	= text;
+									
+									//create the session in the database
+									this.form.onSaveAsSession(this.data);
+								}
 							}
 						},
-						{form:form_panel, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+						{controller: this, form:form_panel, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
 						false,
 						default_name
 				);
@@ -681,14 +699,25 @@ tmn.TmnController = function() {
 			if (form_panel.overseas_form) {
 				
 				//grab the forms
-				var home_assignment_form				= this.getForm('home-assignment');
-				var international_assignment_form		= this.getForm('international-assignment');
+				var home_assignment_form					= this.getForm('home-assignment');
+				var international_assignment_form			= this.getForm('international-assignment');
 				
 				var dataObject = {};
 				 //use the international data because the user will be made to save for the first time on the international form
 				//so save as will never have access to home assignment data as it won't yet exist
-				dataObject['home-assignment']			= this.financial_data[international_assignment_form.id];
-				dataObject['international-assignment']	= this.financial_data[international_assignment_form.id];
+				dataObject['international-assignment']		= this.financial_data[international_assignment_form.id];
+				//copy international data to home object
+				dataObject['home-assignment']				= {};
+				for ($field in dataObject['international-assignment']) {
+					dataObject['home-assignment'][$field]	= dataObject['international-assignment'][$field];
+				}
+				
+				//if the international end date is set copy it to the start date of the home assignment
+				if (dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] !== undefined && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != null && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != '') {
+					//set the home assignment start date to international end data
+					dataObject['home-assignment']['OS_ASSIGNMENT_START_DATE'] = dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'];
+				}
+				console.info(dataObject);
 				
 				//make sure there is data for home assignment before running through it
 				if (dataObject['home-assignment']  !== undefined) {
@@ -741,18 +770,32 @@ tmn.TmnController = function() {
 						"Give your session a name:",
 						function(btn, text) {
 							if (btn == 'ok') {
-								
-								//set the session name for the forms
-								this.home_form.setSessionName(text);
-								this.international_form.setSessionName(text);
-								this.data['home-assignment']['session_name'] = text;
-								this.data['international-assignment']['session_name'] = text;
-								
-								//create the session in the database
-								this.form.onSaveAsSession(this.data);
+								if (text == '' || this.form.nameAlreadyExists(text)) {
+									//If the user enters a name that already exists get them to try again
+									Ext.MessageBox.show({
+										icon: Ext.MessageBox.WARNING,
+										buttons: Ext.MessageBox.OK,
+										closable: false,
+										title: 'Warning',
+										msg: 'You entered a blank name or a name that already exists. Please enter another name.',
+										scope: this,
+										fn: function(btn, options) {
+											this.controller.onSaveAsSession(this.form);
+										}
+									});
+								} else {
+									//set the session name for the forms
+									this.home_form.setSessionName(text);
+									this.international_form.setSessionName(text);
+									this.data['home-assignment']['session_name'] = text;
+									this.data['international-assignment']['session_name'] = text;
+									
+									//create the session in the database
+									this.form.onSaveAsSession(this.data);
+								}
 							}
 						},
-						{form: form_panel, home_form:home_assignment_form, international_form:international_assignment_form, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
+						{controller: this, form: form_panel, home_form:home_assignment_form, international_form:international_assignment_form, data:dataObject}, //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
 						false,
 						default_name
 				);

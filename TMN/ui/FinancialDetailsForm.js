@@ -264,14 +264,15 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 					    mode: 'local',
 					    // store getting items from server
 					    store: new Ext.data.JsonStore({
-					        itemId:'session_store',
-					        root: 'Tmn_Sessions',
-					        fields:['SESSION_ID', 'SESSION_NAME', 'LOCKED'],
-					        url:'php/imp/combofill.php',
-					        baseParams: {mode: 'Tmn_Sessions', aussie_form:this.aussie_form, home_assignment:this.home_assignment, overseas_form:this.overseas_form},
-					        autoLoad: true
+					        itemId:		'session_store',
+					        root:		'Tmn_Sessions',
+					        storeId:	'SESSION_ID',
+					        fields:		['SESSION_ID', 'SESSION_NAME', 'LOCKED'],
+					        url:		'php/imp/combofill.php',
+					        baseParams:	{mode: 'Tmn_Sessions', aussie_form:this.aussie_form, home_assignment:this.home_assignment, overseas_form:this.overseas_form},
+					        autoLoad:	true
 					    }),
-					    listeners: {
+					    listeners:		{
 					    	scope: this,
 					    	select: function(combo, record, index) {
 					    		this.fireEvent('loadsession', this);
@@ -1694,6 +1695,14 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * @param {number}	session		The number representing the user's session.
 	 */
 	setSession: function(session) {
+		
+		//if this session is in the combo then grab the session name and set the session name to the found name
+		var sessionStore	= this.getTopToolbar().items.map['session_combo'].getStore(),
+		sessionRecordId		= sessionStore.find('SESSION_ID', session + '');
+		if(sessionRecordId >= 0) {
+			this.setSessionName(sessionStore.getAt(sessionRecordId).data.SESSION_NAME);
+		}
+
 		this.financial_data.session_id = session;
 		this.getComponent('internal_transfers_panel').setSession(session);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_id';}}, session, false);
@@ -1708,7 +1717,27 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Sets the id of the current session that is being modified.
 	 * @param {number}	session		The number representing the user's session.
 	 */
-	setSessionName: function(name) {this.financial_data.session_name = name; this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_name';}}, name, false);},
+	setSessionName: function(name) {
+		this.financial_data.session_name = name;
+		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_name';}}, name, false);
+	},
+	
+	/**
+	 * Runs through all the names in the session combo and returns true if it finds name in that list
+	 * 
+	 * @returns {bool}
+	 */
+	nameAlreadyExists: function(session_name) {
+		//grab the store that holds the session names and ids
+		var sessionStore	= this.getTopToolbar().items.map['session_combo'].getStore();
+		//if the name is found in the store return true
+		if(sessionStore.find('SESSION_NAME',session_name) >= 0) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+	
 	/**
 	 * Returns whether the user has a spouse or not.
 	 * @returns {boolean}			A boolean that tell you if the user has a spouse.
@@ -1737,42 +1766,16 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Gets the start date of the assignment.
 	 * returns {string}	date	A string that represents the start date of the assignment. The format of the string will match the format property of the date field (ie d/m/Y).
 	 */
-	getStartDate: function() {
-		return this.getForm().items.map['os_assignment_start_date'].getValue();
+	enableStartDate: function() {
+		this.getForm().items.map['os_assignment_start_date'].enable();	
 	},
 	
 	/**
 	 * Sets the start date of the assignment.
 	 * @param {string}	date	A string that can be parsed into a valid date. The format of the string must match the format property of the date field (ie d/m/Y).
 	 */
-	setStartDate: function(date) {
-		this.getForm().items.map['os_assignment_start_date'].setValue(date);
-		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_assignment_start_date'], date.format(this.getForm().items.map['os_assignment_start_date'].format), false);
-	},
-	
-	/**
-	 * Returns a reference to the object that defines the start date field.
-	 * @returns {Ext.form.DateField}			The reference to the start date field.
-	 */
-	startDate: function() {
-		return this.getForm().items.map['os_assignment_start_date'];
-	},
-	
-	/**
-	 * Gets the end date of the assignment.
-	 * returns {string}	date	A string that represents the end date of the assignment. The format of the string will match the format property of the date field (ie d/m/Y).
-	 */
-	getEndDate: function() {
-		return this.getForm().items.map['os_assignment_end_date'].getValue();
-	},
-	
-	/**
-	 * Sets the end date of the assignment.
-	 * @param {string}	date	A string that can be parsed into a valid date. The format of the string must match the format property of the date field (ie d/m/Y).
-	 */
-	setEndDate: function(date) {
-		this.getForm().items.map['os_assignment_end_date'].setValue(date);
-		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_assignment_end_date'], date.format(this.getForm().items.map['os_assignment_end_date'].format), false);
+	disableStartDate: function(date) {
+		this.getForm().items.map['os_assignment_start_date'].disable();	
 	},
 
 	/**
@@ -2117,6 +2120,10 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
     			Ext.Msg.show({icon: Ext.MessageBox.WARNING, buttons: Ext.MessageBox.OK, closable: false, title: 'Server Error', msg: 'Could Not Connect to Server! Please Contact The Technology Team at <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>'});
                 break;
             case Ext.form.Action.SERVER_INVALID:
+            	if (action.result.alert !== undefined) {
+            		Ext.Msg.show({icon: Ext.MessageBox.WARNING, buttons: Ext.MessageBox.OK, closable: false, title: 'Server Error', msg: action.result.alert});
+            	}
+            	break;
        }
 	},
 	
@@ -2291,6 +2298,24 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				for (fieldCount = 0; fieldCount < this.getForm().items.length; fieldCount++){
 					if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 						this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
+				}
+				
+				//if no start date is loaded reset date field validation
+				if (this.getForm().items.map['os_assignment_start_date'].getValue() === undefined || this.getForm().items.map['os_assignment_start_date'].getValue() == null || this.getForm().items.map['os_assignment_start_date'].getValue() == '') {
+					this.getForm().items.map['os_assignment_start_date'].setMaxValue(null);
+					this.getForm().items.map['os_assignment_start_date'].setMinValue(null);
+				} else {
+					this.getForm().items.map['os_assignment_start_date'].setMaxValue(this.getForm().items.map['os_assignment_start_date'].getValue());
+					this.getForm().items.map['os_assignment_start_date'].setMinValue(null);
+				}
+				
+				//if no end date is loaded reset date field validation
+				if (this.getForm().items.map['os_assignment_end_date'].getValue() === undefined || this.getForm().items.map['os_assignment_end_date'].getValue() == null || this.getForm().items.map['os_assignment_end_date'].getValue() == '') {
+					this.getForm().items.map['os_assignment_end_date'].setMaxValue(null);
+					this.getForm().items.map['os_assignment_end_date'].setMinValue(null);
+				} else {
+					this.getForm().items.map['os_assignment_end_date'].setMaxValue(null);
+					this.getForm().items.map['os_assignment_end_date'].setMinValue(this.getForm().items.map['os_assignment_start_date'].getValue());
 				}
 			
 				//put the session combo's value back
@@ -2536,6 +2561,12 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		//reset financial data
 		this.fireEvent('resetfinancialdata', this);
 		
+		//reset date field validation
+		this.getForm().items.map['os_assignment_start_date'].setMaxValue(null);
+		this.getForm().items.map['os_assignment_start_date'].setMinValue(null);
+		this.getForm().items.map['os_assignment_end_date'].setMaxValue(null);
+		this.getForm().items.map['os_assignment_end_date'].setMinValue(null);
+		
 		//clear all fields
 		for (fieldCount = 0; fieldCount < this.getForm().items.length; fieldCount++){
 			this.getForm().items.items[fieldCount].reset();
@@ -2552,6 +2583,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		//clear the selected session in the combo
 		this.getTopToolbar().items.map['session_combo'].clearValue();
 		this.setSession(null);
+		this.setSessionName(null);
 		
 		//load the session's internal transfers
 		this.getComponent('internal_transfers_panel').resetInternalTransfers();

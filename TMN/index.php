@@ -85,7 +85,7 @@ if (mysql_num_rows($sql) == 1){
 	echo '<script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading TMN Form...";</script>';
 	
 	if ($DEBUG) {
-		echo '<script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/InternalTransfers.js'.$force_reload.'"></script><script type="text/javascript" src="ui/FinancialDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/PersonalDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnView.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnController.js'.$force_reload.'"></script>';
+		echo '<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script><script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script><script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/InternalTransfers.js'.$force_reload.'"></script><script type="text/javascript" src="ui/FinancialDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/PersonalDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnView.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnController.js'.$force_reload.'"></script>';
 	} else {
 		echo '<script type="text/javascript" src="ui/tmn-all.js'.$force_reload.'"></script>';
 	}
