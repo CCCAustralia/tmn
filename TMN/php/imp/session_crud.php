@@ -113,8 +113,9 @@ if (isset($_POST['mode'])) {
 				
 				if (isset($data_string) && isset($form_string)) {
 					//parse json
-					$form_array		= json_decode($form_string, true);
-					$data_array		= json_decode($data_string, true);
+					$form_array			= json_decode($form_string, true);
+					$data_array			= json_decode($data_string, true);
+					$inflationApplied	= false;
 					
 					
 					//retrieve an aussie based session from the database
@@ -123,8 +124,13 @@ if (isset($_POST['mode'])) {
 						$session->loadDataFromAssocArray($data_array);
 						
 						$session->retrieve();
-						
-						$response = array("success"=>true,"data"=>$session->produceAssocArray());
+						fb($session->produceAssocArray());
+						for ($yearCount = 0; $yearCount < $session->financialYearsSinceSessionCreation(); $yearCount++) {
+							$session->applyInflation();
+							$inflationApplied	= true;
+						}
+						fb($session->produceAssocArray());
+						$response = array("success"=>true,"data"=>$session->produceAssocArray(), "inflated"=>$inflationApplied);
 					}
 					
 					//retrieve the overseas based sessions from the database
@@ -138,11 +144,21 @@ if (isset($_POST['mode'])) {
 							$home_assignment_session->loadDataFromAssocArray($data_array);
 							$home_assignment_session->retrieve();
 							
+							for ($yearCount = 0; $yearCount < $home_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
+								$home_assignment_session->applyInflation();
+								$inflationApplied	= true;
+							}
+							
 							$international_assignment_session	= $home_assignment_session->getInternationalAssignment();
 						} else {
 							$international_assignment_session	= new TmnCrudSession($LOGFILE);
 							$international_assignment_session->loadDataFromAssocArray($data_array);
 							$international_assignment_session->retrieve();
+							
+							for ($yearCount = 0; $yearCount < $international_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
+								$international_assignment_session->applyInflation();
+								$inflationApplied	= true;
+							}
 							
 							$home_assignment_session			= $international_assignment_session->getHomeAssignment();
 						}
@@ -153,7 +169,7 @@ if (isset($_POST['mode'])) {
 																'international-assignment'	=>	$international_assignment_session->produceAssocArray()
 															);
 						
-						$response = array("success"=>true,"data"=>$return_data);
+						$response = array("success"=>true,"data"=>$return_data, "inflated"=>$inflationApplied);
 					}
 					
 				} else {

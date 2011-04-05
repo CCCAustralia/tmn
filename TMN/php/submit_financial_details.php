@@ -17,13 +17,13 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 	die('{success: false}');
 
 if($DEBUG) ob_start();		//enable firephp logging
-
+/*
 if (isset($_SESSION['phpCAS'])) {
 	$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
 	$xmlobject = new SimpleXmlElement($xmlstr);
 	$guid = $xmlobject->authenticationSuccess->attributes->ssoGuid;
 }
-
+*/
 
 $formdata = $_POST;
 if ($DEBUG) fb($formdata);

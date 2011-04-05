@@ -520,7 +520,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		//atm session is set to be guid but for internal transfers it needs to be FAN so $this->data['fan'] is used instead of $this->financial_data['session'] //
 		
 		//Internal Contribution Transfers
-		$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$this->data['fan']."'"); //should refer to $this->financial_data['session'] but atm fan is needed so that old transfers can be viewed
+		$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$this->financial_data['session']."'"); //should refer to $this->financial_data['session'] but atm fan is needed so that old transfers can be viewed
 		for ($i = 0; $i < mysql_num_rows($sql); $i++) {
 			$transfers_row = mysql_fetch_assoc($sql);
 			$transfer['name'] = $transfers_row['TRANSFER_NAME'];
@@ -574,7 +574,10 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['tmn']							=	round($subtotal + $total_transfers + $this->data['ccca_levy']);
 		
 		//Buffer Required
-		$this->data['buffer']						=	$this->data['tmn'] * ($row['MPD'] ? 2 : 1.5);
+		$this->data['buffer']						=	round($this->data['tmn'] * ($row['MPD'] ? 2 : 1.5));
+		
+		//For people doing MPD/NMA let the user know their regular buffer
+		$this->data['regular_buffer']				=	round($this->data['tmn'] * ($row['MPD'] ? 1.5 : 0));
 		
 
 		//Calculate days per week multiplier

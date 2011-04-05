@@ -35,6 +35,16 @@ interface TmnAuthorisationProcessorInterface {
 	public function make($auth_user, $auth_level_1 = null, $auth_level_1_reasons = null, $auth_level_2 = null, $auth_level_2_reasons = null, $auth_level_3 = null, $auth_level_3_reasons = null);
 	
 	
+			///////////////////ACCESSOR FUNCTIONS/////////////////////
+			
+	
+	/**
+	 * Give it the auth level you want and it will return an array of the auth reasons for that level
+	 * @param	int		$auth_level	- authorisation level you want reasons for
+	 * @return	array				- array of reasons
+	 */
+	public function getReasonsArray($auth_level);
+	
 	
 			///////////////////ACTION FUNCTIONS/////////////////////
 			

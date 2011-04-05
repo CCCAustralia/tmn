@@ -34,10 +34,19 @@
 		<tr>
 			<td colspan="3"><hr /></td>
 		</tr>
-		<tr class="tmn-goals">
-			<th>Your Monthly Support Goal is: ${tmn}</th>
-			<th colspan="2">Your Account must be above: ${buffer}</th>
-		</tr>
+		<tpl if="regular_buffer == 0">
+			<tr class="tmn-goals">
+				<th>Your Monthly Support Goal is: ${tmn}</th>
+				<th colspan="2">Your Account must be above: ${buffer}</th>
+			</tr>
+		</tpl>
+		<tpl if="regular_buffer &gt; 0">
+			<tr class="tmn-goals">
+				<th>Your Monthly Support Goal is: ${tmn}</th>
+				<th>Your Account must be above ${buffer} to start</th>
+				<th>Normally Your Account must be above: ${regular_buffer}</th>
+			</tr>
+		</tpl>
 		<tr>
 			<td colspan="3"><hr /></td>
 		</tr>
@@ -612,7 +621,7 @@
 	</tpl>
 	
 	<p>&nbsp;</p>
-<p class="footer">
+	<p class="footer">
 		$Rev$
 		 | 
 		$Date$

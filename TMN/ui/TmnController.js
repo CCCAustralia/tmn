@@ -579,6 +579,32 @@ tmn.TmnController = function() {
 				international_assignment_form.onLoadSessionSuccess(this.financial_data[international_assignment_form.id]);
 			}
 			
+			//if the data as had inflation applied by the back end tell the user and have the data reprocessed
+			if (return_object.inflated) {
+				Ext.MessageBox.show({
+					icon:		Ext.MessageBox.INFO,
+					buttons:	Ext.MessageBox.OK,
+					closable:	false,
+					title:		'Inflation',
+					msg:		'This session was created in a different financial year to this one, because of this we have increased your values for you to take inflation into account.',
+					scope:		form_panel,
+					fn:			function() {
+						if (this.locked) {
+							Ext.MessageBox.show({
+								icon: Ext.MessageBox.WARNING,
+								buttons: Ext.MessageBox.OK,
+								closable: false,
+								title: 'Locked!',
+								msg: "This session is Locked because it has been submitted. You can't save your changes to this session or delete this session. If you would like to save changes to this session, please use Save As to save a new version of the session."
+							});
+						}
+					}
+				});
+				
+				//send a financial data updated event so that the data will get sent to the server for reprocessing
+				form_panel.fireEvent('financialdataupdated', form_panel, {isValid:function(){return true;}, getName:function(){return 'session_id';}}, form_panel.getSession(), true);
+			}
+			
 		},
 		
 		/**

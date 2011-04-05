@@ -39,12 +39,12 @@ class TmnSessionComboLoader extends TmnComboLoader {
 			
 			//form the sql statement
 			if ($this->aussie_form) {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 			} elseif ($this->overseas_form) {
 				if ($this->home_assignment) {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NOT NULL";
 				} else {
-					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
+					$sql	= "SELECT `SESSION_ID`, `SESSION_NAME`, `AUTH_SESSION_ID`, `DATE_MODIFIED` FROM `Tmn_Sessions` WHERE `FAN` = :fan AND `HOME_ASSIGNMENT_SESSION_ID` IS NOT NULL AND `INTERNATIONAL_ASSIGNMENT_SESSION_ID` IS NULL";
 				}
 			} else {
 				throw new FatalException('SessionComboLoader Exception: Form not Aussie or Overseas');
@@ -78,6 +78,12 @@ class TmnSessionComboLoader extends TmnComboLoader {
 								$row['LOCKED'] = true;
 							}
 						//if its a regular field just copy it into the new row
+						} elseif ($key == 'DATE_MODIFIED') {
+							if ($value == '2010-03-01 12:00:00') {
+								$row['LOCKED'] = true;
+							} else {
+								$row['LOCKED'] = false;
+							}
 						} else {
 							$row[$key] = $value;
 						}

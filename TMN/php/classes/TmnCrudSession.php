@@ -22,7 +22,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			"session_id",					//name of table's primary key
 			array(							//an assoc array of private field names and there types
 				'fan'									=>	"i",
-				'guid'									=>	"s"
+				'guid'									=>	"s",
+				'versionnumber'							=>	"s"
 			),
 			array(							//an assoc array of public field names and there types
 				'session_id'							=>	"i",
@@ -89,6 +90,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'ccca_levy'								=>	"i",
 				'tmn'									=>	"i",
 				'buffer'								=>	"i",
+				'regular_buffer'						=>	"i",
 				'international_donations'				=>	"i",
 				'additional_housing'					=>	"i",
 				'monthly_housing'						=>	"i",
@@ -110,6 +112,55 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	////////////////////////ACCESSOR FUNCTIONS////////////////////////////
 	
+	
+	
+	public function financialYearsSinceSessionCreation() {
+		//grab today and creation date and shift them 6 months for the financial year
+		$todayShifted		= strtotime('-6 month', strtotime('now'));
+		$creationShifted	= strtotime('-6 month', strtotime($this->getField('date_modified')));
+		
+		//Grab the years of each of those days
+		$todayYear		= (int)date('Y', $todayShifted);
+		$creationYear	= (int)date('Y', $creationShifted);
+		
+		//return the difference in the years
+		return $todayYear - $creationYear;
+	}
+	
+	public function applyInflation() {
+		//rate
+		$rate	= 1.025;
+		
+		//index stipend data
+		$this->setField('stipend',				(int)round($this->getField('stipend')				* $rate));
+		$this->setField('additional_tax',		(int)round($this->getField('additional_tax')		* $rate));
+		$this->setField('post_tax_super',		(int)round($this->getField('post_tax_super')		* $rate));
+		
+		//index spouse stipend data
+		$this->setField('s_stipend',			(int)round($this->getField('s_stipend')				* $rate));
+		$this->setField('s_additional_tax',		(int)round($this->getField('s_additional_tax')		* $rate));
+		$this->setField('s_post_tax_super',		(int)round($this->getField('s_post_tax_super')		* $rate));
+		
+		//index lafha
+		$this->setField('os_lafha',				(int)round($this->getField('os_lafha')				* $rate));
+		$this->setField('s_os_lafha',			(int)round($this->getField('s_os_lafha')			* $rate));
+		
+		//index pretax super if its not set automatically
+		if ($this->getField('pre_tax_super_mode') != 'auto') {
+			$this->setField('pre_tax_super',	(int)round($this->getField('pre_tax_super')			* $rate));
+		}
+		if ($this->getField('s_pre_tax_super_mode') != 'auto') {
+			$this->setField('s_pre_tax_super',	(int)round($this->getField('s_pre_tax_super')		* $rate));
+		}
+		
+		//index housing
+		//$this->setField('housing',				(int)round($this->getField('housing')				* $rate));
+		//$this->setField('os_overseas_housing',	(int)round($this->getField('os_overseas_housing')	* $rate));
+		
+		//index mmrs
+		$this->setField('mmr',					(int)round($this->getField('mmr')					* $rate));
+		$this->setField('s_mmr',				(int)round($this->getField('s_mmr')					* $rate));
+	}
 	
 	public function getOwner() {
 		//if a guid is set
@@ -218,6 +269,89 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		$this->setField('guid', $guid);
 		$this->setField('fan', $this->owner->getFan());
 	}
+	
+	public function getAuthorisationProcessor() {
+		//if an id is set
+		if ($this->getField('auth_session_id') != null) {
+			
+			//and if the internationalAssignment object hasn't been made from the international_assignment_session_id then create it
+			if ($this->authorisationProcessor == null) {
+				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+			}
+		
+			//if it is already there or creation happened without throwing exceptions then return the object
+			return $this->authorisationProcessor;
+			
+		} else {
+			//if no international_assignment_session_id set then make sure owner is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->authorisationProcessor = null;
+			return false;
+		}
+	}
+	
+	
+	
+			////////////////////////////JSON METHODS////////////////////////////
+			
+	
+	
+	public function produceAssocArrayForDisplay($add_auth_reasons=null) {
+		//grab data
+		$obj						= parent::produceAssocArray();
+		
+		//add transfer array
+		$obj['transfers']			= $this->produceTransferArray();
+		
+		if ($add_auth_reasons != null) {
+			if ($this->getAuthorisationProcessor()) {
+				//add level 1 warnings
+				$obj['auth_lv1_reasons']	= $this->authorisationProcessor->getReasonsArray(1);
+				
+				if (count($obj['auth_lv1_reasons']) > 0) {
+					$obj['auth_lv1']		= 1;
+				} else {
+					$obj['auth_lv1']		= 0;
+				}
+				
+				//add level 2 warnings
+				$obj['auth_lv2_reasons']	= $this->authorisationProcessor->getReasonsArray(2);
+				
+				if (count($obj['auth_lv2_reasons']) > 0) {
+					$obj['auth_lv2']		= 1;
+				} else {
+					$obj['auth_lv2']		= 0;
+				}
+				
+				//add level 3 warnings
+				$obj['auth_lv3_reasons']	= $this->authorisationProcessor->getReasonsArray(3);
+				
+				if (count($obj['auth_lv3_reasons']) > 0) {
+					$obj['auth_lv3']		= 1;
+				} else {
+					$obj['auth_lv3']		= 0;
+				}
+			} else {
+				$obj['auth_lv1_reasons']	= array();
+				$obj['auth_lv1']			= 0;
+				
+				//add level 2 warnings
+				$obj['auth_lv2_reasons']	= array();
+				$obj['auth_lv2']			= 0;
+				
+				//add level 3 warnings
+				$obj['auth_lv3_reasons']	= array();
+				$obj['auth_lv3']			= 0;
+			}
+		}
+		
+		return $obj;
+	}
+	
+	public function produceJsonForDisplay($add_auth_reasons=null) {
+		return json_encode($this->produceAssocArrayForDisplay($add_auth_reasons));
+	}
+	
 	
 	
 			///////////////////////AUTHORISATION METHODS////////////////////////

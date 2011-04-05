@@ -26,7 +26,17 @@ interface TmnCrudSessionInterface {
 	
 	
 			/////////////////ACCESSOR FUNCTIONS////////////////
+			
 	
+	/**
+	 * Calcs how may financial years difference there are between now and the time this session was created
+	 */
+	public function financialYearsSinceSessionCreation();
+	
+	/**
+	 * Adds inflation to values the user has entered. The rate used is 2.5% ie they are multiplied by 1.025.
+	 */
+	public function applyInflation();
 	
 	/**
 	 * Return a TmnCrudUser object that is filled with the data of the user that owns/created this session.
@@ -94,6 +104,31 @@ interface TmnCrudSessionInterface {
 	 * @example setInternationalAssignment(); will set the homeAssignment to null
 	 */
 	public function setInternationalAssignment(TmnCrudSession $international_assignment = null);
+	
+	
+			////////////////////////////JSON METHODS////////////////////////////
+			
+	
+	
+	/**
+	 * Returns the data in this object as an associative array. It also adds data from other tables.
+	 * You can choose if you want to grab the auth data.
+	 * 
+	 * @param	bool	$add_auth_reasons	- lets you choose whether you want to add auth reasons to the string
+	 * 
+	 * @return	assoc array					- assoc array representing data in this object
+	 */
+	public function produceAssocArrayForDisplay($add_auth_reasons=null);
+	
+	/**
+	 * Returns the data in this object as a json string. It also adds data from other tables. You can choose if you
+	 * want to grab the auth data.
+	 * 
+	 * @param	bool	$add_auth_reasons	- lets you choose whether you want to add auth reasons to the string
+	 * 
+	 * @return	string						- json string representing data in this object
+	 */
+	public function produceJsonForDisplay($add_auth_reasons=null);
 	
 	
 			////////////////AUTHORISATION METHODS///////////////

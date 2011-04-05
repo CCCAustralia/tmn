@@ -12,7 +12,7 @@ if (file_exists('../classes/TmnCrud.php')) {
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
 	
 			////Instance Variables////
-	private $logfile;
+	//private $logfile;
 	private $authsessionid;
 	//private $authcrud;
 	
@@ -37,10 +37,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
 	public function __construct($logfile, $auth_session_id) {
-		$this->logfile = $logfile;
+		//$this->logfile = $logfile;
 
 		parent::__construct(		//construct a new object with crud 
-			$this->logfile,
+			$logfile,
 			"Auth_Table", 
 			"AUTH_SESSION_ID", 
 			array(
@@ -93,6 +93,28 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$this->update();
 		
 		
+	}
+	
+	
+	
+			///////////////////ACCESSOR FUNCTIONS/////////////////////
+			
+	
+	public function getReasonsArray($auth_level) {
+		
+		//if its a valid level, grab reasons string for that level
+		if ($auth_level == 1 || $auth_level == 2 || $auth_level == 3) {
+			$reason	= $this->getField("AUTH_LEVEL_" . $auth_level . "_REASONS");
+		} else {
+			$reason	= null;
+		}
+		
+		//if a string was returned decode it and return it
+		if ($reason != null) {
+			return json_decode($reason, true);
+		} else {
+			return array();
+		}
 	}
 	
 	
