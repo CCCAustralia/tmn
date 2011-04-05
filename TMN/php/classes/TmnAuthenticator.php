@@ -44,7 +44,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		if (!phpCAS::isAuthenticated()) { //if your not logged into gcx quit
 			throw new FatalException('Authentication Exception: User Not Authenticated');
 		}
-		
+		fb(phpCAS::getAttribute('ssoGuid'));
 		//grab user's guid if its available
 		if (isset($_SESSION['phpCAS'])) {
 			$xmlstr			= str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
@@ -100,7 +100,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		//fetch a ticket if absent
 		if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 		{
-		    header("Location: https://signin.mygcx.org/cas/login?service=".$this->curPageURL());
+		    header("Location: https://signin.mygcx.org/cas/login?service=".self::curPageURL());
 		}
     }
     

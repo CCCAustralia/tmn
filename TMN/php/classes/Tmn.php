@@ -46,7 +46,7 @@ class Tmn extends Reporter implements TmnInterface {
 			////////////////AUTHENTICATION FUNCTIONS//////////////
 	
 	public function authenticate() {
-		$this->authenticator->authenticate();
+		TmnAuthenticator::authenticate();
 	}
 	
 	public function logout() {
@@ -58,7 +58,6 @@ class Tmn extends Reporter implements TmnInterface {
 	}
 	
 	public function getAuthenticatedGuid() {
-		//return "691EC152-0565-CEF4-B5D8-99286252652B";
 		return $this->authenticator->getGuid();
 	}
 	
@@ -74,6 +73,16 @@ class Tmn extends Reporter implements TmnInterface {
 		
 		//return the user object
 		return $this->user;
+	}
+	
+	public function updateUserData() {
+		//make sure we have a user to update
+		if ($this->user == null) {
+			$this->getUser();
+		}
+		
+		$this->user->setField('email', $this->getEmail());
+		
 	}
 	
 	
