@@ -118,8 +118,11 @@
 .tmn-page .tmn-housing-payments table td, .tmn-page .tmn-stipend-payments table td, .tmn-page .tmn-mfb-payments table td, .tmn-page .tmn-authorisation table td
 {vertical-align: top;}
 
-.tmn-page .tmn-authorisation .reasons
-{padding: 15px; border-bottom: 2px solid #000; font-size:16px;}
+.tmn-page .tmn-authorisation .header
+{background-color:#15428B; color: #fff; padding:5px; font:14px; font-size:14px; height:auto !important}
+
+.tmn-page .tmn-authorisation .reason
+{padding: 5px 0px 5px 0px; text-indent:25px;font:14px; font-size:14px;}
 
 .tmn-page .footer
 {font-size:12px; text-align:right;}

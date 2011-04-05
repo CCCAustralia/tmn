@@ -138,18 +138,29 @@ tmn.view.PrintForm = function(view, config) {
 					text:	'SUBMIT',
 					width:	200,
 					scale:	'large',
-					style:	'margin:20',
+					style:	'margin:5px 0px 15px 0px',
 					scope:	this,
 					handler:function(button, event) {
-						var level_1_panel	= this.items.map['authorisation_level_1_panel'];
 						
-						if (level_1_panel.isValid()) {
+						var dataObj,
+							authorisersObj,
+							level_1_panel	= this.items.map['authorisation_level_1_panel'],
+							level_2_panel	= this.items.map['authorisation_level_2_panel'],
+							level_3_panel	= this.items.map['authorisation_level_3_panel'];
+						
+						//make sure all the authorisers have been selected
+						if (level_1_panel.isValid() && level_2_panel.isValid() && level_3_panel.isValid()) {
+							
+							//prepare the data for sending
+							dataObj			= this.prepareData(this.data);
+							authorisersObj	= this.prepareAuthorisers(level_1_panel.getData(), level_2_panel.getData(), level_3_panel.getData());
+							
 							Ext.Ajax.request({											//send all the data about the misso to the server for processing
 								url: this.submit_url,
 								params: {
-									session:	this.getSession(),
-									level_1:	Ext.util.JSON.encode(level_1_panel.isValid()),
-									data:		Ext.util.JSON.encode(this.data)
+									session:		this.getSession(),
+									authorisers:	Ext.util.JSON.encode(authorisersObj),
+									data:			Ext.util.JSON.encode(dataObj)
 								},
 								success: function(response, options){
 									
@@ -164,12 +175,22 @@ tmn.view.PrintForm = function(view, config) {
 									});
 								},
 								failure: function(response, options) {
+									
+									var responseObj	= Ext.decode(response.responseText),
+										errorMsg;
+									
+									if (responseObj.alert !== undefined) {
+										errorMsg = responseObj.alert;
+									} else {
+										errorMsg = 'Your submittion process didn\'t work, please try again.';
+									}
+									
 									Ext.MessageBox.show({
 										icon: Ext.MessageBox.ERROR,
 										buttons: Ext.MessageBox.OK,
 										closable: false,
 										title: 'Error',
-										msg: 'Your submittion process didn\'t work, please try again.'
+										msg: errorMsg
 									});
 								},
 								scope: this
@@ -186,9 +207,22 @@ tmn.view.PrintForm = function(view, config) {
 					}
 				},
 				new tmn.view.AuthorisationPanel(this, {
+					id: 	'authorisation_level_3_panel',
+					title:	'Authorisation Level Three',
+					leader:	'National Director',
+					mode:	'level_3'
+				}),
+				new tmn.view.AuthorisationPanel(this, {
 					id: 	'authorisation_level_2_panel',
-					title:	'Authorisation Level One - Ministry Overseer',
-					mode:	'auth_level_2'
+					title:	'Authorisation Level Two',
+					leader:	'National Ministry Leader',
+					mode:	'level_2'
+				}),
+				new tmn.view.AuthorisationPanel(this, {
+					id: 	'authorisation_level_1_panel',
+					title:	'Authorisation Level One',
+					leader:	'Ministry Overseer',
+					mode:	'level_1'
 				}),
 				new tmn.view.SummaryPanel(this, {
 					id:		'summary_panel'
@@ -272,32 +306,78 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 	
 	gatherLevelReasons: function(data, level) {
 		
-		var levelReasons	= null;
+		var levelReasons	= {};
+			totalReasons	= 0;
 		
 		if (data['aussie-based'] !== undefined) {
 			if (data['aussie-based']['auth_lv' + level + '_reasons']) {
-				levelReasons							= {};
-				levelReasons['aussie-based']			= {};
-				levelReasons['aussie-based']['reasons']	= data['aussie-based']['auth_lv' + level + '_reasons'];
+				levelReasons['aussie-based']						= {};
+				levelReasons['aussie-based']['reasons']				= data['aussie-based']['auth_lv' + level + '_reasons'];
+				totalReasons										+= levelReasons['aussie-based']['reasons'].length;
 			}
 		} else {
-			levelReasons						= {};
 			if (data['home-assignment']['auth_lv' + level + '_reasons'] !== undefined) {
-				levelReasons['home-assignment']				= {};
-				levelReasons['home-assignment']['reasons']	= data['home-assignment']['auth_lv' + level + '_reasons'];
+				levelReasons['home-assignment']						= {};
+				levelReasons['home-assignment']['reasons']			= data['home-assignment']['auth_lv' + level + '_reasons'];
+				totalReasons										+= levelReasons['home-assignment']['reasons'].length;
 			}
 			
 			if (data['international-assignment']['auth_lv' + level + '_reasons'] !== undefined) {
 				levelReasons['international-assignment']			= {};
 				levelReasons['international-assignment']['reasons']	= data['international-assignment']['auth_lv' + level + '_reasons'];
+				totalReasons										+= levelReasons['international-assignment']['reasons'].length;
 			}
 			
-			if ((levelReasons['home-assignment'] === undefined || levelReasons['home-assignment'].length == 0) && (levelReasons['international-assignment'] === undefined || levelReasons['international-assignment'].length == 0)) {
-				levelReasons	= null;
+		}
+
+		levelReasons['total']	= totalReasons;
+		
+		return levelReasons;
+	},
+	
+	prepareData: function(data) {
+		
+		var dontCopyTheseFieldsArray	= {transfers:null, auth_lv1:null, auth_lv1_reasons: null, auth_lv2:null, auth_lv2_reasons: null, auth_lv3:null, auth_lv3_reasons: null},
+			returnObj					= {};
+		
+		if (data['aussie-based'] !== undefined) {
+			returnObj['aussie-based']		= {};
+			//delete unneeded aussie data
+			for (field in data['aussie-based']) {
+				if (dontCopyTheseFieldsArray[field] === undefined) {
+					returnObj['aussie-based'][field] = data['aussie-based'][field];
+				}
+			}
+		} else {
+			
+			returnObj['international-assignment']		= {};
+			//delete unneeded aussie data
+			for (field in data['international-assignment']) {
+				if (dontCopyTheseFieldsArray[field] === undefined) {
+					returnObj['international-assignment'][field] = data['international-assignment'][field];
+				}
+			}
+			
+			returnObj['home-assignment']		= {};
+			//delete unneeded aussie data
+			for (field in data['home-assignment']) {
+				if (dontCopyTheseFieldsArray[field] === undefined) {
+					returnObj['home-assignment'][field] = data['home-assignment'][field];
+				}
 			}
 		}
 		
-		return levelReasons;
+		return returnObj;
+	},
+	
+	prepareAuthorisers: function(level_1_data, level_2_data, level_3_data) {
+		var returnObj	= {};
+		
+		returnObj['level_1']	= level_1_data;
+		returnObj['level_2']	= level_2_data;
+		returnObj['level_3']	= level_3_data;
+		
+		return returnObj;
 	},
 	
 	/**
@@ -307,42 +387,69 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 	 */
 	loadForm: function(response) {
 		
-		//return the object decribed by the json strings in response
-		var values			= this.parseResponse(response),
-			level2Values	= this.gatherLevelReasons(values, 3);
-			summary_panel	= this.items.map['summary_panel'],
-			level_2_panel	= this.items.map['authorisation_level_2_panel'];
-		
-		//put the data away for submit
-		this.data		= values;
-		
-		if (level2Values != null) {
+		if (response !== undefined) {
+			//return the object decribed by the json strings in response
+			var values			= this.parseResponse(response),
+				level2Values	= this.gatherLevelReasons(values, 2),
+				level3Values	= this.gatherLevelReasons(values, 3),
+				summary_panel	= this.items.map['summary_panel'],
+				level_2_panel	= this.items.map['authorisation_level_2_panel'],
+				level_3_panel	= this.items.map['authorisation_level_3_panel'];
 			
-			//display the values that were just parsed
-			if (level_2_panel.body !== undefined) {
-				level_2_panel.showPanel(level2Values);
+			console.info(level2Values);
+			console.info(level3Values);
+			
+			//put the data away for submit
+			this.data		= values;
+			
+			if (level3Values.total > 0) {
+				
+				//display the values that were just parsed
+				if (level_3_panel.body !== undefined) {
+					level_3_panel.showPanel(level3Values);
+				} else {
+					level_3_panel.on('afterrender', level_3_panel.showPanel.createDelegate(level_3_panel, [level3Values]));
+				}
+				
 			} else {
-				level_2_panel.on('afterrender', level_2_panel.showPanel.createDelegate(level_2_panel, [level2Values]));
+				//display the values that were just parsed
+				if (level_3_panel.body !== undefined) {
+					level_3_panel.hidePanel();
+				} else {
+					level_3_panel.on('afterrender', level_3_panel.hidePanel);
+				}
 			}
 			
-		} else {
-			//display the values that were just parsed
-			if (level_2_panel.body !== undefined) {
-				level_2_panel.hidePanel();
+			if (level3Values.total > 0 || level2Values.total > 0) {
+				
+				//display the values that were just parsed
+				if (level_2_panel.body !== undefined) {
+					level_2_panel.showPanel(level2Values);
+				} else {
+					level_2_panel.on('afterrender', level_2_panel.showPanel.createDelegate(level_2_panel, [level2Values]));
+				}
+				
 			} else {
-				level_2_panel.on('afterrender', level_2_panel.showPanel);
+				//display the values that were just parsed
+				if (level_2_panel.body !== undefined) {
+					level_2_panel.hidePanel();
+				} else {
+					level_2_panel.on('afterrender', level_2_panel.hidePanel);
+				}
 			}
-		}
-		
-		if (values != null) {
 			
-			//display the values that were just parsed
-			if (summary_panel.body !== undefined) {
-				summary_panel.renderSummary(values, this.isOverseas(), this.hasSpouse());
+			if (values != null) {
+				
+				//display the values that were just parsed
+				if (summary_panel.body !== undefined) {
+					summary_panel.renderSummary(values, this.isOverseas(), this.hasSpouse());
+				} else {
+					summary_panel.on('afterrender', summary_panel.renderSummary.createDelegate(summary_panel, [values, this.isOverseas(), this.hasSpouse()]));
+				}
+				
 			} else {
-				summary_panel.on('afterrender', summary_panel.renderSummary.createDelegate(summary_panel, [values, this.isOverseas(), this.hasSpouse()]));
+				this.showDataErrorMsg();
 			}
-			
 		} else {
 			this.showDataErrorMsg();
 		}

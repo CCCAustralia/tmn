@@ -22,21 +22,50 @@ tmn.view.AuthorisationPanel = function(view, config) {
 	 * @cfg {Object}	view			The object that defines the container that holds this form
 	 * @note To be able to use this property you must pass it to the constructor when you create an instance of this class.
 	 */
-	this.view	= view || {};					//the view that this form is contained in
+	this.view	= view		|| {};					//the view that this form is contained in
 	//set config variable to passed or default
-	config		= config || {};
+	config		= config	|| {};
 
 	//set config options to passed or default
 	/**
 	 * @cfg {String}	id				The id parameter of the html tag that contains the form.<br />
 	 * 									Default: 'print_form'
 	 */
-	this.id					=	config.id || 'authorisation_panel';
+	this.id					=	config.id		|| 'authorisation_panel';
 	
-	this.title				=	config.title || 'Authorisation Level';
+	this.title				=	config.title 	|| 'Authorisation Level';
 	
-	this.mode				=	config.mode || 'all';
+	this.leader				=	config.leader	|| 'Ministry Overseer';
+	
+	this.mode				=	config.mode		|| 'all';
+	
+/*	
 	//holds the data for the name combo
+	this.nameStore			= new Ext.data.ArrayStore({
+        itemId:		'name_store',
+        root:		'data',
+        url:		'php/imp/namefill.php',
+        fields:		['FIRSTNAME', 'SURNAME', 'MINISTRY'],
+        baseParams:	{mode: this.mode},
+        autoLoad:	true
+        listeners:	{
+        	load: function(store, records, options) {
+        		//if there is only one record
+        		if (!Ext.isArray(records)) {
+        			//set the name fields to the contents of that record
+		    		//and disable those fields
+        			var compositefield = this.getForm().items.map['name'];
+		    		compositefield.items.each(function(item, index, length){
+		    			item.setValue(this.data[item.getName()]);
+		    			item.disable();
+		    		}, record);
+        		}
+        	}
+        }
+    });
+*/
+	
+	//holds the test data for the name combo
 	this.nameStore			= new Ext.data.ArrayStore({
         itemId:	'name_store',
         fields:	['FIRSTNAME', 'SURNAME', 'MINISTRY'],
@@ -44,10 +73,8 @@ tmn.view.AuthorisationPanel = function(view, config) {
                ['Tom', 'Flynn', 'StudentLife'],
                ['Kent', 'Keller', 'StudentLife']
         ]
-        //autoLoad: {
-        //	params: {mode: this.mode}
-        //}
     });
+    
 	
 	/**
 	 * The config that defines the physical layout of the panel.
@@ -56,70 +83,87 @@ tmn.view.AuthorisationPanel = function(view, config) {
 	var config =  {
 			itemId:		this.id,
 			frame:		true,
-			title:		this.title,
+			//title:		this.title + " - " + this.leader,
+			header:		false,
 			bodyStyle:	'padding:0',
 			items:		[
+				 {
+					 xtype:	'label',
+					 text:	'Enter the name of your ' + this.leader + ':',
+					 style:	{
+				         marginBottom: '10px'
+				     }
+				 },
 			     {
-			    	xtype:	'label',
-			    	text:	'Enter the name of the person who needs to Authorise this for you:',
-					style:	{
-		                marginBottom: '10px'
-		            }
-			     },
-				{
-					itemId:			'first_name',
-					xtype:			'combo',
-					width:			150,
-					fieldLabel:		'First Name',
-					name:			'FIRSTNAME',
-					hiddenName:		'FIRSTNAME',
-					hiddenId:		'FIRSTNAME_hidden',
-				    emptyText:		'First Name...',
-				    hideTrigger:	true,
-					typeAhead:		true,
-					editable: 		true,
-					forceSelection:	true,
-				    mode:			'local',
-				    store:			this.nameStore,
-				    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
-				    displayField:	'FIRSTNAME',
-				    valueField:		'FIRSTNAME',
-				    listeners: {
-				    	select: function(combo, record, index) {
-				    		console.info(record.data.SURNAME);
-				    		this.getForm().items.map['last_name'].setValue(record.data.SURNAME);
-				    		console.info(this.getForm().items.map['last_name'].getValue());
-				    	},
-				    	scope: this
-				    }
-				},
-				{
-					itemId:			'last_name',
-					xtype:			'combo',
-					width:			150,
-					fieldLabel:		'Last Name',
-					name:			'SURNAME',
-					hiddenName:		'SURNAME',
-					hiddenId:		'SURNAME_hidden',
-				    emptyText:		'Last Name...',
-				    hideTrigger:	true,
-					typeAhead:		true,
-					editable: 		true,
-					forceSelection:	true,
-				    mode:			'local',
-				    store:			this.nameStore,
-				    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
-				    displayField:	'SURNAME',
-				    valueField:		'SURNAME',
-				    listeners: {
-				    	select: function(combo, record, index) {
-				    		console.info(record.data.FIRSTNAME);
-				    		this.getForm().items.map['first_name'].setValue(record.data.FIRSTNAME);
-				    		console.info(this.getForm().items.map['first_name'].getValue());
-				    	},
-				    	scope: this
-				    }
-				}
+					 itemId:		'name',
+			    	 xtype:			'compositefield',
+			    	 msgTarget:		'side',
+                     fieldLabel:	'Full Name',
+			    	 items: [
+						{
+							itemId:			'first_name',
+							xtype:			'combo',
+							flex:			1,
+							fieldLabel:		'First Name',
+							name:			'FIRSTNAME',
+							hiddenName:		'FIRSTNAME',
+							hiddenId:		'FIRSTNAME_hidden',
+						    emptyText:		'First Name...',
+						    hideTrigger:	true,
+							typeAhead:		true,
+							editable: 		true,
+							forceSelection:	true,
+						    mode:			'local',
+						    store:			this.nameStore,
+						    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+						    displayField:	'FIRSTNAME',
+						    valueField:		'FIRSTNAME',
+						    listeners: {
+						    	select: function(combo, record, index) {
+						    		var compositefield = this.getForm().items.map['name'];
+						    		compositefield.items.each(function(item, index, length){
+						    			if (item.getItemId() == 'last_name') {
+						    				item.setValue(this.data.SURNAME);
+						    			}
+						    		}, record);
+						    	},
+						    	scope: this
+						    }
+						},
+						{
+							itemId:			'last_name',
+							xtype:			'combo',
+							flex:			1,
+							fieldLabel:		'Last Name',
+							name:			'SURNAME',
+							hiddenName:		'SURNAME',
+							hiddenId:		'SURNAME_hidden',
+						    emptyText:		'Last Name...',
+						    hideTrigger:	true,
+							typeAhead:		true,
+							editable: 		true,
+							forceSelection:	true,
+						    mode:			'local',
+						    store:			this.nameStore,
+						    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+						    displayField:	'SURNAME',
+						    valueField:		'SURNAME',
+						    listeners: {
+						    	select: function(combo, record, index) {
+						    		var compositefield = this.getForm().items.map['name'];
+						    		compositefield.items.each(function(item, index, length){
+						    			if (item.getItemId() == 'first_name') {
+						    				item.setValue(this.data.FIRSTNAME);
+						    			}
+						    		}, record);
+						    	},
+						    	scope: this
+						    }
+						}
+			    	 ]
+			     }
+			     
+				
 			]
 	};
 	
@@ -131,15 +175,63 @@ tmn.view.AuthorisationPanel = function(view, config) {
 Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	
 	isValid: function() {
-		if (this.getForm().items.map['first_name'].isValid() && this.getForm().items.map['last_name'].isValid()) {
+		
+		//find the first invalid field
+		var compositefield	= this.getForm().items.map['name'],
+			invalidIndex	= -1;
+		
+		if (!this.hidden) {
+			invalidIndex = compositefield.items.findIndexBy(function(item, key){
+				if (item.getValue() == '' || item.getValue() == null || item.getValue() === undefined) {
+					return true;
+				}
+			});
+		}
+		
+		//if the index is less than zero no invalid fields were found so return true
+		if (invalidIndex < 0) {
 			return true;
 		} else {
 			return false;
 		}
 	},
 	
+	/**
+	 * Needs to have showPanel Called first or it will return with no reasons.
+	 */
+	getData: function() {
+		var compositefield	= this.getForm().items.map['name'],
+			returnObj		= {},
+			name			= {};
+		
+		//grab the authoriser's name as an assoc array
+		compositefield.items.each(function(item, index, length){
+			this[item.getName()] = item.getValue();
+		}, name);
+		
+		returnObj['name']		= name;
+		
+		//grab the reason array
+		returnObj['reasons']	= {};
+		
+		if (this.reasonArray !== undefined) {
+			if (this.reasonArray['aussie-based'] !== undefined) {
+				returnObj['reasons']['aussie-based']				= this.reasonArray['aussie-based']['reasons']; 
+			} else {
+				returnObj['reasons']['international-assignment']	= this.reasonArray['international-assignment']['reasons'];
+				returnObj['reasons']['home-assignment']				= this.reasonArray['home-assignment']['reasons'];
+			}
+		}
+		
+		return returnObj;
+		
+	},
+	
 	showPanel: function(reasonArray) {
+		
 		this.show();
+		
+		this.reasonArray		= reasonArray;
 		
 		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
 		
@@ -148,30 +240,35 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			tmnAuthContainer.remove();
 		}
 		
-		//create the config object for the 
+		//if this is a aussie based session
 		if (reasonArray['aussie-based'] !== undefined) {
 			
-			var tpl = new Ext.XTemplate(
-						'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
-							'<div class="tmn-authorisation">',
-								'<div class="header">Reasons for needing Authorisation</div>',
-								'<tpl for="reasons"><div class="indent">- {reason}</div></tpl>',
-							'</div>',
-						'</div>'
-					);
+			//make sure there are reasons to output
+			if (reasonArray['aussie-based']['reasons'].length > 0) {
+				var tpl = new Ext.XTemplate(
+							'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
+								'<div class="tmn-authorisation">',
+									'<div class="header">Reasons for Needing ' + this.leader + ' Authorisation</div>',
+									'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
+								'</div>',
+							'</div>'
+						);
+				
+				tpl.append(this.body, reasonArray['aussie-based']);
+			}
 			
-			tpl.append(this.body, reasonArray['aussie-based']);
-			
+		//if this is an international based session
 		} else {
 
 			var el	= null;
 			
+			//if there are international reasons append them
 			if (reasonArray['international-assignment']['reasons'].length > 0) {
 				var tpl = new Ext.XTemplate(
 					'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
 						'<div class="tmn-authorisation">',
-							'<div class="header">International Assignment - Reasons for needing Authorisation</div>',
-							'<tpl for="reasons"><div class="indent">- {reason}</div></tpl>',
+							'<div class="header">International Assignment - Reasons for Needing ' + this.leader + ' Authorisation</div>',
+							'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
 						'</div>',
 					'</div>'
 				);
@@ -179,11 +276,12 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 				el = tpl.append(this.body, reasonArray['international-assignment'], true);
 			}
 			
-			if (reasonArray['international-assignment']['reasons'].length > 0) {
+			//if there are home assignment reasons
+			if (reasonArray['home-assignment']['reasons'].length > 0) {
 				
 				var home_tpl;
 				
-				//if no international reasons were added add the container to the body as well other wise
+				// and if no international reasons were added add the container to the body as well other wise
 				//add a break and append the home reasons
 				if (el == null) {
 					el = this.body;
@@ -191,17 +289,20 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 					home_tpl = new Ext.XTemplate(
 							'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
 								'<div class="tmn-authorisation">',
-									'<div class="header">Home Assignment - Reasons for needing Authorisation</div>',
-									'<tpl for="reasons"><div class="indent">- {reason}</div></tpl>',
+									'<div class="header">Home Assignment - Reasons for Needing ' + this.leader + ' Authorisation</div>',
+									'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
 								'</div>',
 							'</div>'
 						);
+					
+				//if there were international reasons added and there are home assignment ones to be added as well
+				//append them to the tmn-authorisation tag
 				} else {
 					home_tpl = new Ext.XTemplate(
 							'<p>&nbsp;</p>',
 							'<div class="tmn-authorisation">',
-								'<div class="header">Home Assignment - Reasons for needing Authorisation</div>',
-								'<tpl for="reasons"><div class="indent">- {reason}</div></tpl>',
+								'<div class="header">Home Assignment - Reasons for Needing ' + this.leader + ' Authorisation</div>',
+								'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
 							'</div>'
 						);
 				}

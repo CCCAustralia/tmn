@@ -9,11 +9,17 @@
 <div class="tmn-page">
 	<table>
 		<tr>
-			<td><h1 class="tmn-title">'+this.title+'</h1></td>
+			<td><h1 class="tmn-title">Total Monthly Needs</h1></td>
 			<td><img class="tmn-logo" src="http://www.ccca.org.au/tntmpd/TntMPDCCCALogo-new.JPG" alt="CCCA Logo" /></td>
 		</tr>
 	</table>
-	<div>(You may want to save/print a copy for your own records.)<p>&nbsp;</p></div>
+	
+	<div class="tmn-instructions">
+		<div>The TMN is now submitted online, you may still want to save/print a copy for your own records.</div>
+	</div>
+	
+	<p>&nbsp;</p>
+
 	<table>
 		<tr>
 			<td style="width:50%;"><b>Name: </b>{firstname} {surname}</td>
@@ -37,22 +43,7 @@
 			<td colspan="3"><hr /></td>
 		</tr>
 	</table>
-	<p>&nbsp;</p>
-	<div class="tmn-authorisation">
-	<div class="header">Authorisation</div>
-		<tpl if="auth_lv2 || auth_lv3">
-			<div class="reasons">
-				<tpl if="auth_lv2">
-			 		Your TMN must be approved by your NML because:
-			 		<tpl for="auth_lv2_reasons"><div class="indent">- {reason}</div></tpl>
-				</tpl>
-				<tpl if="auth_lv3"><br/>
-			 		Your TMN must be approved by your MGL because:
-			 		<tpl for="auth_lv3_reasons"><div class="indent">- {reason}</div></tpl>
-				</tpl>
-			</div>
-		</tpl>
-	</div>
+	
 	<p>&nbsp;</p>
 	
 	<div class="tmn-break-down">
@@ -229,7 +220,7 @@
 		<table>
 			<tr>
 				<th colspan="2">MFB Rate</th>
-				<td>${mfb_rate}</td>
+				<td>{mfb_rate}</td>
 			</tr>
 			<tr>
 				<td colspan="3"><hr /></td>
