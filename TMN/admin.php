@@ -89,11 +89,12 @@ foreach ($constants as $fieldname => $value) {
 if ($savefield != "") {
 	$sql = "UPDATE `Constants` SET `".$savefield."` = '".$savestring."' WHERE VERSIONNUMBER = '".$versionnumber."'";
 	$sql = mysql_query($sql);
-	mysql_close($connection);
-	
 }
 echo "</table></form>";
 
 //ministry leader input
+
+
+
 echo "</body></html>";
 ?>
