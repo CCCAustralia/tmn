@@ -28,7 +28,7 @@ if (isset($_REQUEST['mode'])) {
 		if ($tmn->isAuthenticated()) {
 	////Get User
 	////Get all users from User_Profiles table
-			$sql = "SELECT GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM FROM `User_Profiles` WHERE ID IS NOT NULL";
+			$sql = "SELECT ID, GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM FROM `User_Profiles` WHERE ID IS NOT NULL";
 			$sql = mysql_query($sql);
 			$userlist_all = array();
 		////Sort the users into a single array
@@ -52,10 +52,12 @@ if (isset($_REQUEST['mode'])) {
 					$userlist_nd[$temp['GUID']] = $temp;
 					$userlist_nd[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
 					$userlist_nd[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
+					$userlist_nd[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
 				} else {
 					$userlist_nml[$temp['GUID']] = $temp;
 					$userlist_nml[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
 					$userlist_nml[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
+					$userlist_nml[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
 				}
 			}
 			
