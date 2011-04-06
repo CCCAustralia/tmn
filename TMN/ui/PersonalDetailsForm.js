@@ -27,6 +27,17 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 	//set config variable to passed or default
 	config = config || {};
 	
+	//holds the data for the name combo
+	this.nameStore			= new Ext.data.JsonStore({
+        itemId:		'name_store',
+        root:		'data',
+        url:		'php/imp/namefill.php',
+        fields:		['FIRSTNAME', 'SURNAME', 'MINISTRY'],
+        autoLoad:	{
+        	params: {mode: 'all'}
+        }
+    });
+	
 	//holds the data for the minsitry combo
 	this.ministry_combo_store = new Ext.data.JsonStore({
         itemId:'ministry_store',
@@ -312,17 +323,56 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 					bodyStyle:'padding:10px',
 					defaultType: 'textfield',
 					
-					items: [{
-							itemId: 's_first',
-				            fieldLabel: 'First Name',
-				            name: 'S_FIRSTNAME',
-				       		width: 150
-				        },{
-				        	itemId: 's_last',
-				            fieldLabel: 'Last Name',
-				            name: 'S_SURNAME',
-					       	width: 150
-				        },{
+					items: [
+							{
+								itemId:			's_first',
+								xtype:			'combo',
+					       		width:			150,
+					            fieldLabel:		'First Name',
+					            name:			'S_FIRSTNAME',
+								hiddenName:		'S_FIRSTNAME',
+								hiddenId:		'S_FIRSTNAME_hidden',
+							    emptyText:		'First Name...',
+							    hideTrigger:	true,
+								typeAhead:		true,
+								editable: 		true,
+								forceSelection:	true,
+							    mode:			'local',
+							    store:			this.nameStore,
+							    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+							    displayField:	'FIRSTNAME',
+							    valueField:		'FIRSTNAME',
+							    listeners: {
+							    	select: function(combo, record, index) {
+							    		this.getForm().items.map['s_last'].setValue(record.data.SURNAME);
+							    	},
+							    	scope: this
+							    }
+							},{
+								itemId:			's_last',
+								xtype:			'combo',
+					       		width:			150,
+								fieldLabel:		'Last Name',
+								name:			'S_SURNAME',
+								hiddenName:		'S_SURNAME',
+								hiddenId:		'S_SURNAME_hidden',
+							    emptyText:		'Last Name...',
+							    hideTrigger:	true,
+								typeAhead:		true,
+								editable: 		true,
+								forceSelection:	true,
+							    mode:			'local',
+							    store:			this.nameStore,
+							    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+							    displayField:	'SURNAME',
+							    valueField:		'SURNAME',
+							    listeners: {
+							    	select: function(combo, record, index) {
+							    		this.getForm().items.map['s_first'].setValue(record.data.FIRSTNAME);
+							    	},
+							    	scope: this
+							    }
+							},{
 						    itemId: 's_ministry',
 				        	xtype: 'combo',
 				       		width: 150,
@@ -464,17 +514,57 @@ tmn.view.PersonalDetailsForm = function(view, config) {
 				        	defaultType: 'textfield',
 				        	defaults: {width:150},
 				        	items: [
-						        {
-						        	itemId: 'mpd_supervisor_first',
-						        	fieldLabel: 'MPD Supervisor First Name',
-						        	name: 'M_FIRSTNAME',
-						        	allowBlank: false
-						        },{
-						        	itemId: 'mpd_supervisor_last',
-						        	fieldLabel: 'MPD Supervisor Last Name',
-						        	name: 'M_SURNAME',
-						        	allowBlank: false
-						        }
+								{
+									itemId:			'mpd_supervisor_first',
+									xtype:			'combo',
+									width:			150,
+								    fieldLabel:		'MPD Supervisor First Name',
+								    name:			'M_FIRSTNAME',
+									hiddenName:		'M_FIRSTNAME',
+									hiddenId:		'M_FIRSTNAME_hidden',
+								    emptyText:		'First Name...',
+						        	allowBlank:		false,
+								    hideTrigger:	true,
+									typeAhead:		true,
+									editable: 		true,
+									forceSelection:	true,
+								    mode:			'local',
+								    store:			this.nameStore,
+								    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+								    displayField:	'FIRSTNAME',
+								    valueField:		'FIRSTNAME',
+								    listeners: {
+								    	select: function(combo, record, index) {
+								    		this.getForm().items.map['mpd_supervisor_last'].setValue(record.data.SURNAME);
+								    	},
+								    	scope: this
+								    }
+								},{
+									itemId:			'mpd_supervisor_last',
+									xtype:			'combo',
+									width:			150,
+									fieldLabel:		'MPD Supervisor Last Name',
+									name:			'M_SURNAME',
+									hiddenName:		'M_SURNAME',
+									hiddenId:		'M_SURNAME_hidden',
+								    emptyText:		'Last Name...',
+						        	allowBlank:		false,
+								    hideTrigger:	true,
+									typeAhead:		true,
+									editable: 		true,
+									forceSelection:	true,
+								    mode:			'local',
+								    store:			this.nameStore,
+								    tpl:			'<tpl for="."><div class="x-combo-list-item">{FIRSTNAME} {SURNAME} - {MINISTRY}</div></tpl>',
+								    displayField:	'SURNAME',
+								    valueField:		'SURNAME',
+								    listeners: {
+								    	select: function(combo, record, index) {
+								    		this.getForm().items.map['mpd_supervisor_first'].setValue(record.data.FIRSTNAME);
+								    	},
+								    	scope: this
+								    }
+								}
 						    ]
 				        }
 					]
