@@ -1,8 +1,16 @@
 <?php
-
-include_once('../classes/Reporter.php');
-include_once('../classes/TmnDatabase.php');
-
+if (file_exists('../classes/Reporter.php')) {
+	include_once('../classes/Reporter.php');
+	include_once('../classes/TmnDatabase.php');
+}
+if (file_exists('classes/Reporter.php')) {
+	include_once('classes/Reporter.php');
+	include_once('classes/TmnDatabase.php');
+}
+if (file_exists('php/classes/Reporter.php')) {
+	include_once('php/classes/Reporter.php');
+	include_once('php/classes/TmnDatabase.php');
+}
 class TmnUser extends Reporter {
 	
 	

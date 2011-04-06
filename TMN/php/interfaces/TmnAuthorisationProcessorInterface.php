@@ -17,7 +17,7 @@ interface TmnAuthorisationProcessorInterface {
 	 * 
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
-	public function __construct($logfile, $auth_session_id);
+	public function __construct($logfile, $auth_session_id = null);
 	
 	
 	
@@ -75,7 +75,7 @@ interface TmnAuthorisationProcessorInterface {
 	 * @param $auth_level_3_reasons
 	 * 
 	 */
-	public function submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
+	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null);
 	
 }
 

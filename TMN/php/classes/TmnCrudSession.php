@@ -370,15 +370,16 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 	
 	
-	public function submit( TmnUser $auth_user, TmnUser $auth_level_1, $auth_level_1_reasons, TmnUser $auth_level_2, $auth_level_2_reasons, TmnUser $auth_level_3, $auth_level_3_reasons, $data ) {
+	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $data ) {
 		
+		fb($data);
 		//update the session data
-		if (is_array($data)) {
-			$this->loadDataFromAssocArray($data);
-		} else {
-			$this->loadDataFromJsonString($data);
-		}
-		$this->setOwner($user);
+		//if (is_array($data)) {
+		$this->loadDataFromAssocArray($data);
+		//} else {
+		//	$this->loadDataFromJsonString($data);
+		//}
+		$this->setOwner($auth_user);
 		$this->update();
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
