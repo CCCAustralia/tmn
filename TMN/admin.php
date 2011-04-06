@@ -93,7 +93,28 @@ if ($savefield != "") {
 echo "</table></form>";
 
 //ministry leader input
+//get authorisers
+$sql = "SELECT MINISTRY, GUID FROM `Authorisers` WHERE 1";
+$sql = mysql_query($sql);
+$authorisers = array();
+for ($index = 0; $index < mysql_num_rows($sql); $index++) {
+	//store them in an array
+	$temparray = mysql_fetch_assoc($sql);
+	$authorisers[$temparray['MINISTRY']] = $temparray['GUID'];
+}
 
+$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM, IS_TEST_USER `User_Profiles` WHERE 1";
+$sql = mysql_query($sql);
+$userlist = array();
+for ($index = 0; $index < mysql_num_rows($result); $index++) {
+	//store them in an array
+	$temparray = mysql_fetch_assoc($sql);
+	$userlist[$temparray['GUID']] = $temparray;
+}
+
+foreach ($authorisers as $ministry => $guid) {
+	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
+}
 
 
 echo "</body></html>";

@@ -16,7 +16,7 @@ db_connect();
 //set the log path
 $LOGFILE = "../logs/namefill.log";
 
-if (isset($_POST['mode'])) {
+if (isset($_REQUEST['mode'])) {
 	
 	try {
 		
@@ -36,7 +36,7 @@ if (isset($_POST['mode'])) {
 				$temp = mysql_fetch_assoc($sql);
 				$userlist_all[$temp['GUID']] = $temp;
 			}
-			fb("userlist_all:"); fb($userlist_all);
+			//fb("userlist_all:"); fb($userlist_all);
 
 	////Get all authorisers from Authorisers table
 			$sql = "SELECT GUID, MINISTRY FROM `Authorisers` WHERE GUID IS NOT NULL";
@@ -76,7 +76,7 @@ if (isset($_POST['mode'])) {
 			
 			//store the requested authlevel
 			$mode		= $_REQUEST['mode'];
-			fb("$authlevel requested");
+			fb("$mode requested");
 			$returnarray	= array();
 			
 		////Authlevel 1
@@ -100,9 +100,9 @@ if (isset($_POST['mode'])) {
 				$returnarray = $userlist_nd;
 			}
 		////mode=all
-				if ($mode="all") {
-					$returnarray = $userlist_all;
-				}
+			if ($mode == "all") {
+				$returnarray = $userlist_all;
+			}
 				
 		////Remove the user from the returned list
 			unset($returnarray[$userguid]);

@@ -39,17 +39,18 @@ tmn.view.AuthorisationPanel = function(view, config) {
 	
 	this.mode				=	config.mode		|| 'all';
 	
-/*	
+
 	//holds the data for the name combo
-	this.nameStore			= new Ext.data.ArrayStore({
+	this.nameStore			= new Ext.data.JsonStore({
         itemId:		'name_store',
         root:		'data',
         url:		'php/imp/namefill.php',
         fields:		['FIRSTNAME', 'SURNAME', 'MINISTRY'],
         baseParams:	{mode: this.mode},
-        autoLoad:	true
+        autoLoad:	true,
         listeners:	{
         	load: function(store, records, options) {
+        		console.log(store);
         		//if there is only one record
         		if (!Ext.isArray(records)) {
         			//set the name fields to the contents of that record
@@ -63,8 +64,8 @@ tmn.view.AuthorisationPanel = function(view, config) {
         	}
         }
     });
-*/
-	
+
+/*	
 	//holds the test data for the name combo
 	this.nameStore			= new Ext.data.ArrayStore({
         itemId:	'name_store',
@@ -74,7 +75,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
                ['Kent', 'Keller', 'StudentLife']
         ]
     });
-    
+*/  
 	
 	/**
 	 * The config that defines the physical layout of the panel.
