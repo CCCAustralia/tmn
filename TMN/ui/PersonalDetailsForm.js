@@ -32,7 +32,7 @@ tmn.view.PersonalDetailsForm = function(view, config) {
         itemId:		'name_store',
         root:		'data',
         url:		'php/imp/namefill.php',
-        fields:		['FIRSTNAME', 'SURNAME', 'MINISTRY'],
+        fields:		['ID', 'FIRSTNAME', 'SURNAME', 'MINISTRY'],
         autoLoad:	{
         	params: {mode: 'all'}
         }

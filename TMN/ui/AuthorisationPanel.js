@@ -39,13 +39,15 @@ tmn.view.AuthorisationPanel = function(view, config) {
 	
 	this.mode				=	config.mode		|| 'all';
 	
+	this.user_id			=	0;
+	
 
 	//holds the data for the name combo
 	this.nameStore			= new Ext.data.JsonStore({
         itemId:		'name_store',
         root:		'data',
         url:		'php/imp/namefill.php',
-        fields:		['FIRSTNAME', 'SURNAME', 'MINISTRY'],
+        fields:		['ID', 'FIRSTNAME', 'SURNAME', 'MINISTRY'],
         baseParams:	{mode: this.mode},
         autoLoad:	true,
         listeners:	{
@@ -122,6 +124,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
 						    valueField:		'FIRSTNAME',
 						    listeners: {
 						    	select: function(combo, record, index) {
+						    		this.user_id	= record.data.ID;
 						    		var compositefield = this.getForm().items.map['name'];
 						    		compositefield.items.each(function(item, index, length){
 						    			if (item.getItemId() == 'last_name') {
@@ -153,6 +156,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
 						    valueField:		'SURNAME',
 						    listeners: {
 						    	select: function(combo, record, index) {
+						    		this.user_id	= record.data.ID;
 						    		var compositefield = this.getForm().items.map['name'];
 						    		compositefield.items.each(function(item, index, length){
 						    			if (item.getItemId() == 'first_name') {
@@ -204,15 +208,9 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	 */
 	getData: function() {
 		var compositefield	= this.getForm().items.map['name'],
-			returnObj		= {},
-			name			= {};
+			returnObj		= {};
 		
-		//grab the authoriser's name as an assoc array
-		compositefield.items.each(function(item, index, length){
-			this[item.getName()] = item.getValue();
-		}, name);
-		
-		returnObj['name']		= name;
+		returnObj['user_id']		= this.user_id;
 		
 		//grab the reason array
 		returnObj['reasons']	= {};
