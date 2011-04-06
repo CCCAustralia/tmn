@@ -62,19 +62,9 @@ tmn.view.AuthorisationPanel = function(view, config) {
         			if (this.rendered) {
 	        			//set the name fields to the contents of that record
 			    		//and disable those fields
-	        			var compositefield = this.getForm().items.map['name'];
-			    		compositefield.items.each(function(item, index, length){
-			    			item.setValue(this.data[item.getName()]);
-			    			item.disable();
-			    		}, records[0]);
+	        			this.autoSelectName.call(records[0], this);	//this.autoSelectNamecall(scope, param1)
         			} else {
-        				this.on('afterrender', function(form) {
-        					var compositefield = form.getForm().items.map['name'];
-    			    		compositefield.items.each(function(item, index, length){
-    			    			item.setValue(this.data[item.getName()]);
-    			    			item.disable();
-    			    		}, this);
-        				}, records[0]);
+        				this.on('afterrender', this.autoSelectName, records[0]);
         			}
         		}
         	}
@@ -242,13 +232,49 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		
 	},
 	
+	resetFields: function() {
+		this.user_id		= 0;
+		
+		var compositefield	= this.getForm().items.map['name'];
+		compositefield.items.each(function(item, index, length){
+			item.clearValue();
+			item.clearInvalid();
+		}, this);
+	},
+	
+	/**
+	 * Will take the only record left as the scope and this form as its first parameter and
+	 * will set the name fields values, the user_id and will disable the name fields.
+	 * 
+	 * Note: Must be called with the scope being the only record in the store.
+	 * Use this.autoSelectName.call(records[0], this) to do that
+	 */
+	autoSelectName: function(form) {
+		
+		form.user_id		= this.data.ID;
+		
+		var compositefield	= form.getForm().items.map['name'];
+		compositefield.items.each(function(item, index, length){
+			item.setValue(this.data[item.getName()]);
+			item.disable();
+		}, this);
+	},
+	
 	showPanel: function(reasonArray) {
+		
+		this.resetFields();
 		
 		this.show();
 		
 		this.reasonArray		= reasonArray;
 		
-		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
+		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div'),
+			recordArray	= this.nameStore.getRange();
+		
+		//if there is only one record select it and disable fields
+		if (recordArray.length == 1) {
+			this.autoSelectName.call(recordArray[0], this); //this.autoSelectNamecall(scope, param1)
+		}
 		
 		//if this tag has already been added then remove it before adding the new one
 		if (tmnAuthContainer != null) {
@@ -329,6 +355,9 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	},
 	
 	hidePanel: function() {
+		
+		this.resetFields();
+		
 		this.hide();
 	}
 });

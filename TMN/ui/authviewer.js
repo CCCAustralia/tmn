@@ -55,7 +55,8 @@ tmn.viewer = function() {
 											mode: 'get',
 											session: record.get('SESSION_ID')
 										},
-										callback: tmn.viewer.display
+										success: tmn.viewer.display,
+										failure: this.fail
 									});
 						    	}	
 						    }
@@ -81,7 +82,16 @@ tmn.viewer = function() {
 											response: 'Yes',
 											session: tmn.viewer.session
 										},
-										callback: alert('Confirmed')
+										success: function() {
+											Ext.MessageBox.show({
+												icon: Ext.MessageBox.ERROR,
+												buttons: Ext.MessageBox.OK,
+												closable: false,
+												title: 'Success!',
+												msg: 'This Session was successfully Confirmed.'
+											});
+										},
+										failure: this.fail
 									});
 								}
 						    }
@@ -106,7 +116,16 @@ tmn.viewer = function() {
 										response: 'No',
 										session: tmn.viewer.session
 									},
-									callback: alert('Rejected')
+									success: function() {
+										Ext.MessageBox.show({
+											icon: Ext.MessageBox.ERROR,
+											buttons: Ext.MessageBox.OK,
+											closable: false,
+											title: 'Success!',
+											msg: 'This Session was successfully Rejected.'
+										});
+									},
+									failure: this.fail
 								});
 						    }
 						}
@@ -115,75 +134,43 @@ tmn.viewer = function() {
 			]
 		}),
 		
-		display: function(options, success, response){
-			var responseObj = Ext.util.JSON.decode(response.responseText);
-			var json;
-			
-			if (responseObj.success == true || responseObj.success == 'true') {
-				json = responseObj['tmn_data'];
+		reasonpanel: new Ext.Panel({
+			header:		false,
+			frame:		true,
+			bodyStyle:	'padding:0px'
+		}),
+		
+		fail: function() {
+			Ext.MessageBox.show({
+				icon: Ext.MessageBox.ERROR,
+				buttons: Ext.MessageBox.OK,
+				closable: false,
+				title: 'Error!',
+				msg: 'There was an error processing your request. Please try again.'
+			});
+		},
+		
+		display: function(response, options){
+			var responseObj = Ext.util.JSON.decode(response.responseText),
+				json		= responseObj['tmn_data'],
+				session		= options.params.session,
+				isOverseas	= false,
+				hasSpouse	= false;
 				
-				this.view.setSession(options.params.session);
-				
-				if (json['success'] === undefined){	//if its the overseas version of the tmn
-					if (json['aussie-based'] !== undefined) {
-						this.view.setOverseas(false);
-						if (json['aussie-based']['s_firstname'] === undefined) {
-							this.view.setSpouse(false);
-						} else {
-							this.view.setSpouse(true);
-						}
-						
-						this.view.values['aussie-based'] = json['aussie-based'];
-					} else {
-						this.view.setOverseas(true);
-						if (json['international-assignment']['s_firstname'] === undefined) {
-							this.view.setSpouse(false);
-						} else {
-							this.view.setSpouse(true);
-						}
-						
-						
-						this.view.values['international-assignment'] = json['international-assignment'];
-						this.view.values['home-assignment'] = json['home-assignment'];
-					}
-				} else {							//if its the aussie based only version of the tmn
-					json = json['tmn_data'];
-					this.view.setOverseas(false);
-					if (json['s_firstname'] === undefined) {
-						this.view.setSpouse(false);
-					} else {
-						this.view.setSpouse(true);
-					}
-					
-					this.view.values['aussie-based'] = json;
-				}
-				
-				Ext.getCmp('confirm').enable();
-				
-				this.view.loadForm();
-				
+			if (json['aussie-based'] !== undefined)	{						//if its the aussie based only version of the tmn
+				isOverseas	= false;
+				hasSpouse	= (json['aussie-based']['s_firstname'] !== undefined ? true : false);
 			} else {
-				
-				if (responseObj['errors'] !== undefined) {
-					//tell the user they don't have permission to access this
-					Ext.MessageBox.show({
-						icon: Ext.MessageBox.ERROR,
-						buttons: Ext.MessageBox.OK,
-						closable: false,
-						title: 'Error',
-						msg: 'The TMN reprocessed with errors and cannot be viewed. Contact <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a> for a solution.'
-					});
-				} else {
-					//tell the user they don't have permission to access this
-					Ext.MessageBox.show({
-						icon: Ext.MessageBox.ERROR,
-						buttons: Ext.MessageBox.OK,
-						closable: false,
-						title: 'Error',
-						msg: 'You don\'t have access to this information. It either doesn\'t exist or you don\'t have permission to see it. If you think this is incorrect please contact <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>.'
-					});
-				}
+				isOverseas	= true;
+				hasSpouse	= (json['international-assignment']['s_firstname'] !== undefined ? true : false);
 			}
+			
+			Ext.getCmp('confirm').enable();
+			
+			//TODO: display auth reasons in auth panel
+			
+			this.view.renderSummary(json, isOverseas, hasSpouse);
+				
 		},
 		
 		init: function() {
@@ -195,6 +182,10 @@ tmn.viewer = function() {
 			
 			this.controlpanel.setWidth(900);
 			this.controlpanel.render('tmn-viewer-controls-cont');
+			
+			this.reasonpanel.setWidth(900);
+			this.reasonpanel.render('tmn-reasonpanel-cont');
+			
 			this.view.setWidth(900);
 			this.view.render('tmn-viewer-cont');
 			

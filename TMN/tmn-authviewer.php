@@ -125,6 +125,7 @@ html,body {
 	<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>
 	<center>
 		<div id="tmn-viewer-controls-cont"></div>
+		<div id="tmn-reasonpanel-cont"></div>
 		<div id="tmn-viewer-cont"></div>
 	</center>
 </body>

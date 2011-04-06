@@ -312,6 +312,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//grab data
 		$obj						= parent::produceAssocArray();
 		
+		//TODO: add in personal details
+		
 		//add transfer array
 		$obj['transfers']			= $this->produceTransferArray();
 		

@@ -432,6 +432,10 @@ tmn.TmnController = function() {
 		 * @param {Boolean} 			overseas		A boolean variable that tells the handler if the user serves overseas or not.
 		 */
 		onOverseas: function (form_panel, spouse, overseas) {
+			
+			//reset response when overseas status is changed
+			this.resetResponse();
+			
 			if (overseas) {
 				this.overseas = true;
 				this.view.setOverseas(true);
@@ -1048,6 +1052,15 @@ tmn.TmnController = function() {
 		 */
 		resetFinancialData: function(form_panel) {
 			this.financial_data[form_panel.id] = {};
+		},
+		
+		/**
+		 * Replaces financial_data with empty object for a particular form
+		 * 
+		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
+		 */
+		resetResponse: function(form_panel) {
+			this.response = {};
 		},
 		
 		/**
