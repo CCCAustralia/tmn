@@ -55,6 +55,10 @@ tmn.view.AuthorisationPanel = function(view, config) {
         	load:	function(store, records, options) {
         		//if there is only one record
         		if (records.length == 1) {
+        			
+        			//set the user_id to this record
+        			this.user_id	= records[0].data.ID;
+        			
         			if (this.rendered) {
 	        			//set the name fields to the contents of that record
 			    		//and disable those fields
