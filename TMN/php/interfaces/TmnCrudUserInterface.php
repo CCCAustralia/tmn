@@ -26,7 +26,7 @@ interface TmnCrudUserInterface {
 	 * Note: Method will throw FatalException if it can't complete construction.
 	 */
 	//this line is commented out to avoid conflicts with sub-classes, please leave commented
-	//public function __construct($logfile, $guid);
+	//public function __construct($logfile, $guid_or_id);
 	
 	
 			///////////////////ACCESSOR FUNCTIONS/////////////////////
@@ -124,6 +124,13 @@ interface TmnCrudUserInterface {
 	 * @return bool
 	 */
 	public function isAdmin();
+	
+	/**
+	 * Fills the object with data associated with the user id passed to it.
+	 * 
+	 * @param int $id - the id of the user profile
+	 */
+	public function retrieveWithId($id);
 	
 	/**
 	 * alias for setGuid($guid)

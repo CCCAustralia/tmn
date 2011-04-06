@@ -14,13 +14,14 @@ if(file_exists('php/classes/TmnCrud.php')) {
 
 class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	
-	public function __construct($logfile, $guid=null) {
+	public function __construct($logfile, $guid_or_id=null) {
 		
 		parent::__construct(
 			$logfile,						//path of logfile
 			"User_Profiles",				//name of table
 			"guid",							//name of table's primary key
 			array(							//an assoc array of private field names and there types
+				'id'			=>	"i",
 				'guid'			=>	"s"
 			),
 			array(							//an assoc array of public field names and there types
@@ -39,8 +40,13 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		);
 		
 		try {
-			if (isset($guid)) {
-				$this->setGuid($guid);
+			if (isset($guid_or_id)) {
+				
+				if (is_numeric($guid_or_id)) {
+					$this->retrieveWithId((int)$guid_or_id);
+				} else {
+					$this->setGuid($guid_or_id);
+				}
 			}
 		} catch (Exception $e) {
 			throw new FatalException(__CLASS__ . " Exception: " . $e->getMessage());
@@ -189,6 +195,13 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 				return false;
 			}
 		}
+	}
+	
+	public function retrieveWithId($id) {
+		$this->setField('id', $id);
+		$this->primarykey_name	= 'id';
+		$this->retrieve();
+		$this->primarykey_name	= 'guid';
 	}
 	
 	//alias for setGuid($guid)
