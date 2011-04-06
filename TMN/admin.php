@@ -58,7 +58,7 @@ foreach ($constants as $fieldname => $value) {
 						echo $subvalue."<br />";	//don't allow them to edit intmax
 					} else {
 		////edit array elements
-						echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='save' /><br />";
+						echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='Save' /><br />";
 					}
 				}
 				echo "</tr>";
@@ -76,7 +76,7 @@ foreach ($constants as $fieldname => $value) {
 	////edit mode - text box and save button
 			if ($_REQUEST['edit'] == $fieldname) {
 		////value name, edit box and save button
-				echo "<tr><td>".$fieldname."</td><td><input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='save' /></td></tr>";
+				echo "<tr><td>".$fieldname."</td><td><input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='Save' /></td></tr>";
 			} else {	
 	////normal mode - link to edit mode
 		////value name, value
@@ -92,8 +92,9 @@ if ($savefield != "") {
 	$sql = "UPDATE `Constants` SET `".$savefield."` = '".$savestring."' WHERE VERSIONNUMBER = '".$versionnumber."'";
 	$sql = mysql_query($sql);
 }
-echo "</table></form>";
+echo "</table></form><br /><br /><br />";
 
+////Authorisers
 //ministry leader input
 //get authorisers
 $sql = "SELECT MINISTRY, GUID FROM `Authorisers` WHERE 1";
@@ -111,16 +112,74 @@ $userlist = array();
 for ($index = 0; $index < mysql_num_rows($sql); $index++) {
 	//store them in an array
 	$temparray = mysql_fetch_assoc($sql);
-	$userlist[$temparray['GUID']] = $temparray;
+
+	if ($temparray['IS_TEST_USER'] == 0) {	//don't add test accounts
+		$userlist[$temparray['GUID']] = $temparray;
+	}
 }
 
 fb($userlist);
 
 foreach ($authorisers as $ministry => $guid) {
 	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
+	if (isset($_GET[$ministry])) {
+		$sql = "UPDATE `Authorisers` SET `GUID` = '".$_GET[$ministry]."' WHERE MINISTRY = '".$ministry."'";
+		$sql = mysql_query($sql);
+		echo "<br />".$userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']. " saved as ".$ministry." TMN authoriser!<br />";
+	}
 }
 fb($authorisers);
+
+$optionlist = "";
+foreach ($userlist as $guid => $user) {
+	$optionlist .= "<option value='".$guid."'>".$user['FIRSTNAME']." ".$user['SURNAME']." - ".$user['FIN_ACC_NUM']."</option>";
+}
+
+	echo "<form name='".$ministry."' method=GET onsubmit='admin.php'>";
+echo "<table border=1><th>Ministry:</th><th>Authoriser:</th>";
+foreach ($authorisers as $ministry => $authuser) {
+	echo "<tr><td>$ministry:</td><td>";
+
+	//find the location of the authorisers guid
+	$personalcombo = split($authuser['GUID'], $optionlist);//($combobox, 0, strpos($combobox, $authuser['GUID'])+strlen($authuser['GUID']) + 1);
+	fb($personalcombo);
+	fb($authuser['GUID']);
+	
+	//select the authoriser in the combo box
+	if ($personalcombo[1] != NULL) {
+		echo "<select name='".$ministry."'>";
+			//optionlist with inserted "selected" parameter
+			echo $personalcombo[0];
+			echo $authuser['GUID'];
+			echo "' selected";
+			echo substr($personalcombo[1],1);
+		echo "</select>";
+	} else {
+		fb("Authoriser ".$authuser['GUID']." not found");
+		echo "<select name='".$ministry."'>";
+		echo $optionlist;
+		echo "<option value='".$authuser['GUID']."' selected>".$authuser['GUID']." - Name not in database! Never done a TMN?</option>";
+		echo "</select>";
+	}
+	echo "<input type='submit' value='Save' /></td>";
+	echo "</tr>";
+}
+echo "</table></form>";
 
 
 echo "</body></html>";
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
