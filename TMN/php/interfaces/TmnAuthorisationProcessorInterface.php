@@ -20,20 +20,6 @@ interface TmnAuthorisationProcessorInterface {
 	public function __construct($logfile, $auth_session_id);
 	
 	
-	/**
-	 * Will fill the row in Auth_Table with the specified auth data.
-	 * 
-	 * @param $auth_user
-	 * @param $auth_level_1
-	 * @param $auth_level_1_reasons
-	 * @param $auth_level_2
-	 * @param $auth_level_2_reasons
-	 * @param $auth_level_3
-	 * @param $auth_level_3_reasons
-	 * 
-	 */
-	public function make($auth_user, $auth_level_1 = null, $auth_level_1_reasons = null, $auth_level_2 = null, $auth_level_2_reasons = null, $auth_level_3 = null, $auth_level_3_reasons = null);
-	
 	
 			///////////////////ACCESSOR FUNCTIONS/////////////////////
 			
@@ -78,14 +64,18 @@ interface TmnAuthorisationProcessorInterface {
 	public function userIsAuthoriser(TmnCrudUser $user);
 	
 	/**
+	 * Will fill the row in Auth_Table with the specified auth data and begin the authorisation process.
 	 * 
-	 * Enter description here ...
-	 * @param TmnCrudUser $user
-	 * @param TmnCrudUser $level1Authoriser
-	 * @param TmnCrudUser $level2Authoriser
-	 * @param TmnCrudUser $level3Authoriser
+	 * @param $auth_user
+	 * @param $auth_level_1
+	 * @param $auth_level_1_reasons
+	 * @param $auth_level_2
+	 * @param $auth_level_2_reasons
+	 * @param $auth_level_3
+	 * @param $auth_level_3_reasons
+	 * 
 	 */
-	public function submit(TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser);
+	public function submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
 	
 }
 

@@ -57,7 +57,7 @@ if ($_POST["mode"] == "load") {
 	echo '{"data":['.$returndata.'] }';
 } else if ($_POST["mode"] == "get") {
 	
-	$crudsession = new TmnCrudSession("../logs/authviewer.log", (int)$_POST["session"]);
+	$crudsession = new TmnCrudSession("../logs/authviewer.log", (int)$_REQUEST["session"]);
 	//$crudsession->setField("SESSION_ID", $_POST["session"]);
 	$crudsession->retrieve();
 	$cruddata = $crudsession->produceJson();

@@ -710,7 +710,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		fb($this);
 
 		
-		
+		/*
 		$authproc = new TmnAuthorisationProcessor($this->logger->getLogPath(), null);
 		
 		$authproc->make($this->guid,
@@ -723,6 +723,7 @@ class FinancialSubmitter extends FinancialProcessor {
 						);
 		fb("authproc after make()");
 		fb($authproc);
+		*/
 		
 		//MPD AUTH CHECK
 		if ($row['MPD'] == 1) {

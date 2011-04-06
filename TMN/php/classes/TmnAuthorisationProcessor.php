@@ -73,28 +73,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		if ($this->authsessionid) {
 			$this->setField('AUTH_SESSION_ID', $this->authsessionid);
 			$this->retrieve();
-		} else {
-			$this->authsessionid = $this->create();
-			$this->setField('AUTH_SESSION_ID', $this->authsessionid);
-			$this->retrieve();
 		}
 	}
-
-	
-	public function make($auth_user, $auth_level_1 = null, $auth_level_1_reasons = null, $auth_level_2 = null, $auth_level_2_reasons = null, $auth_level_3 = null, $auth_level_3_reasons = null) {
-									$this->setField("AUTH_USER", 			$auth_user);
-		if ($auth_level_1){ 		$this->setField("AUTH_LEVEL_1", 		$auth_level_1); 		}
-		if ($auth_level_1_reasons){	$this->setField("AUTH_LEVEL_1_REASONS",	$auth_level_1_reasons);	}
-		if ($auth_level_2){			$this->setField("AUTH_LEVEL_2",			$auth_level_2); 		}
-		if ($auth_level_2_reasons){	$this->setField("AUTH_LEVEL_2_REASONS", $auth_level_2_reasons);	}
-		if ($auth_level_3){			$this->setField("AUTH_LEVEL_3",			$auth_level_3);			}
-		if ($auth_level_3_reasons){	$this->setField("AUTH_LEVEL_3_REASONS", $auth_level_3_reasons);	}
-		
-		$this->update();
-		
-		
-	}
-	
 	
 	
 			///////////////////ACCESSOR FUNCTIONS/////////////////////
@@ -233,7 +213,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	/**
 	 * 
 	 * getNextAuthLevel 				-Processes and returns the next level of authorisation in the queue
-	 * @param unknown_type $authlevel 	-The level at which the user is currently authorising.
+	 * @param $authlevel
 	 * @return integer					-The level of the next authoriser in the queue (4 is finance, 5 is user)
 	 */
 	private function getNextAuthLevel($authlevel) {
@@ -306,8 +286,24 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 * @param TmnCrudUser $level2Authoriser
 	 * @param TmnCrudUser $level3Authoriser
 	 */
-	public function submit(TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser) {
+	public function submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons) {
+			$this->authsessionid = 	$this->create();
+			
+									$this->setField('AUTH_SESSION_ID', 		$this->authsessionid);
+									$this->setField("AUTH_USER", 			$auth_user);
+									$this->setField("USER_RESPONSE", 		"Yes");
+		if ($auth_level_1){ 		$this->setField("AUTH_LEVEL_1", 		$auth_level_1); 		}
+		if ($auth_level_1_reasons){	$this->setField("AUTH_LEVEL_1_REASONS",	$auth_level_1_reasons);	}
+		if ($auth_level_2){			$this->setField("AUTH_LEVEL_2",			$auth_level_2); 		}
+		if ($auth_level_2_reasons){	$this->setField("AUTH_LEVEL_2_REASONS", $auth_level_2_reasons);	}
+		if ($auth_level_3){			$this->setField("AUTH_LEVEL_3",			$auth_level_3);			}
+		if ($auth_level_3_reasons){	$this->setField("AUTH_LEVEL_3_REASONS", $auth_level_3_reasons);	}
 		
+		$this->update();
+		fb($this);
+		$this->notify($this->getNextAuthLevel(0));
+			
+		return $this->authsessionid;
 	}
 	
 	

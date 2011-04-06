@@ -1,10 +1,22 @@
 <?php
-
-include_once('../interfaces/TmnCrudSessionInterface.php');
-
-include_once('../classes/TmnCrud.php');
-include_once('../classes/TmnCrudUser.php');
-include_once('../classes/TmnAuthorisationProcessor.php');
+if (file_exists('../interfaces/TmnCrudSessionInterface.php')) {
+	include_once('../interfaces/TmnCrudSessionInterface.php');
+	include_once('../classes/TmnCrud.php');
+	include_once('../classes/TmnCrudUser.php');
+	include_once('../classes/TmnAuthorisationProcessor.php');
+}
+if (file_exists('interfaces/TmnCrudSessionInterface.php')) {
+	include_once('interfaces/TmnCrudSessionInterface.php');
+	include_once('classes/TmnCrud.php');
+	include_once('classes/TmnCrudUser.php');
+	include_once('classes/TmnAuthorisationProcessor.php');
+}
+if (file_exists('php/interfaces/TmnCrudSessionInterface.php')) {
+	include_once('php/interfaces/TmnCrudSessionInterface.php');
+	include_once('php/classes/TmnCrud.php');
+	include_once('php/classes/TmnCrudUser.php');
+	include_once('php/classes/TmnAuthorisationProcessor.php');
+}
 
 //This is an example of how to subclass TmnCrud
 class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
@@ -358,23 +370,24 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 	
 	
-	public function submit( TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser,  $data ) {
+	public function submit( TmnUser $auth_user, TmnUser $auth_level_1, $auth_level_1_reasons, TmnUser $auth_level_2, $auth_level_2_reasons, TmnUser $auth_level_3, $auth_level_3_reasons, $data ) {
 		
-		//load data into the session object
-		$this->loadDataFromAssocArray($data);
+		//update the session data
+		if (is_array($data)) {
+			$this->loadDataFromAssocArray($data);
+		} else {
+			$this->loadDataFromJsonString($data);
+		}
 		$this->setOwner($user);
+		$this->update();
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
-		$this->authorisatoionProcessor	= new TmnAuthorisationProcessor($this->logfile);
-		$ap_id = $this->authorisatoionProcessor->submit($user, $level1Authoriser, $level2Authoriser, $level3Authoriser);
-		$this->setField('auth_session_id', $ap_id);
+		$this->authorisationProcessor	= new TmnAuthorisationProcessor($this->logfile);
+		$authsessionid = $this->authorisationProcessor->submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
 		
-		//if initiating the authorisation process worked with out throwing an exception put the data from the object into the database
-		if ($this->getField('session_id') == null) {
-			$this->create();
-		} else {
-			$this->update();
-		}
+		//update the session row with the authsessionid
+		$this->setField('AUTH_SESSION_ID', $authsessionid);
+		$this->update();
 		
 		return true;
 	}

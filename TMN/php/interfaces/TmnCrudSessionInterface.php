@@ -148,7 +148,7 @@ interface TmnCrudSessionInterface {
 	 * 
 	 * Note: will throw Exception if it can't complete this task.
 	 */
-	public function submit( TmnCrudUser $user, TmnCrudUser $level1Authoriser, TmnCrudUser $level2Authoriser, TmnCrudUser $level3Authoriser,  $data );
+	public function submit( TmnUser $auth_user, TmnUser $auth_level_1, $auth_level_1_reasons, TmnUser $auth_level_2, $auth_level_2_reasons, TmnUser $auth_level_3, $auth_level_3_reasons, $data );
 	
 	/**
 	 * Checks whether the user passed to it is one of the people on the list of authorisers for this session.

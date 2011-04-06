@@ -1,6 +1,6 @@
 <?php
 
-$DEBUG = 0;
+$DEBUG = 1;
 $NEWVERSION = 0;
 $VERSIONNUMBER = "0-0-1";
 
@@ -110,7 +110,7 @@ html,body {
 		document.getElementById("loading-message").innerHTML = "Loading Ext Library...";
 	</script>
 	<script type="text/javascript"
-		src="lib/ext-all'.$force_debug.'.js'.$force_reload.'"></script>
+		src="lib/ext-all-debug.js'.$force_reload.'"></script>
 	<script type="text/javascript">
 		document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";
 	</script>
@@ -119,6 +119,8 @@ html,body {
 	<script type="text/javascript">
 		document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";
 	</script>
+	<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
+	<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
 	<script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script>
 	<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>
 	<center>

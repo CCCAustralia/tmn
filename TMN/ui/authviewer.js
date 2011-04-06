@@ -191,7 +191,7 @@ tmn.viewer = function() {
 			var loading = Ext.get('loading');
 			
 			//create view
-			this.view = new tmn.view.PrintForm;
+			this.view = new tmn.view.SummaryPanel;
 			
 			this.controlpanel.setWidth(900);
 			this.controlpanel.render('tmn-viewer-controls-cont');
