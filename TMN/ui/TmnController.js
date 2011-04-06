@@ -333,6 +333,12 @@ tmn.TmnController = function() {
 				
 				this.view.getActiveForm().onLoadSuccess(this.view.getActiveForm().getForm());
 			} else if (this.view.active == this.view.indexOfLastAussieForm() || this.view.active == this.view.indexOfLastOverseasForm()) {
+				//
+				if (this.overseas == true) {
+					this.view.getActiveForm().setSession(this.getFinancialData('international-assignment')['session_id']);
+				} else {
+					this.view.getActiveForm().setSession(this.getFinancialData('aussie-based')['session_id']);
+				}
 				this.view.loadActiveForm(this.response);
 			} else {
 				this.view.loadActiveForm();						//loads the new form

@@ -35,7 +35,7 @@ try {
 	
 	//check if they are a valid user (If not show the rego page)
 	$stmt	= $db->query("SELECT GUID FROM User_Profiles WHERE GUID='" . $tmn->getAuthenticatedGuid() . "'");
-	fb("SELECT GUID FROM User_Profiles WHERE GUID='" . $tmn->getAuthenticatedGuid() . "'");
+	
 	if ($stmt->rowCount() == 1){
 		//if the user has a valid email address update email address in the database when they log in
 		if (Email::validateAddress($tmn->getEmail())) {

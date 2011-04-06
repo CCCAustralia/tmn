@@ -1695,7 +1695,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * @param {number}	session		The number representing the user's session.
 	 */
 	setSession: function(session) {
-		
+
 		//if this session is in the combo then grab the session name and set the session name to the found name
 		var sessionStore	= this.getTopToolbar().items.map['session_combo'].getStore(),
 		sessionRecordId		= sessionStore.find('SESSION_ID', session + '');

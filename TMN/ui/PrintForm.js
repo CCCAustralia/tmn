@@ -396,9 +396,6 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 				level_2_panel	= this.items.map['authorisation_level_2_panel'],
 				level_3_panel	= this.items.map['authorisation_level_3_panel'];
 			
-			console.info(level2Values);
-			console.info(level3Values);
-			
 			//put the data away for submit
 			this.data		= values;
 			

@@ -51,17 +51,27 @@ tmn.view.AuthorisationPanel = function(view, config) {
         baseParams:	{mode: this.mode},
         autoLoad:	true,
         listeners:	{
-        	load: function(store, records, options) {
-        		console.log(store);
+        	scope:	this,
+        	load:	function(store, records, options) {
         		//if there is only one record
-        		if (!Ext.isArray(records)) {
-        			//set the name fields to the contents of that record
-		    		//and disable those fields
-        			var compositefield = this.getForm().items.map['name'];
-		    		compositefield.items.each(function(item, index, length){
-		    			item.setValue(this.data[item.getName()]);
-		    			item.disable();
-		    		}, record);
+        		if (records.length == 1) {
+        			if (this.rendered) {
+	        			//set the name fields to the contents of that record
+			    		//and disable those fields
+	        			var compositefield = this.getForm().items.map['name'];
+			    		compositefield.items.each(function(item, index, length){
+			    			item.setValue(this.data[item.getName()]);
+			    			item.disable();
+			    		}, records[0]);
+        			} else {
+        				this.on('afterrender', function(form) {
+        					var compositefield = form.getForm().items.map['name'];
+    			    		compositefield.items.each(function(item, index, length){
+    			    			item.setValue(this.data[item.getName()]);
+    			    			item.disable();
+    			    		}, this);
+        				}, records[0]);
+        			}
         		}
         	}
         }
