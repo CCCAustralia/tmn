@@ -1,6 +1,8 @@
 <?php
 include_once 'php/dbconnect.php';
 include_once 'php/classes/Tmn.php';
+include_once 'lib/FirePHPCore/fb.php';
+ob_start();
 
 $authobj = new Tmn("php/logs/admin.php.log");
 $authobj->authenticate();
@@ -103,18 +105,21 @@ for ($index = 0; $index < mysql_num_rows($sql); $index++) {
 	$authorisers[$temparray['MINISTRY']] = $temparray['GUID'];
 }
 
-$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM, IS_TEST_USER `User_Profiles` WHERE 1";
+$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM, IS_TEST_USER FROM `User_Profiles` WHERE 1";
 $sql = mysql_query($sql);
 $userlist = array();
-for ($index = 0; $index < mysql_num_rows($result); $index++) {
+for ($index = 0; $index < mysql_num_rows($sql); $index++) {
 	//store them in an array
 	$temparray = mysql_fetch_assoc($sql);
 	$userlist[$temparray['GUID']] = $temparray;
 }
 
+fb($userlist);
+
 foreach ($authorisers as $ministry => $guid) {
 	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
 }
+fb($authorisers);
 
 
 echo "</body></html>";
