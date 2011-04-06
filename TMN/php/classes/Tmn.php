@@ -46,7 +46,7 @@ class Tmn extends Reporter implements TmnInterface {
 			////////////////AUTHENTICATION FUNCTIONS//////////////
 	
 	public function authenticate() {
-		$this->authenticator->authenticate();
+		TmnAuthenticator::authenticate();
 	}
 	
 	public function logout() {

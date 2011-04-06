@@ -586,7 +586,7 @@ tmn.TmnController = function() {
 					buttons:	Ext.MessageBox.OK,
 					closable:	false,
 					title:		'Inflation',
-					msg:		'This session was created in a different financial year to this one, because of this we have increased your values for you to take inflation into account.',
+					msg:		'This session was created in a different financial year to this one, because of this we have increased your values for you to take inflation into account.<br /> If you would like to view the this session as it was submitted, follow this link <a href="http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session=' + form_panel.getSession() +'</a>.',
 					scope:		form_panel,
 					fn:			function() {
 						if (this.locked) {

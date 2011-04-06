@@ -586,7 +586,7 @@ Ext.extend(tmn.view.PersonalDetailsForm, Ext.FormPanel, {
 	hasSpouse: function() {
 		if (this.spouse == '') {	//if this.spouse holds the default value it means the user's marital status hasn't been confirmed
 									//so return whether the user thinks they have a spouse (ie the user has entered a value for their spouse's first name or last name)
-			return (this.getForm().items.map['s_first'].getValue() != '' || this.getForm().items.map['s_last'].getValue() != '');
+			return ( !(this.getForm().items.map['s_first'].getValue() == '' || this.getForm().items.map['s_first'].getValue() == null) && !(this.getForm().items.map['s_last'].getValue() == '' || this.getForm().items.map['s_last'].getValue() == null));
 		} else {
 			return this.spouse;		//if the marital status has been confirmed then return that.
 		}
@@ -812,8 +812,9 @@ Ext.extend(tmn.view.PersonalDetailsForm, Ext.FormPanel, {
 	 * @param {Ext.form.Action}		action		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 	 */
 	onSubmitSuccess: function (form, action) {
+		console.log(form.items.map['s_first'].getValue() != '');
 		//does this person have a spouse (checks the spouse name after the php has succeeded, ie the php has varified the marrital status)
-		if( form.items.map['s_first'].getValue() != '' && form.items.map['s_last'].getValue() != '') {
+		if( this.hasSpouse() ) {
 			this.fireEvent('married');
 		} else {
 			this.fireEvent('single');

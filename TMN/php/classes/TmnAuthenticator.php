@@ -94,13 +94,16 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server
 		phpCAS::forceAuthentication();		//require the user to log in to CAS
 		
+		if (isset($_REQUEST['logout'])) {
+			phpCAS::logout();
+		}
 		
 		//user is now authenticated by the CAS server and the user's login name can be read with phpCAS::getUser()
 		
 		//fetch a ticket if absent
 		if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 		{
-		    header("Location: https://signin.mygcx.org/cas/login?service=".$this->curPageURL());
+		    header("Location: https://signin.mygcx.org/cas/login?service=". self::curPageURL());
 		}
     }
     
