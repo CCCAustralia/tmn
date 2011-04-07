@@ -56,10 +56,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Fatal Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getLogfile();
-			$this->setLogfile("../logs/exceptions.log");
+			//$tempPath = $this->getLogfile();
+			//$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setLogfile($tempPath);
+			//$this->setLogfile($tempPath);
 			
 			//kill the script leaving the message on the console if in debug mode
 			$this->failWithMsg($msg);
@@ -71,10 +71,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Light Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getLogfile();
-			$this->setLogfile("../logs/exceptions.log");
+			//$tempPath = $this->getLogfile();
+			//$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setLogfile($tempPath);
+			//$this->setLogfile($tempPath);
 			
 			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);
@@ -86,10 +86,10 @@ class Reporter implements ReporterInterface {
 			$msg = $exception->getFile() . "; ln " . $exception->getLine() . "; Unknown Exception; " . $exception->getMessage() . "\n" . $exception->getTraceAsString();
 			
 			//switch to the exception log file, log the exception and switch back
-			$tempPath = $this->getLogfile();
-			$this->setLogfile("../logs/exceptions.log");
+			//$tempPath = $this->getLogfile();
+			//$this->setLogfile("../logs/exceptions.log");
 			$this->logToFile($msg);
-			$this->setLogfile($tempPath);
+			//$this->setLogfile($tempPath);
 			
 			//leave the message on the console if in debug mode and continue with the script
 			$this->d($msg);

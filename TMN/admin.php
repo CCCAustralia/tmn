@@ -5,8 +5,8 @@ include_once 'lib/FirePHPCore/fb.php';
 ob_start();
 
 $authobj = new Tmn("php/logs/admin.php.log");
-$authobj->authenticate();
-if (!$authobj->getUser()->isAdmin()) {
+//$authobj->authenticate();
+if (!$authobj->isAuthenticated() || !$authobj->getUser()->isAdmin()) {
 	die("You don't have permission to access this page. If you think you should be able to access this page, contact <a href=\"mailto:tech.team@ccca.org.au\">tech.team@ccca.org.au</a>");
 }
 
@@ -20,6 +20,7 @@ $savefield = "";
 $versionnumber = "2-2-0";
 
 echo "<html><body><form method=GET onsubmit='admin.php'><table border=1><th>Field Name:</th><th>Stored Value:</th>";
+fb($_GET);
 foreach ($constants as $fieldname => $value) {
 	if (!is_null($fieldname)){
 		//loop through each parameter
@@ -50,7 +51,7 @@ foreach ($constants as $fieldname => $value) {
 //////  array output  //////
 		if (is_array(json_decode($value))) {
 	////edit mode - text box and save button
-			if ($_REQUEST['edit'] == $fieldname) {
+			if ($_GET['edit'] == $fieldname) {
 		////array name
 				echo "<tr><td>".$fieldname."</td><td>";
 				foreach (json_decode($value) as $key => $subvalue) {
@@ -74,7 +75,7 @@ foreach ($constants as $fieldname => $value) {
 //////  value output  //////
 		} else {
 	////edit mode - text box and save button
-			if ($_REQUEST['edit'] == $fieldname) {
+			if ($_GET['edit'] == $fieldname) {
 		////value name, edit box and save button
 				echo "<tr><td>".$fieldname."</td><td><input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='Save' /></td></tr>";
 			} else {	

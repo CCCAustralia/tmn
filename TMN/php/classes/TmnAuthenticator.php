@@ -108,7 +108,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
     }
     
     //constructs the url of this file based on the server settings found in $_SERVER
-	private function curPageURL() {
+	public function curPageURL() {
 		$pageURL = 'http';
 		if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
 		$pageURL .= "://";

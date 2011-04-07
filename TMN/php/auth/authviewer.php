@@ -34,9 +34,10 @@ if (!isset($_POST["mode"]))
 if ($_POST["mode"] == "load") {
 	//if ($DEBUG) {$guid="test";}
 	$rows = "SELECT SESSION_ID, SESSION_NAME FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
-	$rows .= "(AUTH_LEVEL_1 = '".$guid."' ".	"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
-	$rows .= "(AUTH_LEVEL_2 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
-	$rows .= "(AUTH_LEVEL_3 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".			" && FINANCE_RESPONSE = 'Pending'))";
+	$rows .= "(AUTH_USER = '"	.$guid."' ".																															" && FINANCE_RESPONSE = 'Pending') || ";
+	$rows .= "(AUTH_LEVEL_1 = '".$guid."' ".											"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
+	$rows .= "(AUTH_LEVEL_2 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".													"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
+	$rows .= "(AUTH_LEVEL_3 = '".$guid."' ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".													" && FINANCE_RESPONSE = 'Pending'))";
 	//TODO: USE PREPAREDSTATEMENTS
 	if($DEBUG) {fb($rows);}
 	$rows = mysql_query($rows);

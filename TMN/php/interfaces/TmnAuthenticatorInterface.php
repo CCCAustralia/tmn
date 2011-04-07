@@ -41,6 +41,12 @@ interface TmnAuthenticatorInterface {
 	
 	/**
 	 * 
+	 * Returns the URL of the current page
+	 */
+	public function curPageURL();
+	
+	/**
+	 * 
 	 * Tells you if the call to this script has been made from someone with an authenticated
 	 * GCX session.
 	 */

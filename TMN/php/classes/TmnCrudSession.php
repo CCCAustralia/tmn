@@ -377,7 +377,9 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		fb($data);
 		//update the session data
 		//if (is_array($data)) {
+		$sessionid = $this->getField('session_id');
 		$this->loadDataFromAssocArray($data);
+		$this->setField('session_id', $sessionid);
 		//} else {
 		//	$this->loadDataFromJsonString($data);
 		//}
@@ -386,13 +388,14 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
 		$this->authorisationProcessor	= new TmnAuthorisationProcessor($this->logfile);
-		$authsessionid = $this->authorisationProcessor->submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
-		
+		$submitarray = $this->authorisationProcessor->submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
 		//update the session row with the authsessionid
-		$this->setField('AUTH_SESSION_ID', $authsessionid);
+		$this->setField('auth_session_id', $submitarray['authsessionid']);
 		$this->update();
+		fb($this);
 		
-		return true;
+		//returns an array of success and email
+		return array('success' => $submitarray['success'], 'authsessionid' => $submitarray['authsessionid'], 'email' => $submitarray['useremailaddress']);
 	}
 	
 	public function userIsAuthoriser(TmnCrudUser $user) {
