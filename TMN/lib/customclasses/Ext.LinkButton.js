@@ -87,7 +87,7 @@ Ext.LinkButton = Ext.extend(Ext.Button, {
         this.el.child(this.buttonSelector, true).href = this.getHref();
     },
     
-    setTextAndEmail: function(firstname, lastname, email) {
+    setNameAndEmail: function(firstname, lastname, email) {
     	this.setText('Email ' + firstname + ' ' + lastname);
     	this.href	= 'mailto:' + email;
     	this.el.child(this.buttonSelector, true).href = this.getHref();

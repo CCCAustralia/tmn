@@ -116,6 +116,7 @@ try {
 					</script>
 					<script type="text/javascript">var G_SESSION = ' . $g_session . ';</script>
 					<script type="text/javascript" src="lib/customclasses/Ext.LinkButton.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/AuthorisationViewerControlPanel.js'.$force_reload.'"></script>
 					<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
 					<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
 					<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>

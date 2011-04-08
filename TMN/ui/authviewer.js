@@ -3,298 +3,79 @@ Ext.ns('tmn');
 tmn.viewer = function() {
 
 	return {
-		session: '',
-		
-		selectSession: function(combo, record, index) {
-    		
-    		this.session	= record.get('SESSION_ID');
-    		this.getForm().items.map['email'].setNameAndEmail(record.get('FIRSTNAME'), record.get('SURNAME'), record.get('EMAIL'));
-    		
-    		Ext.Ajax.request({
-				url: './php/auth/authviewer.php',
-    			scope: tmn.viewer,
-				params: {
-					mode: 'get',
-					session: record.get('SESSION_ID')
-				},
-				success: tmn.viewer.display,
-				failure: this.fail
-			});
-    	},
-		
-		controlpanel: new Ext.form.FormPanel({
-			title: 'Controls',
-			frame: true,
-			layout: 'column',
-			bodyStyle: 'padding:5px 5px 0px 5px',
-			items: [
-				{
-					layout: 'form',
-					columnWidth:.35,
-					items: [
-						{
-						    id: 'session_combo',
-				        	xtype: 'combo',
-						    fieldLabel: 'Session',
-						    hiddenName: 'SESSION',
-						    hiddenId: 'SESSION_hidden',
-						    triggerAction: 'all',
-				        	editable: false,
-						    forceSelection: true,
-						    allowBlank:false,
-						    
-						    mode: 'local',
-						    // store getting items from server
-						    store: this.sessionStore,
-						    
-						    valueField: 'SESSION_ID',
-							displayField:'SESSION_NAME',
-						    tpl: '<tpl for=\".\"><div class=\"x-combo-list-item\">{SESSION_ID}, {SESSION_NAME} - created by {FIRSTNAME} {SURNAME}</div></tpl>',
-						    listeners: {
-						    	scope:	tmn.viewer,
-						    	select: tmn.viewer.selectSession	
-						    }
-						}
-					]
-				},
-				{
-					layout: 'form',
-					columnWidth:.125,
-					items: [
-						{
-						    id: 'confirm',
-				        	xtype: 'button',
-				        	disabled: true,
-						    text: 'Approve this TMN',
-						    width: 80,
-						    handler: function(button, event) {
-								if (tmn.viewer.session != '') {
-									Ext.Ajax.request({
-										url: './php/auth/authprocessor.php',
-										scope: tmn.viewer,
-										params: {
-											response: 'Yes',
-											session: tmn.viewer.session
-										},
-										success: function() {
-											Ext.MessageBox.show({
-												icon: Ext.MessageBox.INFO,
-												buttons: Ext.MessageBox.OK,
-												closable: false,
-												title: 'Success!',
-												msg: 'This Session was successfully Confirmed.'
-											});
-										},
-										failure: this.fail
-									});
-								}
-						    }
-						}
-					]
-				},
-				{
-					layout: 'form',
-					columnWidth:.125,
-					items: [
-						{
-						    id: 'reject',
-				        	xtype: 'button',
-				        	disabled: true,
-						    text: 'Reject this TMN',
-						    width: 80,
-						    handler: function(button, event) {
-								Ext.Ajax.request({
-									url: './php/auth/authprocessor.php',
-									scope: tmn.viewer,
-									params: {
-										response: 'No',
-										session: tmn.viewer.session
-									},
-									success: function() {
-										Ext.MessageBox.show({
-											icon: Ext.MessageBox.INFO,
-											buttons: Ext.MessageBox.OK,
-											closable: false,
-											title: 'Success!',
-											msg: 'This Session was successfully Rejected.'
-										});
-									},
-									failure: this.fail
-								});
-						    }
-						}
-					]
-				},
-				{
-					layout: 'form',
-					columnWidth:.25,
-					items: [
-					    {
-					    	xtype:	'label',
-					    	text:	'Want to talk before approving?:',
-					    	width:	100
-					    }
-					]
-				},
-				{
-					layout: 'form',
-					columnWidth:.15,
-					items: [
-						{
-						    id:			'email',
-				        	xtype:		'linkbutton',
-				        	disabled:	true,
-						    text:		'Email Creator',
-						    href:		'mailto:tech.team@ccca.org.au'
-						}
-					]
-				},
-				{
-					  xtype: 'box',
-					  columnWidth:1,
-					  autoEl: {tag: 'center', html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Overall Status: </span><span id="tmn-authviewer-overall-status-status" style="color:#999999;">Awaiting Approval</span></div>'}
-				}
-
-			]
-		}),
-		
-		reasonpanel: new tmn.view.AuthorisationPanel(this.view, {id: 	'reasonpanel', noNames: true}),
-		
-		fail: function() {
-			Ext.MessageBox.show({
-				icon: Ext.MessageBox.ERROR,
-				buttons: Ext.MessageBox.OK,
-				closable: false,
-				title: 'Error!',
-				msg: 'There was an error processing your request. Please try again.'
-			});
-		},
 		
 		display: function(response, options){
 			var responseObj = Ext.util.JSON.decode(response.responseText),
 				progress	= responseObj['progress'],
 				auth		= responseObj['authoriser'],
-				authReasons	= auth['reasons'],
-				authResponse= auth['response'],
-				json		= responseObj['data'],
+				data		= responseObj['data'],
 				session		= options.params.session,
 				isOverseas	= false,
 				hasSpouse	= false,
 				statusEl	= Ext.get('tmn-authviewer-overall-status-status');
 				
-			if (json['aussie-based'] !== undefined)	{						//if its the aussie based only version of the tmn
+			if (data['aussie-based'] !== undefined)	{						//if its the aussie based only version of the tmn
 				isOverseas	= false;
-				hasSpouse	= (json['aussie-based']['s_firstname'] !== undefined ? true : false);
+				hasSpouse	= (data['aussie-based']['s_firstname'] !== undefined ? true : false);
 			} else {
 				isOverseas	= true;
-				hasSpouse	= (json['international-assignment']['s_firstname'] !== undefined ? true : false);
+				hasSpouse	= (data['international-assignment']['s_firstname'] !== undefined ? true : false);
 			}
 			
 			//render reasons
-			if (authReasons['total'] > 0) {
-				this.reasonpanel.showPanel(authReasons);
+			if (auth.reasons.total > 0) {
+				this.reasonPanel.showPanel(auth.reasons);
 			} else {
-				this.reasonpanel.hidePanel();
+				this.reasonPanel.hidePanel();
 			}
 			
-			//Change interface based on 
-			if (authResponse == 'Yes') {
-				Ext.getCmp('confirm').setText('You Confirmed This Session');
-	    		Ext.getCmp('confirm').disable();
-	    		Ext.getCmp('reject').setText('Reject this TMN Session')
-	    		Ext.getCmp('reject').enable();
-			} else if (authResponse == 'No') {
-				Ext.getCmp('confirm').setText('Confirm this TMN Session');
-				Ext.getCmp('confirm').enable()
-				Ext.getCmp('reject').setText('You Rejected This Session');
-	    		Ext.getCmp('reject').disable();
-			} else {
-				Ext.getCmp('confirm').enable();
-	    		Ext.getCmp('reject').enable();
-			}
-			
-			//set overall status
-			if (progress == 'Yes') {
-				Ext.getCmp('confirm').disable();
-	    		Ext.getCmp('reject').disable();
-				statusEl.setStyle('color', "#336600");
-				statusEl.update('Approved');
-			}
-			
-			if (progress == 'No') {
-				statusEl.setStyle('color', "#CC3333");	
-				statusEl.update('Rejected');	
-			}
-			
-			if (progress == 'Pending') {
-				statusEl.setStyle('color', "#999999");
-				statusEl.update('Awaiting Approval');
-			}
+			//update control panel
+			this.controlPanel.processSession(progress, auth);
 			
 			//show actual tmn data
-			this.view.renderSummary(json, isOverseas, hasSpouse);
+			this.summaryPanel.renderSummary(data, isOverseas, hasSpouse);
 				
 		},
 		
+		selectSession: function(combo, record, index) {
+			//set the session
+			this.session	= record.get('SESSION_ID');
+			//let the control panel handel the rest
+			this.controlPanel.selectSession(combo, record, index);
+		},
+		
+		resetViewer: function() {
+			this.controlPanel.resetControls();
+			this.reasonPanel.body.update('');
+			this.summaryPanel.body.update('');
+		},
+		
 		init: function() {
-			var loadingMask = Ext.get('loading-mask');
-			var loading = Ext.get('loading');
+			var loadingMask		= Ext.get('loading-mask');
+			var loading			= Ext.get('loading');
 			
-			this.sessionStore = new Ext.data.JsonStore({
-		        itemId:'session_store',
-		        root: 'data',
-		        fields:['SESSION_ID', 'SESSION_NAME', 'FIRSTNAME', 'SURNAME', 'EMAIL'],
-		        url:'./php/auth/authviewer.php',
-		        autoLoad: {
-		        	params: { mode: 'load' }
-		        },
-		        listeners: {
-		        	scope:	this,
-		        	load:	function(store, records, options) {
-		        		//G_SESSION is a global variable set in a script tag on the html page (droped in by the php file)
-		        		//if the url has a session in it (G_SESSION holds the session sent in the url)
-		        		//select the session once the session combo has rendered
-		        		if (G_SESSION > 0) {
-		        			
-		        			this.controlpanel.on('afterrender', function(form) {
-		        				var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.session),
-		        					combo				= form.getForm().items.map['session_combo'],
-	        						sessionRecord;
-		        				//if the session is found load it
-		        				if (sessionRecordIndex > 0) {
-		        					//grab record
-		        					sessionRecord		= this.controller.sessionStore.getAt(sessionRecordIndex);
-		        					//set the combo to the right value
-			        				form.getForm().items.map['session_combo'].setValue(sessionRecord.get('SESSION_NAME'));
-			        				//select and load the session using the data just grabbed
-			        				this.controller.selectSession(combo, sessionRecord, sessionRecordIndex);
-		        				//if session not found tell user
-		        				} else {
-		        					Ext.MessageBox.show({
-										icon: Ext.MessageBox.ERROR,
-										buttons: Ext.MessageBox.OK,
-										closable: false,
-										title: 'Error!',
-										msg: 'The session specified in the link was not found. Please select another one from drop down list. If the session you are looking for isn\'t in the drop down please email <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>.'
-									});
-		        				}
-		        			}, {controller:this, session:G_SESSION});
-		        		}
-		        	}
-		        }
-		    });
+			//G_SESSION is a global variable set in a script tag on the html page (droped in by the php file)
+			//if the url has a session in it (G_SESSION holds the session sent in the url)
+			this.session		=  G_SESSION;
 			
 			//create view
-			this.view = new tmn.view.SummaryPanel;
+			this.controlPanel	= new tmn.view.AuthorisationViewerControlPanel(this);
+			this.reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'reason_panel', noNames: true});
+			this.summaryPanel	= new tmn.view.SummaryPanel(this);
 			
-			this.controlpanel.setWidth(900);
-			this.controlpanel.render('tmn-viewer-controls-cont');
+			this.controlPanel.setWidth(900);
+			this.controlPanel.render('tmn-viewer-controls-cont');
 			
-			this.reasonpanel.setWidth(900);
-			this.reasonpanel.render('tmn-reasonpanel-cont');
+			this.reasonPanel.setWidth(900);
+			this.reasonPanel.render('tmn-reasonpanel-cont');
 			
-			this.view.setWidth(900);
-			this.view.render('tmn-viewer-cont');
+			this.summaryPanel.setWidth(900);
+			this.summaryPanel.render('tmn-viewer-cont');
+			
+			//set handlers for events fired from control panel
+			this.controlPanel.on('selectsession',	this.selectSession,	this);
+			this.controlPanel.on('resetviewer',		this.resetViewer,	this);
+			this.controlPanel.on('display',			this.display,		this);
 			
 			////////////////Loading Message Stuff///////////////
 			//  Hide loading message
