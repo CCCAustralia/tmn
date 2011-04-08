@@ -2051,7 +2051,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 */
 	onLoadFailure: function (form, action){
 		if (action.failureType === Ext.form.Action.CONNECT_FAILURE) {
-			Ext.MessageBox.alert('Server Error', 'Could Not Connect to Server! Please Contact The Technology Team at tech.team@ccca.org.au');
+			Ext.MessageBox.alert('Server Error', 'Could Not Connect to Server! Please Contact The Technology Team at <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>');
 			return;
 		}
 		
@@ -2193,7 +2193,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * @param {Object} 				options: 			The parameter to the request call.
 	 */
 	onProcessFinancialDataFailure: function(response, options) {
-		Ext.MessageBox.alert('Server Error', 'Server Could Not Calculate Values! Please Contact The Technology Team at tech.team@ccca.org.au');
+		Ext.MessageBox.alert('Server Error', 'Server Could Not Calculate Values! Please Contact The Technology Team at <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>');
 	},
 	
 	/**

@@ -5,6 +5,23 @@ tmn.viewer = function() {
 	return {
 		session: '',
 		
+		selectSession: function(combo, record, index) {
+    		
+    		this.session	= record.get('SESSION_ID');
+    		this.getForm().items.map['email'].setNameAndEmail(record.get('FIRSTNAME'), record.get('SURNAME'), record.get('EMAIL'));
+    		
+    		Ext.Ajax.request({
+				url: './php/auth/authviewer.php',
+    			scope: tmn.viewer,
+				params: {
+					mode: 'get',
+					session: record.get('SESSION_ID')
+				},
+				success: tmn.viewer.display,
+				failure: this.fail
+			});
+    	},
+		
 		controlpanel: new Ext.form.FormPanel({
 			title: 'Controls',
 			frame: true,
@@ -16,7 +33,7 @@ tmn.viewer = function() {
 					columnWidth:.35,
 					items: [
 						{
-						    id: 'session',
+						    id: 'session_combo',
 				        	xtype: 'combo',
 						    fieldLabel: 'Session',
 						    hiddenName: 'SESSION',
@@ -35,22 +52,7 @@ tmn.viewer = function() {
 						    tpl: '<tpl for=\".\"><div class=\"x-combo-list-item\">{SESSION_ID}, {SESSION_NAME} - created by {FIRSTNAME} {SURNAME}</div></tpl>',
 						    listeners: {
 						    	scope:	tmn.viewer,
-						    	select: function(combo, record, index) {
-						    		
-						    		this.session	= record.get('SESSION_ID');
-						    		this.getForm().items.map['email'].setNameAndEmail(record.get('FIRSTNAME'), record.get('SURNAME'), record.get('EMAIL'));
-						    		
-						    		Ext.Ajax.request({
-										url: './php/auth/authviewer.php',
-						    			scope: tmn.viewer,
-										params: {
-											mode: 'get',
-											session: record.get('SESSION_ID')
-										},
-										success: tmn.viewer.display,
-										failure: this.fail
-									});
-						    	}	
+						    	select: tmn.viewer.selectSession	
 						    }
 						}
 					]
@@ -76,7 +78,7 @@ tmn.viewer = function() {
 										},
 										success: function() {
 											Ext.MessageBox.show({
-												icon: Ext.MessageBox.ERROR,
+												icon: Ext.MessageBox.INFO,
 												buttons: Ext.MessageBox.OK,
 												closable: false,
 												title: 'Success!',
@@ -110,7 +112,7 @@ tmn.viewer = function() {
 									},
 									success: function() {
 										Ext.MessageBox.show({
-											icon: Ext.MessageBox.ERROR,
+											icon: Ext.MessageBox.INFO,
 											buttons: Ext.MessageBox.OK,
 											closable: false,
 											title: 'Success!',
@@ -245,6 +247,40 @@ tmn.viewer = function() {
 		        url:'./php/auth/authviewer.php',
 		        autoLoad: {
 		        	params: { mode: 'load' }
+		        },
+		        listeners: {
+		        	scope:	this,
+		        	load:	function(store, records, options) {
+		        		//G_SESSION is a global variable set in a script tag on the html page (droped in by the php file)
+		        		//if the url has a session in it (G_SESSION holds the session sent in the url)
+		        		//select the session once the session combo has rendered
+		        		if (G_SESSION > 0) {
+		        			
+		        			this.controlpanel.on('afterrender', function(form) {
+		        				var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.session),
+		        					combo				= form.getForm().items.map['session_combo'],
+	        						sessionRecord;
+		        				//if the session is found load it
+		        				if (sessionRecordIndex > 0) {
+		        					//grab record
+		        					sessionRecord		= this.controller.sessionStore.getAt(sessionRecordIndex);
+		        					//set the combo to the right value
+			        				form.getForm().items.map['session_combo'].setValue(sessionRecord.get('SESSION_NAME'));
+			        				//select and load the session using the data just grabbed
+			        				this.controller.selectSession(combo, sessionRecord, sessionRecordIndex);
+		        				//if session not found tell user
+		        				} else {
+		        					Ext.MessageBox.show({
+										icon: Ext.MessageBox.ERROR,
+										buttons: Ext.MessageBox.OK,
+										closable: false,
+										title: 'Error!',
+										msg: 'The session specified in the link was not found. Please select another one from drop down list. If the session you are looking for isn\'t in the drop down please email <a href="mailto:tech.team@ccca.org.au">tech.team@ccca.org.au</a>.'
+									});
+		        				}
+		        			}, {controller:this, session:G_SESSION});
+		        		}
+		        	}
 		        }
 		    });
 			
