@@ -431,6 +431,16 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		$this->authorisationProcessor->authorise($user, $response);
 	}
 	
+	public function getOverallProgress() {
+		if ($this->authorisationProcessor == null) {
+			$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+			fb("auth_session_id = ".$this->getField('auth_session_id'));
+		}
+		
+		return $this->authorisationProcessor->getOverallProgress();
+		
+	}
+	
 }
 
 ?>

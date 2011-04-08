@@ -77,6 +77,12 @@ interface TmnAuthorisationProcessorInterface {
 	 */
 	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null);
 	
+	/**
+	 * Fetches the current authorisation progress of the session
+	 * 
+	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
+	 */
+	public function getOverallProgress();
 }
 
 ?>

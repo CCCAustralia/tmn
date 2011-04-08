@@ -489,7 +489,13 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		return array("authsessionid" => $this->authsessionid, "useremailaddress" => $useremailaddress);
 	}
 	
-	
+	public function getOverallProgress() {
+		$returndata = array('response' => '', 'name' => '');
+		
+		
+		
+		
+	}
 	
 }
 

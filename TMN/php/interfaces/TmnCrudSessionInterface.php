@@ -168,6 +168,12 @@ interface TmnCrudSessionInterface {
 	 */
 	public function authorise(TmnCrudUser $user, $response);
 	
+	/**
+	 * 
+	 * Fetches the overall progress of the session
+	 */
+	public function getOverallProgress();
+	
 }
 
 ?>
