@@ -35,53 +35,60 @@ tmn.view.AuthorisationPanel = function(view, config) {
 	
 	this.title				=	config.title 	|| 'Authorisation Level';
 	
-	this.leader				=	config.leader	|| 'Ministry Overseer';
+	this.leader				=	config.leader	|| 'Your';
 	
 	this.mode				=	config.mode		|| 'all';
+
+	this.noNames			=	config.noNames	|| false;
 	
 	this.user_id			=	0;
 	
+	
 
-	//holds the data for the name combo
-	this.nameStore			= new Ext.data.JsonStore({
-        itemId:		'name_store',
-        root:		'data',
-        url:		'php/imp/namefill.php',
-        fields:		['ID', 'FIRSTNAME', 'SURNAME', 'MINISTRY'],
-        baseParams:	{mode: this.mode},
-        autoLoad:	true,
-        listeners:	{
-        	scope:	this,
-        	load:	function(store, records, options) {
-        		//if there is only one record
-        		if (records.length == 1) {
-        			
-        			//set the user_id to this record
-        			this.user_id	= records[0].data.ID;
-        			
-        			if (this.rendered) {
-	        			//set the name fields to the contents of that record
-			    		//and disable those fields
-	        			this.autoSelectName.call(records[0], this);	//this.autoSelectNamecall(scope, param1)
-        			} else {
-        				this.on('afterrender', this.autoSelectName, records[0]);
-        			}
-        		}
-        	}
-        }
-    });
+	if (!this.noNames) {
+		//holds the data for the name combo
+		this.nameStore			= new Ext.data.JsonStore({
+	        itemId:		'name_store',
+	        root:		'data',
+	        url:		'php/imp/namefill.php',
+	        fields:		['ID', 'FIRSTNAME', 'SURNAME', 'MINISTRY'],
+	        baseParams:	{mode: this.mode},
+	        autoLoad:	true,
+	        listeners:	{
+	        	scope:	this,
+	        	load:	function(store, records, options) {
+	        		//if there is only one record
+	        		if (records.length == 1) {
+	        			
+	        			//set the user_id to this record
+	        			this.user_id	= records[0].data.ID;
+	        			
+	        			if (this.rendered) {
+		        			//set the name fields to the contents of that record
+				    		//and disable those fields
+		        			this.autoSelectName.call(records[0], this);	//this.autoSelectNamecall(scope, param1)
+	        			} else {
+	        				this.on('afterrender', this.autoSelectName, records[0]);
+	        			}
+	        		}
+	        	}
+	        }
+	    });
+		
+		/*	
+		//holds the test data for the name combo
+		this.nameStore			= new Ext.data.ArrayStore({
+	        itemId:	'name_store',
+	        fields:	['FIRSTNAME', 'SURNAME', 'MINISTRY'],
+	        data:	[['Michael', 'Harrison', 'StudentLife'],
+	               ['Tom', 'Flynn', 'StudentLife'],
+	               ['Kent', 'Keller', 'StudentLife']
+	        ]
+	    });
+		*/ 
+	}
 
-/*	
-	//holds the test data for the name combo
-	this.nameStore			= new Ext.data.ArrayStore({
-        itemId:	'name_store',
-        fields:	['FIRSTNAME', 'SURNAME', 'MINISTRY'],
-        data:	[['Michael', 'Harrison', 'StudentLife'],
-               ['Tom', 'Flynn', 'StudentLife'],
-               ['Kent', 'Keller', 'StudentLife']
-        ]
-    });
-*/  
+ 
 	
 	/**
 	 * The config that defines the physical layout of the panel.
@@ -178,6 +185,17 @@ tmn.view.AuthorisationPanel = function(view, config) {
 			]
 	};
 	
+	//if the noNames config is true then delete all the stuff associated with the names
+	if (this.noNames) {
+		config	= {
+				itemId:		this.id,
+				frame:		true,
+				header:		false,
+				bodyStyle:	'padding:0'
+		};
+		this.nameStore	= null;
+	}
+	
 	//this is a call to tmn.view.TmnView's parent constructor (Ext.FormPanel), this will give tmn.view.TmnView all the variables and methods that it's parent does
 	tmn.view.AuthorisationPanel.superclass.constructor.call(this, config);
 };
@@ -187,16 +205,20 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	
 	isValid: function() {
 		
-		//find the first invalid field
-		var compositefield	= this.getForm().items.map['name'],
+		var compositefield,
 			invalidIndex	= -1;
 		
-		if (!this.hidden) {
-			invalidIndex = compositefield.items.findIndexBy(function(item, key){
-				if (item.getValue() == '' || item.getValue() == null || item.getValue() === undefined) {
-					return true;
-				}
-			});
+		if (!this.noNames) {
+			//find the first invalid field
+			compositefield	= this.getForm().items.map['name'];
+			
+			if (!this.hidden) {
+				invalidIndex = compositefield.items.findIndexBy(function(item, key){
+					if (item.getValue() == '' || item.getValue() == null || item.getValue() === undefined) {
+						return true;
+					}
+				});
+			}
 		}
 		
 		//if the index is less than zero no invalid fields were found so return true
@@ -211,10 +233,15 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	 * Needs to have showPanel Called first or it will return with no reasons.
 	 */
 	getData: function() {
-		var compositefield	= this.getForm().items.map['name'],
+		
+		var compositefield,
 			returnObj		= {};
 		
-		returnObj['user_id']		= this.user_id;
+		if (!this.noNames) {
+			compositefield	= this.getForm().items.map['name'];
+		
+			returnObj['user_id']		= this.user_id;
+		}
 		
 		//grab the reason array
 		returnObj['reasons']	= {};
@@ -233,13 +260,15 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	},
 	
 	resetFields: function() {
-		this.user_id		= 0;
-		
-		var compositefield	= this.getForm().items.map['name'];
-		compositefield.items.each(function(item, index, length){
-			item.clearValue();
-			item.clearInvalid();
-		}, this);
+		if (!this.noNames) {
+			this.user_id		= 0;
+			
+			var compositefield	= this.getForm().items.map['name'];
+			compositefield.items.each(function(item, index, length){
+				item.clearValue();
+				item.clearInvalid();
+			}, this);
+		}
 	},
 	
 	/**
@@ -250,31 +279,37 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	 * Use this.autoSelectName.call(records[0], this) to do that
 	 */
 	autoSelectName: function(form) {
-		
-		form.user_id		= this.data.ID;
-		
-		var compositefield	= form.getForm().items.map['name'];
-		compositefield.items.each(function(item, index, length){
-			item.setValue(this.data[item.getName()]);
-			item.disable();
-		}, this);
+		if (!this.noNames) {
+			form.user_id		= this.data.ID;
+			
+			var compositefield	= form.getForm().items.map['name'];
+			compositefield.items.each(function(item, index, length){
+				item.setValue(this.data[item.getName()]);
+				item.disable();
+			}, this);
+		}
 	},
 	
 	showPanel: function(reasonArray) {
+		
+		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div'),
+			recordArray;
+		
+		if (!this.noNames) {
+			
+			recordArray	= this.nameStore.getRange();
+			
+			//if there is only one record select it and disable fields
+			if (recordArray.length == 1) {
+				this.autoSelectName.call(recordArray[0], this); //this.autoSelectNamecall(scope, param1)
+			}
+		}
 		
 		this.resetFields();
 		
 		this.show();
 		
 		this.reasonArray		= reasonArray;
-		
-		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div'),
-			recordArray	= this.nameStore.getRange();
-		
-		//if there is only one record select it and disable fields
-		if (recordArray.length == 1) {
-			this.autoSelectName.call(recordArray[0], this); //this.autoSelectNamecall(scope, param1)
-		}
 		
 		//if this tag has already been added then remove it before adding the new one
 		if (tmnAuthContainer != null) {

@@ -171,7 +171,7 @@ tmn.view.PrintForm = function(view, config) {
 										buttons: Ext.MessageBox.OK,
 										closable: false,
 										title: 'Thank You',
-										msg: 'Your TMN has been submitted. You will recieve an email at: ' + responseObj.email + '. It will give you further instructions on how to complete the process.'
+										msg: 'Your TMN has been successfully submitted for approval. You will recieve updates on its approval at the following email address: ' + responseObj.email + '.'
 									});
 								},
 								failure: function(response, options) {
@@ -493,12 +493,7 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 	 * @param {Ext.form.Action}		action		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 	 */
 	onSubmitSuccess: function (form, action) {
-		Ext.MessageBox.show({
-			buttons: Ext.MessageBox.OK,
-			closable: false,
-			title: 'Thank You',
-			msg: 'Thank You for doing your TMN. Your TMN has been saved for archiving, we will be able to pull this data up in the future but if you want access to these values in the short term please print a second copy for your own records.<br />Please now follow the instruction at the top of the page to submit your TMN.'
-		});
+		
 	},
 	
 	/**

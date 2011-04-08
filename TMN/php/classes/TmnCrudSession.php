@@ -308,6 +308,14 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 	
 	
+	public function produceAssocArrayOfAuthorisationReasonsFor(TmnCrudUser $user) {
+		
+	}
+	
+	public function produceTransferArray() {
+		
+	}
+	
 	public function produceAssocArrayForDisplay($add_auth_reasons=null) {
 		//grab data
 		$obj						= parent::produceAssocArray();
