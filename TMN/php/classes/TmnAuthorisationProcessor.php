@@ -178,6 +178,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				$authresponses[$i] = $this->getField("level_".((string)$i)."_response");	//store the response
 			}
 		}
+		$authresponses[4] = $this->getField("finance_response");//store finance's response
 		
 	////calculate tmn-authviewer address
 			$curpageurl = TmnAuthenticator::curPageURL();
@@ -224,6 +225,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			}
 			$emailbody .= "\nPlease go to the following link to review and confirm or reject this TMN. Thankyou.\n";
 			$emailbody .= $authviewerurl;
+			$emailbody .= "\n\n-The TMN Development Team";
 		}
 			
 		//notify finance:
@@ -231,22 +233,53 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			//get all previous responses, forward names and responses to finance
 			$emailsubject = "TMN: Ready for processing";
 			$emailaddress = "payroll@ccca.org.au";
+			
+			//get previous responses, forward names and responses to auth<1-3>
+			$emailbody = "Hi ".$emailaddress."!\n";
+			$emailbody .= "\nThe TMN for : ".$this->getNameFromGuid($authguids[0])." has been approved and is ready for processing.\n";
+			if ($notifylevel != 1) {
+				$emailbody .= "\nTheir TMN submission has already been authorised by the following people:\n";
+			
+				foreach ($authresponses as $k => $v) {
+					if ($v == "Yes" && $k != 0) {
+						$emailbody .= $this->getNameFromGuid($authguids[$k])."\n";
+					}
+				}
+			}
+			$emailbody .= "\nPlease go to the following link to review and confirm or reject this TMN. Thankyou.\n";
+			$emailbody .= $authviewerurl;
+			$emailbody .= "\n\n-The TMN Development Team";
+			
+			$this->notifyOfSubmission(5);	//notify user of processing
 		}
 		
 		//notify user:
 		if ($notifylevel == 5) {
-			//get all responses, forward names and responses to user
-			$emailsubject = "TMN: Processed";
-			$emailbody = "Your TMN has been processed!\n\n";
+			fb("Notify user: finance response=".$authresponses[4]);
+			//set address to user
 			$emailaddress = $this->getEmailFromGuid($authguids[0]);
 			
+		////notify of processing
+			if ($authresponses[4] == "Pending") {
+				$emailsubject = "TMN: Processing";
+				$emailbody = "Your TMN has been approved and sent to finance for processing.\n";
+
+		////notify of completion	
+			} elseif ($authresponses[4] = "Yes") {
+				$emailsubject = "TMN: Processed";
+				$emailbody = "Your TMN has been processed!\n";
+			}
+				
+			//Output approvals
 			foreach ($authguids as $k => $v) {
 				fb("Level ".$k." user's name: ".$this->getNameFromGuid($v));
-				$emailbody .= $this->getNameFromGuid($v)."'s response is: ".$authresponses[$k]."\n";
+				//$emailbody .= "\n".$k.": ".$this->getNameFromGuid($v)." responsed: ".$authresponses[$k]."\n";
 			}
+			$emailbody .= "\n\n-The TMN Development Team";
 		}
 		//TODO: REMOVE AFTER DEBUGGING
-		$emailaddress = "tom.flynn@ccca.org.au";//$nextauthuser->getEmail();
+		$emailbody .="\n\nDEBUG: target email=".$emailaddress;
+		$emailaddress = "tom.flynn@ccca.org.au";
 		$notifyemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
 		fb($notifyemail);
 		$notifyemail->send();
@@ -328,6 +361,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		fb($emailbody);
 
 		//TODO: REMOVE AFTER DEBUGGING
+		$emailbody .="\n\nDEBUG: target email=".$emailaddress;
 		$emailaddress = "tom.flynn@ccca.org.au";
 		$rejectionemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
 		fb($rejectionemail);

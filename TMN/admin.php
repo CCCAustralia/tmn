@@ -11,6 +11,56 @@ if (!$authobj->isAuthenticated() || !$authobj->getUser()->isAdmin()) {
 }
 
 $connection = db_connect();
+//////////    SET UP    //////////
+function fetchUserList() {
+	////start userlist
+	$returnlist = array();
+	$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM `User_Profiles` WHERE 1";
+	$sql = mysql_query($sql);
+	for ($index = 0; $index < mysql_num_rows($sql); $index++) {
+		//store them in an array
+		$temparray = mysql_fetch_assoc($sql);
+	
+		/* Admin can filter out test accounts
+		if ($temparray['IS_TEST_USER'] == 0) {	//don't add test accounts
+		}
+		*/
+		$returnlist[$temparray['GUID']] = $temparray;
+	}
+	fb($returnlist);
+	return $returnlist;
+////end userlist
+}
+function fetchAuthList() {
+	////start authorisers
+	$sql = "SELECT MINISTRY, GUID FROM `Authorisers` WHERE 1";
+	$sql = mysql_query($sql);
+	$returnlist = array();
+	for ($index = 0; $index < mysql_num_rows($sql); $index++) {
+		//store them in an array
+		$temparray = mysql_fetch_assoc($sql);
+		$returnlist[$temparray['MINISTRY']] = $temparray['GUID'];
+	}
+	
+	fb($returnlist);
+	////end authorisers
+	return $returnlist;
+}
+
+function createOptionList($tempuserlist) {
+	$returndata = "";
+	foreach ($tempuserlist as $guid => $user) {
+		$returndata .= "<option value='".$guid."'>".$user['FIRSTNAME']." ".$user['SURNAME']." - ".$user['FIN_ACC_NUM']."</option>";
+	}
+	//fb($returndata);
+	return $returndata;
+}
+
+$userlist = fetchUserList();
+$authorisers = fetchAuthList();
+$optionlist = createOptionList($userlist);
+
+//////////    END SET UP    //////////
 
 $sql = "SELECT * FROM `Constants` WHERE 1";
 $sql = mysql_query($sql);
@@ -19,14 +69,17 @@ $savestring = "";
 $savefield = "";
 $versionnumber = "2-2-0";
 
-echo "<html><body><form method=GET onsubmit='admin.php'><table border=1><th>Field Name:</th><th>Stored Value:</th>";
-fb($_GET);
+echo "<html><body><table border=1><th>Field Name:</th><th>Stored Value:</th>";
+fb($_POST);
+fb($constants);
 foreach ($constants as $fieldname => $value) {
 	if (!is_null($fieldname)){
 		//loop through each parameter
-		foreach ($_GET as $savedkey => $savedvalue) {
+		foreach ($_POST as $savedkey => $savedvalue) {
 			//check if it matches a field name
 			if (substr($savedkey, 0, strlen($fieldname)) == $fieldname) {
+				//update the constant with the saved value for output
+				$value = $savedvalue;
 				//form json if array
 				if ($savestring != "" && substr($savestring, 0, 1) != "[") {
 					$savestring = "[".$savestring;
@@ -44,6 +97,8 @@ foreach ($constants as $fieldname => $value) {
 		//form json if array
 		if (substr($savestring, 0, 1) == "[" && substr($savestring, strlen($savestring) - 1) != "]") {
 			$savestring .= "]";
+			//update the constant with the saved value for output
+			$value = $savestring;
 		}
 		
 		//echo "<tr><td>".$savestring."</td><td></td></tr>";
@@ -51,9 +106,9 @@ foreach ($constants as $fieldname => $value) {
 //////  array output  //////
 		if (is_array(json_decode($value))) {
 	////edit mode - text box and save button
-			if ($_GET['edit'] == $fieldname) {
+			//if (true) {//$_GET['edit'] == $fieldname) {
 		////array name
-				echo "<tr><td>".$fieldname."</td><td>";
+				echo "<tr><td>".$fieldname."</td><td><form method=POST onsubmit='admin.php'>";
 				foreach (json_decode($value) as $key => $subvalue) {
 					if ($subvalue == PHP_INT_MAX) {
 						echo $subvalue."<br />";	//don't allow them to edit intmax
@@ -62,8 +117,8 @@ foreach ($constants as $fieldname => $value) {
 						echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='Save' /><br />";
 					}
 				}
-				echo "</tr>";
-			} else {	
+				echo "</form></td></tr>";
+			/*} else {	
 	////normal mode - link to edit mode
 		////link to edit mode for array
 				echo "<tr><td><a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td><td>";
@@ -71,19 +126,48 @@ foreach ($constants as $fieldname => $value) {
 					echo $subvalue."<br />";
 				}
 				echo "</tr>";
-			}
+			}*/
 //////  value output  //////
 		} else {
 	////edit mode - text box and save button
-			if ($_GET['edit'] == $fieldname) {
+			//if (true) {//$_GET['edit'] == $fieldname) {
 		////value name, edit box and save button
-				echo "<tr><td>".$fieldname."</td><td><input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='Save' /></td></tr>";
-			} else {	
+				if ($fieldname == "FINANCE_USER"){
+			////FINANCE_USER
+					echo "<tr><td>".$fieldname."</td><td><form name='".$fieldname."' method=POST onsubmit=admin.php>";
+
+					//Output a combobox of users with the current database value selected
+					fb($value);
+					$personalcombo = split($value, $optionlist);
+					if ($personalcombo[1] != NULL) {
+						echo "<select name='".$fieldname."'>";
+							//optionlist with inserted "selected" parameter
+							echo $personalcombo[0];
+							echo $value;
+							echo "' selected";
+							echo substr($personalcombo[1],1);
+						echo "</select><input type=submit value='Save' />";
+					}
+					echo "</form></td>";
+			////Everything Else
+				} else {
+					echo "<tr><td>".$fieldname."</td><td><form method=POST onsubmit='admin.php'>";
+					echo "<input name= ".$fieldname." type=textarea value=".$value."><input type=submit value='Save' /></form></td></tr>";
+				}
+			}
+			/* else {	
 	////normal mode - link to edit mode
 		////value name, value
-				echo "<tr><td><a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td><td>".$value."</td></tr>";
+				if ($fieldname == "FINANCE_USER"){
+					echo "<tr><td>";
+					echo "<a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td>";
+					echo "<td>".$userlist[$value]['FIRSTNAME']." ".$userlist[$value]['SURNAME']."</td></tr>";
+				} else {
+					echo "<tr><td><a href=admin.php?edit=".$fieldname." title='Edit value for ".$fieldname."'>".$fieldname."</a></td><td>".$value."</td></tr>";
+				}
 			}
-		}
+			
+		}*/
 	}
 	
 }
@@ -93,53 +177,45 @@ if ($savefield != "") {
 	$sql = "UPDATE `Constants` SET `".$savefield."` = '".$savestring."' WHERE VERSIONNUMBER = '".$versionnumber."'";
 	$sql = mysql_query($sql);
 }
-echo "</table></form><br /><br /><br />";
+echo "</table><br /><br /><br />";
 
-////Authorisers
+
+
+////Authorisers////
 //ministry leader input
-//get authorisers
-$sql = "SELECT MINISTRY, GUID FROM `Authorisers` WHERE 1";
-$sql = mysql_query($sql);
-$authorisers = array();
-for ($index = 0; $index < mysql_num_rows($sql); $index++) {
-	//store them in an array
-	$temparray = mysql_fetch_assoc($sql);
-	$authorisers[$temparray['MINISTRY']] = $temparray['GUID'];
-}
+//note: userlist and authorisers at start of file
 
-$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM, IS_TEST_USER FROM `User_Profiles` WHERE 1";
-$sql = mysql_query($sql);
-$userlist = array();
-for ($index = 0; $index < mysql_num_rows($sql); $index++) {
-	//store them in an array
-	$temparray = mysql_fetch_assoc($sql);
+//reset the option lists for updated values
+$authorisers = fetchAuthList();
+$optionlist = createOptionList($userlist);
 
-	if ($temparray['IS_TEST_USER'] == 0) {	//don't add test accounts
-		$userlist[$temparray['GUID']] = $temparray;
-	}
-}
-
-fb($userlist);
-
+//check for saved authorisers and apply to database
 foreach ($authorisers as $ministry => $guid) {
 	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
-	if (isset($_GET[$ministry])) {
-		$sql = "UPDATE `Authorisers` SET `GUID` = '".$_GET[$ministry]."' WHERE MINISTRY = '".$ministry."'";
+	fb($ministry);
+	fb(addslashes(str_replace(" ", "_", $ministry)));
+	if (isset($_POST[addslashes(str_replace(" ", "_", $ministry))])) {		//if the ministry is set in POST (put there by a save action)
+		$tempguid = $_POST[addslashes(str_replace(" ", "_", $ministry))];											//get the guid
+		fb($tempministry);
+		$sql = "UPDATE `Authorisers` SET `GUID` = '".$tempguid."' WHERE MINISTRY = \"".$ministry."\"";
+		fb($sql);
 		$sql = mysql_query($sql);
-		echo "<br />".$userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']. " saved as ".$ministry." TMN authoriser!<br />";
+		echo "<br />".$userlist[$tempguid]['FIRSTNAME']." ".$userlist[$tempguid]['SURNAME']. " saved as ".$ministry." TMN authoriser!<br />";
+		header("location=''");
 	}
 }
-fb($authorisers);
 
-$optionlist = "";
-foreach ($userlist as $guid => $user) {
-	$optionlist .= "<option value='".$guid."'>".$user['FIRSTNAME']." ".$user['SURNAME']." - ".$user['FIN_ACC_NUM']."</option>";
+$authorisers = fetchAuthList();
+$optionlist = createOptionList($userlist);
+foreach ($authorisers as $ministry => $guid) {
+	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
 }
+//note: optionlist at start of file
 
-	echo "<form name='".$ministry."' method=GET onsubmit='admin.php'>";
 echo "<table border=1><th>Ministry:</th><th>Authoriser:</th>";
 foreach ($authorisers as $ministry => $authuser) {
 	echo "<tr><td>$ministry:</td><td>";
+	echo "<form name='".$ministry."' method=POST onsubmit='admin.php'>";
 
 	//find the location of the authorisers guid
 	$personalcombo = split($authuser['GUID'], $optionlist);//($combobox, 0, strpos($combobox, $authuser['GUID'])+strlen($authuser['GUID']) + 1);
@@ -148,7 +224,7 @@ foreach ($authorisers as $ministry => $authuser) {
 	
 	//select the authoriser in the combo box
 	if ($personalcombo[1] != NULL) {
-		echo "<select name='".$ministry."'>";
+		echo "<select name='".htmlspecialchars($ministry, ENT_QUOTES)."'>";
 			//optionlist with inserted "selected" parameter
 			echo $personalcombo[0];
 			echo $authuser['GUID'];
@@ -162,10 +238,10 @@ foreach ($authorisers as $ministry => $authuser) {
 		echo "<option value='".$authuser['GUID']."' selected>".$authuser['GUID']." - Name not in database! Never done a TMN?</option>";
 		echo "</select>";
 	}
-	echo "<input type='submit' value='Save' /></td>";
+	echo "<input type='submit' value='Save' /></form></td>";
 	echo "</tr>";
 }
-echo "</table></form>";
+echo "</table>";
 
 
 echo "</body></html>";
