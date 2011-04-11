@@ -17,7 +17,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	//private $logfile;
 	private $authsessionid;
 	//private $authcrud;
-	
+	private $level_users	= array();
 	
 	
 	
@@ -53,7 +53,12 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				'auth_level_3'			=> "s",
 				'auth_level_1_reasons'	=> "s",
 				'auth_level_2_reasons' 	=> "s",
-				'auth_level_3_reasons'	=> "s"
+				'auth_level_3_reasons'	=> "s",
+				'user_timestamp' 		=> "s",
+				'level_1_timestamp'		=> "s",
+				'level_2_timestamp' 	=> "s",
+				'level_3_timestamp'		=> "s",
+				'finance_timestamp'		=> "s"
 			),
 			array(
 				'user_response'			=> "s",
@@ -97,6 +102,28 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		} else {
 			return array();
 		}
+	}
+	
+	private function getFinanceGuid() {
+		//TODO: figure out where this is actually
+		$constants = getConstants(array("FINANCE_USER"));
+		return $constants['FINANCE_USER'];
+	}
+	
+	private function getUserForLevel($level) {
+		//if this levels user object has not yet been grabbed then grab it (while doing conversion from number to bad naming system)
+		if (!isset($this->level_users[$level])){
+			if ($level == 0) {
+				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getField('auth_user'));
+			} elseif ($level == 4) {
+				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getFinanceGuid());
+			} else {
+				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getField('auth_level' . $level));
+			}
+		}
+		
+		//return the object for that level
+		return $this->level_users[$level];
 	}
 	
 	
@@ -489,12 +516,137 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		return array("authsessionid" => $this->authsessionid, "useremailaddress" => $useremailaddress);
 	}
 	
+	/**
+	 * Fetches the current authorisation progress of the session
+	 * 
+	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
+	 * 			ie {response:<authorisers response>, name: <authorisers full name>, email: <auth email>, date: <the data of this action>}
+	 */
 	public function getOverallProgress() {
-		$returndata = array('response' => '', 'name' => '');
 		
+		$returnArray	= array("response" => "", "name" => "", "email" => "", "date" => "");
 		
+		//finance is the last response
+		if ($this->getField('finance_response') == 'Pending') {
+			
+			//check if the user has withdrawn the submition
+			if ($this->getField('user_response') == 'No') {
+				//grab the user object for user
+				$user						= $this->getUserForLevel(0);
+				
+				//set all the data we have access to
+				$returnArray['response']	= $this->getField('user_response');
+				if ($user != null) {
+					$returnArray['name']		= $user->getField('firstname') . " " . $user->getField('surname');
+					$returnArray['email']		= $user->getField('email');
+				}
+				$returnArray['date']		= $this->getField('finance_timestamp');
+				
+				return $returnArray;
+			}			
+			
+			//run through the other authorisers to see if they have rejected it or we are waiting on them
+			$foundNo	= false;
+			for ($responseCount = 1; $responseCount <= 3; $responseCount++) {
+				if ($this->getField('level_' . $responseCount . '_response') == 'No') {
+					$foundNo	= true;
+					break;
+				}
+				
+				if ($this->getField('level_' . $responseCount . '_response') == 'Pending') {
+					break;
+				}
+			}
+			
+			//if it has been rejected by someone
+			if ($foundNo) {
+				//grab the user object for level 1
+				$levelUser					= $this->getUserForLevel($responseCount);
+				
+				//set all the data we have access to
+				$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
+				if ($user != null) {
+					$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
+					$returnArray['email']		= $levelUser->getField('email');
+				}
+				$returnArray['date']		= $this->getField('level_' . $responseCount . '_timestamp');
+				
+				return $returnArray;
+				
+			} else {
+				//if the level that the loop ended on is 3 (this last level) and the response is yes then we are actually waiting on finance
+				//OR if the first level where pending is found doesn't have a guid set we are also actually waiting on finance
+				if (($responseCount == 3 && $this->getField('level_' . $responseCount . '_response') == 'Yes')
+					|| ($this->getField('auth_level_' . $responseCount) == "" || $this->getField('auth_level_' . $responseCount) == null)) {
+					$returnArray['response']	= "Pending";
+					$returnArray['name']		= "Finance";
+					$returnArray['name']		= "payroll@ccca.org.au";
+				
+					return $returnArray;
+				
+				//if we aren't waiting on finance return who we are waiting on
+				} else {
+					//grab the user object for level 1
+					$levelUser					= $this->getUserForLevel($responseCount);
+					
+					//set all the data we have access to
+					$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
+					if ($user != null) {
+						$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
+						$returnArray['email']		= $levelUser->getField('email');
+					}
+					$returnArray['date']		= $this->getField('level_' . $responseCount . '_timestamp');
+				
+					return $returnArray;
+				}
+			}
+			
+		//if finance has given a response return it
+		} else {
+			$returnArray['response']	= $this->getField('finance_response');
+			$returnArray['name']		= "Finance";
+			$returnArray['name']		= "payroll@ccca.org.au";
+			$returnArray['date']		= $this->getField('finance_timestamp');
+		}
 		
+		return $returnArray;
+	}
+	
+	 /**
+	  * Gets the details of the authoriser that matches the user passed to this function
+	  * 
+	  * @param TmnCrudUser $user		- the authoriser
+	  * 
+	  * @return an assoc array containing the current response (Yes, No, Pending)
+	  * 		ie {response:<authorisers response>}
+	  */
+	public function getAuthoriserDetailsForUser(TmnCrudUser $user) {
 		
+		if ($user->getGuid() == $this->getField("auth_user")) {
+			
+			return array("response" => $this->getField("user_response"));
+			
+		} elseif ($user->getGuid() == $this->getField("auth_level_1")) {
+			
+			return array("response" => $this->getField("level_1_response"));
+			
+		} elseif ($user->getGuid() == $this->getField("auth_level_2")) {
+			
+			return array("response" => $this->getField("level_2_response"));
+			
+		} elseif ($user->getGuid() == $this->getField("auth_level_3")) {
+			
+			return array("response" => $this->getField("level_3_response"));
+			
+		} elseif ($user->getGuid() == $this->getFinanceGuid()) {
+			
+			return array("response" => $this->getField("finance_response"));
+			
+		} else {
+			
+			return array("response" => null);
+			
+		}
 	}
 	
 }

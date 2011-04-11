@@ -247,12 +247,7 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		returnObj['reasons']	= {};
 		
 		if (this.reasonArray !== undefined) {
-			if (this.reasonArray['aussie-based'] !== undefined) {
-				returnObj['reasons']['aussie-based']				= this.reasonArray['aussie-based']['reasons']; 
-			} else {
-				returnObj['reasons']['international-assignment']	= this.reasonArray['international-assignment']['reasons'];
-				returnObj['reasons']['home-assignment']				= this.reasonArray['home-assignment']['reasons'];
-			}
+			returnObj['reasons']	= this.reasonArray;
 		}
 		
 		return returnObj;
@@ -387,6 +382,17 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			}
 			
 		}
+	},
+	
+	resetPanel: function() {
+		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
+		
+		//if this tag has already been added then remove it before adding the new one
+		if (tmnAuthContainer != null) {
+			tmnAuthContainer.remove();
+		}
+		
+		this.resetFields();
 	},
 	
 	hidePanel: function() {

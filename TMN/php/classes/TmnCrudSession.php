@@ -308,19 +308,32 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 	
 	
-	public function produceAssocArrayOfAuthorisationReasonsFor(TmnCrudUser $user) {
-		
-	}
-	
 	public function produceTransferArray() {
-		
+		try {
+			$returnArray	= array();
+			
+			$sql	= "SELECT TRANSFER_NAME, TRANSFER_AMOUNT FROM `Internal_Transfers` WHERE SESSION_ID=:session_id";
+			$id		= array(":session_id" => $this->getField('session_id'));
+			
+			$transferStmt	= $this->db->prepare($sql);
+			$transferStmt->execute($id);
+			
+			for ($transferCount=0; $transferCount < $transferStmt->rowCount(); $transferCount++) {
+				$tranferResult = $transferStmt->fetch(PDO::FETCH_ASSOC);
+				$returnArray[$transferCount]['name']	= $tranferResult['TRANSFER_NAME'];
+				$returnArray[$transferCount]['amount']	= $tranferResult['TRANSFER_AMOUNT'];
+			}
+			
+			return $returnArray;
+			
+		} catch (Exception $e) {
+			return array();
+		}
 	}
 	
 	public function produceAssocArrayForDisplay($add_auth_reasons=null) {
 		//grab data
 		$obj						= parent::produceAssocArray();
-		
-		//TODO: add in personal details
 		
 		//add transfer array
 		$obj['transfers']			= $this->produceTransferArray();
@@ -431,14 +444,40 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		$this->authorisationProcessor->authorise($user, $response);
 	}
 	
+	/**
+	 * Fetches the current authorisation progress of the session
+	 * 
+	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
+	 * 			ie {response:<authorisers response>, name: <authorisers full name>, date: <the data of this action>}
+	 * 				if no auth processor found <authorisers response> = <authorisers full name> = <the data of this action> = ""
+	 */
 	public function getOverallProgress() {
-		if ($this->authorisationProcessor == null) {
-			$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
-			fb("auth_session_id = ".$this->getField('auth_session_id'));
+		$authProcessor	= $this->getAuthorisationProcessor();
+		
+		if ($authProcessor != null) {
+			return $authProcessor->getOverallProgress();
+		} else {
+			return array("response" => "", "name" => "", "date" => "");
 		}
+	}
+	
+	 /**
+	  * Gets the details of the authoriser that matches the user passed to this function
+	  * 
+	  * @param TmnCrudUser $user		- the authoriser
+	  * 
+	  * @return an assoc array containing the current response (Yes, No, Pending)
+	  * 		ie {response:<authorisers response>}
+	  * 			if no auth processor found <authorisers response> = null
+	  */
+	public function getAuthoriserDetailsForUser(TmnCrudUser $user) {
+		$authProcessor	= $this->getAuthorisationProcessor();
 		
-		return $this->authorisationProcessor->getOverallProgress();
-		
+		if ($authProcessor != null) {
+			return $authProcessor->getAuthoriserDetailsForUser();
+		} else {
+			return array("response" => null);
+		}
 	}
 	
 }

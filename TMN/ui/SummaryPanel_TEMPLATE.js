@@ -127,6 +127,16 @@ Ext.extend(tmn.view.SummaryPanel, Ext.Panel, {
 	},
 	
 	/**
+	 * Resets the summary panel to an empty panel
+	 */
+	resetSummary: function() {
+		//print it
+		if (this.rendered) {
+			this.body.update('');
+		}
+	},
+	
+	/**
 	 * Prints the users TMN then send the data to the backend to be stored in the Database
 	 */
 	printSummary: function() {

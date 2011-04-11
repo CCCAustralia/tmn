@@ -169,10 +169,22 @@ interface TmnCrudSessionInterface {
 	public function authorise(TmnCrudUser $user, $response);
 	
 	/**
+	 * Fetches the current authorisation progress of the session
 	 * 
-	 * Fetches the overall progress of the session
+	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
+	 * 			ie {response:<authorisers response>, name: <authorisers full name>, date: <the data of this action>}
 	 */
 	public function getOverallProgress();
+	
+	 /**
+	  * Gets the details of the authoriser that matches the user passed to this function
+	  * 
+	  * @param TmnCrudUser $user		- the authoriser
+	  * 
+	  * @return an assoc array containing the current response (Yes, No, Pending)
+	  * 		ie {response:<authorisers response>}
+	  */
+	public function getAuthoriserDetailsForUser(TmnCrudUser $user);
 	
 }
 

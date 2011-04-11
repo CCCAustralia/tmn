@@ -80,35 +80,36 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 	 * It is only used in construtor so there is no use in changing it dynamically. Edit it in the source.
 	 */
 	var config =  {
-		title: 'Controls',
-		frame: true,
-		layout: 'column',
-		bodyStyle: 'padding:5px 5px 0px 5px',
+		title:		'Controls',
+		frame:		true,
+		layout:		'column',
+		bodyStyle:	'padding:5px 5px 0px 5px',
 		items: [
 		        
 			{
 				layout: 'form',
-				columnWidth:.35,
+				columnWidth:1,
 				items: [
 					{
-					    id: 'session_combo',
-			        	xtype: 'combo',
-					    fieldLabel: 'Session',
-					    hiddenName: 'SESSION',
-					    hiddenId: 'SESSION_hidden',
-					    triggerAction: 'all',
-			        	editable: false,
-					    forceSelection: true,
-					    allowBlank:false,
+					    id:				'session_combo',
+			        	xtype:			'combo',
+			        	width:			650,
+					    fieldLabel:		'Session',
+					    hiddenName:		'SESSION',
+					    hiddenId:		'SESSION_hidden',
+					    triggerAction:	'all',
+			        	editable:		false,
+					    forceSelection:	true,
+					    allowBlank:		false,
 					    
-					    mode: 'local',
+					    mode:			'local',
 					    // store getting items from server
-					    store: this.sessionStore,
+					    store:			this.sessionStore,
 					    
-					    valueField: 'SESSION_ID',
-						displayField:'SESSION_NAME',
-					    tpl: '<tpl for=\".\"><div class=\"x-combo-list-item\">({SESSION_ID}) {SESSION_NAME} - created by {FIRSTNAME} {SURNAME}</div></tpl>',
-					    listeners: {
+					    valueField:		'SESSION_ID',
+						displayField:	'SESSION_NAME',
+					    tpl:			'<tpl for=\".\"><div class=\"x-combo-list-item\">({SESSION_ID}) {SESSION_NAME} - created by {FIRSTNAME} {SURNAME}</div></tpl>',
+					    listeners:		{
 					    	scope:	this,
 					    	select: function(combo, record, index) {
 					    		this.fireEvent('selectsession', combo, record, index);
@@ -118,16 +119,22 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				]
 			},
 			{
-				layout: 'form',
-				columnWidth:.125,
+				  xtype:		'box',
+				  columnWidth:	.37,
+				  html:			'&nbsp;'
+			},
+			{
+				layout: 	'form',
+				columnWidth:.15,
+				bodyStyle:	'text-align:center;',
 				items: [
 					{
-					    id: 'confirm',
-			        	xtype: 'button',
-			        	disabled: true,
-					    text: 'Approve this TMN',
-					    width: 80,
-					    handler: function(button, event) {
+					    id:			'confirm',
+			        	xtype:		'button',
+			        	disabled:	true,
+					    text:		'Approve this TMN',
+					    width:		80,
+					    handler:	function(button, event) {
 							if (this.session != '') {
 								Ext.Ajax.request({
 									url: './php/auth/authprocessor.php',
@@ -153,16 +160,17 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				]
 			},
 			{
-				layout: 'form',
-				columnWidth:.125,
+				layout:		'form',
+				columnWidth:.15,
+				bodyStyle:	'text-align: center;',
 				items: [
 					{
-					    id: 'reject',
-			        	xtype: 'button',
-			        	disabled: true,
-					    text: 'Reject this TMN',
-					    width: 80,
-					    handler: function(button, event) {
+					    id:			'reject',
+			        	xtype:		'button',
+			        	disabled:	true,
+					    text:		'Reject this TMN',
+					    width:		80,
+					    handler:	function(button, event) {
 							Ext.Ajax.request({
 								url: './php/auth/authprocessor.php',
 								scope: this,
@@ -186,23 +194,24 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				]
 			},
 			{
-				layout: 'form',
-				columnWidth:.25,
-				items: [
-				    {
-				    	xtype:	'label',
-				    	text:	'Want to talk before approving?:',
-				    	width:	100
-				    }
-				]
+				  xtype:		'box',
+				  columnWidth:	1,
+				  html:			'&nbsp;'
+			},
+			{
+				  xtype:		'box',
+				  columnWidth:	.35,
+				  html:			'&nbsp;'
 			},
 			{
 				layout: 'form',
-				columnWidth:.15,
+	        	labelWidth:	200,
+				columnWidth:.6,
 				items: [
 					{
 					    id:			'email',
 			        	xtype:		'linkbutton',
+			        	fieldLabel:	'Want to talk before approving?',
 			        	disabled:	true,
 					    text:		'Email Creator',
 					    href:		'mailto:tech.team@ccca.org.au'
@@ -321,14 +330,14 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 			Ext.getCmp('confirm').disable();
     		Ext.getCmp('reject').disable();
 			statusEl.setStyle('color', "#336600");
-			statusEl.update('Approved');
+			statusEl.update('Approved - ' + progress.date);
 		}
 		
 		if (progress.response == 'No') {
 			Ext.getCmp('confirm').disable();
     		Ext.getCmp('reject').disable();
 			statusEl.setStyle('color', "#CC3333");	
-			statusEl.update('<span>Rejected by </span><a href="mailto:' + progress.email + '">' + progress.name + '</a>');	
+			statusEl.update('<span>Rejected by </span><a href="mailto:' + progress.email + '">' + progress.name + '</a> - ' + progress.date);	
 		}
 		
 		if (progress.response == 'Pending') {

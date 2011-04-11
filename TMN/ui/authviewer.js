@@ -46,8 +46,8 @@ tmn.viewer = function() {
 		
 		resetViewer: function() {
 			this.controlPanel.resetControls();
-			this.reasonPanel.body.update('');
-			this.summaryPanel.body.update('');
+			this.reasonPanel.resetPanel();
+			this.summaryPanel.resetSummary();
 		},
 		
 		init: function() {
