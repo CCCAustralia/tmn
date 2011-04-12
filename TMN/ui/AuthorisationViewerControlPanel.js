@@ -68,7 +68,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
         			if (!this.rendered) {        				
         				this.on('afterrender', this.loadUrlSession, {controller:this, session:this.getSession()});
         			} else {
-        				this.loadUrlSession.call({controller:this, session: this.getSession()}, this)
+        				this.loadUrlSession.call({controller:this, session: this.getSession()}, this);
         			}
         		}
         	}
@@ -134,6 +134,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 			        	disabled:	true,
 					    text:		'Approve this TMN',
 					    width:		80,
+					    scope:		this,
 					    handler:	function(button, event) {
 							if (this.session != '') {
 								Ext.Ajax.request({
@@ -170,6 +171,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 			        	disabled:	true,
 					    text:		'Reject this TMN',
 					    width:		80,
+					    scope:		this,
 					    handler:	function(button, event) {
 							Ext.Ajax.request({
 								url: './php/auth/authprocessor.php',
@@ -258,7 +260,9 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 
 	//needs to be called on after render so needs to be called like so this.loadUrlSession.call({controller:this, session: this.getSession()}, this)
 	loadUrlSession: function(form) {
-		var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.session),
+		alert(this.controller.getSession());
+		console.warn(this.controller.sessionStore);
+		var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.controller.getSession()),
 		combo					= form.getForm().items.map['session_combo'],
 		sessionRecord;
 		//if the session is found load it
@@ -304,6 +308,8 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 	
 	processSession: function(progress, authoriser) {
 		
+		var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
+		
 		//Change interface based on  response
 		if (authoriser.response == 'Yes') {
 			Ext.getCmp('confirm').setText('You Approved This TMN');
@@ -318,7 +324,7 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 		} else {
 			Ext.getCmp('confirm').setText('Approved this TMN');
 			Ext.getCmp('confirm').enable();
-    		Ext.getCmp('reject').setText('Reject this TMN')
+    		Ext.getCmp('reject').setText('Reject this TMN');
     		Ext.getCmp('reject').enable();
 		}
 		

@@ -51,9 +51,11 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				'auth_level_1' 			=> "s",
 				'auth_level_2'			=> "s",
 				'auth_level_3'			=> "s",
+				'auth_user_reasons'		=> "s",
 				'auth_level_1_reasons'	=> "s",
 				'auth_level_2_reasons' 	=> "s",
 				'auth_level_3_reasons'	=> "s",
+				'auth_finance_reasons'	=> "s",
 				'user_timestamp' 		=> "s",
 				'level_1_timestamp'		=> "s",
 				'level_2_timestamp' 	=> "s",
@@ -114,11 +116,21 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		//if this levels user object has not yet been grabbed then grab it (while doing conversion from number to bad naming system)
 		if (!isset($this->level_users[$level])){
 			if ($level == 0) {
-				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getField('auth_user'));
+				if ($this->getField('auth_user') != "" && $this->getField('auth_user') != null) {
+					$this->level_users[$level]	= new TmnCrudUser($this->getLogfile(), $this->getField('auth_user'));
+				} else {
+					unset($this->level_users[$level]);
+					return null;
+				}
 			} elseif ($level == 4) {
-				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getFinanceGuid());
+				$this->level_users[$level]	= new TmnCrudUser($this->getLogfile(), $this->getFinanceGuid());
 			} else {
-				$this->level_users[$level]	= new TmnCrudUser($this->logfile, $this->getField('auth_level' . $level));
+				if ($this->getField('auth_level_'.$level) != "" && $this->getField('auth_level_'.$level) != null) {
+					$this->level_users[$level]	= new TmnCrudUser($this->getLogfile(), $this->getField('auth_level_' . $level));
+				} else {
+					unset($this->level_users[$level]);
+					return null;
+				}
 			}
 		}
 		
@@ -130,7 +142,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	
 			///////////////////ACTION FUNCTIONS/////////////////////
 
-	public function authorise(TmnCrudUser $user, $response) {
+	public function authorise(TmnCrudUser $user, $response, $session_id) {
 		
 		//Check that make() has been run to set up the authorisationprocessor
 		if ($this->authsessionid == null) {
@@ -167,10 +179,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				//$authlevel = current user's authlevel
 				$nextauthlevel = $this->getNextAuthLevel($userauthlevel);	//calculate the next authlevel
 				//$nextauthlevel = 3; //FOR DEBUGGING
-				$this->notifyOfSubmission($nextauthlevel);							//notify the calculated level
+				$this->notifyOfSubmission($nextauthlevel, $session_id);							//notify the calculated level
 			}
 			if ($response == "No") {
-				$this->notifyUserOfRejection($userauthlevel);
+				$this->notifyUserOfRejection($userauthlevel, $session_id);
 			}
 			
 		} else {
@@ -179,7 +191,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 	}
 	
-	private function notifyOfSubmission($notifylevel) {
+	private function notifyOfSubmission($notifylevel, $session_id) {
 		fb("TmnAuthorisationProcessor - notifying level: $notifylevel of approval");
 		$emailbody = "";
 		$emailaddress = "";
@@ -208,12 +220,12 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$authresponses[4] = $this->getField("finance_response");//store finance's response
 		
 	////calculate tmn-authviewer address
-			$curpageurl = TmnAuthenticator::curPageURL();
-			$curpageurl = split("/", $curpageurl);
-			unset($curpageurl[count($curpageurl) -1]);	//take off page name
-			unset($curpageurl[count($curpageurl) -1]);	//take off php/
-			$curpageurl = join("/",	$curpageurl);
-			$authviewerurl = $curpageurl."/tmn-authviewer.php?".$this->authsessionid;
+		$curpageurl = TmnAuthenticator::curPageURL();
+		$curpageurl = split("/", $curpageurl);
+		unset($curpageurl[count($curpageurl) -1]);	//take off page name
+		unset($curpageurl[count($curpageurl) -1]);	//take off php/
+		$curpageurl = join("/",	$curpageurl);
+		$authviewerurl = $curpageurl."/tmn-authviewer.php?session=".$session_id;
 		
 		//DEBUG OUTPUT
 		fb("authguids: "); fb($authguids);
@@ -277,7 +289,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailbody .= $authviewerurl;
 			$emailbody .= "\n\n-The TMN Development Team";
 			
-			$this->notifyOfSubmission(5);	//notify user of processing
+			$this->notifyOfSubmission(5, $session_id);	//notify user of processing
 		}
 		
 		//notify user:
@@ -314,7 +326,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		return $emailaddress;
 	}
 	
-	private function notifyUserOfRejection($rejectedbylevel) {
+	private function notifyUserOfRejection($rejectedbylevel, $session_id) {
 		fb("TmnAuthorisationProcessor - notifying user of rejection by level: $rejectedbylevel");
 		$emailbody = "";
 		$emailaddress = "";
@@ -493,27 +505,28 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 * @param TmnCrudUser $level2Authoriser
 	 * @param TmnCrudUser $level3Authoriser
 	 */
-	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null) {
+	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $session_id) {
 			$this->authsessionid = 	$this->create();
 			
 									$this->setField('auth_session_id', 		$this->authsessionid);
 									$this->setField("auth_user", 			$auth_user->getGuid());
 									$this->setField("user_response", 		"Yes");
-		if ($auth_level_1){ 		$this->setField("auth_level_1", 		$auth_level_1->getGuid()); }
-		if ($auth_level_1_reasons){	$this->setField("auth_level_1_reasons",	$auth_level_1_reasons);	}
-		if ($auth_level_2){			$this->setField("auth_level_2",			$auth_level_2->getGuid()); }
-		if ($auth_level_2_reasons){	$this->setField("auth_level_2_reasons", $auth_level_2_reasons);	}
-		if ($auth_level_3){			$this->setField("auth_level_3",			$auth_level_3->getGuid());	}
-		if ($auth_level_3_reasons){	$this->setField("auth_level_3_reasons", $auth_level_3_reasons);	}
+									$this->setField("auth_user_reasons", 	json_encode($auth_user_reasons));
+		if ($auth_level_1){ 		$this->setField("auth_level_1", 		$auth_level_1->getGuid()); 
+									$this->setField("auth_level_1_reasons",	json_encode($auth_level_1_reasons));	}
+		if ($auth_level_2){			$this->setField("auth_level_2",			$auth_level_2->getGuid());
+									$this->setField("auth_level_2_reasons", json_encode($auth_level_2_reasons));	}
+		if ($auth_level_3){			$this->setField("auth_level_3",			$auth_level_3->getGuid());
+									$this->setField("auth_level_3_reasons", json_encode($auth_level_3_reasons));	}
 									//$this->setField("user_TIMESTAMP", 		now());
 		
 		$this->update();
 		$this->retrieve();
 		fb($this);
-		$useremailaddress = $this->notifyOfSubmission(0);	//nofify the user (0)
-		$notifyemailaddress = $this->notifyOfSubmission($this->getNextAuthLevel(0));	//notify the next authoriser after the user (0)
+		$useremailaddress = $this->notifyOfSubmission(0, $session_id);	//nofify the user (0)
+		$notifyemailaddress = $this->notifyOfSubmission($this->getNextAuthLevel(0), $session_id);	//notify the next authoriser after the user (0)
 			
-		return array("authsessionid" => $this->authsessionid, "useremailaddress" => $useremailaddress);
+		return array("success" => true, "authsessionid" => $this->authsessionid, "useremailaddress" => $useremailaddress);
 	}
 	
 	/**
@@ -565,7 +578,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				
 				//set all the data we have access to
 				$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
-				if ($user != null) {
+				if ($levelUser != null) {
 					$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
 					$returnArray['email']		= $levelUser->getField('email');
 				}
@@ -591,7 +604,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					
 					//set all the data we have access to
 					$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
-					if ($user != null) {
+					if ($levelUser != null) {
 						$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
 						$returnArray['email']		= $levelUser->getField('email');
 					}
@@ -623,28 +636,79 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	public function getAuthoriserDetailsForUser(TmnCrudUser $user) {
 		
 		if ($user->getGuid() == $this->getField("auth_user")) {
-			
-			return array("response" => $this->getField("user_response"));
+			$reason	= json_decode($this->getField("auth_user_reasons"), true);
+			fb($reason);
+			$total	= 0;
+			if (isset($reason['aussie-based'])) {
+				$total += count($reason['aussie-based']['reasons']);
+			}
+			if (isset($reason['home-assignment'])) {
+				$total += count($reason['home-assignment']['reasons']);
+			}
+			if (isset($reason['international-assignment'])) {
+				$total += count($reason['international-assignment']['reasons']);
+			}
+			return array("response" => $this->getField("user_response"), 	"reasons" => $this->getField("auth_user_reasons"), "total" => $total);
 			
 		} elseif ($user->getGuid() == $this->getField("auth_level_1")) {
-			
-			return array("response" => $this->getField("level_1_response"));
+			$reason	= json_decode($this->getField("auth_level_1_reasons"), true);
+			$total	= 0;
+			if (isset($reason['aussie-based'])) {
+				$total += count($reason['aussie-based']['reasons']);
+			}
+			if (isset($reason['home-assignment'])) {
+				$total += count($reason['home-assignment']['reasons']);
+			}
+			if (isset($reason['international-assignment'])) {
+				$total += count($reason['international-assignment']['reasons']);
+			}
+			return array("response" => $this->getField("level_1_response"), "reasons" => $this->getField("auth_level_1_reasons"), "total" => $total);
 			
 		} elseif ($user->getGuid() == $this->getField("auth_level_2")) {
-			
-			return array("response" => $this->getField("level_2_response"));
+			$reason	= json_decode($this->getField("auth_level_2_reasons"), true);
+			$total	= 0;
+			if (isset($reason['aussie-based'])) {
+				$total += count($reason['aussie-based']['reasons']);
+			}
+			if (isset($reason['home-assignment'])) {
+				$total += count($reason['home-assignment']['reasons']);
+			}
+			if (isset($reason['international-assignment'])) {
+				$total += count($reason['international-assignment']['reasons']);
+			}
+			return array("response" => $this->getField("level_2_response"), "reasons" => $this->getField("auth_level_2_reasons"), "total" => $total);
 			
 		} elseif ($user->getGuid() == $this->getField("auth_level_3")) {
-			
-			return array("response" => $this->getField("level_3_response"));
+			$reason	= json_decode($this->getField("auth_level_3_reasons"), true);
+			$total	= 0;
+			if (isset($reason['aussie-based'])) {
+				$total += count($reason['aussie-based']['reasons']);
+			}
+			if (isset($reason['home-assignment'])) {
+				$total += count($reason['home-assignment']['reasons']);
+			}
+			if (isset($reason['international-assignment'])) {
+				$total += count($reason['international-assignment']['reasons']);
+			}
+			return array("response" => $this->getField("level_3_response"), "reasons" => $this->getField("auth_level_3_reasons"), "total" => $total);
 			
 		} elseif ($user->getGuid() == $this->getFinanceGuid()) {
-			
-			return array("response" => $this->getField("finance_response"));
+			$reason	= json_decode($this->getField("auth_finance_reasons"), true);
+			$total	= 0;
+			if (isset($reason['aussie-based'])) {
+				$total += count($reason['aussie-based']['reasons']);
+			}
+			if (isset($reason['home-assignment'])) {
+				$total += count($reason['home-assignment']['reasons']);
+			}
+			if (isset($reason['international-assignment'])) {
+				$total += count($reason['international-assignment']['reasons']);
+			}
+			return array("response" => $this->getField("finance_response"), "reasons" => $this->getField("auth_finance_reasons"), "total" => $total);
 			
 		} else {
 			
-			return array("response" => null);
+			return array("response" => "Pending", "reasons" => "[]", "total" => 0);
 			
 		}
 	}

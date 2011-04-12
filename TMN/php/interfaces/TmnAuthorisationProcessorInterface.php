@@ -39,9 +39,10 @@ interface TmnAuthorisationProcessorInterface {
 	 * Applies the specified authorisation response to the appropriate session in the database, then takes action based on the next level of authorisation required.
 	 * 
 	 * @param TmnCrudUser $user
+	 * @param $session_id
 	 * @param string $response 		- Possible values are "Yes", "No", "Pending"
 	 */
-	public function authorise(TmnCrudUser $user, $response);
+	public function authorise(TmnCrudUser $user, $response, $session_id);
 	
 	/**
 	 * Determines the next authoriser, and emails them.
@@ -73,9 +74,10 @@ interface TmnAuthorisationProcessorInterface {
 	 * @param $auth_level_2_reasons
 	 * @param $auth_level_3
 	 * @param $auth_level_3_reasons
+	 * @param $session_id
 	 * 
 	 */
-	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null);
+	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $session_id);
 	
 	/**
 	 * Fetches the current authorisation progress of the session

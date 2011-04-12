@@ -167,7 +167,7 @@ tmn.view.PrintForm = function(view, config) {
 									var responseObj	= Ext.decode(response.responseText);
 									
 									Ext.MessageBox.show({
-										icon: Ext.MessageBox.ERROR,
+										icon: Ext.MessageBox.INFO,
 										buttons: Ext.MessageBox.OK,
 										closable: false,
 										title: 'Thank You',
@@ -315,6 +315,7 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 				levelReasons['aussie-based']['reasons']				= data['aussie-based']['auth_lv' + level + '_reasons'];
 				totalReasons										+= levelReasons['aussie-based']['reasons'].length;
 			}
+		//TODO: change to if international assignment
 		} else {
 			if (data['home-assignment']['auth_lv' + level + '_reasons'] !== undefined) {
 				levelReasons['home-assignment']						= {};

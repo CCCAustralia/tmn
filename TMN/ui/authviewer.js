@@ -17,14 +17,15 @@ tmn.viewer = function() {
 			if (data['aussie-based'] !== undefined)	{						//if its the aussie based only version of the tmn
 				isOverseas	= false;
 				hasSpouse	= (data['aussie-based']['s_firstname'] !== undefined ? true : false);
+				//TODO:change to if international assignment
 			} else {
 				isOverseas	= true;
 				hasSpouse	= (data['international-assignment']['s_firstname'] !== undefined ? true : false);
 			}
 			
 			//render reasons
-			if (auth.reasons.total > 0) {
-				this.reasonPanel.showPanel(auth.reasons);
+			if (auth.total > 0) {
+				this.reasonPanel.showPanel(Ext.decode(auth.reasons));
 			} else {
 				this.reasonPanel.hidePanel();
 			}

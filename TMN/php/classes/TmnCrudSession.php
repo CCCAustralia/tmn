@@ -288,7 +288,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//and if the internationalAssignment object hasn't been made from the international_assignment_session_id then create it
 			if ($this->authorisationProcessor == null) {
-				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->getLogfile(), $this->getField('auth_session_id'));
 			}
 		
 			//if it is already there or creation happened without throwing exceptions then return the object
@@ -307,6 +307,209 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			////////////////////////////JSON METHODS////////////////////////////
 			
 	
+	
+	public function loadDataFromJsonString($string) {
+		//parse json string
+		$jsonObj	= json_decode($string, true);
+		
+		//check if it parsed and returned a data object
+		if (isset($jsonObj['data'])) {
+			//check to see if the data object has an array of data to be loaded
+			if (is_array($jsonObj['data'])) {
+				//if there is data then load it
+				$this->loadDataFromAssocArray($jsonObj['data']);
+			} else {
+				throw new LightException(__CLASS__ . " Exception: No Data in JSON String");
+			}
+		} else {
+			throw new LightException(__CLASS__ . " Exception: JSON String could not be parsed");
+		}
+	}
+	
+	public function loadDataFromAssocArray($array) {
+		$processedArray = $this->removeFormatingFromFields($array);
+		fb($processedArray);
+		parent::loadDataFromAssocArray($processedArray);
+	}
+	
+	private function removeFormatingFromFields($array) {
+		
+		if (!is_numeric($array['os_resident_for_tax_purposes'])) {
+			//format os_resident_for_tax_purposes for display
+			switch ($array['os_resident_for_tax_purposes']) {
+				case "Non-Resident Of Australia":
+					$array['os_resident_for_tax_purposes'] = 0;
+					break;
+				case "Resident Of Australia":
+					$array['os_resident_for_tax_purposes'] = 1;
+					break;
+				default:
+					$array['os_resident_for_tax_purposes'] = 1;
+					break; 
+			}
+		}
+		
+
+		if (!is_numeric($array['ft_pt_os'])) {
+			//format ft_pt_os for display
+			switch ($array['ft_pt_os']) {
+				case "Full Time":
+					$array['ft_pt_os'] = 0;
+					break;
+				case "Part Time":
+					$array['ft_pt_os'] = 1;
+					break;
+				case "Overseas":
+					$array['ft_pt_os'] = 2;
+					break;
+				default:
+					$array['ft_pt_os'] = 0;
+					break; 
+			}
+		}
+		
+		//format s_ft_pt_os for display
+		if (!is_numeric($array['s_ft_pt_os'])) {
+			switch ($array['s_ft_pt_os']) {
+				case "Full Time":
+					$array['s_ft_pt_os'] = 0;
+					break;
+				case "Part Time":
+					$array['s_ft_pt_os'] = 1;
+					break;
+				case "Overseas":
+					$array['s_ft_pt_os'] = 2;
+					break;
+				default:
+					$array['s_ft_pt_os'] = 0;
+					break; 
+			}
+		}
+		
+		//format days per week for display
+		$ftptosStmt = $this->db->query("SELECT * FROM FT_PT_OS");
+		for ($i = 0; $i < $ftptosStmt->rowCount(); $i++) {
+			$ftptos_row = $ftptosStmt->fetch(PDO::FETCH_ASSOC);
+			$ftptos_map[$ftptos_row['value']] = $ftptos_row['key'];
+		}
+		
+		$obj['days_per_week']		= $ftptos_map[$array['days_per_week']];
+		$obj['s_days_per_week']		= $ftptos_map[$array['s_days_per_week']];	//DAYS_PER_WEEK is an index
+		
+		
+		if (!is_numeric($array['mfb_rate'])) {
+			//format mfb_rate for display
+			switch ($array['mfb_rate']) {
+				case "Zero":
+					$array['mfb_rate'] = 0;
+					break;
+				case "Half":
+					$array['mfb_rate'] = 1;
+					break;
+				case "Full":
+					$array['mfb_rate'] = 2;
+					break;
+				default:
+					$array['mfb_rate'] = 2;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['s_mfb_rate'])) {
+			//format s_mfb_rate for display
+			switch ($array['s_mfb_rate']) {
+				case "Zero":
+					$array['s_mfb_rate'] = 0;
+					break;
+				case "Half":
+					$array['s_mfb_rate'] = 1;
+					break;
+				case "Full":
+					$array['s_mfb_rate'] = 2;
+					break;
+				default:
+					$array['s_mfb_rate'] = 2;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['super_fund'])) {
+			//format super_fund for display
+			switch ($array['super_fund']) {
+				case "Other":
+					$array['super_fund'] = 0;
+					break;
+				case "IOOF":
+					$array['super_fund'] = 1;
+					break;
+				default:
+					$array['super_fund'] = 1;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['s_super_fund'])) {
+			//format s_super_fund for display
+			switch ($array['s_super_fund']) {
+				case "Other":
+					$array['s_super_fund'] = 0;
+					break;
+				case "IOOF":
+					$array['s_super_fund'] = 1;
+					break;
+				default:
+					$array['s_super_fund'] = 1;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['income_protection_cover_source'])) {
+			//format income_protection_cover_source for display
+			switch ($array['income_protection_cover_source']) {
+				case "Support Account":
+					$array['income_protection_cover_source'] = 0;
+					break;
+				case "Super Fund":
+					$array['income_protection_cover_source'] = 1;
+					break;
+				default:
+					$array['income_protection_cover_source'] = 0;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['s_income_protection_cover_source'])) {
+			//format s_income_protection_cover_source for display
+			switch ($array['s_income_protection_cover_source']) {
+				case "Support Account":
+					$array['s_income_protection_cover_source'] = 0;
+					break;
+				case "Super Fund":
+					$array['s_income_protection_cover_source'] = 1;
+					break;
+				default:
+					$array['s_income_protection_cover_source'] = 0;
+					break; 
+			}
+		}
+		
+		if (!is_numeric($array['housing_frequency'])) {
+			//format housing_frequency for display
+			switch ($array['housing_frequency']) {
+				case "Monthly":
+					$array['housing_frequency'] = 0;
+					break;
+				case "Fortnightly":
+					$array['housing_frequency'] = 1;
+					break;
+				default:
+					$array['housing_frequency'] = 0;
+					break; 
+			}
+		}
+		
+		return $array;
+	}
 	
 	public function produceTransferArray() {
 		try {
@@ -338,6 +541,162 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//add transfer array
 		$obj['transfers']			= $this->produceTransferArray();
 		
+		
+		//format os_resident_for_tax_purposes for display
+		switch ($this->getField('os_resident_for_tax_purposes')) {
+			case 0:
+				$obj['os_resident_for_tax_purposes']			= "Non-Resident Of Australia";
+				break;
+			case 1:
+				$obj['os_resident_for_tax_purposes']			= "Resident Of Australia";
+				break;
+			default:
+				$obj['os_resident_for_tax_purposes']			= "Resident Of Australia";
+				break; 
+		}
+		/* TODO: uncomment when personal detials fields added
+		//format ft_pt_os for display
+		switch ($this->getField('ft_pt_os')) {
+			case 0:
+				$obj['ft_pt_os']			= "Full Time";
+				break;
+			case 1:
+				$obj['ft_pt_os']			= "Part Time";
+				break;
+			case 2:
+				$obj['ft_pt_os']			= "Overseas";
+				break;
+			default:
+				$obj['ft_pt_os']			= "Full Time";
+				break; 
+		}
+		
+		//format s_ft_pt_os for display
+		switch ($this->getField('s_ft_pt_os')) {
+			case 0:
+				$obj['s_ft_pt_os']			= "Full Time";
+				break;
+			case 1:
+				$obj['s_ft_pt_os']			= "Part Time";
+				break;
+			case 2:
+				$obj['s_ft_pt_os']			= "Overseas";
+				break;
+			default:
+				$obj['s_ft_pt_os']			= "Full Time";
+				break; 
+		}
+		
+		//format days per week for display
+		$ftptosStmt = $this->db->query("SELECT * FROM FT_PT_OS");
+		for ($i = 0; $i < $ftptosStmt->rowCount(); $i++) {
+			$ftptos_row = $ftptosStmt->fetch(PDO::FETCH_ASSOC);
+			$ftptos_map[$ftptos_row['key']] = $ftptos_row['value'];
+		}
+		
+		$obj['days_per_week']		= $ftptos_map[$this->getField('days_per_week')];
+		$obj['s_days_per_week']		= $ftptos_map[$this->getField('s_days_per_week')];	//DAYS_PER_WEEK is an index
+		*/
+		
+		//format mfb_rate for display
+		switch ($this->getField('mfb_rate')) {
+			case 0:
+				$obj['mfb_rate']			= "Zero";
+				break;
+			case 1:
+				$obj['mfb_rate']			= "Half";
+				break;
+			case 2:
+				$obj['mfb_rate']			= "Full";
+				break;
+			default:
+				$obj['mfb_rate']			= "Full";
+				break; 
+		}
+		
+		//format mfb_rate for display
+		switch ($this->getField('s_mfb_rate')) {
+			case 0:
+				$obj['s_mfb_rate']			= "Zero";
+				break;
+			case 1:
+				$obj['s_mfb_rate']			= "Half";
+				break;
+			case 2:
+				$obj['s_mfb_rate']			= "Full";
+				break;
+			default:
+				$obj['s_mfb_rate']			= "Full";
+				break; 
+		}
+		
+		//format super_fund for display
+		switch ($this->getField('super_fund')) {
+			case 0:
+				$obj['super_fund']			= "Other";
+				break;
+			case 1:
+				$obj['super_fund']			= "IOOF";
+				break;
+			default:
+				$obj['super_fund']			= "IOOF";
+				break; 
+		}
+		
+		//format s_super_fund for display
+		switch ($this->getField('s_super_fund')) {
+			case 0:
+				$obj['s_super_fund']			= "Other";
+				break;
+			case 1:
+				$obj['s_super_fund']			= "IOOF";
+				break;
+			default:
+				$obj['s_super_fund']			= "IOOF";
+				break; 
+		}
+		
+		//format income_protection_cover_source for display
+		switch ($this->getField('income_protection_cover_source')) {
+			case 0:
+				$obj['income_protection_cover_source']			= "Support Account";
+				break;
+			case 1:
+				$obj['income_protection_cover_source']			= "Super Fund";
+				break;
+			default:
+				$obj['income_protection_cover_source']			= "Support Account";
+				break; 
+		}
+		
+		//format s_income_protection_cover_source for display
+		switch ($this->getField('s_income_protection_cover_source')) {
+			case 0:
+				$obj['s_income_protection_cover_source']			= "Support Account";
+				break;
+			case 1:
+				$obj['s_income_protection_cover_source']			= "Super Fund";
+				break;
+			default:
+				$obj['s_income_protection_cover_source']			= "Support Account";
+				break; 
+		}
+		
+		//format housing_frequency for display
+		switch ($this->getField('housing_frequency')) {
+			case 0:
+				$obj['housing_frequency']			= "Monthly";
+				break;
+			case 1:
+				$obj['housing_frequency']			= "Fortnightly";
+				break;
+			default:
+				$obj['housing_frequency']			= "Monthly";
+				break; 
+		}
+		
+		
+		//format authorisation warnings for display
 		if ($add_auth_reasons != null) {
 			if ($this->getAuthorisationProcessor()) {
 				//add level 1 warnings
@@ -393,23 +752,11 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 	
 	
-	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $data ) {
-		
-		fb($data);
-		//update the session data
-		//if (is_array($data)) {
-		$sessionid = $this->getField('session_id');
-		$this->loadDataFromAssocArray($data);
-		$this->setField('session_id', $sessionid);
-		//} else {
-		//	$this->loadDataFromJsonString($data);
-		//}
-		$this->setOwner($auth_user);
-		$this->update();
+	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null ) {
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
 		$this->authorisationProcessor	= new TmnAuthorisationProcessor($this->logfile);
-		$submitarray = $this->authorisationProcessor->submit($auth_user, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons);
+		$submitarray = $this->authorisationProcessor->submit($auth_user, $auth_user_reasons, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons, $this->getField('session_id'));
 		//update the session row with the authsessionid
 		$this->setField('auth_session_id', $submitarray['authsessionid']);
 		$this->update();
@@ -441,7 +788,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			fb("auth_session_id = ".$this->getField('auth_session_id'));
 		}
 		
-		$this->authorisationProcessor->authorise($user, $response);
+		$this->authorisationProcessor->authorise($user, $response, $this->getField('session_id'));
 	}
 	
 	/**
@@ -474,9 +821,9 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		$authProcessor	= $this->getAuthorisationProcessor();
 		
 		if ($authProcessor != null) {
-			return $authProcessor->getAuthoriserDetailsForUser();
+			return $authProcessor->getAuthoriserDetailsForUser($user);
 		} else {
-			return array("response" => null);
+			return array("response" => "Pending", "reasons" => "[]", "total" => 0);
 		}
 	}
 	

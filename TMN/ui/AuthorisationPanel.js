@@ -258,6 +258,8 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		if (!this.noNames) {
 			this.user_id		= 0;
 			
+			console.info(this.id);
+			
 			var compositefield	= this.getForm().items.map['name'];
 			compositefield.items.each(function(item, index, length){
 				item.clearValue();
@@ -297,10 +299,11 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			//if there is only one record select it and disable fields
 			if (recordArray.length == 1) {
 				this.autoSelectName.call(recordArray[0], this); //this.autoSelectNamecall(scope, param1)
+			} else {
+				this.resetFields();				
 			}
 		}
 		
-		this.resetFields();
 		
 		this.show();
 		
@@ -310,7 +313,7 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		if (tmnAuthContainer != null) {
 			tmnAuthContainer.remove();
 		}
-		
+
 		//if this is a aussie based session
 		if (reasonArray['aussie-based'] !== undefined) {
 			
@@ -329,6 +332,7 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			}
 			
 		//if this is an international based session
+			//TODO: change to if international assignment
 		} else {
 
 			var el	= null;

@@ -142,13 +142,12 @@ interface TmnCrudSessionInterface {
 	 * @param TmnCrudUser $level1Authoriser	- the level 1 authoristor for that user (ie ministry overseer)
 	 * @param TmnCrudUser $level2Authoriser - the level 2 authoristor for that user (ie national ministry overseer)
 	 * @param TmnCrudUser $level3Authoriser - the level 3 authoristor for that user (ie national director)
-	 * @param Assoc Array $data				- the data for the session that is to be submitted
 	 * 
 	 * @return bool - will return true if completed sucessfully
 	 * 
 	 * Note: will throw Exception if it can't complete this task.
 	 */
-	public function submit( TmnCrudUser $auth_user, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $data );
+	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null );
 	
 	/**
 	 * Checks whether the user passed to it is one of the people on the list of authorisers for this session.
