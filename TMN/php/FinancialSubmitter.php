@@ -485,9 +485,12 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['s_mmr']						=	$this->financial_data['S_MMR'];
 		
 		//Worker's Compensation
-		$this->financial_data['WORKERS_COMP']		=	round($this->data['joint_financial_package'] * $this->WORKERS_COMP_RATE);
-		$this->data['workers_comp']					=	$this->financial_data['WORKERS_COMP'];
-		
+		if ($this->financial_data['home_assignment'] == true || $this->financial_data['home_assignment'] == 'true') {
+			$this->data['workers_comp']					=	0;
+		} else {
+			$this->financial_data['WORKERS_COMP']		=	round($this->data['joint_financial_package'] * $this->WORKERS_COMP_RATE);
+			$this->data['workers_comp']					=	$this->financial_data['WORKERS_COMP'];			
+		}
 		
 		//Ministry Levy
 		if ($iscouple) {

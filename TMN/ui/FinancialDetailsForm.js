@@ -2084,7 +2084,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		//submit fields
 		this.form.submit({
 			url: this.submit_url,
-			params: {session: this.getSession()},
+			params: {session: this.getSession(), aussie_form: this.aussie_form, overseas_form: this.overseas_form, home_assignment: this.home_assignment},
 			scope: this,
 			success: function (form, action) {
 				this.fireEvent('submitsuccess', this, form, action);
