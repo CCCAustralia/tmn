@@ -145,6 +145,16 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 										session: this.getSession()
 									},
 									success: function() {
+										var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
+										
+										Ext.getCmp('confirm').setText('You Approved This TMN');
+							    		Ext.getCmp('reject').setText('Reject this TMN');
+							    		
+							    		Ext.getCmp('confirm').disable();
+							    		Ext.getCmp('reject').disable();
+										statusEl.setStyle('color', "#336600");
+										statusEl.update('Approved by You');
+
 										Ext.MessageBox.show({
 											icon: Ext.MessageBox.INFO,
 											buttons: Ext.MessageBox.OK,
@@ -181,7 +191,17 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 									session: this.getSession()
 								},
 								success: function() {
-									Ext.MessageBox.show({
+									var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
+
+									Ext.getCmp('confirm').setText('Approve this TMN');
+									Ext.getCmp('reject').setText('You Rejected This TMN');
+						    		
+						    		Ext.getCmp('confirm').disable();
+						    		Ext.getCmp('reject').disable();
+									statusEl.setStyle('color', "#CC3333");	
+									statusEl.update('<span>Rejected by You</span>');
+
+						    		Ext.MessageBox.show({
 										icon: Ext.MessageBox.INFO,
 										buttons: Ext.MessageBox.OK,
 										closable: false,
@@ -260,13 +280,14 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 
 	//needs to be called on after render so needs to be called like so this.loadUrlSession.call({controller:this, session: this.getSession()}, this)
 	loadUrlSession: function(form) {
-		alert(this.controller.getSession());
+		console.warn(this.controller.getSession());
 		console.warn(this.controller.sessionStore);
 		var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.controller.getSession()),
 		combo					= form.getForm().items.map['session_combo'],
 		sessionRecord;
+		console.warn(sessionRecordIndex);
 		//if the session is found load it
-		if (sessionRecordIndex > 0) {
+		if (sessionRecordIndex >= 0) {
 			//grab record
 			sessionRecord		= this.controller.sessionStore.getAt(sessionRecordIndex);
 			//set the combo to the right value
@@ -343,12 +364,12 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 			Ext.getCmp('confirm').disable();
     		Ext.getCmp('reject').disable();
 			statusEl.setStyle('color', "#CC3333");	
-			statusEl.update('<span>Rejected by </span><a href="mailto:' + progress.email + '">' + progress.name + '</a> - ' + progress.date);	
+			statusEl.update('<span>Rejected by </span><a href="mailto:' + progress.email + '?subject=TMN: Rejection Enquiry">' + progress.name + '</a> - ' + progress.date);	
 		}
 		
 		if (progress.response == 'Pending') {
 			statusEl.setStyle('color', "#999999");
-			statusEl.update('<span>Awaiting Approval from </span><a href="mailto:' + progress.email + '">' + progress.name + '</a>');
+			statusEl.update('<span>Awaiting Approval from </span><a href="mailto:' + progress.email + '?subject=TMN: Approval Enquiry">' + progress.name + '</a>');
 		}
 	},
 	

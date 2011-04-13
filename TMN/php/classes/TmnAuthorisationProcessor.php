@@ -107,7 +107,6 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	}
 	
 	private function getFinanceGuid() {
-		//TODO: figure out where this is actually
 		$constants = getConstants(array("FINANCE_USER"));
 		return $constants['FINANCE_USER'];
 	}
@@ -158,11 +157,14 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		//fetch the user's authlevel
 		$userauthlevel = $this->userIsAuthoriser($user);
 		$fieldname = "";	//initialise
+		fb("AUTHORISE: userauthlevel=".$userauthlevel);
 		
 		if (!is_null($userauthlevel)) {
 			//Form the identifying field name string for the level of authentication for which the user is valid
 			if ($userauthlevel == 0) {
-				$fieldname = "USER";
+				$fieldname = "user";
+			} elseif ($userauthlevel == 4) {
+				$fieldname = "finance";
 			} else {
 				$fieldname = "level_".$userauthlevel;
 			}
@@ -171,10 +173,16 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$this->setField($fieldname."_response", $response);
 			fb("RESPONSE FOR LVL ".$userauthlevel." UPDATED TO ".$response);
 			//fb($this);
+			
+			$now = getdate();
+			
+			$this->setField($fieldname."_timestamp", date( 'Y-m-d H:i:s', $now[0]));
+			fb($this->getField($fieldname."_timestamp"));
+			
 			$this->update();
 			//TODO: update the timestamp
 			
-			//TODO: Workflow - email the appropriate recipiants
+			//email the appropriate recipiants
 			if ($response == "Yes") {
 				//$authlevel = current user's authlevel
 				$nextauthlevel = $this->getNextAuthLevel($userauthlevel);	//calculate the next authlevel
@@ -317,8 +325,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailbody .= "\n\n-The TMN Development Team";
 		}
 		//TODO: REMOVE AFTER DEBUGGING
-		$emailbody .="\n\nDEBUG: target email=".$emailaddress;
-		$emailaddress = "tom.flynn@ccca.org.au";
+		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
+		//$emailaddress = "tom.flynn@ccca.org.au";
 		$notifyemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
 		fb($notifyemail);
 		$notifyemail->send();
@@ -400,8 +408,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		fb($emailbody);
 
 		//TODO: REMOVE AFTER DEBUGGING
-		$emailbody .="\n\nDEBUG: target email=".$emailaddress;
-		$emailaddress = "tom.flynn@ccca.org.au";
+		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
+		//$emailaddress = "tom.flynn@ccca.org.au";
 		$rejectionemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
 		fb($rejectionemail);
 		$rejectionemail->send();
@@ -507,6 +515,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	 */
 	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null, $session_id) {
 			$this->authsessionid = 	$this->create();
+			$now = getdate();
 			
 									$this->setField('auth_session_id', 		$this->authsessionid);
 									$this->setField("auth_user", 			$auth_user->getGuid());
@@ -518,7 +527,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 									$this->setField("auth_level_2_reasons", json_encode($auth_level_2_reasons));	}
 		if ($auth_level_3){			$this->setField("auth_level_3",			$auth_level_3->getGuid());
 									$this->setField("auth_level_3_reasons", json_encode($auth_level_3_reasons));	}
-									//$this->setField("user_TIMESTAMP", 		now());
+									$this->setField("user_timestamp", 		date( 'Y-m-d H:i:s', $now[0]));
 		
 		$this->update();
 		$this->retrieve();
@@ -553,7 +562,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					$returnArray['name']		= $user->getField('firstname') . " " . $user->getField('surname');
 					$returnArray['email']		= $user->getField('email');
 				}
-				$returnArray['date']		= $this->getField('finance_timestamp');
+				$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('user_timestamp')));
 				
 				return $returnArray;
 			}			
@@ -582,7 +591,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
 					$returnArray['email']		= $levelUser->getField('email');
 				}
-				$returnArray['date']		= $this->getField('level_' . $responseCount . '_timestamp');
+				$returnArray['date']			= date(" g:i a, j-M-Y", strtotime($this->getField('level_' . $responseCount . '_timestamp')));
 				
 				return $returnArray;
 				
@@ -608,7 +617,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 						$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
 						$returnArray['email']		= $levelUser->getField('email');
 					}
-					$returnArray['date']		= $this->getField('level_' . $responseCount . '_timestamp');
+					$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('level_' . $responseCount . '_timestamp')));
 				
 					return $returnArray;
 				}
@@ -619,7 +628,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$returnArray['response']	= $this->getField('finance_response');
 			$returnArray['name']		= "Finance";
 			$returnArray['name']		= "payroll@ccca.org.au";
-			$returnArray['date']		= $this->getField('finance_timestamp');
+			$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('finance_timestamp')));
 		}
 		
 		return $returnArray;

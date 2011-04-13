@@ -89,7 +89,7 @@ Ext.LinkButton = Ext.extend(Ext.Button, {
     
     setNameAndEmail: function(firstname, lastname, email) {
     	this.setText('Email ' + firstname + ' ' + lastname);
-    	this.href	= 'mailto:' + email;
+    	this.href	= 'mailto:' + email + '?subject=TMN: Submission Enquiry';
     	this.el.child(this.buttonSelector, true).href = this.getHref();
     }
 });

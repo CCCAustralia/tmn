@@ -2,6 +2,7 @@
 
 include_once("../classes/TmnCrudSession.php");
 include_once("../classes/TmnCrudUser.php");
+include_once("../classes/Tmn.php");
 
 //Create the objects required for authorisation
 try {
@@ -22,12 +23,11 @@ try {
 			$session_id	= $_POST['session'];
 		}
 		
-		$user				= new TmnCrudUser($logfile, $tmn->getAuthenticatedGuid());		//the user object
 		$session			= new TmnCrudSession($logfile, (int)$session_id);			//the session object
 		
 		if ($response == "Yes" || $response == "No") {
 			try {
-				$session->authorise($user, $response);
+				$session->authorise($tmn->getUser(), $response);
 				echo json_encode(array("success" => true));
 			} catch (Exception $e) {
 				throw new FatalException("Authorisation Failed: ".$e->getMessage());
@@ -36,7 +36,7 @@ try {
 			throw new FatalException("Authorisation Failed: No response provided.");
 		}
 	} else {
-		throw new FatalException("Authentication Failed: Try Logging in.")
+		throw new FatalException("Authentication Failed: Try Logging in.");
 	}
 } catch (Exception $e) {
 	Reporter::newInstance($logfile)->exceptionHandler($e);

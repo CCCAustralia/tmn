@@ -23,6 +23,7 @@ if (isset($_REQUEST['mode'])) {
 		$tmn = new Tmn($LOGFILE);
 		$user = $tmn->getUser();
 		$userguid = $user->getGuid();
+		$userNMLguid = "";
 		//$tmn->authenticate();
 		
 		if ($tmn->isAuthenticated()) {
@@ -49,15 +50,22 @@ if (isset($_REQUEST['mode'])) {
 			for ($row = 0; $row < mysql_num_rows($sql); $row++) {
 				$temp = mysql_fetch_assoc($sql);
 				if ($temp['MINISTRY'] == 'National Director') {
+					//Store the ND
 					$userlist_nd[$temp['GUID']] = $temp;
 					$userlist_nd[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
 					$userlist_nd[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
 					$userlist_nd[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
 				} else {
+					//Store the NMLs
 					$userlist_nml[$temp['GUID']] = $temp;
 					$userlist_nml[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
 					$userlist_nml[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
 					$userlist_nml[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
+				}
+				
+				//Store the user's ministry NML
+				if ($temp['MINISTRY'] == $user->getField('ministry')) {
+					$userNMLguid = $temp['GUID'];
 				}
 			}
 			
@@ -87,14 +95,19 @@ if (isset($_REQUEST['mode'])) {
 				$returnarray = $userlist_all;
 				
 				//if user is NML or ND, level 1 is NML
-				if (isset($userlist_nd[$userguid]) || isset($userlist_nml[$userguid])) {
+				if ($userauthlevel == 2 || $userauthlevel == 3) {
 					$returnarray = $userlist_nml;
 				}
 			} 
 		////Authlevel 2
 			if ($mode == 'level_2') {
-				//return set is all NMLs
-				$returnarray = $userlist_nml;
+			////return set is user's ministry NML unless user is NML or ND
+				if ($userauthlevel == 2 || $userauthlevel == 3) {
+					//if NML or ND		
+					$returnarray = $userlist_nml;
+				} else {
+					$returnarray = array($userlist_nml[$userNMLguid]);
+				}
 			}
 		////Authlevel 3
 			if ($mode == 'level_3') {

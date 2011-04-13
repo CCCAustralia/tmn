@@ -27,6 +27,7 @@ try {
 			$data			= json_decode($data_string, true);
 			
 			fb($authorisers);
+			fb($data);
 			//create a TmnAuthorisationProcessor object authsessionid is null because it hasn't been submitted yet
 			$session = new TmnCrudSession($logfile, $session_id);
 			fb($session);
@@ -62,7 +63,8 @@ try {
 				
 				//update session with new data
 				$session->loadDataFromAssocArray($data['aussie-based']);
-				$session->setField('session_id', $session_id);
+				fb($session);
+				$session->setField('session_id', (int)$session_id);
 				$session->setOwner($tmn->getUser());
 				$session->update();
 			} else {
@@ -102,13 +104,13 @@ try {
 				
 				//update session with new data for international assignment
 				$ia_session->loadDataFromAssocArray($data['international-assignment']);
-				$ia_session->setField('session_id', $ia_session_id);
+				$ia_session->setField('session_id', (int)$ia_session_id);
 				$ia_session->setOwner($tmn->getUser());
 				$ia_session->update();
 				
 				//update session with new data for home assignment
 				$ha_session->loadDataFromAssocArray($data['home-assignment']);
-				$ha_session->setField('session_id', $ha_session_id);
+				$ha_session->setField('session_id', (int)$ha_session_id);
 				$ha_session->setOwner($tmn->getUser());
 				$ha_session->update();
 			}
