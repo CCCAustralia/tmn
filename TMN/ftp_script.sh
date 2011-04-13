@@ -1,16 +1,26 @@
 
-version         = '2.2.0'
-ftp_uname       = 'mportal'
-ftp_pword       = '***REMOVED***'
-full_refresh    = true
+version='2.2.0'
+svn_uname='harro'
+svn_pword='jonathan'
+ftp_uname='mportal'
+ftp_pword='***REMOVED***'
+ftp_destination='TMN'
+full_refresh=true
+create_tag=false
+
+#save the current directory so the user can be returned here
+pushd . > /dev/null
 
 echo ''
 echo 'Start Publishing TMN'
+
+if $create_tag ; then
 echo ''
 echo 'Start Creating Tag'
 echo ''
 
-svn copy --force "svn://harro@10.32.16.4/svn/tmn/trunk/TMN" "svn://harro@10.32.16.4/svn/tmn/tags/TMN%20${version}"
+svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
+fi
 
 echo ''
 echo 'Tag Creation Complete'
@@ -19,14 +29,15 @@ echo ''
 
 mkdir ~/svn_temp
 cd ~/svn_temp
-svn export --force "svn://harro@10.32.16.4/svn/tmn/tags/TMN%20${version}"
+svn export --force "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}"
 
 echo ''
 echo 'Export Complete'
 echo 'Start String Replacement'
 echo ''
 
-cd "~/svn_temp/TMN ${version}"
+ls
+cd "TMN ${version}"
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' php/*.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
@@ -43,7 +54,7 @@ rm tmn-all_long.js
 
 echo 'Compressing CSS Files ...'
 cd ../lib
-cat resources/css/loading.css resources/css/ext-all.css resources/css/customstyles.css statusbar/css/statusbar.css > tmn-all_long.css
+cat resources/css/loading.css resources/css/ext-all.css resources/css/customstyles.css customclasses/statusbar/css/statusbar.css > tmn-all_long.css
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o resources/css/tmn-all.css tmn-all_long.css
 rm tmn-all_long.css
 
@@ -58,61 +69,74 @@ rm custom-libraries-all_long.js
 
 echo ''
 echo 'File Compression Complete'
+
+
+if $full_refresh ; then
+
+echo 'Starting Full FTP Upload'
+echo ''
+echo 'Starting lib Compression'
+echo ''
+
+cd ../../
+tar -czf lib.tgz lib
+
+echo 'lib Compression Complete'
+echo ''
+
+ftp -inv mportal.ccca.org.au<<ENDFTP
+user ${ftp_uname} ${ftp_pword}
+cd "public_html/${ftp_destination}"
+lcd "~/svn_temp/TMN ${version}"
+mput *.php
+mkdir images
+mput images/*
+mkdir pdf
+mput pdf/*
+mkdir php
+mput php/*
+mkdir php/auth
+mput php/auth/*
+mkdir php/classes
+mput php/classes/*
+mkdir php/imp
+mput php/imp/*
+mkdir php/interfaces
+mput php/interfaces/*
+mkdir ui
+mput ui/*
+put lib.gz
+bye
+ENDFTP
+
+rm lib.tgz
+
+else
+
+echo 'Starting Partial FTP Upload'
+echo ''
 echo 'Starting FTP Upload'
 echo ''
 
-if $full_refresh ;
-then
-    cd ../../
-    tar tar -czf lib.gz lib
-
-    ftp -inv mportal.ccca.org.au<<ENDFTP
-    user ${ftp_uname} ${ftp_pword}
-    cd public_html/TMN
-    lcd "~/svn_temp/TMN ${version}"
-    mput *.php
-    mkdir images
-    mput images/*
-    mkdir pdf
-    mput pdf/*
-    mkdir php
-    mput php/*
-    mkdir php/auth
-    mput php/auth/*
-    mkdir php/classes
-    mput php/classes/*
-    mkdir php/imp
-    mput php/imp/*
-    mkdir php/interfaces
-    mput php/interfaces/*
-    mkdir ui
-    mput ui/*
-    put lib.gz
-    bye
-    ENDFTP
-
-    rm lib.gz
-
-else
-    ftp -inv mportal.ccca.org.au<<ENDFTP
-    user ${ftp_uname} ${ftp_pword}
-    cd public_html/TMN
-    lcd "~/svn_temp/TMN ${version}"
-    mput *.php
-    mkdir php
-    mput php/*
-    mkdir php/auth
-    mput php/auth/*
-    mkdir php/classes
-    mput php/classes/*
-    mkdir php/imp
-    mput php/imp/*
-    mkdir php/interfaces
-    mput php/interfaces/*
-    mkdir ui
-    mput ui/*
-    bye
-    ENDFTP
+ftp -inv mportal.ccca.org.au<<ENDFTP
+user ${ftp_uname} ${ftp_pword}
+cd "public_html/${ftp_destination}"
+lcd "~/svn_temp/TMN ${version}"
+mput *.php
+mkdir php
+mput php/*
+mkdir php/auth
+mput php/auth/*
+mkdir php/classes
+mput php/classes/*
+mkdir php/imp
+mput php/imp/*
+mkdir php/interfaces
+mput php/interfaces/*
+mkdir ui
+mput ui/*
+bye
+ENDFTP
 fi
 
 
@@ -123,8 +147,9 @@ echo 'Starting Cleaning Up'
 echo ''
 
 rm -rf ~/svn_temp
-cd ~
+
+#return user to there original directory
+popd > /dev/null
 
 echo 'Clean Up Complete'
-echo 'You are now in your Home directory.'
 echo 'TMN has been Published, Good Bye.'
