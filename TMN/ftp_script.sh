@@ -79,7 +79,7 @@ echo 'Starting lib Compression'
 echo ''
 
 cd ../../
-tar -czf lib.tgz lib
+zip -r lib.zip lib/
 
 echo 'lib Compression Complete'
 echo ''
@@ -105,11 +105,11 @@ mkdir php/interfaces
 mput php/interfaces/*
 mkdir ui
 mput ui/*
-put lib.gz
+put lib.zip
 bye
 ENDFTP
 
-rm lib.tgz
+rm lib.zip
 
 else
 
