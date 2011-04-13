@@ -1,21 +1,32 @@
 
+version         = '2.2.0'
+ftp_uname       = 'mportal'
+ftp_pword       = '***REMOVED***'
+full_refresh    = true
+
 echo ''
 echo 'Start Publishing TMN'
 echo ''
+echo 'Start Creating Tag'
+echo ''
+
+svn copy --force "svn://harro@10.32.16.4/svn/tmn/trunk/TMN" "svn://harro@10.32.16.4/svn/tmn/tags/TMN%20${version}"
+
+echo ''
+echo 'Tag Creation Complete'
 echo 'Start Export'
 echo ''
 
 mkdir ~/svn_temp
 cd ~/svn_temp
-svn export --force svn://harro@10.32.16.4/svn/tmn/tags/TMN%202.1.5
+svn export --force "svn://harro@10.32.16.4/svn/tmn/tags/TMN%20${version}"
 
 echo ''
 echo 'Export Complete'
 echo 'Start String Replacement'
 echo ''
 
-cd ~/svn_temp/TMN\ 2.1.5
-perl -pi -e 's/VERSIONNUMBER\ =\ \"2-1-1\"/VERSIONNUMBER\ =\ \"2-1-5\"/g;' index.php
+cd "~/svn_temp/TMN ${version}"
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' php/*.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
@@ -50,31 +61,61 @@ echo 'File Compression Complete'
 echo 'Starting FTP Upload'
 echo ''
 
-ftp -inv mportal.ccca.org.au<<ENDFTP
-user mportal ***REMOVED***
-cd public_html/TMN
-lcd "~/svn_temp/TMN 2.1.5"
-mput *.php
-mkdir pdf
-mput pdf/*
-mkdir php
-mput php/*
-mkdir php/calc
-mput php/calc/*
-mkdir ui
-mput ui/*
-mkdir lib
-mput lib/*
-mkdir lib/resources
-mput lib/resources/*
-mkdir lib/resources/css
-mput lib/resources/css/*
-mkdir lib/statusbar
-mput lib/statusbar/*
-mkdir lib/statusbar/css
-mput lib/statusbar/css/*
-bye
-ENDFTP
+if $full_refresh ;
+then
+    cd ../../
+    tar tar -czf lib.gz lib
+
+    ftp -inv mportal.ccca.org.au<<ENDFTP
+    user ${ftp_uname} ${ftp_pword}
+    cd public_html/TMN
+    lcd "~/svn_temp/TMN ${version}"
+    mput *.php
+    mkdir images
+    mput images/*
+    mkdir pdf
+    mput pdf/*
+    mkdir php
+    mput php/*
+    mkdir php/auth
+    mput php/auth/*
+    mkdir php/classes
+    mput php/classes/*
+    mkdir php/imp
+    mput php/imp/*
+    mkdir php/interfaces
+    mput php/interfaces/*
+    mkdir ui
+    mput ui/*
+    put lib.gz
+    bye
+    ENDFTP
+
+    rm lib.gz
+
+else
+    ftp -inv mportal.ccca.org.au<<ENDFTP
+    user ${ftp_uname} ${ftp_pword}
+    cd public_html/TMN
+    lcd "~/svn_temp/TMN ${version}"
+    mput *.php
+    mkdir php
+    mput php/*
+    mkdir php/auth
+    mput php/auth/*
+    mkdir php/classes
+    mput php/classes/*
+    mkdir php/imp
+    mput php/imp/*
+    mkdir php/interfaces
+    mput php/interfaces/*
+    mkdir ui
+    mput ui/*
+    bye
+    ENDFTP
+fi
+
+
 
 echo ''
 echo 'FTP Upload Complete'
