@@ -4,11 +4,13 @@ if (file_exists('../classes/TmnCrud.php')) {
 	include_once('../classes/email.php');
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/TmnAuthenticator.php');
+	include_once('../classes/TmnConstants.php');
 } else {
 	include_once('interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('classes/email.php');
 	include_once('classes/TmnCrud.php');
 	include_once('classes/TmnAuthenticator.php');
+	include_once('classes/TmnConstants.php');
 }
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
@@ -16,6 +18,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			////Instance Variables////
 	//private $logfile;
 	private $authsessionid;
+	private $financeguid;
 	//private $authcrud;
 	private $level_users	= array();
 	
@@ -73,6 +76,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 
 		//set up the authsessionid
 		$this->authsessionid			= $auth_session_id;
+		
+		//get the finance user guid
+		$this->financeguid = getConstants(array('FINANCE_USER'));
+		$this->financeguid = $this->financeguid['FINANCE_USER'];
 		
 		//$this->authcrud = $newObj;
 		//$this->d($this);
@@ -232,6 +239,9 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$curpageurl = split("/", $curpageurl);
 		unset($curpageurl[count($curpageurl) -1]);	//take off page name
 		unset($curpageurl[count($curpageurl) -1]);	//take off php/
+		if ($curpageurl[count($curpageurl) - 1] == "php") {
+			unset($curpageurl[count($curpageurl) -1]);	//take off php/
+		}
 		$curpageurl = join("/",	$curpageurl);
 		$authviewerurl = $curpageurl."/tmn-authviewer.php?session=".$session_id;
 		
@@ -486,11 +496,12 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			0	=> $this->getField("auth_user"),
 			1	=> $this->getField("auth_level_1"),
 			2	=> $this->getField("auth_level_2"),
-			3	=> $this->getField("auth_level_3")
+			3	=> $this->getField("auth_level_3"),
+			4	=> $this->financeguid
 		);
 		fb("TmnAuthorisationProcessor.php<userIsAuthoriser() - authorisers:"); fb($authorisers);
 		
-		for ($i = 0; $i <= 3; $i++) {
+		for ($i = 0; $i <= 4; $i++) {
 			if ($user->getGuid() == $authorisers[$i] && $authorisers[$i] != "") {
 				$returndata = $i;
 			}
