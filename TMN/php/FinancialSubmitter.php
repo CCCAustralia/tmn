@@ -185,7 +185,8 @@ class FinancialSubmitter extends FinancialProcessor {
 											"BAND_TMN_COUPLE_MIN", 
 											"BAND_TMN_COUPLE_MAX", 
 											"BAND_TMN_SINGLE_MIN", 
-											"BAND_TMN_SINGLE_MAX"
+											"BAND_TMN_SINGLE_MAX",
+											"VERSIONNUMBER"
 								));
 		//Member Care constants
 		$this->WORKERS_COMP_RATE	= 	$constants['WORKERS_COMP_RATE'];
@@ -200,6 +201,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->BAND_TMN_COUPLE_MAX 	= 	$constants['BAND_TMN_COUPLE_MAX'];//		=	7200;
 		$this->BAND_TMN_SINGLE_MIN 	= 	$constants['BAND_TMN_SINGLE_MIN'];//		=	2400;
 		$this->BAND_TMN_SINGLE_MAX 	= 	$constants['BAND_TMN_SINGLE_MAX'];//		=	4100;
+		$this->VERSIONNUMBER		=	$constants['VERSIONNUMBER'];
 		//////////      DONE      //////////
 		
 		parent::setFinancialData($findat);
@@ -581,6 +583,9 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//For people doing MPD/NMA let the user know their regular buffer
 		$this->data['regular_buffer']				=	round($this->data['tmn'] * ($row['MPD'] ? 1.5 : 0));
+		
+		//add the version number that was used to create this set of data
+		$this->data['versionnumber']				=	$this->VERSIONNUMBER;
 		
 
 		//Calculate days per week multiplier

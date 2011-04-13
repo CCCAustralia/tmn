@@ -339,7 +339,6 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	public function loadDataFromAssocArray($array) {
 		$processedArray = $this->removeFormatingFromFields($array);
-		fb($processedArray);
 		parent::loadDataFromAssocArray($processedArray);
 	}
 	
@@ -360,43 +359,6 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			}
 		}
 		
-
-		if (!is_numeric($array['ft_pt_os'])) {
-			//format ft_pt_os for display
-			switch ($array['ft_pt_os']) {
-				case "Full Time":
-					$array['ft_pt_os'] = 0;
-					break;
-				case "Part Time":
-					$array['ft_pt_os'] = 1;
-					break;
-				case "Overseas":
-					$array['ft_pt_os'] = 2;
-					break;
-				default:
-					$array['ft_pt_os'] = 0;
-					break; 
-			}
-		}
-		
-		//format s_ft_pt_os for display
-		if (!is_numeric($array['s_ft_pt_os'])) {
-			switch ($array['s_ft_pt_os']) {
-				case "Full Time":
-					$array['s_ft_pt_os'] = 0;
-					break;
-				case "Part Time":
-					$array['s_ft_pt_os'] = 1;
-					break;
-				case "Overseas":
-					$array['s_ft_pt_os'] = 2;
-					break;
-				default:
-					$array['s_ft_pt_os'] = 0;
-					break; 
-			}
-		}
-		
 		//format days per week for display
 		$ftptosStmt = $this->db->query("SELECT * FROM FT_PT_OS");
 		for ($i = 0; $i < $ftptosStmt->rowCount(); $i++) {
@@ -404,12 +366,12 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$ftptos_map[$ftptos_row['value']] = $ftptos_row['key'];
 		}
 		
-		if (!is_numeric($array['days_per_wk'])) {
-			$obj['days_per_wk']		= $ftptos_map[$array['days_per_wk']];
+		if (!is_numeric($array['ft_pt_os'])) {
+			$obj['ft_pt_os']		= $ftptos_map[$array['ft_pt_os']];
 		}
 		
-		if (!is_numeric($array['s_days_per_wk'])) {
-			$obj['s_days_per_wk']		= $ftptos_map[$array['s_days_per_wk']];	//DAYS_PER_WEEK is an index
+		if (!is_numeric($array['s_ft_pt_os'])) {
+			$obj['s_ft_pt_os']		= $ftptos_map[$array['s_ft_pt_os']];	//DAYS_PER_WEEK is an index
 		}
 		
 		
@@ -557,6 +519,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//add transfer array
 		$obj['transfers']			= $this->produceTransferArray();
 		
+		$obj['date']				= date("d M Y", strtotime($obj['data_modified']));
 		
 		//format os_resident_for_tax_purposes for display
 		switch ($this->getField('os_resident_for_tax_purposes')) {
@@ -571,38 +534,6 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				break; 
 		}
 		
-		//format ft_pt_os for display
-		switch ($this->getField('ft_pt_os')) {
-			case 0:
-				$obj['ft_pt_os']			= "Full Time";
-				break;
-			case 1:
-				$obj['ft_pt_os']			= "Part Time";
-				break;
-			case 2:
-				$obj['ft_pt_os']			= "Overseas";
-				break;
-			default:
-				$obj['ft_pt_os']			= "Full Time";
-				break; 
-		}
-		
-		//format s_ft_pt_os for display
-		switch ($this->getField('s_ft_pt_os')) {
-			case 0:
-				$obj['s_ft_pt_os']			= "Full Time";
-				break;
-			case 1:
-				$obj['s_ft_pt_os']			= "Part Time";
-				break;
-			case 2:
-				$obj['s_ft_pt_os']			= "Overseas";
-				break;
-			default:
-				$obj['s_ft_pt_os']			= "Full Time";
-				break; 
-		}
-		
 		//format days per week for display
 		$ftptosStmt = $this->db->query("SELECT * FROM FT_PT_OS");
 		for ($i = 0; $i < $ftptosStmt->rowCount(); $i++) {
@@ -610,8 +541,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$ftptos_map[$ftptos_row['key']] = $ftptos_row['value'];
 		}
 		
-		$obj['days_per_wk']		= $ftptos_map[$this->getField('days_per_wk')];
-		$obj['s_days_per_wk']		= $ftptos_map[$this->getField('s_days_per_wk')];	//DAYS_PER_WEEK is an index
+		$obj['ft_pt_os']		= $ftptos_map[$this->getField('ft_pt_os')];
+		$obj['s_ft_pt_os']		= $ftptos_map[$this->getField('ft_pt_os')];	//DAYS_PER_WEEK is an index
 		
 		//format mfb_rate for display
 		switch ($this->getField('mfb_rate')) {

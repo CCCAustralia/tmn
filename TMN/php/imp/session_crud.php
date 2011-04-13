@@ -2,18 +2,43 @@
 
 include_once('../classes/Tmn.php');
 include_once('../classes/TmnCrudSession.php');
+include_once('../classes/TmnConstants.php');
 
+
+//add constants to extra data (will be appended to data before its saved)
+$e_data = getConstants(array("VERSIONNUMBER"));
 //set the log path
 $LOGFILE	= "../logs/session_crud.log";
-$tmn		= new Tmn($LOGFILE);
 
 //check that there is a mode
 if (isset($_POST['mode'])) {
 	
-	//make sure user is authenticated and not sending data to this script directly
-	if ($tmn->isAuthenticated()) {
+	try {
 		
-		try {
+		$tmn		= new Tmn($LOGFILE);
+		$user		= $tmn->getUser();
+		
+		//add user data to extra data
+		$e_data		= array_merge($user->produceAssocArray(), $e_data);
+		$extra_data	= array();
+		//make sure all keys in extra data are lowercase
+		foreach ($e_data as $key=>$value) {
+			if ($key == 'fin_acc_num') {
+				$extra_data['fan']				= $value;
+			} elseif ($key == 'days_per_week') {
+				//change days per week from index to value
+				$extra_data['days_per_wk']		= $value + 1;
+			} elseif ($key == 's_days_per_week') {
+				//change days per week from index to value
+				$extra_data['s_days_per_wk']	= $value + 1;
+			} else {
+				$extra_data[strtolower($key)]	= $value;
+			}
+		}
+		
+		//make sure user is authenticated and not sending data to this script directly
+		if ($tmn->isAuthenticated()) {
+			
 			//grab mode
 			$crud		= $_POST['mode'];
 			
@@ -44,6 +69,9 @@ if (isset($_POST['mode'])) {
 					
 					//create an aussie based session in the database
 					if ($form_array['aussie_form'] == 'true' || $form_array['aussie_form'] == true) {
+						//add personal details and version number to data
+						$data_array		= array_merge($data_array, $extra_data);
+						
 						//create an empty session
 						$new_session	= new TmnCrudSession($LOGFILE);
 						//load the session with data
@@ -60,6 +88,10 @@ if (isset($_POST['mode'])) {
 					
 					//create an international based session in the database
 					if ($form_array['overseas_form'] == 'true' || $form_array['overseas_form'] == true) {
+						
+						//add personal details and version number to data
+						$data_array['home-assignment']			= array_merge($data_array['home-assignment'], $extra_data);
+						$data_array['international-assignment']	= array_merge($data_array['international-assignment'], $extra_data);
 						
 						//create empty sessions
 						$new_home_session			= new TmnCrudSession($LOGFILE);
@@ -124,12 +156,12 @@ if (isset($_POST['mode'])) {
 						$session->loadDataFromAssocArray($data_array);
 						
 						$session->retrieve();
-						fb($session->produceAssocArray());
+						
 						for ($yearCount = 0; $yearCount < $session->financialYearsSinceSessionCreation(); $yearCount++) {
 							$session->applyInflation();
 							$inflationApplied	= true;
 						}
-						fb($session->produceAssocArray());
+						fb($session->produceAssocArrayForDisplay());
 						$response = array("success"=>true,"data"=>$session->produceAssocArray(), "inflated"=>$inflationApplied);
 					}
 					
@@ -189,6 +221,9 @@ if (isset($_POST['mode'])) {
 					$data_array		= json_decode($data_string, true);
 					
 					if ($form_array['aussie_form'] == 'true' || $form_array['aussie_form'] == true) {
+						//add personal details and version number to data
+						$data_array	= array_merge($data_array, $extra_data);
+						
 						$session	= new TmnCrudSession($LOGFILE);
 						$session->loadDataFromAssocArray($data_array);
 						
@@ -199,6 +234,11 @@ if (isset($_POST['mode'])) {
 					
 					//update the overseas based sessions from the database
 					if ($form_array['overseas_form'] == 'true' || $form_array['overseas_form'] == true) {
+						
+						//add personal details and version number to data
+						$data_array['home-assignment']			= array_merge($data_array['home-assignment'], $extra_data);
+						$data_array['international-assignment']	= array_merge($data_array['international-assignment'], $extra_data);
+						
 						$home_assignment_session			= new TmnCrudSession($LOGFILE);
 						$international_assignment_session	= new TmnCrudSession($LOGFILE);
 						
@@ -263,15 +303,15 @@ if (isset($_POST['mode'])) {
 				echo json_encode($response);
 				
 			}
-		} catch (FatalException $e) {
-			$tmn->exceptionHandler($e);
-		} catch (Exception $e) {
-			$tmn->exceptionHandler(new FatalException($e->getMessage()));
+			
+		} else {
+			fb('Not Authenticated');
+			die(json_encode(array("success"=>false)));
 		}
-		
-	} else {
-		fb('Not Authenticated');
-		die(json_encode(array("success"=>false)));
+	} catch (FatalException $e) {
+		$tmn->exceptionHandler($e);
+	} catch (Exception $e) {
+		$tmn->exceptionHandler(new FatalException($e->getMessage()));
 	}
 	
 } else {

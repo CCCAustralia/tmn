@@ -2,6 +2,14 @@
 include_once 'classes/Tmn.php';
 include_once 'classes/TmnAuthorisationProcessor.php';
 include_once 'classes/TmnCrudSession.php';
+include_once('classes/TmnConstants.php');
+
+//add constants to extra data (will be appended to data before its saved)
+$e_data = getConstants(array("VERSIONNUMBER"));
+$extra_data	= array();
+foreach ($e_data as $key=>$value) {
+	$extra_data[strtolower($key)]	= $value;
+}
 
 $logfile = 'logs/submit_tmn_for_authorisation.php.log';
 try {
@@ -26,11 +34,9 @@ try {
 			//decode data
 			$data			= json_decode($data_string, true);
 			
-			fb($authorisers);
-			fb($data);
 			//create a TmnAuthorisationProcessor object authsessionid is null because it hasn't been submitted yet
 			$session = new TmnCrudSession($logfile, $session_id);
-			fb($session);
+			
 			//set up the auth users
 			$authlevel1 = new TmnCrudUser($logfile, $authorisers['level_1']['user_id']);
 			if ($authorisers['level_2']['user_id'] != 0) {
@@ -39,8 +45,6 @@ try {
 			if ($authorisers['level_3']['user_id'] != 0) {
 				$authlevel3 = new TmnCrudUser($logfile, $authorisers['level_3']['user_id']);
 			}
-			
-			fb($_POST);
 			
 			if ($session->getField("home_assignment_session_id") == null && $session->getField("international_assignment_session_id") == null) {
 				
@@ -62,8 +66,8 @@ try {
 				$reasons3 	= $authorisers['level_3']['reasons'];
 				
 				//update session with new data
+				$data['aussie-based']	= array_merge($data['aussie-based'], $extra_data);
 				$session->loadDataFromAssocArray($data['aussie-based']);
-				fb($session);
 				$session->setField('session_id', (int)$session_id);
 				$session->setOwner($tmn->getUser());
 				$session->update();
@@ -103,12 +107,14 @@ try {
 				}
 				
 				//update session with new data for international assignment
+				$data['international-assignment']	= array_merge($data['international-assignment'], $extra_data);
 				$ia_session->loadDataFromAssocArray($data['international-assignment']);
 				$ia_session->setField('session_id', (int)$ia_session_id);
 				$ia_session->setOwner($tmn->getUser());
 				$ia_session->update();
 				
 				//update session with new data for home assignment
+				$data['home-assignment']	= array_merge($data['home-assignment'], $extra_data);
 				$ha_session->loadDataFromAssocArray($data['home-assignment']);
 				$ha_session->setField('session_id', (int)$ha_session_id);
 				$ha_session->setOwner($tmn->getUser());
