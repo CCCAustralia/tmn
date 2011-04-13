@@ -15,7 +15,7 @@ $connection = db_connect();
 function fetchUserList() {
 	////start userlist
 	$returnlist = array();
-	$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM `User_Profiles` WHERE 1";
+	$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM `User_Profiles` WHERE IS_TEST_USER != 1";
 	$sql = mysql_query($sql);
 	for ($index = 0; $index < mysql_num_rows($sql); $index++) {
 		//store them in an array
