@@ -34,8 +34,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			"session_id",					//name of table's primary key
 			array(							//an assoc array of private field names and there types
 				'fan'									=>	"i",
-				'guid'									=>	"s",
-				'versionnumber'							=>	"s"
+				'guid'									=>	"s"
 			),
 			array(							//an assoc array of public field names and there types
 				'session_id'							=>	"i",
@@ -118,7 +117,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'additional_housing'					=>	"i",
 				'monthly_housing'						=>	"i",
 				'housing'								=>	"i",
-				'housing_frequency'						=>	"i"
+				'housing_frequency'						=>	"i",
+				'versionnumber'							=>	"s"
 			)
 		);
 		
@@ -404,8 +404,13 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$ftptos_map[$ftptos_row['value']] = $ftptos_row['key'];
 		}
 		
-		$obj['days_per_week']		= $ftptos_map[$array['days_per_week']];
-		$obj['s_days_per_week']		= $ftptos_map[$array['s_days_per_week']];	//DAYS_PER_WEEK is an index
+		if (!is_numeric($array['days_per_wk'])) {
+			$obj['days_per_wk']		= $ftptos_map[$array['days_per_wk']];
+		}
+		
+		if (!is_numeric($array['s_days_per_wk'])) {
+			$obj['s_days_per_wk']		= $ftptos_map[$array['s_days_per_wk']];	//DAYS_PER_WEEK is an index
+		}
 		
 		
 		if (!is_numeric($array['mfb_rate'])) {
@@ -565,7 +570,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				$obj['os_resident_for_tax_purposes']			= "Resident Of Australia";
 				break; 
 		}
-		/* TODO: uncomment when personal detials fields added
+		
 		//format ft_pt_os for display
 		switch ($this->getField('ft_pt_os')) {
 			case 0:
@@ -605,9 +610,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$ftptos_map[$ftptos_row['key']] = $ftptos_row['value'];
 		}
 		
-		$obj['days_per_week']		= $ftptos_map[$this->getField('days_per_week')];
-		$obj['s_days_per_week']		= $ftptos_map[$this->getField('s_days_per_week')];	//DAYS_PER_WEEK is an index
-		*/
+		$obj['days_per_wk']		= $ftptos_map[$this->getField('days_per_wk')];
+		$obj['s_days_per_wk']		= $ftptos_map[$this->getField('s_days_per_wk')];	//DAYS_PER_WEEK is an index
 		
 		//format mfb_rate for display
 		switch ($this->getField('mfb_rate')) {
