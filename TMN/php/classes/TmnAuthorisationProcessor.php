@@ -365,13 +365,13 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		fb("authguids: "); fb($authguids);
 		fb("authresponses:"); fb($authresponses);
 		
+		$emailaddress 	= $this->getEmailFromGuid($authguids[0]);	//get the user's email
 		
 		
 		if ($rejectedbylevel == 0) {			
 	////REJECTED BY USER
 			//prepare the email
 			$emailsubject 	= "TMN: Cancellation";
-			$emailaddress 	= $this->getEmailFromGuid($authguids[0]);	//get the user's email
 			$emailbody 		= "You have cancelled your TMN submission!\n";
 		} elseif ($rejectedbylevel == 4) {		
 	////REJECTED BY FINANCE
