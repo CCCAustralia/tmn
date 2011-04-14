@@ -82,11 +82,11 @@ if (isset($_REQUEST['mode'])) {
 				$userauthlevel = 3;
 			}
 			
-			fb("userauthlevel:"); fb($userauthlevel);
+			//fb("userauthlevel:"); fb($userauthlevel);
 			
 			//store the requested authlevel
 			$mode		= $_REQUEST['mode'];
-			fb("$mode requested");
+			//fb("$mode requested");
 			$returnarray	= array();
 			
 		////Authlevel 1
@@ -142,7 +142,7 @@ if (isset($_REQUEST['mode'])) {
 					$newindex++;
 				}
 			}
-			fb($temparray);
+			//fb($temparray);
 			$returnarray = $temparray;
 			$returnarray = array('success' => true, 'data' => $returnarray);
 			
@@ -158,7 +158,7 @@ if (isset($_REQUEST['mode'])) {
 	}
 	
 } else {
-	fb('Invalid params');
+	//fb('Invalid params');
 	die(json_encode(array('success' => false, 'alert' => "Invalid Parameters.")));
 }
 
