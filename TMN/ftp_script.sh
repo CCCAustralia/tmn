@@ -40,6 +40,7 @@ ls
 cd "TMN ${version}"
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' php/*.php
+perl -pi -e 's/\t\t\$this->DEBUG\ =\ 1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
 
 echo 'String Replacement Complete'
@@ -51,6 +52,10 @@ cd ui
 cat AuthorisationPanel.js SummaryPanel.js PrintForm.js InternalTransfers.js FinancialDetailsForm.js PersonalDetailsForm.js TmnView.js TmnController.js > tmn-all_long.js
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-all.js tmn-all_long.js
 rm tmn-all_long.js
+
+cat AuthorisationViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js authviewer.js > tmn-authviewer-all_long.js
+java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-authviewer-all.js tmn-authviewer-all_long.js
+rm tmn-authviewer-all_long.js
 
 echo 'Compressing CSS Files ...'
 cd ../lib
