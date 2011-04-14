@@ -43,39 +43,76 @@ try {
 		}
 			
 		//ouput tmn page
-		echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
+		echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
+		<html>
+			<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
 		
-		if ($DEBUG) {
-			echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/loading.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/customclasses/statusbar/css/statusbar.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/customstyles.css'.$force_reload.'" />';
-		} else {
-			echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/tmn-all.css'.$force_reload.'" />';
-		}
+				if ($DEBUG) {
+					echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/loading.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/customclasses/statusbar/css/statusbar.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/customstyles.css'.$force_reload.'" />';
+				} else {
+					echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/tmn-all.css'.$force_reload.'" />';
+				}
+				
+				echo '<title>TMN</title>
+			</head>
+			<body>
+				<div id="loading-mask"></div>
+				<div id="loading">
+					<span id="loading-message">Loading. Please wait...</span>
+				</div>
+				<script type="text/javascript">
+					document.getElementById("loading-message").innerHTML = "Loading Ext Library...";
+				</script>';
 		
-		echo '<title>TMN</title></head><body><div id="loading-mask"></div><div id="loading"><span id="loading-message">Loading. Please wait...</span></div><script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading Ext Library...";</script>';
+				if ($DEBUG) {
+					echo '<script type="text/javascript" src="lib/ext-base.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="lib/ext-all'.$force_debug.'.js'.$force_reload.'"></script>';
+				} else {
+					echo '<script type="text/javascript" src="lib/ext.js'.$force_reload.'">';
+				}
+				
+				echo '<script type="text/javascript">
+						document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";
+					</script>';
+				
+				if ($DEBUG) {
+					echo '<script type="text/javascript" src="lib/customclasses/DateRangeValidationType.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="lib/customclasses/statusbar/StatusBar.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="lib/customclasses/statusbar/ValidationStatus.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="lib/customclasses/Ext.ux.IconCombo.js'.$force_reload.'"></script>';
+				} else {
+					echo '<script type="text/javascript" src="lib/customclasses/custom-libraries-all.js'.$force_reload.'"></script>';
+				}
+				
+				echo '<script type="text/javascript">
+						document.getElementById("loading-message").innerHTML = "Loading TMN Form...";
+					</script>';
+				
+				if ($DEBUG) {
+					echo '<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/InternalTransfers.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/FinancialDetailsForm.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/PersonalDetailsForm.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/TmnView.js'.$force_reload.'"></script>
+					<script type="text/javascript" src="ui/TmnController.js'.$force_reload.'"></script>';
+				} else {
+					echo '<script type="text/javascript" src="ui/tmn-all.js'.$force_reload.'"></script>';
+				}
 		
-		if ($DEBUG) {
-			echo '<script type="text/javascript" src="lib/ext-base.js'.$force_reload.'"></script><script type="text/javascript" src="lib/ext-all'.$force_debug.'.js'.$force_reload.'"></script>';
-		} else {
-			echo '<script type="text/javascript" src="lib/ext.js'.$force_reload.'">';
-		}
-		
-		echo '<script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";</script>';
-		
-		if ($DEBUG) {
-			echo '<script type="text/javascript" src="lib/customclasses/DateRangeValidationType.js'.$force_reload.'"></script><script type="text/javascript" src="lib/customclasses/statusbar/StatusBar.js'.$force_reload.'"></script><script type="text/javascript" src="lib/customclasses/statusbar/ValidationStatus.js'.$force_reload.'"></script><script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script><script type="text/javascript" src="lib/customclasses/Ext.ux.IconCombo.js'.$force_reload.'"></script>';
-		} else {
-			echo '<script type="text/javascript" src="lib/customclasses/custom-libraries-all.js'.$force_reload.'"></script>';
-		}
-		
-		echo '<script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading TMN Form...";</script>';
-		
-		if ($DEBUG) {
-			echo '<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script><script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script><script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/InternalTransfers.js'.$force_reload.'"></script><script type="text/javascript" src="ui/FinancialDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/PersonalDetailsForm.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnView.js'.$force_reload.'"></script><script type="text/javascript" src="ui/TmnController.js'.$force_reload.'"></script>';
-		} else {
-			echo '<script type="text/javascript" src="ui/tmn-all.js'.$force_reload.'"></script>';
-		}
-		
-		echo '<center><div id="tmn-cont"></div></center><!-- Fields required for history management --><form id="history-form" class="x-hidden"><input type="hidden" id="x-history-field" /><iframe id="x-history-frame"></iframe></form></body></html>';
+				echo '<center>
+					<div id="tmn-cont"></div>
+				</center>
+				<!-- Fields required for history management -->
+				<form id="history-form" class="x-hidden">
+					<input type="hidden" id="x-history-field" />
+					<iframe id="x-history-frame"></iframe>
+				</form>
+			</body>
+		</html>';
 	} else {
 		
 		$stmt		= $db->query("SELECT GUID, EMAIL FROM `User_Profiles` WHERE EMAIL='" . $tmn->getEmail() . "'");

@@ -53,44 +53,17 @@ try {
 		echo	'<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
 				<html>
 				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-					<style type="text/css">
-					html,body {
-						color: #444444;
-						font-family: Lucida, monospace;;
-						font-size: 14;
-						height: 100%;
+					<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
+		
+					if ($DEBUG) {
+						echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/loading.css'.$force_reload.'" />
+						<link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css'.$force_reload.'" />
+						<link rel="stylesheet" type="text/css" href="lib/resources/css/customstyles.css'.$force_reload.'" />';
+					} else {
+						echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/tmn-all.css'.$force_reload.'" />';
 					}
 					
-					#loading-mask {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						background: #000000;
-						z-index: 1;
-					}
-					
-					#loading {
-						position: absolute;
-						top: 40%;
-						left: 45%;
-						z-index: 2;
-					}
-					
-					#loading span {
-						background: url("lib/resources/images/default/grid/loading.gif")
-							no-repeat left center;
-						padding: 5px 30px;
-						display: block;
-					}
-					</style>
-					<link rel="stylesheet" type="text/css"
-						href="lib/resources/css/ext-all.css'.$force_reload.'" />
-					<link rel="stylesheet" type="text/css"
-						href="lib/resources/css/customstyles.css'.$force_reload.'" />
-					<title>TMN Viewer</title>
+					echo '<title>TMN Viewer</title>
 				</head>
 				<body>
 					<div id="loading-mask"></div>
@@ -98,29 +71,43 @@ try {
 						<span id="loading-message">Loading. Please wait...</span>
 					</div>
 					<script type="text/javascript">
-						document.getElementById("loading-message").innerHTML = "Loading Core API...";
-					</script>
-					<script type="text/javascript" src="lib/ext-base.js'.$force_reload.'"></script>
-					<script type="text/javascript">
 						document.getElementById("loading-message").innerHTML = "Loading Ext Library...";
-					</script>
-					<script type="text/javascript"
-						src="lib/ext-all-debug.js'.$force_reload.'"></script>
-					<script type="text/javascript">
-						document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";
-					</script>
-					<script type="text/javascript"
-						src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>
-					<script type="text/javascript">
+					</script>';
+					
+					if ($DEBUG) {
+						echo '<script type="text/javascript" src="lib/ext-base.js'.$force_reload.'"></script>
+						<script type="text/javascript" src="lib/ext-all'.$force_debug.'.js'.$force_reload.'"></script>';
+					} else {
+						echo '<script type="text/javascript" src="lib/ext.js'.$force_reload.'">';
+					}
+					
+					echo '<script type="text/javascript">
+							document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";
+						</script>';
+					
+					if ($DEBUG) {
+						echo '<script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>
+						<script type="text/javascript" src="lib/customclasses/Ext.LinkButton.js'.$force_reload.'"></script>';
+					} else {
+						echo '<script type="text/javascript" src="lib/customclasses/custom-libraries-all.js'.$force_reload.'"></script>';
+					}
+					
+					
+					echo '<script type="text/javascript">
 						document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";
 					</script>
-					<script type="text/javascript">var G_SESSION = ' . $g_session . ';</script>
-					<script type="text/javascript" src="lib/customclasses/Ext.LinkButton.js'.$force_reload.'"></script>
-					<script type="text/javascript" src="ui/AuthorisationViewerControlPanel.js'.$force_reload.'"></script>
-					<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
-					<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
-					<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>
-					<center>
+					<script type="text/javascript">var G_SESSION = ' . $g_session . ';</script>';
+					
+					if ($DEBUG) {
+						echo '<script type="text/javascript" src="ui/AuthorisationViewerControlPanel.js'.$force_reload.'"></script>
+						<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
+						<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
+						<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>';
+					} else {
+						echo '<script type="text/javascript" src="ui/tmn-authviewer-all.js'.$force_reload.'"></script>';
+					}
+					
+					echo '<center>
 						<div id="tmn-viewer-controls-cont"></div>
 						<div id="tmn-reasonpanel-cont"></div>
 						<div id="tmn-viewer-cont"></div>

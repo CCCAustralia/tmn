@@ -2,7 +2,7 @@
 include_once 'php/dbconnect.php';
 include_once 'php/classes/Tmn.php';
 include_once 'lib/FirePHPCore/fb.php';
-$debug = 0;
+$DEBUG = 0;
 ob_start();
 try {
 Tmn::authenticate();
@@ -32,7 +32,7 @@ function fetchUserList() {
 		*/
 		$returnlist[$temparray['GUID']] = $temparray;
 	}
-	if($debug)fb($returnlist);
+	if($DEBUG)fb($returnlist);
 	return $returnlist;
 ////end userlist
 }
@@ -47,7 +47,7 @@ function fetchAuthList() {
 		$returnlist[$temparray['MINISTRY']] = $temparray['GUID'];
 	}
 	
-	if($debug)fb($returnlist);
+	if($DEBUG)fb($returnlist);
 	////end authorisers
 	return $returnlist;
 }
@@ -57,7 +57,7 @@ function createOptionList($tempuserlist) {
 	foreach ($tempuserlist as $guid => $user) {
 		$returndata .= "<option value='".$guid."'>".$user['FIRSTNAME']." ".$user['SURNAME']." - ".$user['FIN_ACC_NUM']."</option>";
 	}
-	//if($debug)fb($returndata);
+	//if($DEBUG)fb($returndata);
 	return $returndata;
 }
 
@@ -86,8 +86,8 @@ echo 	"<li>a_non_resident: scale 3, 'a' column</li>";
 echo 	"<li>b_non_resident: scale 3, 'b' column</li></ul>";
 echo "</td></tr>";
 echo "<th>Field Name:</th><th>Stored Value:</th>";
-if($debug)fb($_POST);
-if($debug)fb($constants);
+if($DEBUG)fb($_POST);
+if($DEBUG)fb($constants);
 foreach ($constants as $fieldname => $value) {
 	if (!is_null($fieldname)){
 		//loop through each parameter
@@ -153,7 +153,7 @@ foreach ($constants as $fieldname => $value) {
 					echo "<tr><td>".$fieldname."</td><td><form name='".$fieldname."' method=POST onsubmit=admin.php>";
 
 					//Output a combobox of users with the current database value selected
-					if($debug)fb($value);
+					if($DEBUG)fb($value);
 					$personalcombo = split($value, $optionlist);
 					if ($personalcombo[1] != NULL) {
 						echo "<select name='".$fieldname."'>";
@@ -208,13 +208,13 @@ $optionlist = createOptionList($userlist);
 //check for saved authorisers and apply to database
 foreach ($authorisers as $ministry => $guid) {
 	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
-	if($debug)fb($ministry);
-	if($debug)fb(addslashes(str_replace(" ", "_", $ministry)));
+	if($DEBUG)fb($ministry);
+	if($DEBUG)fb(addslashes(str_replace(" ", "_", $ministry)));
 	if (isset($_POST[addslashes(str_replace(" ", "_", $ministry))])) {		//if the ministry is set in POST (put there by a save action)
 		$tempguid = $_POST[addslashes(str_replace(" ", "_", $ministry))];											//get the guid
-		if($debug)fb($tempministry);
+		if($DEBUG)fb($tempministry);
 		$sql = "UPDATE `Authorisers` SET `GUID` = '".$tempguid."' WHERE MINISTRY = \"".$ministry."\"";
-		if($debug)fb($sql);
+		if($DEBUG)fb($sql);
 		$sql = mysql_query($sql);
 		echo "<br />".$userlist[$tempguid]['FIRSTNAME']." ".$userlist[$tempguid]['SURNAME']. " saved as ".$ministry." TMN authoriser!<br />";
 		header("location=''");
@@ -235,8 +235,8 @@ foreach ($authorisers as $ministry => $authuser) {
 
 	//find the location of the authorisers guid
 	$personalcombo = split($authuser['GUID'], $optionlist);//($combobox, 0, strpos($combobox, $authuser['GUID'])+strlen($authuser['GUID']) + 1);
-	if($debug)fb($personalcombo);
-	if($debug)fb($authuser['GUID']);
+	if($DEBUG)fb($personalcombo);
+	if($DEBUG)fb($authuser['GUID']);
 	
 	//select the authoriser in the combo box
 	if ($personalcombo[1] != NULL) {
@@ -248,7 +248,7 @@ foreach ($authorisers as $ministry => $authuser) {
 			echo substr($personalcombo[1],1);
 		echo "</select>";
 	} else {
-		if($debug)fb("Authoriser ".$authuser['GUID']." not found");
+		if($DEBUG)fb("Authoriser ".$authuser['GUID']." not found");
 		echo "<select name='".$ministry."'>";
 		echo $optionlist;
 		echo "<option value='".$authuser['GUID']."' selected>".$authuser['GUID']." - Name not in database! Never done a TMN?</option>";
