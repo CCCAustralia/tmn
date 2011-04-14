@@ -135,6 +135,7 @@ tmn.view.PrintForm = function(view, config) {
 			items:		[
 			    {
 					xtype:	'button',
+					itemId:	'submit_button',
 					text:	'SUBMIT',
 					width:	200,
 					scale:	'large',
@@ -165,24 +166,59 @@ tmn.view.PrintForm = function(view, config) {
 								success: function(response, options){
 									
 									var responseObj	= Ext.decode(response.responseText);
+									if (responseObj.success == true) {
+										
+										Ext.MessageBox.show({
+											icon: Ext.MessageBox.INFO,
+											buttons: Ext.MessageBox.OK,
+											closable: false,
+											title: 'Thank You',
+											msg: 'Your TMN has been successfully submitted for approval. You will recieve updates on its approval at the following email address: ' + responseObj.email + '.'
+										});
+										
+									} else {
+										
+										var responseObj	= Ext.decode(response.responseText),
+										locked		= false,
+										errorMsg;
 									
-									Ext.MessageBox.show({
-										icon: Ext.MessageBox.INFO,
-										buttons: Ext.MessageBox.OK,
-										closable: false,
-										title: 'Thank You',
-										msg: 'Your TMN has been successfully submitted for approval. You will recieve updates on its approval at the following email address: ' + responseObj.email + '.'
-									});
+										if (responseObj.alert !== undefined) {
+											errorMsg = responseObj.alert;
+										} else {
+											errorMsg = 'Your submittion process didn\'t work, please try again.';
+										}
+										
+										if (responseObj.locked !== undefined) {
+											locked		= responseObj.locked;
+										}
+										
+										Ext.MessageBox.show({
+											icon: Ext.MessageBox.ERROR,
+											buttons: Ext.MessageBox.OK,
+											closable: false,
+											title: 'Error',
+											msg: errorMsg
+										});
+										
+										if (locked) {
+											this.getComponent('submit_button').disable();
+										}
+									}
 								},
 								failure: function(response, options) {
 									
 									var responseObj	= Ext.decode(response.responseText),
+										locked		= false,
 										errorMsg;
 									
 									if (responseObj.alert !== undefined) {
 										errorMsg = responseObj.alert;
 									} else {
 										errorMsg = 'Your submittion process didn\'t work, please try again.';
+									}
+									
+									if (responseObj.locked !== undefined) {
+										locked		= responseObj.locked;
 									}
 									
 									Ext.MessageBox.show({
@@ -192,6 +228,10 @@ tmn.view.PrintForm = function(view, config) {
 										title: 'Error',
 										msg: errorMsg
 									});
+									
+									if (locked) {
+										this.getComponent('submit_button').disable();
+									}
 								},
 								scope: this
 							});
@@ -387,6 +427,8 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 	 * 								This holds the data that is to be displayed using templates on this form.
 	 */
 	loadForm: function(response) {
+		
+		this.getComponent('submit_button').enable();
 		
 		if (response !== undefined) {
 			//return the object decribed by the json strings in response

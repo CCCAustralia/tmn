@@ -24,7 +24,7 @@ body.ext-chrome table.x-btn .x-btn-small td.x-btn-mc em a {
 }
 
 .x-icon-combo-unlocked {
-    background-image:url(../images/default/grid/hmenu-unlock.png) !important;
+    /*background-image:url(../images/default/grid/hmenu-unlock.png) !important;*/
 }
  
 /* Ext.ux.IconCombo mandatory styles */
