@@ -1,5 +1,5 @@
 
-version='2.2.1'
+version='2.2.2'
 svn_uname='harro'
 svn_pword='jonathan'
 ftp_uname='mportal'
@@ -38,9 +38,9 @@ echo ''
 
 ls
 cd "TMN ${version}"
-perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' *.php
-perl -pi -e 's/DEBUG\ =\ 1/DEBUG\ =\ 0/g;' php/*.php
-perl -pi -e 's/\t\t\$this->DEBUG\ =\ 1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
+perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
+perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
+perl -pi -e 's/[\ \t]*$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
 
 echo 'String Replacement Complete'
