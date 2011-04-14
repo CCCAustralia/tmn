@@ -2,12 +2,17 @@
 include_once 'php/dbconnect.php';
 include_once 'php/classes/Tmn.php';
 include_once 'lib/FirePHPCore/fb.php';
+$debug = 0;
 ob_start();
-
-$authobj = new Tmn("php/logs/admin.php.log");
+try {
+Tmn::authenticate();
 //$authobj->authenticate();
-if (!$authobj->isAuthenticated() || !$authobj->getUser()->isAdmin()) {
-	die("You don't have permission to access this page. If you think you should be able to access this page, contact <a href=\"mailto:tech.team@ccca.org.au\">tech.team@ccca.org.au</a>");
+	$authobj = new Tmn("php/logs/admin.php.log");
+	if (!$authobj->isAuthenticated() || !$authobj->getUser()->isAdmin()) {
+		die("You don't have permission to access this page. If you think you should be able to access this page, contact <a href=\"mailto:tech.team@ccca.org.au\">tech.team@ccca.org.au</a>");
+	}
+} catch (Exception $e) {
+	echo 'Authentication failed due to Database Error. Please contact <a href="tech.team@ccca.org.au">tech.team@ccca.org.au</a>.';
 }
 
 $connection = db_connect();
@@ -27,7 +32,7 @@ function fetchUserList() {
 		*/
 		$returnlist[$temparray['GUID']] = $temparray;
 	}
-	fb($returnlist);
+	if($debug)fb($returnlist);
 	return $returnlist;
 ////end userlist
 }
@@ -42,7 +47,7 @@ function fetchAuthList() {
 		$returnlist[$temparray['MINISTRY']] = $temparray['GUID'];
 	}
 	
-	fb($returnlist);
+	if($debug)fb($returnlist);
 	////end authorisers
 	return $returnlist;
 }
@@ -52,7 +57,7 @@ function createOptionList($tempuserlist) {
 	foreach ($tempuserlist as $guid => $user) {
 		$returndata .= "<option value='".$guid."'>".$user['FIRSTNAME']." ".$user['SURNAME']." - ".$user['FIN_ACC_NUM']."</option>";
 	}
-	//fb($returndata);
+	//if($debug)fb($returndata);
 	return $returndata;
 }
 
@@ -69,9 +74,20 @@ $savestring = "";
 $savefield = "";
 $versionnumber = "2-2-0";
 
-echo "<html><body><table border=1><th>Field Name:</th><th>Stored Value:</th>";
-fb($_POST);
-fb($constants);
+echo "<html><body><table border=1>";
+echo "<th colspan=2>Instructions:</th>";
+echo "<tr><td colspan=2>Pull rates and limits from \"" . date("Y", time()) ." annual rates chart\" (member care)<br /><br />";
+echo "Tax values are from page 2 of ATO document:<br /><a target='_blank' href='http://www.ato.gov.au/Search/GoogleSearchResults.aspx?q=1004&site=atogovR3&requiredfields=(ato_reference_natnumber:1004)'>\"NAT1004\" - Shedule 1 - statement of formulas for calculating amounts to be withheld from payments.</a><br />";
+echo "<ul><li>x_resident: scale 7, '$' column</li>";
+echo 	"<li>a_resident: scale 7, 'a' column</li>";
+echo 	"<li>b_resident: scale 7, 'b' column</li>";
+echo 	"<li>x_non_resident: scale 3, '$' column</li>";
+echo 	"<li>a_non_resident: scale 3, 'a' column</li>";
+echo 	"<li>b_non_resident: scale 3, 'b' column</li></ul>";
+echo "</td></tr>";
+echo "<th>Field Name:</th><th>Stored Value:</th>";
+if($debug)fb($_POST);
+if($debug)fb($constants);
 foreach ($constants as $fieldname => $value) {
 	if (!is_null($fieldname)){
 		//loop through each parameter
@@ -137,7 +153,7 @@ foreach ($constants as $fieldname => $value) {
 					echo "<tr><td>".$fieldname."</td><td><form name='".$fieldname."' method=POST onsubmit=admin.php>";
 
 					//Output a combobox of users with the current database value selected
-					fb($value);
+					if($debug)fb($value);
 					$personalcombo = split($value, $optionlist);
 					if ($personalcombo[1] != NULL) {
 						echo "<select name='".$fieldname."'>";
@@ -192,13 +208,13 @@ $optionlist = createOptionList($userlist);
 //check for saved authorisers and apply to database
 foreach ($authorisers as $ministry => $guid) {
 	$authorisers[$ministry] = array('GUID' => $guid, 'NAME' => $userlist[$guid]['FIRSTNAME']." ".$userlist[$guid]['SURNAME']);
-	fb($ministry);
-	fb(addslashes(str_replace(" ", "_", $ministry)));
+	if($debug)fb($ministry);
+	if($debug)fb(addslashes(str_replace(" ", "_", $ministry)));
 	if (isset($_POST[addslashes(str_replace(" ", "_", $ministry))])) {		//if the ministry is set in POST (put there by a save action)
 		$tempguid = $_POST[addslashes(str_replace(" ", "_", $ministry))];											//get the guid
-		fb($tempministry);
+		if($debug)fb($tempministry);
 		$sql = "UPDATE `Authorisers` SET `GUID` = '".$tempguid."' WHERE MINISTRY = \"".$ministry."\"";
-		fb($sql);
+		if($debug)fb($sql);
 		$sql = mysql_query($sql);
 		echo "<br />".$userlist[$tempguid]['FIRSTNAME']." ".$userlist[$tempguid]['SURNAME']. " saved as ".$ministry." TMN authoriser!<br />";
 		header("location=''");
@@ -219,8 +235,8 @@ foreach ($authorisers as $ministry => $authuser) {
 
 	//find the location of the authorisers guid
 	$personalcombo = split($authuser['GUID'], $optionlist);//($combobox, 0, strpos($combobox, $authuser['GUID'])+strlen($authuser['GUID']) + 1);
-	fb($personalcombo);
-	fb($authuser['GUID']);
+	if($debug)fb($personalcombo);
+	if($debug)fb($authuser['GUID']);
 	
 	//select the authoriser in the combo box
 	if ($personalcombo[1] != NULL) {
@@ -232,7 +248,7 @@ foreach ($authorisers as $ministry => $authuser) {
 			echo substr($personalcombo[1],1);
 		echo "</select>";
 	} else {
-		fb("Authoriser ".$authuser['GUID']." not found");
+		if($debug)fb("Authoriser ".$authuser['GUID']." not found");
 		echo "<select name='".$ministry."'>";
 		echo $optionlist;
 		echo "<option value='".$authuser['GUID']."' selected>".$authuser['GUID']." - Name not in database! Never done a TMN?</option>";
