@@ -69,6 +69,14 @@ interface TmnInterface {
 	 */
 	public function getUser();
 	
+	/**
+	 * Will echo a html page that outputs an error message for the user. It takes your error message
+	 * Displays it and has a link to email the tech team the error message you passed to this function.
+	 * 
+	 * @param string $errorMsg
+	 */
+	public function showErrorPage($errorMsg);
+	
 }
 
 ?>

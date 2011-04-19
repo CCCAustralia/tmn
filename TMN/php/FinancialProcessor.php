@@ -21,44 +21,38 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 	die('{success: false}');
 
 class FinancialProcessor {
-
-	private $STIPEND_MIN;//100;
-	private $MIN_SUPER_RATE;//0.09; 	//for employer super
-	private $MIN_ADD_SUPER_RATE;//0.09; 	//for pre-tax super
-	private $OS_STIPEND_MAX;//850;	//overseas maximum stipend (surplus is LAFHA)
-	private $MAX_HOUSING_MFB;
-	private $MAX_HOUSING_MFB_COUPLES;
 	
+	protected $constants;
 	
 	//tax values
 	//formula and values grabbed from:
 	//Statement of formulas for calculating amounts to be withheld
 	
 	//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
-	private $x_resident;
+	protected $x_resident;
 				
-	private $a_resident;
+	protected $a_resident;
 				
-	private $b_resident;
+	protected $b_resident;
 				
 	//Scale 3 (Foreign Residents)
-	private $x_non_resident;
+	protected $x_non_resident;
 				
-	private $a_non_resident;
+	protected $a_non_resident;
 	
-	private $b_non_resident;
+	protected $b_non_resident;
 	
 	//personal details
-	private $guid;
-	private $spouse;
+	protected $guid;
+	protected $spouse;
 				
-	private $days_per_week = 0;
-	private $s_days_per_week = 0;
+	protected $days_per_week = 0;
+	protected $s_days_per_week = 0;
 	
-	public $financial_data;
-	private $DEBUG;
-	private $connection;
-	private $logger;
+	protected $financial_data;
+	protected $DEBUG;
+	protected $connection;
+	protected $logger;
 	
 	
 	//__construct:			This is the constructor and will initalise the object when created
@@ -68,7 +62,7 @@ class FinancialProcessor {
 	public function __construct($findat, $dbug) {
 		//////////  SET UP CONSTANTS  //////////
 		include_once('classes/TmnConstants.php');
-		$constants = getConstants(array(	"STIPEND_MIN", 
+		$this->constants = getConstants(array(	"STIPEND_MIN", 
 											"MIN_SUPER_RATE", 
 											"MIN_ADD_SUPER_RATE", 
 											"OS_STIPEND_MAX", 
@@ -81,26 +75,27 @@ class FinancialProcessor {
 											"MAX_HOUSING_MFB",
 											"MAX_HOUSING_MFB_COUPLES"
 								));
-		//financial values
-		$this->STIPEND_MIN			=	$constants['STIPEND_MIN'];//100;
-		$this->MIN_SUPER_RATE		= 	$constants['MIN_SUPER_RATE'];//0.09; 	//for employer super
-		$this->MIN_ADD_SUPER_RATE	=	$constants['MIN_ADD_SUPER_RATE'];//0.09; 	//for pre-tax super
-		$this->OS_STIPEND_MAX		=	$constants['OS_STIPEND_MAX'];//850;	//overseas maximum stipend (surplus is LAFHA)
 		
 		//tax values
 		//formula and values grabbed from:
 		//Statement of formulas for calculating amounts to be withheld
 		
 		//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
-		$this->x_resident 		= json_decode($constants['x_resident']);
-		$this->a_resident 		= json_decode($constants['a_resident']);
-		$this->b_resident 		= json_decode($constants['b_resident']);
-		$this->x_non_resident 	= json_decode($constants['x_non_resident']);
-		$this->a_non_resident 	= json_decode($constants['a_non_resident']);
-		$this->b_non_resident 	= json_decode($constants['b_non_resident']);
+		$this->x_resident 		= json_decode($this->constants['x_resident']);
+		$this->a_resident 		= json_decode($this->constants['a_resident']);
+		$this->b_resident 		= json_decode($this->constants['b_resident']);
+		$this->x_non_resident 	= json_decode($this->constants['x_non_resident']);
+		$this->a_non_resident 	= json_decode($this->constants['a_non_resident']);
+		$this->b_non_resident 	= json_decode($this->constants['b_non_resident']);
 		
-		$this->MAX_HOUSING_MFB 			= $constants['MAX_HOUSING_MFB'];
-		$this->MAX_HOUSING_MFB_COUPLES 	= $constants['MAX_HOUSING_MFB_COUPLES'];
+		//remove the tax values once they have been decoded
+		unset($this->constants['x_resident']);
+		unset($this->constants['a_resident']);
+		unset($this->constants['b_resident']);
+		unset($this->constants['x_non_resident']);
+		unset($this->constants['a_non_resident']);
+		unset($this->constants['b_non_resident']);
+		
 		//////////      DONE      //////////
 						
 		$this->financial_data = $findat;
@@ -142,7 +137,7 @@ class FinancialProcessor {
 		if ($this->financial_data['overseas']) {
 			//Stipend
 			//calculate the extra stipend
-			$overflow = $this->financial_data['STIPEND'] - $this->OS_STIPEND_MAX;
+			$overflow = $this->financial_data['STIPEND'] - $this->constants['OS_STIPEND_MAX'];
 			//check if it is over the limit
 			if ($overflow > 0) {
 				//truncate the stipend
@@ -152,8 +147,8 @@ class FinancialProcessor {
 				$this->financial_data['OS_LAFHA'] += $overflow;
 				
 				//return warnings explaining the changes
-				$warnings['STIPEND'] = "\"Your stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$overflow.") was added to your LAFHA to compensate.<br />Please review these figures before submitting.\"";
-				$warnings['OS_LAFHA']= "\"Your stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$overflow.") was added to your LAFHA to compensate.<br />Please review these figures before submitting.\"";
+				$warnings['STIPEND'] = "\"Your stipend was over the maximum of $".$this->constants['OS_STIPEND_MAX'].".<br />The extra amount ($".$overflow.") was added to your LAFHA to compensate.<br />Please review these figures before submitting.\"";
+				$warnings['OS_LAFHA']= "\"Your stipend was over the maximum of $".$this->constants['OS_STIPEND_MAX'].".<br />The extra amount ($".$overflow.") was added to your LAFHA to compensate.<br />Please review these figures before submitting.\"";
 			} else {
 				if (!isset($this->financial_data['OS_LAFHA']))
 					$this->financial_data['OS_LAFHA'] = 0;
@@ -162,7 +157,7 @@ class FinancialProcessor {
 			//spouse
 			if ($this->spouse) {
 				//calculate the extra stipend
-				$s_overflow = $this->financial_data['S_STIPEND'] - $this->OS_STIPEND_MAX;
+				$s_overflow = $this->financial_data['S_STIPEND'] - $this->constants['OS_STIPEND_MAX'];
 				//check if it is over the limit
 				if ($s_overflow > 0) {
 					//truncate the stipend
@@ -172,8 +167,8 @@ class FinancialProcessor {
 					$this->financial_data['S_OS_LAFHA'] += $s_overflow;
 					
 					//return warnings explaining the changes
-					$warnings['S_STIPEND']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
-					$warnings['S_OS_LAFHA']	= "\"Your spouse's stipend was over the maximum of $".$this->OS_STIPEND_MAX.".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
+					$warnings['S_STIPEND']	= "\"Your spouse's stipend was over the maximum of $".$this->constants['OS_STIPEND_MAX'].".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
+					$warnings['S_OS_LAFHA']	= "\"Your spouse's stipend was over the maximum of $".$this->constants['OS_STIPEND_MAX'].".<br />The extra amount ($".$s_overflow.") was added to their LAFHA to compensate.<br />Please review these figures before submitting.\"";
 				} else {
 					if (!isset($this->financial_data['S_OS_LAFHA']))
 						$this->financial_data['S_OS_LAFHA'] = 0;
@@ -185,7 +180,7 @@ class FinancialProcessor {
 			//LAFHA
 			////The LAFHA may not be more than zero if the stipend is less than the maximum
 			if ($overflow <= 0 && $this->financial_data['OS_LAFHA'] != 0) {
-				$difference = $this->OS_STIPEND_MAX - $this->financial_data['STIPEND'];
+				$difference = $this->constants['OS_STIPEND_MAX'] - $this->financial_data['STIPEND'];
 				if($this->DEBUG) fb($difference);
 				if ($this->financial_data['OS_LAFHA'] > $difference) {
 					$this->financial_data['STIPEND'] += $difference;
@@ -198,7 +193,7 @@ class FinancialProcessor {
 			//spouse
 			if ($this->spouse) {
 				if ($s_overflow <= 0 && $this->financial_data['S_OS_LAFHA'] != 0) {
-					$s_difference = $this->OS_STIPEND_MAX - $this->financial_data['S_STIPEND'];
+					$s_difference = $this->constants['OS_STIPEND_MAX'] - $this->financial_data['S_STIPEND'];
 					if ($this->financial_data['S_OS_LAFHA'] > $s_difference) {
 						$this->financial_data['S_STIPEND'] += $s_difference;
 						$this->financial_data['S_OS_LAFHA'] = $this->financial_data['S_OS_LAFHA'] - $s_difference;
@@ -314,7 +309,7 @@ class FinancialProcessor {
 	//params:					$taxableincome - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
 	//returns					employer super (a whole number >= 0)
 	public function calculateEmployerSuper($taxableincome){
-		return	round($taxableincome * $this->MIN_SUPER_RATE);
+		return	round($taxableincome * $this->constants['MIN_SUPER_RATE']);
 	}
 	
 	
@@ -438,7 +433,7 @@ class FinancialProcessor {
 	public function getClaimableMfb($me_or_spouse){
 		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
 		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
-		
+		fb('getClaimableMfb: ' . $prefix);
 		if (isset($this->financial_data[$prefix.'MAX_MFB'])){
 			if (isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['HOUSING'])){
 				//grab max housing mfb
@@ -446,7 +441,11 @@ class FinancialProcessor {
 				
 				//make sure housing is monthly
 				$monthly_housing = $this->getMonthlyHousing();
-				
+				fb($this->financial_data['MAX_MFB']);
+				fb($monthly_housing);
+				fb($max_housing_mfb);
+				fb(min($monthly_housing, $max_housing_mfb));
+				fb(max(0, $this->financial_data['MAX_MFB'] - min($monthly_housing, $max_housing_mfb)));
 				//calcs spouses claimable mfb if possible
 				if ($me_or_spouse){
 					if(isset($this->financial_data['S_MAX_MFB'])){
@@ -602,7 +601,7 @@ class FinancialProcessor {
 	//returns				max housing mfb (a number > 0)
 	public function getMaxHousingMfb(){
 		//update 2011 - fetch from database as a constant. was 960/1600c
-		return $this->spouse ? $this->MAX_HOUSING_MFB_COUPLES : $this->MAX_HOUSING_MFB;
+		return $this->spouse ? $this->constants['MAX_HOUSING_MFB_COUPLES'] : $this->constants['MAX_HOUSING_MFB'];
 	}
 	
 	
@@ -655,9 +654,9 @@ class FinancialProcessor {
 	
 		//Pre Tax Super (if its not set then set it to the min)
 		if ($this->financial_data[$little_prefix.'pre_tax_super_mode'] == 'auto'){
-			return round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
+			return round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->constants['MIN_ADD_SUPER_RATE']);
 		} else {
-			$min_pre_tax_super = round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->MIN_ADD_SUPER_RATE);
+			$min_pre_tax_super = round($this->financial_data[$prefix.'TAXABLE_INCOME'] * $mfbrate * $this->constants['MIN_ADD_SUPER_RATE']);
 			if (!isset($this->financial_data[$prefix.'PRE_TAX_SUPER']) || $this->financial_data[$prefix.'PRE_TAX_SUPER'] < $min_pre_tax_super){
 				return $min_pre_tax_super;
 			}
@@ -711,11 +710,11 @@ class FinancialProcessor {
 		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
 		
 		//check min stipend
-		if ($this->financial_data[$prefix.'NET_STIPEND'] < $this->STIPEND_MIN){
+		if ($this->financial_data[$prefix.'NET_STIPEND'] < $this->constants['STIPEND_MIN']){
 			if($this->financial_data[$prefix.'HOUSING_STIPEND'] > 0)
-				return "\"".$prefix."NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+				return "\"".$prefix."NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->constants['STIPEND_MIN'].".\", ";
 			else
-				return "\"".$prefix."STIPEND\":\"Stipend is too low: must be at least $".$this->STIPEND_MIN.".\", ";
+				return "\"".$prefix."STIPEND\":\"Stipend is too low: must be at least $".$this->constants['STIPEND_MIN'].".\", ";
 		}
 		
 		return "";

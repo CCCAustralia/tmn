@@ -47,11 +47,13 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'surname'								=>	"s",
 				'fan'									=>	"i",
 				'ministry'								=>	"s",
+				'ministry_levy'							=>	"i",
 				'ft_pt_os'								=>	"i",
 				'days_per_wk'							=>	"i",
 				's_firstname'							=>	"s",
 				's_surname'								=>	"s",
 				's_ministry'							=>	"s",
+				's_ministry_levy'						=>	"i",
 				's_ft_pt_os'							=>	"i",
 				's_days_per_wk'							=>	"i",
 				'os_assignment_start_date'				=>	"s",
@@ -493,8 +495,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		try {
 			$returnArray	= array();
 			
-			$sql	= "SELECT TRANSFER_NAME, TRANSFER_AMOUNT FROM `Internal_Transfers` WHERE SESSION_ID=:session_id";
-			$id		= array(":session_id" => $this->getField('session_id'));
+			$sql		= "SELECT TRANSFER_NAME, TRANSFER_AMOUNT FROM `Internal_Transfers` WHERE SESSION_ID=:session_id";
+			$id			= array(":session_id" => $this->getField('session_id'));
 			
 			$transferStmt	= $this->db->prepare($sql);
 			$transferStmt->execute($id);
@@ -502,7 +504,19 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			for ($transferCount=0; $transferCount < $transferStmt->rowCount(); $transferCount++) {
 				$tranferResult = $transferStmt->fetch(PDO::FETCH_ASSOC);
 				$returnArray[$transferCount]['name']	= $tranferResult['TRANSFER_NAME'];
-				$returnArray[$transferCount]['amount']	= $tranferResult['TRANSFER_AMOUNT'];
+				$returnArray[$transferCount]['amount']	= (int)$tranferResult['TRANSFER_AMOUNT'];
+			}
+			
+			if ($this->getField('ministry_levy') > 0) {
+				$returnArray[$transferCount]['name']	= $this->getField('ministry');
+				$returnArray[$transferCount]['amount']	= (int)$this->getField('ministry_levy');
+				$transferCount++;
+			}
+			
+			if ($this->getField('s_ministry_levy') > 0) {
+				$returnArray[$transferCount]['name']	= $this->getField('s_ministry');
+				$returnArray[$transferCount]['amount']	= (int)$this->getField('s_ministry_levy');
+				$transferCount++;
 			}
 			
 			return $returnArray;
@@ -706,7 +720,6 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//update the session row with the authsessionid
 		$this->setField('auth_session_id', $submitarray['authsessionid']);
 		$this->update();
-		fb($this);
 		
 		//returns an array of success and email
 		return array('success' => $submitarray['success'], 'authsessionid' => $submitarray['authsessionid'], 'email' => $submitarray['useremailaddress']);

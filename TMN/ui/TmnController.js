@@ -566,13 +566,15 @@ tmn.TmnController = function() {
 		 */
 		onLoadSessionSuccess: function(form_panel, response, options) {
 			//parse repsonse
-			var return_object = Ext.util.JSON.decode(response.responseText);
+			var return_object	= Ext.util.JSON.decode(response.responseText),
+				note			= '';
 			
 			if (form_panel.aussie_form) {
 				//save the returned data
 				this.financial_data[form_panel.id] = return_object.data;
 				//load the data into the forms
 				form_panel.onLoadSessionSuccess(this.financial_data[form_panel.id]);
+				note = 'We take inflation to be 2.5% and so we multiply your stipend, additional tax, post tax super, pre tax super and mmrs by 1.025.';
 			}
 			
 			if (form_panel.overseas_form) {
@@ -587,6 +589,7 @@ tmn.TmnController = function() {
 				//load the data into the forms
 				home_assignment_form.onLoadSessionSuccess(this.financial_data[home_assignment_form.id]);
 				international_assignment_form.onLoadSessionSuccess(this.financial_data[international_assignment_form.id]);
+				note = 'We take inflation to be 2.5% and so we multiply your stipend, living away from home allowance, additional tax, post tax super, pre tax super and mmrs by 1.025.';
 			}
 			
 			//if the data as had inflation applied by the back end tell the user and have the data reprocessed
@@ -596,7 +599,10 @@ tmn.TmnController = function() {
 					buttons:	Ext.MessageBox.OK,
 					closable:	false,
 					title:		'Inflation',
-					msg:		'This session was created in a different financial year to this one, because of this we have increased your values for you to take inflation into account.<br /> If you would like to view the this session as it was submitted, follow this link <a href="http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session=' + form_panel.getSession() +'</a>.',
+					msg:		'This session was created in a different financial year to this one,'
+						+' because of this we have increased your values for you to take inflation into account.<br /><br />'
+						+'If you would like to view the this session as it was submitted, follow this link <a href="http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() +'</a>.'
+						+'<br /><br />Note: ' + note,
 					scope:		form_panel,
 					fn:			function() {
 						if (this.locked) {

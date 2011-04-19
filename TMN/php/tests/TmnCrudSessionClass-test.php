@@ -78,7 +78,7 @@ fb($session->getOwnerGuid());
  * 
  */
 
-/*TODO: uncomment when TmnAuthorisationProcessor is done
+/*
 	//Authorisation Test
 
 fb("Authorisation Test");

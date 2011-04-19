@@ -17,9 +17,19 @@ if (isset($_POST['mode'])) {
 		
 		$tmn		= new Tmn($LOGFILE);
 		$user		= $tmn->getUser();
+		$spouseUser	= $user->getSpouse();
 		
 		//add user data to extra data
+		if ($spouseUser != null) {
+			$spouseArray = array();
+			foreach ($spouseUser->produceAssocArray() as $key=>$value) {
+				$spouseArray["s_" . $key]	= $value;
+			}
+			$e_data		= array_merge($spouseArray, $e_data);
+		}
+		
 		$e_data		= array_merge($user->produceAssocArray(), $e_data);
+		
 		$extra_data	= array();
 		//make sure all keys in extra data are lowercase
 		foreach ($e_data as $key=>$value) {
@@ -66,6 +76,8 @@ if (isset($_POST['mode'])) {
 					//parse json
 					$form_array		= json_decode($form_string, true);
 					$data_array		= json_decode($data_string, true);
+					
+					unset($data_array['date_modified']);
 					
 					//create an aussie based session in the database
 					if ($form_array['aussie_form'] == 'true' || $form_array['aussie_form'] == true) {

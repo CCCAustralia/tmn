@@ -258,8 +258,6 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		if (!this.noNames) {
 			this.user_id		= 0;
 			
-			console.info(this.id);
-			
 			var compositefield	= this.getForm().items.map['name'];
 			compositefield.items.each(function(item, index, length){
 				item.clearValue();
@@ -394,6 +392,10 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		//if this tag has already been added then remove it before adding the new one
 		if (tmnAuthContainer != null) {
 			tmnAuthContainer.remove();
+		}
+		
+		if (this.reasonArray !== undefined) {
+			delete this.reasonArray;
 		}
 		
 		this.resetFields();

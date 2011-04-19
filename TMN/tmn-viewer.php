@@ -77,7 +77,7 @@ if (mysql_num_rows($sql) == 1) {
 				<script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>
 				<script type="text/javascript">document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";</script>
 				<script type="text/javascript" src="ui/PrintForm.js'.$force_reload.'"></script>
-				<script type="text/javascript" src="ui/viewer.js'.$force_reload.'"></script>
+				<script type="text/javascript" src="ui/tmn-viewer.js'.$force_reload.'"></script>
 				<center>
 					<div id="tmn-viewer-controls-cont"></div>
 					<div id="tmn-viewer-cont"></div>

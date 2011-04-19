@@ -27,28 +27,6 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 
 class FinancialSubmitter extends FinancialProcessor {
 	
-	private $DEBUG;
-	private $connection;
-	private $logger;
-	
-	//personal details
-	private $guid;
-	private $spouse;
-	
-	//Member Care constants
-	private $WORKERS_COMP_RATE;// = 0.015;
-	private $CCCA_LEVY_RATE;// = 0.1;
-	private $MIN_ADD_SUPER_RATE;// = 0.09;	//Minimum Additional CCCA Pre-tax Super - rate for Full MFB
-	private $NET_STIPEND_MIN;// = 100;		//2011: USING STIPEND_MIN VALUE (from FinancialProcessor)
-	
-	//Band values
-	private $BAND_FP_COUPLE;//			=	6000;
-	private $BAND_FP_SINGLE;//			=	3600;
-	private $BAND_TMN_COUPLE_MIN;//	=	3600;
-	private $BAND_TMN_COUPLE_MAX;//	=	7200;
-	private $BAND_TMN_SINGLE_MIN;//	=	2400;
-	private $BAND_TMN_SINGLE_MAX;//	=	4100;
-	
 	private $MULTIPLIER				=	1;
 	
 	//DATA ARRAY SETUP//
@@ -174,12 +152,12 @@ class FinancialSubmitter extends FinancialProcessor {
 	//returns				n/a
 	public function __construct($findat, $dbug) {
 		
+		parent::__construct($findat, $dbug);
+		
 		//////////  SET UP CONSTANTS  //////////
 		include_once('classes/TmnConstants.php');
 		$constants = getConstants(array(	"WORKERS_COMP_RATE", 
-											"CCCA_LEVY_RATE", 
-											"MIN_ADD_SUPER_RATE", 
-											"STIPEND_MIN", 
+											"CCCA_LEVY_RATE",
 											"BAND_FP_COUPLE", 
 											"BAND_FP_SINGLE", 
 											"BAND_TMN_COUPLE_MIN", 
@@ -188,50 +166,10 @@ class FinancialSubmitter extends FinancialProcessor {
 											"BAND_TMN_SINGLE_MAX",
 											"VERSIONNUMBER"
 								));
-		//Member Care constants
-		$this->WORKERS_COMP_RATE	= 	$constants['WORKERS_COMP_RATE'];
-		$this->CCCA_LEVY_RATE		=	$constants['CCCA_LEVY_RATE'];
-		$this->MIN_ADD_SUPER_RATE	=	$constants['MIN_ADD_SUPER_RATE'];	//using same as FinancialProcessor
-		$this->NET_STIPEND_MIN		=	$constants['STIPEND_MIN']; 			//using same as FinancialProcessor
+								
+		$this->constants = array_merge($this->constants, $constants);
 		
-		//Band values
-		$this->BAND_FP_COUPLE 		= 	$constants['BAND_FP_COUPLE'];//				=	6000;
-		$this->BAND_FP_SINGLE 		= 	$constants['BAND_FP_SINGLE'];//				=	3600;
-		$this->BAND_TMN_COUPLE_MIN 	= 	$constants['BAND_TMN_COUPLE_MIN'];//		=	3600;
-		$this->BAND_TMN_COUPLE_MAX 	= 	$constants['BAND_TMN_COUPLE_MAX'];//		=	7200;
-		$this->BAND_TMN_SINGLE_MIN 	= 	$constants['BAND_TMN_SINGLE_MIN'];//		=	2400;
-		$this->BAND_TMN_SINGLE_MAX 	= 	$constants['BAND_TMN_SINGLE_MAX'];//		=	4100;
-		$this->VERSIONNUMBER		=	$constants['VERSIONNUMBER'];
-		//////////      DONE      //////////
-		
-		parent::setFinancialData($findat);
-		
-		
-		if (isset($_SESSION['phpCAS'])) {
-			$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
-			$xmlobject = new SimpleXmlElement($xmlstr);
-			$this->guid = $xmlobject->authenticationSuccess->attributes->ssoGuid;
-			$this->guid = (string)$this->guid;
-			$this->setGuid($this->guid);
-		}
-		$this->spouse = $this->financial_data['spouse'];
-		$this->DEBUG = $dbug;
-		$this->connection = new MySqlDriver();
 		$this->logger = new logger("logs/submit_fd.log");
-		$this->logger->setDebug($this->DEBUG);
-		if($this->DEBUG) fb("DEBUGGING MODE");
-		//choose the appropriate set of tax figures
-		if ($this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES']) {
-			$this->x = $this->x_resident;
-			$this->a = $this->a_resident;
-			$this->b = $this->b_resident;
-		} else {
-			$this->x = $this->x_non_resident;
-			$this->a = $this->a_non_resident;
-			$this->b = $this->b_non_resident;
-		}
-		if($this->DEBUG) fb($this->x);
-		if($this->DEBUG) fb($this);
 	}
 	
 	
@@ -416,7 +354,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['s_housing_mfb']				=	$this->financial_data['S_MAX_MFB'] - $this->financial_data['S_CLAIMABLE_MFB'];
 		
 		//Pre-Tax Super
-		$min_pretax_super 							= 	round($mfb_rate * $this->MIN_ADD_SUPER_RATE * $this->data['taxable_income']);
+		$min_pretax_super 							= 	round($mfb_rate * $this->constants['MIN_ADD_SUPER_RATE'] * $this->data['taxable_income']);
 		$this->financial_data['PRE_TAX_SUPER']		=	$this->getPreTaxSuper($mfbrate, 0);
 		$this->data['pre_tax_super']				=	$this->financial_data['PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
@@ -424,7 +362,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['resc']							=	$this->financial_data['RESC'];
 		
 		//Spouse Pre-Tax Super
-		$s_min_pretax_super 						=	round($s_mfb_rate * $this->MIN_ADD_SUPER_RATE * $this->data['s_taxable_income']);
+		$s_min_pretax_super 						=	round($s_mfb_rate * $this->constants['MIN_ADD_SUPER_RATE'] * $this->data['s_taxable_income']);
 		$this->financial_data['S_PRE_TAX_SUPER']	=	$this->getPreTaxSuper($s_mfbrate, 1);
 		$this->data['s_pre_tax_super']				=	$this->financial_data['S_PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
@@ -446,16 +384,16 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Financial Packages
 		if (!$iscouple) {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing'], PHP_ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + $this->data['additional_housing']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		=	0;
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'];
 		} else {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))));
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
-			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_max_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))), PHP_ROUND_HALF_UP);
+			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_max_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover'] + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))));
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_lafha']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_overseas_housing_allowance']);
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'] + $this->financial_data['S_FINANCIAL_PACKAGE'];
@@ -487,11 +425,11 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['s_mmr']						=	$this->financial_data['S_MMR'];
 		
 		//Worker's Compensation
-		if ($this->financial_data['home_assignment'] == true || $this->financial_data['home_assignment'] == 'true') {
+		if (($this->financial_data['overseas_form'] == true || $this->financial_data['overseas_form'] == 'true') && ($this->financial_data['home_assignment'] == false || $this->financial_data['home_assignment'] == 'false')) {
 			$this->data['workers_comp']					=	0;
 		} else {
-			$this->financial_data['WORKERS_COMP']		=	round($this->data['joint_financial_package'] * $this->WORKERS_COMP_RATE);
-			$this->data['workers_comp']					=	$this->financial_data['WORKERS_COMP'];			
+			$this->financial_data['WORKERS_COMP']		=	round($this->data['joint_financial_package'] * $this->constants['WORKERS_COMP_RATE']);
+			$this->data['workers_comp']					=	$this->financial_data['WORKERS_COMP'];
 		}
 		
 		//Ministry Levy
@@ -505,7 +443,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			$s_ministry_levy_rate = $s_ministry_row['MINISTRY_LEVY'];
 			//calc levy (levy is in proportion to the days per week each works)
 			$this->data['ministry_levy']				=	round((($this->data['days_per_wk']/($this->data['days_per_wk']+$this->data['s_days_per_wk'])) * ($ministry_levy_rate / 100) * $subtotal));
-			$this->data['s_ministry_levy']				=	round((($this->data['days_per_wk']/($this->data['days_per_wk']+$this->data['s_days_per_wk'])) * ($s_ministry_levy_rate / 100) * $subtotal));
+			$this->data['s_ministry_levy']				=	round((($this->data['s_days_per_wk']/($this->data['days_per_wk']+$this->data['s_days_per_wk'])) * ($s_ministry_levy_rate / 100) * $subtotal));
 		
 			//check if both in same ministry - combine the ministry levy rather than duplicate
 			if ($this->data['ministry'] == $this->data['s_ministry']) {
@@ -521,11 +459,9 @@ class FinancialSubmitter extends FinancialProcessor {
 
 		if($this->DEBUG) fb($ministry_row);
 		
-		///////////////////TODO change this code for when multiple session is possible//////////////////////////////////////////////////////////
-		//atm session is set to be guid but for internal transfers it needs to be FAN so $this->data['fan'] is used instead of $this->financial_data['session'] //
 		
 		//Internal Contribution Transfers
-		$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$this->financial_data['session']."'"); //should refer to $this->financial_data['session'] but atm fan is needed so that old transfers can be viewed
+		$sql = mysql_query("SELECT TRANSFER_NAME,TRANSFER_AMOUNT FROM Internal_Transfers WHERE SESSION_ID='".$this->financial_data['session']."'"); 
 		for ($i = 0; $i < mysql_num_rows($sql); $i++) {
 			$transfers_row = mysql_fetch_assoc($sql);
 			$transfer['name'] = $transfers_row['TRANSFER_NAME'];
@@ -538,6 +474,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			$this->data['ministry_levy'] = 0;
 		if ($this->data['s_ministry_levy'] == '__')
 			$this->data['s_ministry_levy'] == 0;
+			
 		//adding the levy to the list of internal transfers
 		if ($this->data['ministry_levy'] != 0 && $this->data['s_ministry_levy'] == 0) {	//if just user (no spouse) with levy
 			$transfer['name'] = $this->data['ministry'];
@@ -573,7 +510,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			$err .= "INTERNATIONAL_DONATIONS:\"This figure must be smaller than your TMN.\", ";
 		
 		//CCCA Levy								//this has been changed so its not just a percentage of the subtotal but a percentage of the whole TMN
-		$this->data['ccca_levy']					=	round(($subtotal + $total_transfers - $this->data['international_donations']) * ($this->CCCA_LEVY_RATE/(1-$this->CCCA_LEVY_RATE)));
+		$this->data['ccca_levy']					=	round(($subtotal + $total_transfers - $this->data['international_donations']) * ($this->constants['CCCA_LEVY_RATE']/(1-$this->constants['CCCA_LEVY_RATE'])));
 		
 		//Total Monthly Needs
 		$this->data['tmn']							=	round($subtotal + $total_transfers + $this->data['ccca_levy']);
@@ -585,42 +522,42 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['regular_buffer']				=	round($this->data['tmn'] * ($row['MPD'] ? 1.5 : 0));
 		
 		//add the version number that was used to create this set of data
-		$this->data['versionnumber']				=	$this->VERSIONNUMBER;
+		$this->data['versionnumber']				=	$this->constants['VERSIONNUMBER'];
 		
 
 		//Calculate days per week multiplier
 		$this->MULTIPLIER = ($iscouple ?(($this->data['days_per_wk'] + $this->data['s_days_per_wk']) / 10) : ($this->data['days_per_wk'] / 5));
 		//Apply multiplier to limits and bands
-		$this->BAND_FP_COUPLE			=	$this->BAND_FP_COUPLE			*	$this->MULTIPLIER;
-		$this->BAND_FP_SINGLE			=	$this->BAND_FP_SINGLE			*	$this->MULTIPLIER;
-		$this->BAND_TMN_COUPLE_MIN		=	$this->BAND_TMN_COUPLE_MIN 		* 	$this->MULTIPLIER;
-		$this->BAND_TMN_COUPLE_MAX		=	$this->BAND_TMN_COUPLE_MAX		*	$this->MULTIPLIER;
-		$this->BAND_TMN_SINGLE_MIN		=	$this->BAND_TMN_SINGLE_MIN		*	$this->MULTIPLIER;
-		$this->BAND_TMN_SINGLE_MAX		=	$this->BAND_TMN_SINGLE_MAX		*	$this->MULTIPLIER;
+		$this->constants['BAND_FP_COUPLE']			=	$this->constants['BAND_FP_COUPLE']			*	$this->MULTIPLIER;
+		$this->constants['BAND_FP_SINGLE']			=	$this->constants['BAND_FP_SINGLE']			*	$this->MULTIPLIER;
+		$this->constants['BAND_TMN_COUPLE_MIN']		=	$this->constants['BAND_TMN_COUPLE_MIN'] 		* 	$this->MULTIPLIER;
+		$this->constants['BAND_TMN_COUPLE_MAX']		=	$this->constants['BAND_TMN_COUPLE_MAX']		*	$this->MULTIPLIER;
+		$this->constants['BAND_TMN_SINGLE_MIN']		=	$this->constants['BAND_TMN_SINGLE_MIN']		*	$this->MULTIPLIER;
+		$this->constants['BAND_TMN_SINGLE_MAX']		=	$this->constants['BAND_TMN_SINGLE_MAX']		*	$this->MULTIPLIER;
 		
 		
 		//Financial Package Limits
 		if ($iscouple) {
-			if ($this->data['joint_financial_package'] > $this->BAND_FP_COUPLE) {
+			if ($this->data['joint_financial_package'] > $this->constants['BAND_FP_COUPLE']) {
 				$this->data['auth_lv1'] = 1;
-				if ($this->data['joint_financial_package'] < ($this->BAND_FP_COUPLE * 1.1)) {
+				if ($this->data['joint_financial_package'] < ($this->constants['BAND_FP_COUPLE'] * 1.1)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The Joint Financial Package is $'.(round($this->data['joint_financial_package'] - $this->BAND_FP_COUPLE)).' above the limit of $'.$this->BAND_FP_COUPLE.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The Joint Financial Package is $'.(round($this->data['joint_financial_package'] - $this->constants['BAND_FP_COUPLE'])).' above the limit of $'.$this->constants['BAND_FP_COUPLE'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The Financial Package is more than 10% over the limit of $'.$this->BAND_FP_COUPLE.'.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['joint_financial_package'] - ($this->BAND_FP_COUPLE*1.1))).' over the the 10% buffer, the limit with the 10% buffer is $'.($this->BAND_FP_COUPLE*1.1).'. <span style="color:red;">This is a Very High Joint Financial Package!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The Financial Package is more than 10% over the limit of $'.$this->constants['BAND_FP_COUPLE'].'.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['joint_financial_package'] - ($this->constants['BAND_FP_COUPLE']*1.1))).' over the the 10% buffer, the limit with the 10% buffer is $'.($this->constants['BAND_FP_COUPLE']*1.1).'. <span style="color:red;">This is a Very High Joint Financial Package!</span>');
 				}
 			}
 		}
 		if (!$iscouple) {
-			if ($this->data['joint_financial_package'] > $this->BAND_FP_SINGLE) {
+			if ($this->data['joint_financial_package'] > $this->constants['BAND_FP_SINGLE']) {
 				$this->data['auth_lv1'] = 1;
-				if ($this->data['joint_financial_package'] < ($this->BAND_FP_SINGLE * 1.1)) {
+				if ($this->data['joint_financial_package'] < ($this->constants['BAND_FP_SINGLE'] * 1.1)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The Financial Package is $'.(round($this->data['joint_financial_package'] - $this->BAND_FP_SINGLE)).' above the limit of $'.$this->BAND_FP_SINGLE.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The Financial Package is $'.(round($this->data['joint_financial_package'] - $this->constants['BAND_FP_SINGLE'])).' above the limit of $'.$this->constants['BAND_FP_SINGLE'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The Financial Package is more than 10% over the limit of $'.$this->BAND_FP_SINGLE.'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['joint_financial_package'] - ($this->BAND_FP_SINGLE*1.1))).' over the 10% buffer, the limit with the 10% buffer is $'.($this->BAND_FP_SINGLE*1.1).'. <span style="color:red;">This is a Very High Joint Financial Package!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The Financial Package is more than 10% over the limit of $'.$this->constants['BAND_FP_SINGLE'].'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['joint_financial_package'] - ($this->constants['BAND_FP_SINGLE']*1.1))).' over the 10% buffer, the limit with the 10% buffer is $'.($this->constants['BAND_FP_SINGLE']*1.1).'. <span style="color:red;">This is a Very High Joint Financial Package!</span>');
 				}
 			}
 		}
@@ -636,49 +573,49 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		if ($iscouple) {
 			//check min bound
-			if($this->data['tmn'] < $this->BAND_TMN_COUPLE_MIN) {
+			if($this->data['tmn'] < $this->constants['BAND_TMN_COUPLE_MIN']) {
 				//check min bound with 10% buffer
-				if($this->data['tmn'] > ($this->BAND_TMN_COUPLE_MIN * 0.9)) {
+				if($this->data['tmn'] > ($this->constants['BAND_TMN_COUPLE_MIN'] * 0.9)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->BAND_TMN_COUPLE_MIN - $this->data['tmn'])).' under the Minimum, which is $'.$this->BAND_TMN_COUPLE_MIN.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->constants['BAND_TMN_COUPLE_MIN'] - $this->data['tmn'])).' under the Minimum, which is $'.$this->constants['BAND_TMN_COUPLE_MIN'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% under the Minimum, the Minimum is $'.$this->BAND_TMN_COUPLE_MIN.'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($this->BAND_TMN_COUPLE_MIN*0.9) - $this->data['tmn'])).' under the 10% buffer, the Minimum with the 10% buffer is $'.($this->BAND_TMN_COUPLE_MIN*0.9).'. <span style="color:red;">This is a Very Low TMN!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% under the Minimum, the Minimum is $'.$this->constants['BAND_TMN_COUPLE_MIN'].'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($this->constants['BAND_TMN_COUPLE_MIN']*0.9) - $this->data['tmn'])).' under the 10% buffer, the Minimum with the 10% buffer is $'.($this->constants['BAND_TMN_COUPLE_MIN']*0.9).'. <span style="color:red;">This is a Very Low TMN!</span>');
 				}
 			}
 			//check max bound
-			if($this->data['tmn'] > $this->BAND_TMN_COUPLE_MAX) {
+			if($this->data['tmn'] > $this->constants['BAND_TMN_COUPLE_MAX']) {
 				//check max bound with 10% buffer
-				if ($this->data['tmn'] < ($this->BAND_TMN_COUPLE_MAX * 1.1)) {
+				if ($this->data['tmn'] < ($this->constants['BAND_TMN_COUPLE_MAX'] * 1.1)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->data['tmn'] - $this->BAND_TMN_COUPLE_MAX)).' over the Maximum, which is $'.$this->BAND_TMN_COUPLE_MAX.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->data['tmn'] - $this->constants['BAND_TMN_COUPLE_MAX'])).' over the Maximum, which is $'.$this->constants['BAND_TMN_COUPLE_MAX'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% over the Maximum, the Maximum is $'.$this->BAND_TMN_COUPLE_MAX.'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['tmn'] - ($this->BAND_TMN_COUPLE_MAX*1.1))).' over the 10% buffer, the Maximum with the 10% buffer is $'.($this->BAND_TMN_COUPLE_MAX*1.1).'. <span style="color:red;">This is a Very High TMN!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% over the Maximum, the Maximum is $'.$this->constants['BAND_TMN_COUPLE_MAX'].'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['tmn'] - ($this->constants['BAND_TMN_COUPLE_MAX']*1.1))).' over the 10% buffer, the Maximum with the 10% buffer is $'.($this->constants['BAND_TMN_COUPLE_MAX']*1.1).'. <span style="color:red;">This is a Very High TMN!</span>');
 				}
 			}
 		}
 		if (!$iscouple) {
 			//check min bound
-			if ($this->data['tmn'] < $this->BAND_TMN_SINGLE_MIN) {
+			if ($this->data['tmn'] < $this->constants['BAND_TMN_SINGLE_MIN']) {
 				//check min bound with 10% buffer
-				if($this->data['tmn'] > ($this->BAND_TMN_SINGLE_MIN * 0.9)) {
+				if($this->data['tmn'] > ($this->constants['BAND_TMN_SINGLE_MIN'] * 0.9)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->BAND_TMN_SINGLE_MIN - $this->data['tmn'])).' under the Minimum, which is $'.$this->BAND_TMN_SINGLE_MIN.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->constants['BAND_TMN_SINGLE_MIN'] - $this->data['tmn'])).' under the Minimum, which is $'.$this->constants['BAND_TMN_SINGLE_MIN'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% Under the Minimum, the Minimum is $'.$this->BAND_TMN_SINGLE_MIN.'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($this->BAND_TMN_SINGLE_MIN*0.9) - $this->data['tmn'])).' under the 10% buffer, the Minimum with the 10% buffer is $'.($this->BAND_TMN_SINGLE_MIN*0.9).'. <span style="color:red;">This is a Very Low TMN!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% Under the Minimum, the Minimum is $'.$this->constants['BAND_TMN_SINGLE_MIN'].'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round(($this->constants['BAND_TMN_SINGLE_MIN']*0.9) - $this->data['tmn'])).' under the 10% buffer, the Minimum with the 10% buffer is $'.($this->constants['BAND_TMN_SINGLE_MIN']*0.9).'. <span style="color:red;">This is a Very Low TMN!</span>');
 				}
 			}
 			//check max bound
-			if($this->data['tmn'] > $this->BAND_TMN_SINGLE_MAX) {
+			if($this->data['tmn'] > $this->constants['BAND_TMN_SINGLE_MAX']) {
 			//check max bound with 10% buffer
-				if ($this->data['tmn'] < ($this->BAND_TMN_SINGLE_MAX * 1.1)) {
+				if ($this->data['tmn'] < ($this->constants['BAND_TMN_SINGLE_MAX'] * 1.1)) {
 					$this->data['auth_lv2'] = 1;
-					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->data['tmn'] - $this->BAND_TMN_SINGLE_MAX)).' Over the Maximum, which is $'.$this->BAND_TMN_SINGLE_MAX.'.');
+					$this->data['auth_lv2_reasons'][count($this->data['auth_lv2_reasons'])] = array('reason' => 'The TMN is $'.(round($this->data['tmn'] - $this->constants['BAND_TMN_SINGLE_MAX'])).' Over the Maximum, which is $'.$this->constants['BAND_TMN_SINGLE_MAX'].'.');
 				} else {
 					$this->data['auth_lv3'] = 1;
-					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% Over the Maximum, the Maximum is $'.$this->BAND_TMN_SINGLE_MAX.'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['tmn'] - ($this->BAND_TMN_SINGLE_MAX*1.1))).' over the 10% buffer, the Maximum with the 10% buffer is $'.($this->BAND_TMN_SINGLE_MAX*1.1).'. <span style="color:red;">This is a Very High TMN!</span>');
+					$this->data['auth_lv3_reasons'][count($this->data['auth_lv3_reasons'])] = array('reason' => 'The TMN is more than 10% Over the Maximum, the Maximum is $'.$this->constants['BAND_TMN_SINGLE_MAX'].'. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">Warning</span>, it is $'.(round($this->data['tmn'] - ($this->constants['BAND_TMN_SINGLE_MAX']*1.1))).' over the 10% buffer, the Maximum with the 10% buffer is $'.($this->constants['BAND_TMN_SINGLE_MAX']*1.1).'. <span style="color:red;">This is a Very High TMN!</span>');
 				}
 			}
 		}
@@ -751,10 +688,10 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//fb("net stipend:"); fb($this->financial_data['net_stipend']);
 		//check that net stipend for both spouses is over $100
-		if ($this->data['net_stipend'] < $this->NET_STIPEND_MIN)
-			$err .= "NET_STIPEND:\"You cannot have a stipend less than $".$this->NET_STIPEND_MIN.".\", ";
-		if ($this->data['s_net_stipend'] < $this->NET_STIPEND_MIN && $iscouple)
-			$err .= "S_NET_STIPEND:\"You cannot have a stipend less than $".$this->NET_STIPEND_MIN.".\", ";
+		if ($this->data['net_stipend'] < $this->constants['STIPEND_MIN'])
+			$err .= "NET_STIPEND:\"You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".\", ";
+		if ($this->data['s_net_stipend'] < $this->constants['STIPEND_MIN'] && $iscouple)
+			$err .= "S_NET_STIPEND:\"You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".\", ";
 			
 		//check that housing is less than total mfbs
 		//if ($this->data['housing'] > ($this->data['max_mfb']+$this->data['s_max_mfb']))

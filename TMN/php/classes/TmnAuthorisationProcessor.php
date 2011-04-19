@@ -5,12 +5,18 @@ if (file_exists('../classes/TmnCrud.php')) {
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/TmnAuthenticator.php');
 	include_once('../classes/TmnConstants.php');
-} else {
+} elseif (file_exists('classes/TmnCrud.php')) {
 	include_once('interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('classes/email.php');
 	include_once('classes/TmnCrud.php');
 	include_once('classes/TmnAuthenticator.php');
 	include_once('classes/TmnConstants.php');
+} else {
+	include_once('php/interfaces/TmnAuthorisationProcessorInterface.php');
+	include_once('php/classes/email.php');
+	include_once('php/classes/TmnCrud.php');
+	include_once('php/classes/TmnAuthenticator.php');
+	include_once('php/classes/TmnConstants.php');
 }
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
@@ -187,7 +193,6 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			fb($this->getField($fieldname."_timestamp"));
 			
 			$this->update();
-			//TODO: update the timestamp
 			
 			//email the appropriate recipiants
 			if ($response == "Yes") {
@@ -334,7 +339,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			}
 			$emailbody .= "\n\n-The TMN Development Team";
 		}
-		//TODO: REMOVE AFTER DEBUGGING
+		//ADD IF DEBUGGING
 		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
 		//$emailaddress = "tom.flynn@ccca.org.au";
 		$notifyemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
@@ -417,7 +422,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		fb($emailbody);
 
-		//TODO: REMOVE AFTER DEBUGGING
+		//ADD IF DEBUGGING
 		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
 		//$emailaddress = "tom.flynn@ccca.org.au";
 		$rejectionemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");

@@ -72,6 +72,9 @@ try {
 					$session->setField('session_id', (int)$session_id);
 					$session->setOwner($tmn->getUser());
 					$session->update();
+					
+					$returnArray	= $session->submit($tmn->getUser(), $reasonsu, $authlevel1, $reasons1, $authlevel2, $reasons2, $authlevel3, $reasons3);
+					unset($returnArray['authsessionid']);
 				} else {
 					if (count($authorisers['level_1']['reasons']) == 0) {
 						$authorisers['level_1']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
@@ -120,10 +123,18 @@ try {
 					$ha_session->setField('session_id', (int)$ha_session_id);
 					$ha_session->setOwner($tmn->getUser());
 					$ha_session->update();
+					
+					$returnArray	= $ia_session->submit($tmn->getUser(), $reasonsu, $authlevel1, $reasons1, $authlevel2, $reasons2, $authlevel3, $reasons3);
+					
+					//update the home assignment with the auth id
+					$ha_session->setField('auth_session_id', (int)$returnArray['authsessionid']);
+					$ha_session->update();
+					
+					unset($returnArray['authsessionid']);
 				}
 					
 				//pass the auth data to submit()
-				echo json_encode($session->submit($tmn->getUser(), $reasonsu, $authlevel1, $reasons1, $authlevel2, $reasons2, $authlevel3, $reasons3));
+				echo json_encode($returnArray);
 			} else {
 				echo json_encode(array('success' => false, 'locked' => true, 'alert' => 'Sorry, you can\'t resubmit a session. If you would like to submit a TMN with the same numbers go back a page and click "Save As", this will create a new session with the same numbers which you can submit for authorisation.'));
 			}
