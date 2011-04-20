@@ -5,7 +5,7 @@ svn_pword='jonathan'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=true
+create_tag=false
 full_refresh=true
 
 #save the current directory so the user can be returned here
@@ -95,6 +95,7 @@ echo ''
 
 ftp -inv mportal.ccca.org.au<<ENDFTP
 user ${ftp_uname} ${ftp_pword}
+mkdir "public_html/${ftp_destination}"
 cd "public_html/${ftp_destination}"
 lcd "~/svn_temp/TMN ${version}"
 mput *.php
