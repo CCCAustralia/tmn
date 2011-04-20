@@ -129,6 +129,7 @@ echo ''
 
 ftp -inv mportal.ccca.org.au<<ENDFTP
 user ${ftp_uname} ${ftp_pword}
+mkdir "public_html/${ftp_destination}"
 cd "public_html/${ftp_destination}"
 lcd "~/svn_temp/TMN ${version}"
 mput *.php
