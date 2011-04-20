@@ -139,6 +139,36 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	
 	
+	public function getField($fieldname) {
+		$value = parent::getField($fieldname);
+		
+		//if session name has been altered to get around type checking then remove that alteration
+		if ($fieldname == 'session_name') {
+			if (strlen($value) > 1) {
+				$name_prefix	= substr($value, 0, 1);
+				$name_suffix	= substr($value, 1);
+				if ($name_prefix == "_") {
+					if (is_numeric($name_suffix)) {
+						$value = $name_suffix;
+					}
+				}
+			}
+		}
+		
+		return $value;
+	}
+	
+	public function setField($fieldname, $value) {
+		//if session name is a string that contains a number (ie is numeric) add '_' to the front to get around type checking
+		if ($fieldname == 'session_name') {
+			if (is_numeric($value)) {
+				$value = "_" . $value;
+			}
+		}
+		
+		parent::setField($fieldname, $value);
+	}
+	
 	public function financialYearsSinceSessionCreation() {
 		//grab today and creation date and shift them 6 months for the financial year
 		$todayShifted		= strtotime('-6 month', strtotime('now'));
@@ -341,6 +371,12 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	public function loadDataFromAssocArray($array) {
 		$processedArray = $this->removeFormatingFromFields($array);
+		
+		//if session name is a string that contains a number (ie is numeric) add '_' to the front to get around type checking
+		if (is_numeric($processedArray['session_name'])) {
+			$processedArray['session_name'] = "_" . $processedArray['session_name'];
+		}
+		
 		parent::loadDataFromAssocArray($processedArray);
 	}
 	
@@ -524,6 +560,27 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		} catch (Exception $e) {
 			return array();
 		}
+	}
+	
+	public function produceJson() {
+		return json_encode($this->produceAssocArray());
+	}
+	
+	public function produceAssocArray() {
+		$array			= parent::produceAssocArray();
+		
+		//if session name has been altered to get around type checking then remove that alteration
+		if (strlen($array['session_name']) > 1) {
+			$name_prefix	= substr($array['session_name'], 0, 1);
+			$name_suffix	= substr($array['session_name'], 1);
+			if ($name_prefix == "_") {
+				if (is_numeric($name_suffix)) {
+					$array['session_name'] = $name_suffix;
+				}
+			}
+		}
+		
+		return $array;
 	}
 	
 	public function produceAssocArrayForDisplay($add_auth_reasons=null) {

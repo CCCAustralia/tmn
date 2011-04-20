@@ -82,6 +82,20 @@ class TmnSessionComboLoader extends TmnComboLoader {
 							if ($value == '2010-03-01 12:00:00') {
 								$row['LOCKED'] = true;
 							}
+						} elseif ($key == 'SESSION_NAME') {
+							//if session name has been altered to get around type checking then remove that alteration
+							if (strlen($value) > 1) {
+								$name_prefix	= substr($value, 0, 1);
+								$name_suffix	= substr($value, 1);
+								if ($name_prefix == "_") {
+									if (is_numeric($name_suffix)) {
+										$value = $name_suffix;
+									}
+								}
+							}
+							
+							$row[$key] = $value;
+							
 						} else {
 							$row[$key] = $value;
 						}

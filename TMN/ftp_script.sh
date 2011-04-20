@@ -1,12 +1,12 @@
 
-version='2.2.3'
+version='2.2.4'
 svn_uname='harro'
 svn_pword='jonathan'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=false
-full_refresh=true
+create_tag=true
+full_refresh=false
 
 #save the current directory so the user can be returned here
 pushd . > /dev/null
@@ -113,6 +113,7 @@ mkdir php/imp
 mput php/imp/*
 mkdir php/interfaces
 mput php/interfaces/*
+mkdir php/logs
 mkdir ui
 mput ui/*
 put lib.zip
@@ -144,7 +145,7 @@ mkdir php/imp
 mput php/imp/*
 mkdir php/interfaces
 mput php/interfaces/*
-put lib/customclasses/custom-libraries-all.js
+mkdir php/logs
 mkdir ui
 mput ui/*
 bye

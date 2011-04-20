@@ -331,9 +331,15 @@
 			<td colspan="3"><hr /></td>
 		</tr>
 		<tr class="tmn-data">
-			<th colspan="2">Net Stipend</th>
-			<td>${net_stipend}</td>
+			<th colspan="2">Stipend (Money in your account)</th>
+			<td>${stipend}</td>
 		</tr>
+		<tpl if="housing_stipend &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Housing Stipend (The amount of your stipend that will be used on housing)</th>
+				<td>${housing_stipend}</td>
+			</tr>
+		</tpl>
 		<tr class="tmn-data">
 			<th colspan="2">Estimated Tax </th>
 			<td>${tax}</td>
@@ -350,7 +356,7 @@
 		    <td colspan="3"><hr /></td>
 		</tr>
 		<tr class="tmn-total">
-			<th colspan="2">Taxable Income (Net Stipend + Estimated Tax + Additional Tax + Post-Tax Super)</th>
+			<th colspan="2">Taxable Income (Stipend + <tpl if="housing_stipend &gt; 0">Housing Stipend + </tpl>Estimated Tax + Additional Tax + Post-Tax Super)</th>
 			<td>${taxable_income}</td>
 		</tr>
 		<tr>
@@ -428,32 +434,6 @@
 		<tr class="tmn-total">
 			<th colspan="2">Total Monthly Needs</th>
 			<td>${tmn}</td>
-		</tr>
-		<tr>
-		    <td colspan="3"><hr /></td>
-		</tr>
-	</table>
-	</div>
-	
-	<p>&nbsp;</p>
-	
-	<div class="tmn-stipend-summary">
-	<div class="header">Stipend Summary</div>
-	<table>
-		<tr class="tmn-data">
-			<th colspan="2">Stipend (Money in your account)</th>
-			<td>${stipend}</td>
-		</tr>
-		<tr class="tmn-data">
-			<th colspan="2">Housing Stipend (The amount of your stipend that will be used on housing)</th>
-			<td>${housing_stipend}</td>
-		</tr>
-		<tr>
-			<td colspan="3"><hr /></td>
-		</tr>
-		<tr class="tmn-total">
-			<th colspan="2">Net Stipend (Stipend + Housing Stipend)</th>
-			<td>${net_stipend}</td>
 		</tr>
 		<tr>
 		    <td colspan="3"><hr /></td>

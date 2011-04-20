@@ -77,6 +77,7 @@ if (isset($_POST['mode'])) {
 					$form_array		= json_decode($form_string, true);
 					$data_array		= json_decode($data_string, true);
 					
+					//when saving as date modified should be now not the creation date of the parent session
 					unset($data_array['date_modified']);
 					
 					//create an aussie based session in the database
