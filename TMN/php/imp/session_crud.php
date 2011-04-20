@@ -159,8 +159,15 @@ if (isset($_POST['mode'])) {
 					//parse json
 					$form_array			= json_decode($form_string, true);
 					$data_array			= json_decode($data_string, true);
-					$inflationApplied	= false;
+					$inflate			= false;
+					$inflationStatus	= 'not-needed';
 					
+					//set whether numbers should be inflated based on POST values
+					if (isset($_POST['inflate'])) {
+						if ($_POST['inflate'] == 'true') {
+							$inflate	= true;
+						}
+					}
 					
 					//retrieve an aussie based session from the database
 					if ($form_array['aussie_form'] == 'true' || $form_array['aussie_form'] == true) {
@@ -169,12 +176,18 @@ if (isset($_POST['mode'])) {
 						
 						$session->retrieve();
 						
-						for ($yearCount = 0; $yearCount < $session->financialYearsSinceSessionCreation(); $yearCount++) {
-							$session->applyInflation();
-							$inflationApplied	= true;
+						if ($inflate) {
+							for ($yearCount = 0; $yearCount < $session->financialYearsSinceSessionCreation(); $yearCount++) {
+								$session->applyInflation();
+								$inflationStatus	= 'applied';
+							}
+						} else {
+							if ($session->financialYearsSinceSessionCreation() > 0) {
+								$inflationStatus	= 'needed';
+							}
 						}
-						fb($session->produceAssocArrayForDisplay());
-						$response = array("success"=>true,"data"=>$session->produceAssocArray(), "inflated"=>$inflationApplied);
+						
+						$response = array("success"=>true,"data"=>$session->produceAssocArray(), "inflation_status"=>$inflationStatus);
 					}
 					
 					//retrieve the overseas based sessions from the database
@@ -188,32 +201,38 @@ if (isset($_POST['mode'])) {
 							$home_assignment_session->loadDataFromAssocArray($data_array);
 							$home_assignment_session->retrieve();
 							
-							for ($yearCount = 0; $yearCount < $home_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
-								$home_assignment_session->applyInflation();
-								$inflationApplied	= true;
-							}
-							
 							$international_assignment_session	= $home_assignment_session->getInternationalAssignment();
 						} else {
 							$international_assignment_session	= new TmnCrudSession($LOGFILE);
 							$international_assignment_session->loadDataFromAssocArray($data_array);
 							$international_assignment_session->retrieve();
 							
-							for ($yearCount = 0; $yearCount < $international_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
-								$international_assignment_session->applyInflation();
-								$inflationApplied	= true;
-							}
-							
 							$home_assignment_session			= $international_assignment_session->getHomeAssignment();
 						}
 						
+						if ($inflate) {
+							for ($yearCount = 0; $yearCount < $international_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
+								$international_assignment_session->applyInflation();
+								$inflationStatus	= 'applied';
+							}
+							
+							for ($yearCount = 0; $yearCount < $home_assignment_session->financialYearsSinceSessionCreation(); $yearCount++) {
+								$home_assignment_session->applyInflation();
+								$inflationStatus	= 'applied';
+							}
+						} else {
+							if ($international_assignment_session->financialYearsSinceSessionCreation() > 0 || $home_assignment_session->financialYearsSinceSessionCreation() > 0) {
+								$inflationStatus	= 'needed';
+							}
+						}
+							
 						//construct return array
 						$return_data						= array(
 																'home-assignment'			=>	$home_assignment_session->produceAssocArray(),
 																'international-assignment'	=>	$international_assignment_session->produceAssocArray()
 															);
 						
-						$response = array("success"=>true,"data"=>$return_data, "inflated"=>$inflationApplied);
+						$response = array("success"=>true,"data"=>$return_data, "inflation_status"=>$inflationStatus);
 					}
 					
 				} else {

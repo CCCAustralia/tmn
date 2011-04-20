@@ -59,6 +59,12 @@ tmn.view.TmnView = function() {
 
 	//register events
 	this.addEvents(
+		//general events
+		'loadsuccess',
+		'loadfailure',
+		'submitsuccess',
+		'submitfailure',
+			
 		//personal details events
 		'single',
 		'married',
@@ -68,14 +74,22 @@ tmn.view.TmnView = function() {
 		'mpdno',
 		'fulltime',
 		'parttime',
-		'loadsuccess',
-		'loadfailure',
-		'submitsuccess',
-		'submitfailure',
 		
 		//financial details events
 		'saveresponse',
 		'financialdataupdated',
+		'resetfinancialdata',
+		'loadsession',
+		'loadsessionsuccess',
+		'savesession',
+		'saveassession',
+		'saveassessionsuccess',
+		'deletesession',
+		'deletesessionsuccess',
+		'resetsession',
+		
+		//print form events
+		'tmnsubmitted',
 
 		//nav events
 		/**
@@ -129,7 +143,8 @@ tmn.view.TmnView = function() {
 	
 	// relay special Print Form events
 	this.relayEvents(this.forms[4], [
-										'next'
+										'next',
+										'tmnsubmitted'
                                      ]);
 	
 	/**

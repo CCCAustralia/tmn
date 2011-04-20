@@ -29,9 +29,8 @@ if (isset($_POST['mode'])) {
 				$sessionSql .= "(AUTH_LEVEL_2 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".													"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
 				$sessionSql .= "(AUTH_LEVEL_3 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".													" && FINANCE_RESPONSE = 'Pending'))";
 				$sessionGuid = array(':guid' => $tmn->getAuthenticatedGuid());
-				fb($financeguid);
+				
 				if ($financeguid == $tmn->getAuthenticatedGuid()) {
-					fb("FINANCE USER MODE!");
 					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 					//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".																"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";

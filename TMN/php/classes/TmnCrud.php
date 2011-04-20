@@ -110,10 +110,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 	}
 	
 	public function setField($fieldname, $value) {
-		//fb('key:');
-		//fb($fieldname);
-		//fb('value:');
-		//fb($value);
+		
 		//convert null to "__" so that we can distinguish between empty fields and non existant fields
 		if ($value == null) {
 			$value = "__";
@@ -146,9 +143,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			
 			//check type if correct set and return true
 			try {
-				fb('private');
 				if ($this->valueMatchesType($fieldname, $value, $this->public_types[$fieldname])) {
-					fb('setting: ' . $fieldname);
 					$this->public_data[$fieldname] = $value;
 					return true;
 				} else {
@@ -156,7 +151,6 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 					return false;
 				}
 			} catch (Exception $e) {
-				fb('type error');
 				//if it isn't the correct type return false
 				return false;
 			}

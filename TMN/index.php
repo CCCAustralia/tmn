@@ -116,19 +116,17 @@ try {
 	} else {
 		
 		$stmt		= $db->query("SELECT GUID, EMAIL FROM `User_Profiles` WHERE EMAIL='" . $tmn->getEmail() . "'");
-		fb("SELECT GUID, EMAIL FROM `User_Profiles` WHERE EMAIL='" . $tmn->getEmail() . "'");
 		$autoRego	= false;
 		
 		if ($stmt->rowCount() == 1) {
 			$result	= $stmt->fetch(PDO::FETCH_ASSOC);
 			
-			//fb(Email::validateAddress($tmn->getEmail()));
 			if ($result['GUID'] == null) {
 				//generate random unique 13 char varification code
 				$vcode	= uniqid();
 				//update table with number
 				$stmt		= $db->query("UPDATE `User_Profiles` SET GUID='" . $vcode . "' WHERE EMAIL='". $tmn->getEmail() . "'");
-				fb($stmt);
+				
 				//if update worked
 				if ($stmt) {
 					//send email

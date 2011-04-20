@@ -506,7 +506,7 @@ tmn.TmnController = function() {
 				//check that it has been saved
 				if (form_panel.isSaved() == true) {
 					//load the session
-					form_panel.onLoadSession(dataObject);
+					form_panel.onLoadSession(dataObject, false);
 				//if not confirm that they want to load the session and lose there changes
 				} else {
 					Ext.MessageBox.confirm(
@@ -515,7 +515,7 @@ tmn.TmnController = function() {
 						function(btn) {
 							if (btn == 'yes') {
 								//if they want to load the session then do it
-								this.form.onLoadSession(this.data);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
+								this.form.onLoadSession(this.data, false);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
 							} else {
 								this.form.setSelectedSession(this.form.getSession());
 							}
@@ -536,7 +536,7 @@ tmn.TmnController = function() {
 				//if both are saved
 				if (home_assignment_form.isSaved() && international_assignment_form.isSaved()) {
 					//load the new session
-					form_panel.onLoadSession(dataObject);
+					form_panel.onLoadSession(dataObject, false);
 				//if not confirm that they want to load the session and lose there changes
 				} else {
 					Ext.MessageBox.confirm(
@@ -545,7 +545,7 @@ tmn.TmnController = function() {
 						function(btn) {
 							if (btn == 'yes') {
 								//if they want to load the session then do it
-								this.form.onLoadSession(this.data);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
+								this.form.onLoadSession(this.data, false);	//I can refer to this.form & this.data because the scope parameter below is set to an object containing those instance variables
 							} else {
 								this.form.setSelectedSession(this.form.getSession());
 							}
@@ -593,32 +593,64 @@ tmn.TmnController = function() {
 			}
 			
 			//if the data as had inflation applied by the back end tell the user and have the data reprocessed
-			if (return_object.inflated) {
-				Ext.MessageBox.show({
-					icon:		Ext.MessageBox.INFO,
-					buttons:	Ext.MessageBox.OK,
-					closable:	false,
-					title:		'Inflation',
-					msg:		'This session was created in a different financial year to this one,'
-						+' because of this we have increased your values for you to take inflation into account.<br /><br />'
-						+'If you would like to view the this session as it was submitted, follow this link <a href="http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() +'</a>.'
-						+'<br /><br />Note: ' + note,
-					scope:		form_panel,
-					fn:			function() {
-						if (this.locked) {
-							Ext.MessageBox.show({
-								icon: Ext.MessageBox.WARNING,
-								buttons: Ext.MessageBox.OK,
-								closable: false,
-								title: 'Locked!',
-								msg: "This session is Locked because it has been submitted. You can't save your changes to this session or delete this session. If you would like to save changes to this session, please use Save As to save a new version of the session."
-							});
-						}
-					}
-				});
+			if (return_object.inflation_status !== undefined) {
 				
-				//send a financial data updated event so that the data will get sent to the server for reprocessing
-				form_panel.fireEvent('financialdataupdated', form_panel, {isValid:function(){return true;}, getName:function(){return 'session_id';}}, form_panel.getSession(), true);
+				if (return_object.inflation_status == 'applied') {
+					Ext.MessageBox.show({
+						icon:		Ext.MessageBox.INFO,
+						buttons:	Ext.MessageBox.OK,
+						closable:	false,
+						title:		'Inflation',
+						msg:		'<b>We have increased your values for you to take inflation into account.<br />This has not been saved so if you want to go back just reload this session.</b><br /><br />'
+							+'If you would like to view the this session <i>WITHOUT</i> inflation, follow this link <a href="http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/viewer.php?session=' + form_panel.getSession() +'</a>.'
+							+'<br /><br />Note: ' + note,
+						scope:		form_panel,
+						fn:			function() {
+							if (this.locked) {
+								Ext.MessageBox.show({
+									icon: Ext.MessageBox.WARNING,
+									buttons: Ext.MessageBox.OK,
+									closable: false,
+									title: 'Locked!',
+									msg: "This session is Locked because it has been submitted. You can't save your changes to this session or delete this session. If you would like to save changes to this session, please use Save As to save a new version of the session."
+								});
+							}
+						}
+					});
+					
+					//send a financial data updated event so that the data will get sent to the server for reprocessing
+					form_panel.fireEvent('financialdataupdated', form_panel, {isValid:function(){return true;}, getName:function(){return 'session_id';}}, form_panel.getSession(), true);
+				} else if (return_object.inflation_status == 'needed') {
+					Ext.MessageBox.show({
+						icon:		Ext.MessageBox.INFO,
+						buttons:	Ext.MessageBox.YESNO,
+						closable:	false,
+						title:		'Inflation',
+						msg:		'<b>This session was created in a different Financial Year to this one. Due to inflation, the price of everything increases by about 2.5% each year.'
+							+ ' Would you like us to automatically increase your values by 2.5%?</b><br /><br />'
+							+ ' This will not be saved so if you want to go back just reload this session.<br /><br />'
+							+ 'If you would like to preview your TMN <i>AFTER</i> inflation, follow this link <a href="http://mportal.ccca.org.au/TMN/viewer.php?isession=' + form_panel.getSession() + '" target="_blank">http://mportal.ccca.org.au/TMN/viewer.php?isession=' + form_panel.getSession() +'</a>.'
+							+ '<br /><br />Note: ' + note,
+						scope:		form_panel,
+						fn:			function(button, options) {
+							var dataObject	= {session_id:this.getSelectedSession()};
+							
+							if (button == 'yes') {
+								this.onLoadSession(dataObject, true);
+							} else {
+								if (this.locked) {
+									Ext.MessageBox.show({
+										icon: Ext.MessageBox.WARNING,
+										buttons: Ext.MessageBox.OK,
+										closable: false,
+										title: 'Locked!',
+										msg: "This session is Locked because it has been submitted. You can't save your changes to this session or delete this session. If you would like to save changes to this session, please use Save As to save a new version of the session."
+									});
+								}
+							}
+						}
+					});
+				}
 			}
 			
 		},
@@ -759,7 +791,6 @@ tmn.TmnController = function() {
 					//set the home assignment start date to international end data
 					dataObject['home-assignment']['OS_ASSIGNMENT_START_DATE'] = dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'];
 				}
-				console.info(dataObject);
 				
 				//make sure there is data for home assignment before running through it
 				if (dataObject['home-assignment']  !== undefined) {
@@ -1135,6 +1166,16 @@ tmn.TmnController = function() {
 		},
 		
 		/**
+		 * Handler for when the user has successfully finished submitting their TMN. It will refresh stuff so that the user can't go back and change anything.
+		 */
+		onTmnSubmitted: function() {
+			Ext.each([this.getForm('aussie-based'), this.getForm('home-assignment'), this.getForm('international-assignment')], function(form, index, allForms) {
+				form.resetForm();
+				form.reloadSessionCombo();
+			}, this);
+		},
+		
+		/**
 		 * Handler for when the user clicks the forward or back buttons on the browser.
 		 * Look at {@link #onPrevious} and {@link #onSubmitSuccess} for the other lines of code that make the history mangement work.
 		 * Also look at {@link Ext.History} for examples on how to use it.
@@ -1284,6 +1325,9 @@ tmn.TmnController = function() {
 			this.view.on('deletesession', this.onDeleteSession, this);
 			this.view.on('deletesessionsuccess', this.onDeleteSessionSuccess, this);
 			this.view.on('resetsession', this.onResetSession, this);
+			
+				//PrintForm events
+			this.view.on('tmnsubmitted', this.onTmnSubmitted, this);
 			
 			//load initial form
 			this.view.loadActiveForm();

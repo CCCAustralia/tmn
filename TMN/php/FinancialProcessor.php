@@ -4,11 +4,16 @@ if (file_exists("mysqldriver.php")) {
 	include_once("logger.php");
 	include_once("../lib/FirePHPCore/fb.php");
 	include_once('../lib/cas/cas.php');		//include the CAS module
-} else {
+} elseif (file_exists("../mysqldriver.php")) {
 	include_once("../mysqldriver.php");
 	include_once("../logger.php");
 	include_once("../../lib/FirePHPCore/fb.php");
 	include_once('../../lib/cas/cas.php');		//include the CAS module
+} else {
+	include_once("php/mysqldriver.php");
+	include_once("php/logger.php");
+	include_once("lib/FirePHPCore/fb.php");
+	include_once('lib/cas/cas.php');
 }
 
 
@@ -98,7 +103,7 @@ class FinancialProcessor {
 		
 		//////////      DONE      //////////
 						
-		$this->financial_data = $findat;
+		$this->financial_data = $this->typeCastForArray($findat);
 			//grab guid
 		if (isset($_SESSION['phpCAS'])) {
 			$xmlstr = str_replace("cas:", "", $_SESSION['phpCAS']['serviceResponse']);
@@ -274,15 +279,15 @@ class FinancialProcessor {
 				$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//Spouse Pre Tax Super (if its not set then set it to the min)
-				$this->financial_data['S_PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
+				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
 				
 				//Fetch the user's days per week
-				$this->financial_data['S_DAYS_PER_WEEK'] = $this->getDaysPerWeek(1);
+				$this->financial_data['S_DAYS_PER_WEEK']	= $this->getDaysPerWeek(1);
 				
-				$this->financial_data['S_MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
+				$this->financial_data['S_MAX_MFB']			= round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
 				
 				//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-				$this->financial_data['S_CLAIMABLE_MFB'] = $this->getClaimableMfb(1);//1 for spouse claimable mfb
+				$this->financial_data['S_CLAIMABLE_MFB']	= $this->getClaimableMfb(1);//1 for spouse claimable mfb
 			}
 		}
 		
@@ -302,6 +307,27 @@ class FinancialProcessor {
 			return '{"success": false, "errors":{'.trim($err,", ").'} }';	//Return with errors
 		}
 		
+	}
+	
+	/**
+	 * Runs over array changing values from strings to there orginal type. (works for number to int and bool to bool)
+	 * @param array $assoc_array
+	 * @return array
+	 */
+	private function typeCastForArray($assoc_array) {
+		foreach ($assoc_array as $key => $value) {
+			if (is_numeric($value)) {
+				$assoc_array[$key] = (int)$value;
+			} elseif ($value == "true") {
+				$assoc_array[$key] = true;
+			} elseif ($value == "false") {
+				$assoc_array[$key] = false;
+			} else {
+				$assoc_array[$key] = $value;
+			}
+		}
+		
+		return $assoc_array;
 	}
 	
 	
@@ -433,7 +459,7 @@ class FinancialProcessor {
 	public function getClaimableMfb($me_or_spouse){
 		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
 		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
-		fb('getClaimableMfb: ' . $prefix);
+		
 		if (isset($this->financial_data[$prefix.'MAX_MFB'])){
 			if (isset($this->financial_data['MAX_MFB']) && isset($this->financial_data['HOUSING'])){
 				//grab max housing mfb
@@ -441,11 +467,7 @@ class FinancialProcessor {
 				
 				//make sure housing is monthly
 				$monthly_housing = $this->getMonthlyHousing();
-				fb($this->financial_data['MAX_MFB']);
-				fb($monthly_housing);
-				fb($max_housing_mfb);
-				fb(min($monthly_housing, $max_housing_mfb));
-				fb(max(0, $this->financial_data['MAX_MFB'] - min($monthly_housing, $max_housing_mfb)));
+				
 				//calcs spouses claimable mfb if possible
 				if ($me_or_spouse){
 					if(isset($this->financial_data['S_MAX_MFB'])){

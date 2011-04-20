@@ -1,8 +1,10 @@
 <?php
 if (file_exists("../lib/FirePHPCore/fb.php")) {
 	require_once("../lib/FirePHPCore/fb.php");
-} else {
+} elseif (file_exists("../../lib/FirePHPCore/fb.php")) {
 	require_once("../../lib/FirePHPCore/fb.php");
+} else {
+	require_once("lib/FirePHPCore/fb.php");
 }
 
 class logger {

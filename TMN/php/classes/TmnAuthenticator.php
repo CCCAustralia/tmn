@@ -35,9 +35,9 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		$this->guid			= null;
 		
 		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
-		if ( !isset($GLOBALS['_CAS_CLIENT_CALLED']) ) {
+		if ( !isset($GLOBALS['CAS_CLIENT_CALLED']) ) {
 			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
-			$GLOBALS['_CAS_CLIENT_CALLED'] = 1;
+			$GLOBALS['CAS_CLIENT_CALLED'] = 1;
 		}
 		
 		//check if the user has been authenticated via the Key using phpCAS
@@ -86,9 +86,9 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		//include_once('../../lib/cas/cas.php');
 		
 		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
-		if ( !isset($GLOBALS['_CAS_CLIENT_CALLED']) ) {
+		if ( !isset($GLOBALS['CAS_CLIENT_CALLED']) ) {
 			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
-			$GLOBALS['_CAS_CLIENT_CALLED'] = 1;
+			$GLOBALS['CAS_CLIENT_CALLED'] = 1;
 		}
 		
 		phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server

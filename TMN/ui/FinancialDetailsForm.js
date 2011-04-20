@@ -2199,22 +2199,35 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	/**
 	 * Handler for when the user selects to load a session.
 	 */
-	onLoadSession: function(data) {
+	onLoadSession: function(data, inflate) {
+		var loadParams;
 		//hide last TMN window
 		tmn.view.LastTMN.hide();
 		
 		if (this.rendered) {
 			this.el.mask("Loading");
 		}
+
+		//set params based on whether the user wants to inflate or not
+		if (inflate !== undefined && inflate == true) {
+			loadParams	= {
+				mode:		'r',
+				form:		Ext.util.JSON.encode({aussie_form:this.aussie_form,overseas_form:this.overseas_form,home_assignment:this.home_assignment}),
+				data:		Ext.util.JSON.encode(data),
+				inflate:	'true'
+			};
+		} else {
+			loadParams	= {
+				mode:		'r',
+				form:		Ext.util.JSON.encode({aussie_form:this.aussie_form,overseas_form:this.overseas_form,home_assignment:this.home_assignment}),
+				data:		Ext.util.JSON.encode(data)
+			};
+		}
 		
 		//load session
 		Ext.Ajax.request({											//send all the data about the misso to the server for processing
 			url: this.crud_url,
-			params: {
-				mode: 'r',
-				form: Ext.util.JSON.encode({aussie_form:this.aussie_form,overseas_form:this.overseas_form,home_assignment:this.home_assignment}),
-				data: Ext.util.JSON.encode(data)
-			},
+			params: loadParams,
 			success: function(response, options){
 				this.fireEvent('loadsessionsuccess', this, response, options);
 			},
@@ -2464,7 +2477,11 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	reloadSessionCombo: function() {
 		this.getTopToolbar().items.map['session_combo'].getStore().reload({
 			callback:function() {
-				this.setSelectedSession(this.getSession());
+				if (this.getSession() != null) {
+					this.setSelectedSession(this.getSession());					
+				} else {
+					this.getTopToolbar().items.map['session_combo'].clearValue();
+				}
 			},
 			scope:this
 		});

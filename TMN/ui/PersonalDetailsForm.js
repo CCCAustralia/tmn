@@ -812,7 +812,6 @@ Ext.extend(tmn.view.PersonalDetailsForm, Ext.FormPanel, {
 	 * @param {Ext.form.Action}		action		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 	 */
 	onSubmitSuccess: function (form, action) {
-		console.log(form.items.map['s_first'].getValue() != '');
 		//does this person have a spouse (checks the spouse name after the php has succeeded, ie the php has varified the marrital status)
 		if( this.hasSpouse() ) {
 			this.fireEvent('married');

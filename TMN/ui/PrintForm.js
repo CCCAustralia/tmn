@@ -119,7 +119,13 @@ tmn.view.PrintForm = function(view, config) {
 			 * @param {Ext.form.BasicForm}	form 		The Object that represents just the form (see {@link Ext.form.BasicForm})
 			 * @param {Ext.form.Action}		action 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 	         */
-			'submitfailure'
+			'submitfailure',
+			
+			/**
+			 * @event tmnsubmitted
+			 * Fires after the user has hit the submit button and the tmn has successfully been sent for submittion
+			 */
+			'tmnsubmitted'
 	);
 	
 	/**
@@ -167,6 +173,9 @@ tmn.view.PrintForm = function(view, config) {
 									
 									var responseObj	= Ext.decode(response.responseText);
 									if (responseObj.success == true) {
+										
+										this.fireEvent('tmnsubmitted');
+										this.getComponent('submit_button').disable();
 										
 										Ext.MessageBox.show({
 											icon: Ext.MessageBox.INFO,

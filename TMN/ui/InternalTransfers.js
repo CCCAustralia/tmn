@@ -151,6 +151,7 @@ tmn.view.InternalTransfers = function(config) {
         		//before requests are sent change the params so that the session at that time is sent in the request
         		beforewrite: 	this.setParams,
         		exception:		function(proxy, type, action, options, res, arg) {
+        			/*
         			console.warn("load exception");
         			console.warn('proxy');
         			console.warn(proxy);
@@ -164,6 +165,7 @@ tmn.view.InternalTransfers = function(config) {
         			console.warn(res);
         			console.warn('arg');
         			console.warn(arg);
+        			*/
         		},
         		scope: 			this
         	}

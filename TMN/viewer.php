@@ -18,6 +18,8 @@ if ($NEWVERSION){
 
 include_once('php/classes/Tmn.php');
 include_once('php/classes/TmnCrudSession.php');
+include_once('php/FinancialProcessor.php');
+include_once('php/FinancialSubmitter.php');
 $LOGFILE	= "php/logs/viewer.log";
 
 try {
@@ -31,9 +33,21 @@ try {
 	if ($tmn->isAuthenticated()) {
 		
 		//if a session has been set to load
-		if (isset($_REQUEST['session'])) {
+		if (isset($_REQUEST['session']) || isset($_REQUEST['isession'])) {
+			
+			//grab the data from the Resquest valiables
+			if (isset($_REQUEST['session'])) {
+				$session_id	= $_REQUEST['session'];
+				$infalte	= false;
+			}
+			
+			if (isset($_REQUEST['isession'])) {
+				$session_id	= $_REQUEST['isession'];
+				$infalte	= true;
+			}
+			
 			//load the session
-			$session = new TmnCrudSession($LOGFILE,$_REQUEST['session']);
+			$session = new TmnCrudSession($LOGFILE,$session_id);
 			
 			//check that the user logged in is the owner of the session
 			if ($tmn->getAuthenticatedGuid() == $session->getField('guid')) {
@@ -48,8 +62,18 @@ try {
 				//chekc if its an aussie session
 				if ($session->getField("home_assignment_session_id") == null && $session->getField("international_assignment_session_id") == null) {
 					
+					if ($infalte) {
+						//inflate values
+						for ($yearCount = 0; $yearCount < $session->financialYearsSinceSessionCreation(); $yearCount++) {
+							$session->applyInflation();
+						}						
+					}
+					
+					//reprocess data
+					$data	= reprocessData($session->produceAssocArray(), true, false, false);
+					
 					//put together the data packet for the front end to render
-					$response	= array('aussie-based' => $session->produceAssocArrayForDisplay());
+					$response	= array('aussie-based' => $data);
 					$isOverseas	= "false";
 					
 				} else {
@@ -66,17 +90,32 @@ try {
 						$ha_session		= $session;
 					}
 					
-					//put together the data packet for the front end to render
+					if ($infalte) {
+						//inflate values for international assignment
+						for ($yearCount = 0; $yearCount < $ia_session->financialYearsSinceSessionCreation(); $yearCount++) {
+							$ia_session->applyInflation();
+						}
+						
+						//inflate values for home assignment
+						for ($yearCount = 0; $yearCount < $ha_session->financialYearsSinceSessionCreation(); $yearCount++) {
+							$ha_session->applyInflation();
+						}
+						
+					}
+					
+					//reprocess data
+					$ia_data		= reprocessData($ia_session->produceAssocArray(), false, true, false);
+					$ha_data		= reprocessData($ha_session->produceAssocArray(), false, true, true);
+
+						//put together the data packet for the front end to render
 					$response	= array(
-									'international-assignment'	=> $ia_session->produceAssocArrayForDisplay(),
-									'home-assignment'			=> $ha_session->produceAssocArrayForDisplay()
+									'international-assignment'	=> $ia_data,
+									'home-assignment'			=> $ha_data
 								);
 					$isOverseas	= "true";
 					
 				}
-				fb(json_encode($response));
-				fb($hasSpouse);
-				fb($isOverseas);
+				
 				echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
 				<html>
 					<head>
@@ -149,7 +188,65 @@ try {
 		Tmn::showErrorPage("You don't have permission to access this page.");
 	}
 } catch (Exception $e) {
-	Tmn::showErrorPage("A Database error occured for session " . $_REQUEST['session'] . " while trying to load the TMN viewer.");
+	
+	if (isset($_REQUEST['session'])) {
+		$session_id	= $_REQUEST['session'];
+	}
+	
+	if (isset($_REQUEST['isession'])) {
+		$session_id	= $_REQUEST['isession'];
+	}
+	
+	Tmn::showErrorPage("A Database error occured for session " . $session_id . " while trying to load the TMN viewer.");
+}
+
+function reprocessData($data, $aussie_form, $overseas_form, $home_assignment) {
+	
+	//format array so that it is in the form expected for processing
+	$d_array							= $data;
+	$process_array						= array();
+	foreach ($d_array as $key => $value) {
+		$process_array[strtoupper($key)]= $value;
+	}
+	
+	//add extra fields
+	$process_array['session']			= $d_array['session_id'];
+	$process_array['aussie_form']		= $aussie_form;
+	$process_array['overseas_form']		= $overseas_form;
+	$process_array['home_assignment']	= $home_assignment;
+	$process_array['spouse']			= (isset($process_array['S_FIRSTNAME']) && $process_array['S_FIRSTNAME'] != '') ? true : false;
+	$process_array['overseas']			= $process_array['overseas_form'];
+	
+	//process data
+	$finance_processor					= new FinancialProcessor($process_array, $DEBUG);
+	$d_array							= json_decode($finance_processor->process(), true);
+	
+	if ($d_array['success'] == 'false') {
+		Tmn::showErrorPage("Session " . $process_array['session'] . " does not have enough data to be shown by the TMN viewer.");
+		die();
+	}
+	
+	//format array so that it is in the form expected for submitting
+	$submit_array						= $d_array['financial_data'];
+	//add extra fields
+	$submit_array['session']			= $process_array['session'];
+	$submit_array['aussie_form']		= $process_array['aussie_form'];
+	$submit_array['overseas_form']		= $process_array['overseas_form'];
+	$submit_array['home_assignment']	= $process_array['home_assignment'];
+	$submit_array['spouse']				= $process_array['spouse'];
+	$submit_array['overseas']			= $process_array['overseas_form'];
+	
+	
+	//submit data
+	$finance_submitter					= new FinancialSubmitter($submit_array, $DEBUG);
+	$submit_array						= json_decode($finance_submitter->submit(), true);
+	
+	if ($submit_array['success'] == 'false') {
+		Tmn::showErrorPage("Session " . $process_array['session'] . " does not have enough data to be shown by the TMN viewer.");
+		die();
+	}
+	
+	return $submit_array['tmn_data'];
 }
 
 ?>

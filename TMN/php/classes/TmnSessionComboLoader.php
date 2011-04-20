@@ -81,8 +81,6 @@ class TmnSessionComboLoader extends TmnComboLoader {
 						} elseif ($key == 'DATE_MODIFIED') {
 							if ($value == '2010-03-01 12:00:00') {
 								$row['LOCKED'] = true;
-							} else {
-								$row['LOCKED'] = false;
 							}
 						} else {
 							$row[$key] = $value;

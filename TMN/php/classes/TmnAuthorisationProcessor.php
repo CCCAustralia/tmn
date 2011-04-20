@@ -170,7 +170,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		//fetch the user's authlevel
 		$userauthlevel = $this->userIsAuthoriser($user);
 		$fieldname = "";	//initialise
-		fb("AUTHORISE: userauthlevel=".$userauthlevel);
+		$this->d("AUTHORISE: userauthlevel=".$userauthlevel);
 		
 		if (!is_null($userauthlevel)) {
 			//Form the identifying field name string for the level of authentication for which the user is valid
@@ -184,13 +184,13 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			
 			//set the response
 			$this->setField($fieldname."_response", $response);
-			fb("RESPONSE FOR LVL ".$userauthlevel." UPDATED TO ".$response);
-			//fb($this);
+			$this->d("RESPONSE FOR LVL ".$userauthlevel." UPDATED TO ".$response);
+			//$this->d($this);
 			
 			$now = getdate();
 			
 			$this->setField($fieldname."_timestamp", date( 'Y-m-d H:i:s', $now[0]));
-			fb($this->getField($fieldname."_timestamp"));
+			$this->d($this->getField($fieldname."_timestamp"));
 			
 			$this->update();
 			
@@ -212,7 +212,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	}
 	
 	private function notifyOfSubmission($notifylevel, $session_id) {
-		fb("TmnAuthorisationProcessor - notifying level: $notifylevel of approval");
+		$this->d("TmnAuthorisationProcessor - notifying level: $notifylevel of approval");
 		$emailbody = "";
 		$emailaddress = "";
 		$emailsubject = "";
@@ -251,8 +251,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$authviewerurl = $curpageurl."/tmn-authviewer.php?session=".$session_id;
 		
 		//DEBUG OUTPUT
-		fb("authguids: "); fb($authguids);
-		fb("authresponses:"); fb($authresponses);
+		$this->d("authguids: "); $this->d($authguids);
+		$this->d("authresponses:"); $this->d($authresponses);
 		
 		//notify user
 		if ($notifylevel == 0) {
@@ -317,7 +317,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		//notify user:
 		if ($notifylevel == 5) {
-			fb("Notify user: finance response=".$authresponses[4]);
+			$this->d("Notify user: finance response=".$authresponses[4]);
 			//set address to user
 			$emailaddress = $this->getEmailFromGuid($authguids[0]);
 			
@@ -334,7 +334,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				
 			//Output approvals
 			foreach ($authguids as $k => $v) {
-				fb("Level ".$k." user's name: ".$this->getNameFromGuid($v));
+				$this->d("Level ".$k." user's name: ".$this->getNameFromGuid($v));
 				//$emailbody .= "\n".$k.": ".$this->getNameFromGuid($v)." responsed: ".$authresponses[$k]."\n";
 			}
 			$emailbody .= "\n\n-The TMN Development Team";
@@ -343,14 +343,14 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
 		//$emailaddress = "tom.flynn@ccca.org.au";
 		$notifyemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
-		fb($notifyemail);
+		$this->d($notifyemail);
 		$notifyemail->send();
 		
 		return $emailaddress;
 	}
 	
 	private function notifyUserOfRejection($rejectedbylevel, $session_id) {
-		fb("TmnAuthorisationProcessor - notifying user of rejection by level: $rejectedbylevel");
+		$this->d("TmnAuthorisationProcessor - notifying user of rejection by level: $rejectedbylevel");
 		$emailbody = "";
 		$emailaddress = "";
 		$emailsubject = "";
@@ -377,8 +377,8 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		}
 		
 		//DEBUG OUTPUT
-		fb("authguids: "); fb($authguids);
-		fb("authresponses:"); fb($authresponses);
+		$this->d("authguids: "); $this->d($authguids);
+		$this->d("authresponses:"); $this->d($authresponses);
 		
 		$emailaddress 	= $this->getEmailFromGuid($authguids[0]);	//get the user's email
 		
@@ -420,13 +420,13 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$emailbody .= "\n\n-The TMN Development Team";	
 		
 		
-		fb($emailbody);
+		$this->d($emailbody);
 
 		//ADD IF DEBUGGING
 		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
 		//$emailaddress = "tom.flynn@ccca.org.au";
 		$rejectionemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
-		fb($rejectionemail);
+		$this->d($rejectionemail);
 		$rejectionemail->send();
 		
 		return $emailaddress;
@@ -442,7 +442,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$checklevel = $authlevel;
 		do {
 			$checklevel = $checklevel + 1;
-			//fb("getNextAuthLevel - checking level: $checklevel");
+			//$this->d("getNextAuthLevel - checking level: $checklevel");
 			
 			switch ($checklevel) {
 				case 5:		//checklevel is 5: all authlevels and finance have passed and the owner should be notified
@@ -457,11 +457,11 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					break;
 				default:	//minimum authlevel is 1, so for checklevel = 1-3, determine if the authlevel's guid is set, if so, check if they have responded (!= Pending)
 					$checklevelguid = $this->getField("auth_level_".(string)$checklevel);
-					//fb("getNextAuthLevel - level $checklevel guid: $checklevelguid");
+					//$this->d("getNextAuthLevel - level $checklevel guid: $checklevelguid");
 					
 					if ($checklevelguid != "") {	//if auth_level_<1-3> is required
 						$checklevelresponse = $this->getField("level_".(string)$checklevel."_response");
-						//fb("getNextAuthLevel - level $checklevel response: $checklevelresponse");
+						//$this->d("getNextAuthLevel - level $checklevel response: $checklevelresponse");
 						if ($checklevelresponse == "Pending") {		//if they have not confirmed/denied
 							//$nextauthlevel = $checklevel;									//break iteration loop, continue to notify auth_level_<1-3>
 							return $checklevel;
@@ -504,7 +504,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			3	=> $this->getField("auth_level_3"),
 			4	=> $this->financeguid
 		);
-		fb("TmnAuthorisationProcessor.php<userIsAuthoriser() - authorisers:"); fb($authorisers);
+		$this->d("TmnAuthorisationProcessor.php<userIsAuthoriser() - authorisers:"); $this->d($authorisers);
 		
 		for ($i = 0; $i <= 4; $i++) {
 			if ($user->getGuid() == $authorisers[$i] && $authorisers[$i] != "") {
@@ -512,7 +512,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			}
 		}
 		
-		fb("userIsAuthoriser returning value:".$returndata);
+		$this->d("userIsAuthoriser returning value:".$returndata);
 		
 		//check if user
 		return $returndata;
@@ -547,7 +547,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		$this->update();
 		$this->retrieve();
-		fb($this);
+		
 		$useremailaddress = $this->notifyOfSubmission(0, $session_id);	//nofify the user (0)
 		$notifyemailaddress = $this->notifyOfSubmission($this->getNextAuthLevel(0), $session_id);	//notify the next authoriser after the user (0)
 			
@@ -662,7 +662,6 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		if ($user->getGuid() == $this->getField("auth_user")) {
 			$reason	= json_decode($this->getField("auth_user_reasons"), true);
-			fb($reason);
 			$total	= 0;
 			if (isset($reason['aussie-based'])) {
 				$total += count($reason['aussie-based']['reasons']);

@@ -280,12 +280,11 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 
 	//needs to be called on after render so needs to be called like so this.loadUrlSession.call({controller:this, session: this.getSession()}, this)
 	loadUrlSession: function(form) {
-		console.warn(this.controller.getSession());
-		console.warn(this.controller.sessionStore);
+
 		var sessionRecordIndex	= this.controller.sessionStore.find('SESSION_ID', this.controller.getSession()),
 		combo					= form.getForm().items.map['session_combo'],
 		sessionRecord;
-		console.warn(sessionRecordIndex);
+
 		//if the session is found load it
 		if (sessionRecordIndex >= 0) {
 			//grab record

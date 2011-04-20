@@ -5,16 +5,22 @@ if(file_exists("FinancialProcessor.php")) {
 	include_once("FinancialProcessor.php");
 	include_once("../lib/FirePHPCore/fb.php");
 	include_once('../lib/cas/cas.php');		//include the CAS module
-	include_once('classes/TmnAuthorisationProcessor.php');
-	include_once('classes/TmnCrudUser.php');
-} else {
+	//include_once('classes/TmnAuthorisationProcessor.php');
+	//include_once('classes/TmnCrudUser.php');
+} elseif (file_exists("../FinancialProcessor.php")) {
 	include_once("../mysqldriver.php");
 	include_once("../logger.php");
 	include_once("../FinancialProcessor.php");
 	include_once("../../lib/FirePHPCore/fb.php");
 	include_once('../../lib/cas/cas.php');		//include the CAS module
-	include_once('../classes/TmnAuthorisationProcessor.php');
-	include_once('../classes/TmnCrudUser.php');
+	//include_once('../classes/TmnAuthorisationProcessor.php');
+	//include_once('../classes/TmnCrudUser.php');
+} else {
+	include_once("php/mysqldriver.php");
+	include_once("php/logger.php");
+	include_once("php/FinancialProcessor.php");
+	include_once("lib/FirePHPCore/fb.php");
+	include_once('lib/cas/cas.php');
 }
 
 //Authenticate the user in GCX with phpCAS
@@ -180,7 +186,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		if (mysql_num_rows($sql) != 1) die('{success: false}'); //can't be found in DB
 		$row = mysql_fetch_assoc($sql);
 		$s_sql = mysql_query("SELECT * FROM User_Profiles WHERE guid=(SELECT SPOUSE_GUID FROM User_Profiles WHERE guid='".$this->guid."')");
-	if($this->DEBUG) {fb($s_sql);fb(mysql_num_rows($s_sql));}
+		if($this->DEBUG) {fb($s_sql);fb(mysql_num_rows($s_sql));}
 		if (mysql_num_rows($s_sql) == 0) {
 			$this->spouse = 0;
 			$iscouple = 0;
@@ -244,36 +250,38 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['stipend']						=	$this->financial_data['STIPEND'];
 		$this->data['s_stipend']					=	$this->financial_data['S_STIPEND'];
 		
-		//Housing
-		$this->data['housing']						=	$this->financial_data['HOUSING'];
-		$this->data['monthly_housing']				=	$this->getMonthlyHousing();
-				
-		//Total Additional Housing Allowance
-		$this->financial_data['ADDITIONAL_HOUSING']	=	$this->getAdditionalHousing();
-		$this->data['additional_housing']			=	$this->financial_data['ADDITIONAL_HOUSING'];
 		
-		//Stipend
-		//-from Form on Page
-		$this->data['housing_stipend']				=	$this->getHousingStipend();
-		$this->data['s_housing_stipend']			=	0;
+		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
+			//Housing
+			$this->data['housing']						=	$this->financial_data['HOUSING'];
+			$this->data['monthly_housing']				=	$this->getMonthlyHousing();
+					
+			//Total Additional Housing Allowance
+			$this->financial_data['ADDITIONAL_HOUSING']	=	$this->getAdditionalHousing();
+			$this->data['additional_housing']			=	$this->financial_data['ADDITIONAL_HOUSING'];
+			
+			//Stipend
+			//-from Form on Page
+			$this->data['housing_stipend']				=	$this->getHousingStipend();
+			$this->data['s_housing_stipend']			=	0;
+		}
 		
-		
-		fb("findat[NS]:"); fb($this->financial_data['NET_STIPEND']);
-		fb("data[NS]:");	fb($this->data['net_stipend']);
 		//Net Stipend
 		//-from Form on Page
 		//NOTE: The old TMN refers to and displays this as Gross Stipend.
 		//Either way, this value is as such: <Net/Gross Stipend> + <Additional Tax> + <Post-Tax Super> = Taxable Income
-		$this->financial_data['NET_STIPEND']	=	$this->data['stipend'] + $this->data['housing_stipend'];
+		$this->financial_data['NET_STIPEND']		=	$this->data['stipend'] + $this->data['housing_stipend'];
 		$this->data['net_stipend']					=	$this->financial_data['NET_STIPEND'];
 		$this->financial_data['S_NET_STIPEND']		=	$this->data['s_stipend'] + $this->data['s_housing_stipend'];
 		$this->data['s_net_stipend']				=	$this->financial_data['S_NET_STIPEND'];
 		
-		//user Additional Housing Allowance
-		$this->data['additional_housing_allowance']		=	round($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
-		//spouse Additional Housing Allowance
-		$this->data['s_additional_housing_allowance']	=	round($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
-		
+		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
+			//user Additional Housing Allowance
+			$this->data['additional_housing_allowance']		=	round($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
+			//spouse Additional Housing Allowance
+			$this->data['s_additional_housing_allowance']	=	round($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
+		}
+			
 		//Additional Tax
 		//-from Form on Page
 		$this->data['additional_tax']				=	$this->financial_data['ADDITIONAL_TAX'];
@@ -298,8 +306,10 @@ class FinancialSubmitter extends FinancialProcessor {
 		//$this->financial_data['S_TAX']				=	$this->calculateTax($this->data['s_taxable_income'], 'resident');
 		$this->data['s_tax']						=	$this->financial_data['S_TAX'];
 		
-		//Housing Frequency
-		$this->data['housing_frequency']			=	($this->financial_data['HOUSING_FREQUENCY'] ? "Fortnightly" : "Monthly");
+		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
+			//Housing Frequency
+			$this->data['housing_frequency']			=	($this->financial_data['HOUSING_FREQUENCY'] ? "Fortnightly" : "Monthly");
+		}
 		
 		//Additional Life Cover
 		$this->data['additional_life_cover']		=	round($this->financial_data['ADDITIONAL_LIFE_COVER'] * 52 / 12);
@@ -310,48 +320,50 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['income_protection_cover_source']	=	($this->financial_data['INCOME_PROTECTION_COVER_SOURCE'] ? "Super Fund" : "Support Account");
 		$this->data['s_income_protection_cover_source']	=	($this->financial_data['S_INCOME_PROTECTION_COVER_SOURCE'] ? "Super Fund" : "Support Account");
 
-		//MFB Rate
-		switch ($this->financial_data['MFB_RATE']) {
-			case 0:
-				$this->data['mfb_rate'] = "Zero";
-				break;
-			case 1:
-				$this->data['mfb_rate'] = "Half";
-				break;
-			case 2:
-				$this->data['mfb_rate'] = "Full";
-				break;
+		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
+			//MFB Rate
+			switch ($this->financial_data['MFB_RATE']) {
+				case 0:
+					$this->data['mfb_rate'] = "Zero";
+					break;
+				case 1:
+					$this->data['mfb_rate'] = "Half";
+					break;
+				case 2:
+					$this->data['mfb_rate'] = "Full";
+					break;
+			}
+			$mfb_rate = $this->getMfbRate($this->financial_data['MFB_RATE']);
+			
+			switch ($this->financial_data['S_MFB_RATE']) {
+				case 0:
+					$this->data['s_mfb_rate'] = "Zero";
+					break;
+				case 1:
+					$this->data['s_mfb_rate'] = "Half";
+					break;
+				case 2:
+					$this->data['s_mfb_rate'] = "Full";
+					break;
+			}
+			$s_mfb_rate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
+			
+			//Ministry Fringe Benefits
+			$this->financial_data['MAX_MFB']				=	$this->calculateMaxMFB($this->data['taxable_income'], $mfb_rate, $this->data['days_per_wk']);
+			$this->data['max_mfb']							=	$this->financial_data['MAX_MFB'];
+			$this->financial_data['S_MAX_MFB']				=	$this->calculateMaxMFB($this->data['s_taxable_income'], $mfb_rate, $this->data['s_days_per_wk']);
+			$this->data['s_max_mfb']						=	$this->financial_data['S_MAX_MFB'];
+			
+			//Claimable Ministry Fringe Benefits
+			$this->financial_data['CLAIMABLE_MFB']		=	$this->getClaimableMfb(0);//$this->financial_data['CLAIMABLE_MFB'];
+			$this->data['claimable_mfb']				=	$this->financial_data['CLAIMABLE_MFB'];
+			$this->financial_data['S_CLAIMABLE_MFB']	=	$this->getClaimableMfb(1);
+			$this->data['s_claimable_mfb']				=	$this->financial_data['S_CLAIMABLE_MFB'];
+			
+			//Housing Ministry Fringe Benefits
+			$this->data['housing_mfb']					=	$this->financial_data['MAX_MFB'] - $this->financial_data['CLAIMABLE_MFB'];
+			$this->data['s_housing_mfb']				=	$this->financial_data['S_MAX_MFB'] - $this->financial_data['S_CLAIMABLE_MFB'];
 		}
-		$mfb_rate = $this->getMfbRate($this->financial_data['MFB_RATE']);
-		
-		switch ($this->financial_data['S_MFB_RATE']) {
-			case 0:
-				$this->data['s_mfb_rate'] = "Zero";
-				break;
-			case 1:
-				$this->data['s_mfb_rate'] = "Half";
-				break;
-			case 2:
-				$this->data['s_mfb_rate'] = "Full";
-				break;
-		}
-		$s_mfb_rate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
-		
-		//Ministry Fringe Benefits
-		$this->financial_data['MAX_MFB']				=	$this->calculateMaxMFB($this->data['taxable_income'], $mfb_rate, $this->data['days_per_wk']);
-		$this->data['max_mfb']							=	$this->financial_data['MAX_MFB'];
-		$this->financial_data['S_MAX_MFB']				=	$this->calculateMaxMFB($this->data['s_taxable_income'], $mfb_rate, $this->data['s_days_per_wk']);
-		$this->data['s_max_mfb']							=	$this->financial_data['S_MAX_MFB'];
-		
-		//Claimable Ministry Fringe Benefits
-		$this->financial_data['CLAIMABLE_MFB']		=	$this->getClaimableMfb(0);//$this->financial_data['CLAIMABLE_MFB'];
-		$this->data['claimable_mfb']				=	$this->financial_data['CLAIMABLE_MFB'];
-		$this->financial_data['S_CLAIMABLE_MFB']	=	$this->getClaimableMfb(1);
-		$this->data['s_claimable_mfb']				=	$this->financial_data['S_CLAIMABLE_MFB'];
-		
-		//Housing Ministry Fringe Benefits
-		$this->data['housing_mfb']					=	$this->financial_data['MAX_MFB'] - $this->financial_data['CLAIMABLE_MFB'];
-		$this->data['s_housing_mfb']				=	$this->financial_data['S_MAX_MFB'] - $this->financial_data['S_CLAIMABLE_MFB'];
 		
 		//Pre-Tax Super
 		$min_pretax_super 							= 	round($mfb_rate * $this->constants['MIN_ADD_SUPER_RATE'] * $this->data['taxable_income']);
@@ -371,16 +383,22 @@ class FinancialSubmitter extends FinancialProcessor {
 
 		//OVERSEAS DATA
 		//TODO if overseas/assignment
-		$this->data['os_assignment_start_date']		=	$this->financial_data['OS_ASSIGNMENT_START_DATE'];
-		$this->data['os_assignment_end_date']		=	$this->financial_data['OS_ASSIGNMENT_END_DATE'];
-		$this->data['os_lafha']						=	$this->financial_data['OS_LAFHA'];
-		$this->data['s_os_lafha']					=	$this->financial_data['S_OS_LAFHA'];
-		$this->data['os_resident_for_tax_purposes']	=	$this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES'] ? 'Resident Of Australia' : 'Non-Resident Of Australia';
-		if(!isset($this->financial_data['OS_OVERSEAS_HOUSING']))$this->financial_data['OS_OVERSEAS_HOUSING'] = 0;
-		$this->data['os_overseas_housing']			=	$this->financial_data['OS_OVERSEAS_HOUSING'];
-		//added so that this could be counted in the user's financial package
-		$this->data['os_overseas_housing_allowance']	=	round($this->financial_data['OS_OVERSEAS_HOUSING'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
-		$this->data['s_os_overseas_housing_allowance']	=	round($this->financial_data['OS_OVERSEAS_HOUSING'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
+		if ($this->financial_data['overseas_form']) {
+			$this->data['os_assignment_start_date']				=	$this->financial_data['OS_ASSIGNMENT_START_DATE'];
+			$this->data['os_assignment_end_date']				=	$this->financial_data['OS_ASSIGNMENT_END_DATE'];
+			$this->data['os_resident_for_tax_purposes']			=	$this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES'] ? 'Resident Of Australia' : 'Non-Resident Of Australia';
+			
+			if ($this->financial_data['home_assignment']) {
+				$this->data['os_overseas_housing']				=	$this->financial_data['OS_OVERSEAS_HOUSING'];
+				//added so that this could be counted in the user's financial package
+				$this->data['os_overseas_housing_allowance']	=	round($this->financial_data['OS_OVERSEAS_HOUSING'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
+				$this->data['s_os_overseas_housing_allowance']	=	round($this->financial_data['OS_OVERSEAS_HOUSING'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
+				if(!isset($this->financial_data['OS_OVERSEAS_HOUSING']))$this->financial_data['OS_OVERSEAS_HOUSING'] = 0;
+			} else {
+				$this->data['os_lafha']							=	$this->financial_data['OS_LAFHA'];
+				$this->data['s_os_lafha']						=	$this->financial_data['S_OS_LAFHA'];
+			}
+		}
 		
 		//Financial Packages
 		if (!$iscouple) {
@@ -425,7 +443,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['s_mmr']						=	$this->financial_data['S_MMR'];
 		
 		//Worker's Compensation
-		if (($this->financial_data['overseas_form'] == true || $this->financial_data['overseas_form'] == 'true') && ($this->financial_data['home_assignment'] == false || $this->financial_data['home_assignment'] == 'false')) {
+		if (($this->financial_data['overseas_form'] == true) && ($this->financial_data['home_assignment'] == false)) {
 			$this->data['workers_comp']					=	0;
 		} else {
 			$this->financial_data['WORKERS_COMP']		=	round($this->data['joint_financial_package'] * $this->constants['WORKERS_COMP_RATE']);
@@ -648,12 +666,13 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		
 		//$sql = "SELECT AUTH_SESSION_ID FROM Tmn_Sessions WHERE SESSION_ID = ".$this->financial_data['sessionid']
+		/*
 		fb("665: financial_data");
 		fb($this->financial_data);
 		fb("667: data");
 		fb($this->data);
 		fb($this);
-
+		*/
 		
 		/*
 		$authproc = new TmnAuthorisationProcessor($this->logger->getLogPath(), null);
@@ -686,7 +705,6 @@ class FinancialSubmitter extends FinancialProcessor {
 				unset($this->data[$k]);
 		}
 		
-		//fb("net stipend:"); fb($this->financial_data['net_stipend']);
 		//check that net stipend for both spouses is over $100
 		if ($this->data['net_stipend'] < $this->constants['STIPEND_MIN'])
 			$err .= "NET_STIPEND:\"You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".\", ";
