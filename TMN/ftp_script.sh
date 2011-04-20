@@ -57,6 +57,10 @@ cat AuthorisationViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js aut
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-authviewer-all.js tmn-authviewer-all_long.js
 rm tmn-authviewer-all_long.js
 
+cat SummaryPanel.js viewer.js > viewer-all_long.js
+java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o viewer-all.js viewer-all_long.js
+rm viewer-all_long.js
+
 echo 'Compressing CSS Files ...'
 cd ../lib
 cat resources/css/loading.css resources/css/ext-all.css resources/css/customstyles.css customclasses/statusbar/css/statusbar.css > tmn-all_long.css
@@ -138,6 +142,7 @@ mkdir php/imp
 mput php/imp/*
 mkdir php/interfaces
 mput php/interfaces/*
+put lib/customclasses/custom-libraries-all.js
 mkdir ui
 mput ui/*
 bye
