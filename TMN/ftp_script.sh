@@ -40,7 +40,7 @@ ls
 cd "TMN ${version}"
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
-perl -pi -e 's/[\ \t]*$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
+perl -pi -e 's/[\ \t]*\$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
 
 echo 'String Replacement Complete'
