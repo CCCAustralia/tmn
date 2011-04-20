@@ -18,8 +18,6 @@ if ($NEWVERSION){
 
 include_once('php/classes/Tmn.php');
 include_once('php/classes/TmnCrudSession.php');
-include_once('php/FinancialProcessor.php');
-include_once('php/FinancialSubmitter.php');
 $LOGFILE	= "php/logs/viewer.log";
 
 try {
@@ -31,6 +29,10 @@ try {
 	
 	//check authentication has happened
 	if ($tmn->isAuthenticated()) {
+		
+		//these are included here because they require the user to have already authenticated
+		include_once('php/FinancialProcessor.php');
+		include_once('php/FinancialSubmitter.php');
 		
 		//if a session has been set to load
 		if (isset($_REQUEST['session']) || isset($_REQUEST['isession'])) {
@@ -146,17 +148,7 @@ try {
 					}
 					
 					echo '<script type="text/javascript">
-							document.getElementById("loading-message").innerHTML = "Loading Custom Libraries...";
-						</script>';
-					
-					if ($DEBUG) {
-						echo '<script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>';
-					} else {
-						echo '<script type="text/javascript" src="lib/customclasses/Printer-all.js'.$force_reload.'"></script>';
-					}
-					
-					echo '<script type="text/javascript">
-							document.getElementById("loading-message").innerHTML = "Loading TMN Form...";
+							document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";
 						</script>
 						<script type="text/javascript">
 							var G_DATA = ' . json_encode($response) . ',
