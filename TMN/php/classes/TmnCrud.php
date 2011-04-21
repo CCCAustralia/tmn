@@ -446,7 +446,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			if (isset($array[$key])) {
 				
 				//if an integer apprears as a string then convert it
-				if (is_numeric($array[$key])) {
+				if (is_numeric($array[$key]) && $this->private_types[$key] == 'i') {
 					$array[$key] = (int)$array[$key];
 				}
 				
@@ -470,7 +470,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 			if (isset($array[$key])) {
 				
 				//if an integer apprears as a string then convert it
-				if (is_numeric($array[$key])) {
+				if (is_numeric($array[$key]) && $this->public_types[$key] == 'i') {
 					$array[$key] = (int)$array[$key];
 				}
 				
