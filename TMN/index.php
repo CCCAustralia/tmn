@@ -7,7 +7,8 @@ $constants = getConstants(array("VERSIONNUMBER"));
 $LOGFILE		= 'php/logs/index.log';
 $DEBUG			= 1;
 $NEWVERSION		= 1;
-$VERSIONNUMBER	= $constants['VERSIONNUMBER'];//"2-1-1";
+//todo: version updated by ftp script
+$VERSIONNUMBER	= 2-2-5;
 
 if ($DEBUG) {
 	$force_debug = "-debug";

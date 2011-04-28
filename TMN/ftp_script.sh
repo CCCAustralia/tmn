@@ -1,7 +1,9 @@
 
-version='2.2.4'
-svn_uname='harro'
-svn_pword='jonathan'
+version='2.2.5'
+#svn_uname='harro'
+#svn_pword='jonathan'
+svn_uname='tom.moose'
+svn_pword='johnwayn3'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
