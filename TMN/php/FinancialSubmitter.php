@@ -513,12 +513,14 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		
 		//total transfers with ministry levy
-		if (count($transfers) > 0)
+		if (count($transfers) > 0) {
 			foreach($transfers as $r)
 			{
 				$total_transfers += $r['amount'];
 			}
-		$this->data['transfers']					=	$transfers;
+		}
+		
+		$this->data['transfers']					=	(is_null($transfers) ? array() : $transfers);
 		$this->data['total_transfers']				=	(is_null($total_transfers) ? 0 : $total_transfers);
 		
 		//International Donations
@@ -701,8 +703,9 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//remove spouse entries if s_firstname is null
 		foreach ($this->data as $k=>$v) {
-			if (is_null($this->data['s_firstname']) && substr($k, 0, 2) == 's_')
+			if ((!$this->spouse && substr($k, 0, 2) == 's_') || $v === "__") {
 				unset($this->data[$k]);
+			}
 		}
 		
 		//check that net stipend for both spouses is over $100

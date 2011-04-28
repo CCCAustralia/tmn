@@ -39,12 +39,49 @@ try {
 			
 			if ($session->getField('auth_session_id') == null) {
 				//set up the auth users
-				$authlevel1 = new TmnCrudUser($logfile, $authorisers['level_1']['user_id']);
-				if ($authorisers['level_2']['user_id'] != 0) {
-					$authlevel2 = new TmnCrudUser($logfile, $authorisers['level_2']['user_id']);
+				$auth_error	= '';
+				//check auth level 1 selection for errors
+				if ($authorisers['level_1']['user_id'] != 0) {
+					
+					if ($authorisers['level_1']['user_id'] == $authorisers['level_2']['user_id']) {
+						
+						$auth_error	= 'You have selected the same person as your Ministry Overseer & your National Ministry Leader. Please select different people for each.';
+						
+					} elseif ($authorisers['level_1']['user_id'] == $authorisers['level_3']['user_id']) {
+						
+						$auth_error	= 'You have selected the same person as your Ministry Overseer & your National Director. Please select different people for each.';
+						
+					} else {
+
+						$authlevel1 = new TmnCrudUser($logfile, $authorisers['level_1']['user_id']);
+						
+					}
+					
 				}
+				
+				//check auth level 2 selection for errors
+				if ($authorisers['level_2']['user_id'] != 0) {
+					
+					if ($authorisers['level_2']['user_id'] == $authorisers['level_3']['user_id']) {
+						
+						$auth_error	= 'You have selected the same person as your National Ministry Leader & your National Director. Please select different people for each.';
+						
+					} else {
+						$authlevel2 = new TmnCrudUser($logfile, $authorisers['level_2']['user_id']);
+					}
+					
+				}
+				
+				//check auth level 3 selection for errors
 				if ($authorisers['level_3']['user_id'] != 0) {
+					
 					$authlevel3 = new TmnCrudUser($logfile, $authorisers['level_3']['user_id']);
+					
+				}
+				
+				//if there was a problem with the authorisers selected then return an error
+				if (strlen($auth_error) > 0) {
+					die(json_encode(array('success' => false, 'alert' => $auth_error)));
 				}
 				
 				if ($session->getField("home_assignment_session_id") == null && $session->getField("international_assignment_session_id") == null) {

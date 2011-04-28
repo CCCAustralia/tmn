@@ -55,6 +55,12 @@ if (isset($_REQUEST['mode'])) {
 					$userlist_nd[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
 					$userlist_nd[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
 					$userlist_nd[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
+					
+					//Store the NMLs
+					$userlist_nml[$temp['GUID']] = $temp;
+					$userlist_nml[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
+					$userlist_nml[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
+					$userlist_nml[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
 				} else {
 					//Store the NMLs
 					$userlist_nml[$temp['GUID']] = $temp;
@@ -111,8 +117,14 @@ if (isset($_REQUEST['mode'])) {
 			}
 		////Authlevel 3
 			if ($mode == 'level_3') {
-				//return set is ND
-				$returnarray = $userlist_nd;
+			////return set is user's ministry NML unless user is NML or ND
+				if ($userauthlevel == 3) {
+					//if ND		
+					$returnarray = $userlist_nml;
+				} else {
+					//else return set is ND
+					$returnarray = $userlist_nd;
+				}
 			}
 		////mode=all
 			if ($mode == "all") {
