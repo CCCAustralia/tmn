@@ -1731,7 +1731,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		//grab the store that holds the session names and ids
 		var sessionStore	= this.getTopToolbar().items.map['session_combo'].getStore();
 		//if the name is found in the store return true
-		if(sessionStore.find('SESSION_NAME',session_name) >= 0) {
+		if(sessionStore.findExact('SESSION_NAME',session_name) >= 0) {
 			return true;
 		} else {
 			return false;

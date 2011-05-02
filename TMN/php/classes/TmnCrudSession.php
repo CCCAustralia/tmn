@@ -534,7 +534,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		//add transfer array
 		$obj['transfers']			= $this->produceTransferArray();
 		
-		$obj['date']				= date("d M Y", strtotime($obj['data_modified']));
+		$obj['date']				= date("d M Y", strtotime($obj['date_modified']));
 		
 		//format os_resident_for_tax_purposes for display
 		switch ($this->getField('os_resident_for_tax_purposes')) {

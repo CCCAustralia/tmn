@@ -194,7 +194,7 @@ tmn.view.PrintForm = function(view, config) {
 										if (responseObj.alert !== undefined) {
 											errorMsg = responseObj.alert;
 										} else {
-											errorMsg = 'Your submittion process didn\'t work, please try again.';
+											errorMsg = 'Your submission process didn\'t work, please try again.';
 										}
 										
 										if (responseObj.locked !== undefined) {
@@ -223,7 +223,7 @@ tmn.view.PrintForm = function(view, config) {
 									if (responseObj.alert !== undefined) {
 										errorMsg = responseObj.alert;
 									} else {
-										errorMsg = 'Your submittion process didn\'t work, please try again.';
+										errorMsg = 'Your submission process didn\'t work, please try again.';
 									}
 									
 									if (responseObj.locked !== undefined) {
