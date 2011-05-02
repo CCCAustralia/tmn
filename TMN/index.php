@@ -8,7 +8,7 @@ $LOGFILE		= 'php/logs/index.log';
 $DEBUG			= 1;
 $NEWVERSION		= 1;
 //todo: version updated by ftp script
-$VERSIONNUMBER	= "2-2-5";
+$VERSIONNUMBER	= "2-2-7";
 
 if ($DEBUG) {
 	$force_debug = "-debug";
