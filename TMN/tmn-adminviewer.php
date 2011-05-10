@@ -73,20 +73,22 @@ try {
 		//fb($lazyusers);
 		
 		//produce the bcc - names and emails of lazy users
+		$lazy_m_email_bcc = '"';
 		foreach ($lazyusers as $guid => $userdetails) {
-			$lazy_m_email_bcc .= '"'.$userdetails['name'].'" <'.$userdetails['email'].'>, ';
+			$lazy_m_email_bcc .= "'".$userdetails['name']."' <".$userdetails['email'].">, ";
 		}
 		$lazy_m_email_bcc = substr($lazy_m_email_bcc, 0, strlen($lazy_m_email_bcc) - 2);
+		$lazy_m_email_bcc .= '"';
 		fb($lazy_m_email_bcc);
 		
 		//Lazy email to
-		$lazy_m_email_to = "";
+		$lazy_m_email_to = '""';
 		//lazy email from
-		$lazy_m_email_from = '"Member Care" <mc_admin@ccca.org.au>';
+		$lazy_m_email_from = '"mc_admin@ccca.org.au"';
 		//lazy email subject
-		$lazy_m_email_subject = 'You need to do a TMN!';
+		$lazy_m_email_subject = '"You need to do a TMN!"';
 		//lazy email body
-		$lazy_m_email_body = "Our records show that you haven't done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.\n\n Please follow the link below to complete your TMN online.\nhttp://mportal.ccca.org.au/tmn\n\nThanks,\nMember Care";
+		$lazy_m_email_body = '"<html><body>Our records show that you havent done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.<br /><br />Please follow the link below to complete your TMN online.<br />http://mportal.ccca.org.au/tmn<br /><br />Thanks,<br />Member Care</body></html>"';
 		
 	////Lazy Authorisers
 		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
@@ -99,20 +101,22 @@ try {
 		}
 		
 		//produce the bcc - names and emails of lazy authorisers
+		$lazy_a_email_bcc .= '"';
 		foreach ($lazyauth as $userdetails) {
-			$lazy_a_email_bcc .= '"'.$userdetails['name'].'" <'.$userdetails['email'].'>, ';
+			$lazy_a_email_bcc .= "'".$userdetails['name']."' <".$userdetails['email'].">, ";
 		}
 		$lazy_a_email_bcc = substr($lazy_a_email_bcc, 0, strlen($lazy_a_email_bcc) - 2);
+		$lazy_a_email_bcc .= '"';
 		fb($lazy_a_email_bcc);
 		
 		//Lazy email to
-		$lazy_a_email_to = "";
+		$lazy_a_email_to = '""';
 		//lazy email from
-		$lazy_a_email_from = '"Member Care" <mc_admin@ccca.org.au>';
+		$lazy_a_email_from = '"mc_admin@ccca.org.au"';
 		//lazy email subject
-		$lazy_a_email_subject = 'You need to approve a TMN!';
+		$lazy_a_email_subject = '"You need to approve a TMN!"';
 		//lazy email body
-		$lazy_a_email_body = "Our records show that there has been a TMN waiting for your approval for longer than 2 weeks. \n\n Please follow the link below to approve or reject it, so it can be processed.\nhttp://mportal.ccca.org.au/tmn/tmn-authviewer.php\n\nThanks,\nMember Care";
+		$lazy_a_email_body = '"Our records show that there has been a TMN waiting for your approval for longer than 2 weeks. \\n\\nPlease follow the link below to approve or reject it, so it can be processed.\\nhttp://mportal.ccca.org.au/tmn/tmn-authviewer.php\\n\\nThanks,\\nMember Care"';
 		
 		
 	
