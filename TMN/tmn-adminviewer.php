@@ -43,6 +43,81 @@ try {
 		}
 		
 		//if there is a session set, drop it into the webpage as a javascript variable
+
+		////get all users guids and emails
+		$stmt = $db->query("SELECT FIRSTNAME, SURNAME, EMAIL, GUID, SPOUSE_GUID FROM User_Profiles WHERE IS_TEST_USER = 0");
+		$allusers_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
+	////Lazy Missios list (emails of users with no processed tmn submitted in the last 6 months (178 days) for them or their spouse)
+		//$sql =  "SELECT EMAIL FROM `User_Profiles` WHERE GUID NOT IN (SELECT `User_Profiles`.SPOUSE_GUID FROM `User_Profiles` WHERE `User_Profiles`.GUID IN (SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178)) && GUID NOT IN (SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178) && `User_Profiles`.IS_TEST_USER = 0";
+		
+		
+		$stmt = $db->query("SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178");
+		$guidsforvalidsessions_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
+		$guidsforvalidsessions = array();
+		foreach ($guidsforvalidsessions_raw as $key => $guidarray) {
+			$guidsforvalidsessions[$key] = $guidarray['GUID'];
+		}
+		
+		//produce a list without users with tmns
+		$lazyusers = array();
+		foreach ($allusers_raw as $user) {
+			$lazyusers[$user['GUID']] = array('name' => $user['FIRSTNAME'].' '.$user['SURNAME'], 'email' => $user['EMAIL']);	//copy every user
+			if (in_array($user['GUID'], $guidsforvalidsessions) || in_array($user['SPOUSE_GUID'], $guidsforvalidsessions)) {	//if they've done a tmn
+				//fb($user);
+				unset($lazyusers[$user['GUID']]);	//remove them 						from the lazy list
+				unset($lazyusers[$user['SPOUSE_GUID']]);			//and their spouse 
+			}
+		}
+		//fb($lazyusers);
+		
+		//produce the bcc - names and emails of lazy users
+		foreach ($lazyusers as $guid => $userdetails) {
+			$lazy_m_email_bcc .= '"'.$userdetails['name'].'" <'.$userdetails['email'].'>, ';
+		}
+		$lazy_m_email_bcc = substr($lazy_m_email_bcc, 0, strlen($lazy_m_email_bcc) - 2);
+		fb($lazy_m_email_bcc);
+		
+		//Lazy email to
+		$lazy_m_email_to = "";
+		//lazy email from
+		$lazy_m_email_from = '"Member Care" <mc_admin@ccca.org.au>';
+		//lazy email subject
+		$lazy_m_email_subject = 'You need to do a TMN!';
+		//lazy email body
+		$lazy_m_email_body = "Our records show that you haven't done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.\n\n Please follow the link below to complete your TMN online.\nhttp://mportal.ccca.org.au/tmn\n\nThanks,\nMember Care";
+		
+	////Lazy Authorisers
+		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
+		$lazyauth_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		fb($lazyauth_raw);
+		
+		//process the assoc array, and remove duplicates
+		foreach ($lazyauth_raw as $user) {
+			$lazyauth[$userdetails['GUID']] = array('name' => $user['FIRSTNAME'].' '.$user['SURNAME'], 'email' => $user['EMAIL']);	//copy every user
+		}
+		
+		//produce the bcc - names and emails of lazy authorisers
+		foreach ($lazyauth as $userdetails) {
+			$lazy_a_email_bcc .= '"'.$userdetails['name'].'" <'.$userdetails['email'].'>, ';
+		}
+		$lazy_a_email_bcc = substr($lazy_a_email_bcc, 0, strlen($lazy_a_email_bcc) - 2);
+		fb($lazy_a_email_bcc);
+		
+		//Lazy email to
+		$lazy_a_email_to = "";
+		//lazy email from
+		$lazy_a_email_from = '"Member Care" <mc_admin@ccca.org.au>';
+		//lazy email subject
+		$lazy_a_email_subject = 'You need to approve a TMN!';
+		//lazy email body
+		$lazy_a_email_body = "Our records show that there has been a TMN waiting for your approval for longer than 2 weeks. \n\n Please follow the link below to approve or reject it, so it can be processed.\nhttp://mportal.ccca.org.au/tmn/tmn-authviewer.php\n\nThanks,\nMember Care";
+		
+		
+	
+		
+		//if there is a session set, drop it into the webpage as a javascript variable
 		if (isset($_REQUEST['session'])) {
 			$g_session	= $_REQUEST['session'];
 		} else {
@@ -96,8 +171,20 @@ try {
 					echo '<script type="text/javascript">
 						document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";
 					</script>
-					<script type="text/javascript">var G_SESSION = ' . $g_session . ';</script>';
-					
+					<script type="text/javascript">
+						var G_LAZY_M_EMAIL_TO = ' . 		$lazy_m_email_to . ';
+						var G_LAZY_M_EMAIL_BCC = ' . 		$lazy_m_email_bcc . ';
+						var G_LAZY_M_EMAIL_FROM = ' . 		$lazy_m_email_from . ';
+						var G_LAZY_M_EMAIL_SUBJECT = ' . 	$lazy_m_email_subject . ';
+						var G_LAZY_M_EMAIL_BODY = ' . 		$lazy_m_email_body . ';
+						
+						var G_LAZY_A_EMAIL_TO = ' . 		$lazy_a_email_to . ';
+						var G_LAZY_A_EMAIL_BCC = ' . 		$lazy_a_email_bcc . ';
+						var G_LAZY_A_EMAIL_FROM = ' . 		$lazy_a_email_from . ';
+						var G_LAZY_A_EMAIL_SUBJECT = ' . 	$lazy_a_email_subject . ';
+						var G_LAZY_A_EMAIL_BODY = ' . 		$lazy_a_email_body . ';
+						var G_SESSION = ' . $g_session . ';
+					</script>';
 					if ($DEBUG) {
 						echo '<script type="text/javascript" src="ui/AdminViewerControlPanel.js'.$force_reload.'"></script>
 						<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
