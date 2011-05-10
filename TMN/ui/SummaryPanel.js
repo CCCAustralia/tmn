@@ -153,10 +153,6 @@ Ext.extend(tmn.view.SummaryPanel, Ext.Panel, {
 	 */
 	printSummary: function() {
 		//print it
-		if (Ext.isChrome) {
-			window.print();
-		} else {
-			Ext.ux.Printer.print(this);
-		}
+		Ext.ux.Printer.print(this);
 	}
 });

@@ -7,8 +7,8 @@ svn_pword='jonathan'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=true
-full_refresh=false
+create_tag=false
+full_refresh=true
 
 #save the current directory so the user can be returned here
 pushd . > /dev/null
@@ -22,10 +22,10 @@ echo 'Start Creating Tag'
 echo ''
 
 svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
-fi
-
 echo ''
 echo 'Tag Creation Complete'
+fi
+
 echo 'Start Export'
 echo ''
 
@@ -58,6 +58,10 @@ rm tmn-all_long.js
 cat AuthorisationViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js authviewer.js > tmn-authviewer-all_long.js
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-authviewer-all.js tmn-authviewer-all_long.js
 rm tmn-authviewer-all_long.js
+
+cat AdminViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js adminviewer.js > tmn-adminviewer-all_long.js
+java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-adminviewer-all.js tmn-adminviewer-all_long.js
+rm tmn-adminviewer-all_long.js
 
 cat SummaryPanel.js viewer.js > viewer-all_long.js
 java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o viewer-all.js viewer-all_long.js

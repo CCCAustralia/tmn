@@ -2009,7 +2009,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 					if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 						this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
 				}
-				
+				console.info('loadForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 				//update backend with defaults
 				this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], this.getForm().items.map['os_resident_for_tax_purposes'].getValue(), false);
 				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
@@ -2032,7 +2032,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if ( !isNaN(parseInt(form.items.items[fieldCount].getValue())) )
 				form.items.items[fieldCount].setValue(parseInt(form.items.items[fieldCount].getValue()));
 		}
-		
+		console.info('onLoadSuccess: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
 		this.fireEvent('financialdataupdated', this, form.items.map['os_resident_for_tax_purposes'], form.items.map['os_resident_for_tax_purposes'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
@@ -2060,7 +2060,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if ( !isNaN(parseInt(form.items.items[fieldCount].getValue())) )
 				form.items.items[fieldCount].setValue(parseInt(form.items.items[fieldCount].getValue()));
 		}
-		
+		console.info('onLoadFailure: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
 		this.fireEvent('financialdataupdated', this, form.items.map['os_resident_for_tax_purposes'], form.items.map['os_resident_for_tax_purposes'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
@@ -2251,7 +2251,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if (this.rendered) {
 				//save the session combo's state before the form is reset
 				var sessionIDtemp = data['session_id'];
-				
+				console.info('onLoadSessionSuccess: call resetForm, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 				this.resetForm();
 				
 				//stop financial data being sent to the backend for processing while data is loaded into the form
@@ -2588,8 +2588,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		for (fieldCount = 0; fieldCount < this.getForm().items.length; fieldCount++){
 			this.getForm().items.items[fieldCount].reset();
 		}
-		
+		console.info('resetForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
+		//TODO: reset state as well as value
 		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], 1, false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', false);

@@ -139,7 +139,7 @@ class FinancialProcessor {
 		$this->spouse = $this->getSpouseGuid();
 	
 		//OVERSEAS PROCESSING
-		if ($this->financial_data['overseas']) {
+		if ($this->financial_data['overseas'] && !$this->financial_data['home_assignment']) {
 			//Stipend
 			//calculate the extra stipend
 			$overflow = $this->financial_data['STIPEND'] - $this->constants['OS_STIPEND_MAX'];
@@ -519,7 +519,7 @@ class FinancialProcessor {
 	//returns				housing_stipend (a number >= 0)
 	public function getHousingStipend(){
 		//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
-		if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['STIPEND']) && isset($this->financial_data['ADDITIONAL_HOUSING']) && !$this->financial_data['overseas'])
+		if (isset($this->financial_data['HOUSING']) && isset($this->financial_data['STIPEND']) && isset($this->financial_data['ADDITIONAL_HOUSING']) && !($this->financial_data['overseas'] && !$this->financial_data['home_assignment']))
 		{
 			$monthly_housing = $this->getMonthlyHousing();
 		

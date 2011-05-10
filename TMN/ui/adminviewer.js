@@ -23,6 +23,7 @@ tmn.viewer = function() {
 				hasSpouse	= ((data['international-assignment']['s_firstname'] !== undefined && data['international-assignment']['s_firstname'] != null && data['international-assignment']['s_firstname'] != "") ? true : false);
 			}
 			
+			//TODO: add all three reasons-
 			//render reasons
 			if (auth.total > 0) {
 				this.reasonPanel.showPanel(Ext.decode(auth.reasons));
@@ -60,15 +61,23 @@ tmn.viewer = function() {
 			this.session		=  G_SESSION;
 			
 			//create view
-			this.controlPanel	= new tmn.view.AuthorisationViewerControlPanel(this);
-			this.reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'reason_panel', noNames: true});
+			this.controlPanel		= new tmn.view.AuthorisationViewerControlPanel(this);
+			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', noNames: true});
+			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', noNames: true});
+			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', noNames: true});
 			this.summaryPanel	= new tmn.view.SummaryPanel(this);
 			
 			this.controlPanel.setWidth(900);
 			this.controlPanel.render('tmn-viewer-controls-cont');
 			
-			this.reasonPanel.setWidth(900);
-			this.reasonPanel.render('tmn-reasonpanel-cont');
+			this.level_1_reasonPanel.setWidth(900);
+			this.level_1_reasonPanel.render('tmn-level-1-reasonpanel-cont');
+			
+			this.level_2_reasonPanel.setWidth(900);
+			this.level_2_reasonPanel.render('tmn-level-2-reasonpanel-cont');
+			
+			this.level_3_reasonPanel.setWidth(900);
+			this.level_3_reasonPanel.render('tmn-level-3-reasonpanel-cont');
 			
 			this.summaryPanel.setWidth(900);
 			this.summaryPanel.render('tmn-viewer-cont');

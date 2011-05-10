@@ -119,124 +119,36 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				]
 			},
 			{
-				  xtype:		'box',
-				  columnWidth:	.37,
-				  html:			'&nbsp;'
-			},
-			{
-				layout: 	'form',
-				columnWidth:.15,
-				bodyStyle:	'text-align:center;',
+				layout: 'form',
+	        	labelWidth:	200,
+				columnWidth:.5,
 				items: [
 					{
-					    id:			'confirm',
-			        	xtype:		'button',
-			        	disabled:	true,
-					    text:		'Approve this TMN',
-					    width:		80,
-					    scope:		this,
-					    handler:	function(button, event) {
-							if (this.session != '') {
-								Ext.Ajax.request({
-									url: './php/auth/authprocessor.php',
-									scope: this,
-									params: {
-										response: 'Yes',
-										session: this.getSession()
-									},
-									success: function() {
-										var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
-										
-										Ext.getCmp('confirm').setText('You Approved This TMN');
-							    		Ext.getCmp('reject').setText('Reject this TMN');
-							    		
-							    		Ext.getCmp('confirm').disable();
-							    		Ext.getCmp('reject').disable();
-										statusEl.setStyle('color', "#336600");
-										statusEl.update('Approved by You');
-
-										Ext.MessageBox.show({
-											icon: Ext.MessageBox.INFO,
-											buttons: Ext.MessageBox.OK,
-											closable: false,
-											title: 'Success!',
-											msg: 'This Session was successfully Confirmed.'
-										});
-									},
-									failure: this.fail
-								});
-							}
+					    id:			'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
+			        	xtype:		'linkbutton',
+			        	fieldLabel:	'Email Missionaries who haven\'t submitted a TMN in the last 6 months',
+					    text:		'Email Lazy Missionaries',
+					    href:		'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
+					    listeners:	{
+					    	scope: this,
+					    	render: function(button) {
+					    		console.log(button.href);
+					    	}
 					    }
 					}
 				]
-			},
-			{
-				layout:		'form',
-				columnWidth:.15,
-				bodyStyle:	'text-align: center;',
-				items: [
-					{
-					    id:			'reject',
-			        	xtype:		'button',
-			        	disabled:	true,
-					    text:		'Reject this TMN',
-					    width:		80,
-					    scope:		this,
-					    handler:	function(button, event) {
-							Ext.Ajax.request({
-								url: './php/auth/authprocessor.php',
-								scope: this,
-								params: {
-									response: 'No',
-									session: this.getSession()
-								},
-								success: function() {
-									var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
-
-									Ext.getCmp('confirm').setText('Approve this TMN');
-									Ext.getCmp('reject').setText('You Rejected This TMN');
-						    		
-						    		Ext.getCmp('confirm').disable();
-						    		Ext.getCmp('reject').disable();
-									statusEl.setStyle('color', "#CC3333");	
-									statusEl.update('<span>Rejected by You</span>');
-
-						    		Ext.MessageBox.show({
-										icon: Ext.MessageBox.INFO,
-										buttons: Ext.MessageBox.OK,
-										closable: false,
-										title: 'Success!',
-										msg: 'This Session was successfully Rejected.'
-									});
-								},
-								failure: this.fail
-							});
-					    }
-					}
-				]
-			},
-			{
-				  xtype:		'box',
-				  columnWidth:	1,
-				  html:			'&nbsp;'
-			},
-			{
-				  xtype:		'box',
-				  columnWidth:	.35,
-				  html:			'&nbsp;'
 			},
 			{
 				layout: 'form',
 	        	labelWidth:	200,
-				columnWidth:.6,
+				columnWidth:.5,
 				items: [
 					{
-					    id:			'email',
+					    id:			'mailto:' + G_LAZY_A_EMAIL_TO + '?bcc=' + G_LAZY_A_EMAIL_BCC + '&from=' + G_LAZY_A_EMAIL_FROM + '&subject=' + G_LAZY_A_EMAIL_SUBJECT + '&body=' + G_LAZY_A_EMAIL_BODY,
 			        	xtype:		'linkbutton',
-			        	fieldLabel:	'Want to talk before approving?',
-			        	disabled:	true,
-					    text:		'Email Creator',
-					    href:		'mailto:tech.team@ccca.org.au'
+			        	fieldLabel:	'Email Authorisers who have ignored a TMN for more than 2 weeks',
+					    text:		'Email Lazy Authorisers',
+					    href:		'mailto:' + G_LAZY_A_EMAIL_TO + '?bcc=' + G_LAZY_A_EMAIL_BCC + '&from=' + G_LAZY_A_EMAIL_FROM + '&subject=' + G_LAZY_A_EMAIL_SUBJECT + '&body=' + G_LAZY_A_EMAIL_BODY
 					}
 				]
 			},
@@ -245,7 +157,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				  columnWidth:1,
 				  autoEl:	{
 					  			tag: 'center',
-					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Overall Status: </span><span id="tmn-authviewer-overall-status-status" style="color:#999999;">Awaiting Approval</span></div>'
+					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Overall Status: </span><span id="tmn-authviewer-overall-status-status" style="color:#999999;">n/a</span></div>'
 					  		}
 			}
 			
@@ -310,7 +222,6 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 	selectSession: function(combo, record, index) {
 		
 		this.session	= record.get('SESSION_ID');
-		Ext.getCmp('email').setNameAndEmail(record.get('FIRSTNAME'), record.get('SURNAME'), record.get('EMAIL'));
 		
 		Ext.Ajax.request({
 			url: './php/auth/authviewer.php',
@@ -326,59 +237,27 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 		});
 	},
 	
-	processSession: function(progress, authoriser) {
+	processSession: function(progress) {
 		
-		var statusEl	= Ext.get("tmn-authviewer-overall-status-status");
+		var statusEl	= Ext.get("tmn-authviewer-overall-status-status"),
+			htmlString	= '';
 		
-		//Change interface based on  response
-		if (authoriser.response == 'Yes') {
-			Ext.getCmp('confirm').setText('You Approved This TMN');
-    		Ext.getCmp('confirm').disable();
-    		Ext.getCmp('reject').setText('Reject this TMN');
-    		Ext.getCmp('reject').enable();
-		} else if (authoriser.response == 'No') {
-			Ext.getCmp('confirm').setText('Approve this TMN');
-			Ext.getCmp('confirm').enable();
-			Ext.getCmp('reject').setText('You Rejected This TMN');
-    		Ext.getCmp('reject').disable();
-		} else {
-			Ext.getCmp('confirm').setText('Approved this TMN');
-			Ext.getCmp('confirm').enable();
-    		Ext.getCmp('reject').setText('Reject this TMN');
-    		Ext.getCmp('reject').enable();
+		//create html from response
+		for (authCount=0; authCount < progress.length; authCount++) {
+			htmlString += '<br />Approved by ' + progress[authCount].firstname + ' ' + progress[authCount].surname + ' - ' + progress.date;
 		}
-		
-		// enable email button
-		Ext.getCmp('email').enable();
 		
 		//set overall status
 		if (progress.response == 'Yes') {
-			Ext.getCmp('confirm').disable();
-    		Ext.getCmp('reject').disable();
 			statusEl.setStyle('color', "#336600");
-			statusEl.update('Approved - ' + progress.date);
-		}
-		
-		if (progress.response == 'No') {
-			Ext.getCmp('confirm').disable();
-    		Ext.getCmp('reject').disable();
-			statusEl.setStyle('color', "#CC3333");	
-			statusEl.update('<span>Rejected by </span><a href="mailto:' + progress.email + '?subject=TMN: Rejection Enquiry">' + progress.name + '</a> - ' + progress.date);	
-		}
-		
-		if (progress.response == 'Pending') {
-			statusEl.setStyle('color', "#999999");
-			statusEl.update('<span>Awaiting Approval from </span><a href="mailto:' + progress.email + '?subject=TMN: Approval Enquiry">' + progress.name + '</a>');
+			statusEl.update(htmlString);
 		}
 	},
 	
 	resetControls:	function() {
 		Ext.getCmp('session_combo').clearValue();
-		Ext.getCmp('confirm').disable();
-		Ext.getCmp('reject').disable();
-		Ext.getCmp('email').disable();
 		Ext.get('tmn-authviewer-overall-status-status').setStyle('color', "#999999");
-		Ext.get('tmn-authviewer-overall-status-status').update('Awaiting Approval');
+		Ext.get('tmn-authviewer-overall-status-status').update('n/a');
 	}
 	
 });

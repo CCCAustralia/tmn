@@ -43,8 +43,11 @@ try {
 		}
 		
 		//if there is a session set, drop it into the webpage as a javascript variable
-		//Lazy Missios variable
-		//Lazy Approvers variable
+		if (isset($_REQUEST['session'])) {
+			$g_session	= $_REQUEST['session'];
+		} else {
+			$g_session	= 0;
+		}
 			
 		//ouput tmn page
 		echo	'<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
@@ -60,7 +63,7 @@ try {
 						echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/tmn-all.css'.$force_reload.'" />';
 					}
 					
-					echo '<title>TMN Viewer</title>
+					echo '<title>TMN Admin Viewer</title>
 				</head>
 				<body>
 					<div id="loading-mask"></div>
@@ -93,20 +96,22 @@ try {
 					echo '<script type="text/javascript">
 						document.getElementById("loading-message").innerHTML = "Loading TMN Viewer...";
 					</script>
-					<script type="text/javascript">var LAZY_MISSIOS = ' . $g_session . ';</script>';
+					<script type="text/javascript">var G_SESSION = ' . $g_session . ';</script>';
 					
 					if ($DEBUG) {
-						echo '<script type="text/javascript" src="ui/AuthorisationViewerControlPanel.js'.$force_reload.'"></script>
+						echo '<script type="text/javascript" src="ui/AdminViewerControlPanel.js'.$force_reload.'"></script>
 						<script type="text/javascript" src="ui/AuthorisationPanel.js'.$force_reload.'"></script>
 						<script type="text/javascript" src="ui/SummaryPanel.js'.$force_reload.'"></script>
-						<script type="text/javascript" src="ui/authviewer.js'.$force_reload.'"></script>';
+						<script type="text/javascript" src="ui/adminviewer.js'.$force_reload.'"></script>';
 					} else {
-						echo '<script type="text/javascript" src="ui/tmn-authviewer-all.js'.$force_reload.'"></script>';
+						echo '<script type="text/javascript" src="ui/tmn-adminviewer-all.js'.$force_reload.'"></script>';
 					}
 					
 					echo '<center>
 						<div id="tmn-viewer-controls-cont"></div>
-						<div id="tmn-reasonpanel-cont"></div>
+						<div id="tmn-level-1-reasonpanel-cont"></div>
+						<div id="tmn-level-2-reasonpanel-cont"></div>
+						<div id="tmn-level-3-reasonpanel-cont"></div>
 						<div id="tmn-viewer-cont"></div>
 					</center>
 				</body>
