@@ -261,7 +261,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailaddress = $this->getEmailFromGuid($authguids[0]);	//get the user's email
 			
 			$emailbody = "Your TMN has been submitted for approval!\n";
-			$emailbody .= "Your Ministry Overseer: ".$this->getNameFromGuid($authguids[1])." has been emailed, requesting authorisation for your TMN.\n";
+			$emailbody .= "Your Ministry Overseer: ".$this->getNameFromGuid($authguids[1])." has been emailed, requesting approval for your TMN.\n";
 			$emailbody .= "\nYou can view or cancel your submission at the following link:\n";
 			$emailbody .= $authviewerurl;
 			$emailbody .= "\n\n-The TMN Development Team";
@@ -270,7 +270,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		//notify auth<1-3>
 		if (1 <= $notifylevel && $notifylevel <= 3) {
-			$emailsubject = "TMN: Awaiting your approval";
+			$emailsubject = $this->getEmailFromGuid($authguids[0]). "'s TMN is awaiting your approval";
 			$emailaddress = $this->getEmailFromGuid($authguids[$notifylevel]);	//get the approver's email
 			
 			//get previous responses, forward names and responses to auth<1-3>
@@ -293,7 +293,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		//notify finance:
 		if ($notifylevel == 4){
 			//get all previous responses, forward names and responses to finance
-			$emailsubject = "TMN: Ready for processing";
+			$emailsubject = $this->getNameFromGuid($authguids[0])."'s TMN is ready for processing";
 			$emailaddress = "payroll@ccca.org.au";
 			
 			//get previous responses, forward names and responses to auth<1-3>
