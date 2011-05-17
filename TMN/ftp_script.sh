@@ -1,13 +1,13 @@
 
-version='2.2.7'
-svn_uname='harro'
-svn_pword='jonathan'
-#svn_uname='tom.moose'
-#svn_pword='johnwayn3'
+version='2.2.8'
+#svn_uname='harro'
+#svn_pword='jonathan'
+svn_uname='tom.moose'
+svn_pword='johnwayn3'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=false
+create_tag=true
 full_refresh=true
 
 #save the current directory so the user can be returned here
