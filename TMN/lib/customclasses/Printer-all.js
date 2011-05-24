@@ -114,7 +114,9 @@ Ext.ux.Printer.BaseRenderer = Ext.extend(Object, {
     win.document.close();
     
     win.print();
-    win.close();
+    
+    //Commented out for chrome - chrome closes the window too quickly; before it prints, therefore printing nothing.
+    //win.close();
   },
   
   /**
