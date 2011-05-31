@@ -5,7 +5,7 @@ include_once('php/classes/email.php');
 include_once('php/classes/TmnConstants.php');
 $constants = getConstants(array("VERSIONNUMBER"));
 $LOGFILE		= 'php/logs/index.log';
-$DEBUG			= 1;
+$DEBUG			= 0;
 $NEWVERSION		= 1;
 $VERSIONNUMBER	= $constants['VERSIONNUMBER'];//"2-1-1";
 
@@ -79,7 +79,7 @@ try {
 		}
 		$lazy_m_email_bcc = substr($lazy_m_email_bcc, 0, strlen($lazy_m_email_bcc) - 2);
 		$lazy_m_email_bcc .= '"';
-		fb($lazy_m_email_bcc);
+		if ($DEBUG) {fb($lazy_m_email_bcc);}
 		
 		//Lazy email to
 		$lazy_m_email_to = '""';
@@ -88,12 +88,12 @@ try {
 		//lazy email subject
 		$lazy_m_email_subject = '"You need to do a TMN!"';
 		//lazy email body
-		$lazy_m_email_body = '"<html><body>Our records show that you havent done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.<br /><br />Please follow the link below to complete your TMN online.<br />http://mportal.ccca.org.au/tmn<br /><br />Thanks,<br />Member Care</body></html>"';
+		$lazy_m_email_body = '"Our records show that you havent done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.%0A%0aPlease follow the link below to complete your TMN online.%0Ahttp://mportal.ccca.org.au/TMN%0A%0aThanks,%0AMember Care"';
 		
 	////Lazy Authorisers
 		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
 		$lazyauth_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		fb($lazyauth_raw);
+		if ($DEBUG){fb($lazyauth_raw);}
 		
 		//process the assoc array, and remove duplicates
 		foreach ($lazyauth_raw as $user) {
@@ -107,7 +107,7 @@ try {
 		}
 		$lazy_a_email_bcc = substr($lazy_a_email_bcc, 0, strlen($lazy_a_email_bcc) - 2);
 		$lazy_a_email_bcc .= '"';
-		fb($lazy_a_email_bcc);
+		if ($DEBUG){fb($lazy_a_email_bcc);}
 		
 		//Lazy email to
 		$lazy_a_email_to = '""';
@@ -116,7 +116,7 @@ try {
 		//lazy email subject
 		$lazy_a_email_subject = '"You need to approve a TMN!"';
 		//lazy email body
-		$lazy_a_email_body = '"Our records show that there has been a TMN waiting for your approval for longer than 2 weeks. \\n\\nPlease follow the link below to approve or reject it, so it can be processed.\\nhttp://mportal.ccca.org.au/tmn/tmn-authviewer.php\\n\\nThanks,\\nMember Care"';
+		$lazy_a_email_body = '"Our records show that there has been a TMN waiting for your approval for longer than 2 weeks. %0A%0aPlease follow the link below to approve or reject it, so it can be processed.%0Ahttp://mportal.ccca.org.au/TMN/tmn-authviewer.php%0A%0aThanks,%0AMember Care"';
 		
 		
 	
