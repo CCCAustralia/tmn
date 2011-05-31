@@ -1,11 +1,13 @@
 <?php
+include_once('lib/FirePHPCore/fb.php');
+
 include_once('php/classes/Tmn.php');
 include_once('php/classes/TmnDatabase.php');
 include_once('php/classes/email.php');
 include_once('php/classes/TmnConstants.php');
 $constants = getConstants(array("VERSIONNUMBER"));
 $LOGFILE		= 'php/logs/index.log';
-$DEBUG			= 0;
+$DEBUG			= 1;
 $NEWVERSION		= 1;
 $VERSIONNUMBER	= $constants['VERSIONNUMBER'];//"2-1-1";
 
@@ -24,14 +26,27 @@ if ($NEWVERSION && $DEBUG == 1){
 }
 
 try {
-	//authenticate
-	Tmn::authenticate();
-	
 	//create a tmn helper
 	$tmn	= new Tmn($LOGFILE);
 	
 	//create a db connection
 	$db		= TmnDatabase::getInstance($LOGFILE);
+	
+	if ($_POST['mode'] == 'load') {
+		$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_1 != '' && LEVEL_1_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_2 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_3 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Pending'))");
+		
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$returndata = array();
+		$returndata['data'] = $data;
+		fb($returndata);
+		echo (json_encode($returndata));
+		
+		
+		die();	//Don't spit out the adminviewer page
+	}
+	
+	//authenticate
+	Tmn::authenticate();
 	
 	//check if they are a valid user (If not show the rego page)
 	$stmt	= $db->query("SELECT GUID FROM User_Profiles WHERE GUID='" . $tmn->getAuthenticatedGuid() . "'");
@@ -79,7 +94,7 @@ try {
 		}
 		$lazy_m_email_bcc = substr($lazy_m_email_bcc, 0, strlen($lazy_m_email_bcc) - 2);
 		$lazy_m_email_bcc .= '"';
-		if ($DEBUG) {fb($lazy_m_email_bcc);}
+		//if ($DEBUG) {fb($lazy_m_email_bcc);}
 		
 		//Lazy email to
 		$lazy_m_email_to = '""';
@@ -93,7 +108,7 @@ try {
 	////Lazy Authorisers
 		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
 		$lazyauth_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		if ($DEBUG){fb($lazyauth_raw);}
+		//if ($DEBUG){fb($lazyauth_raw);}
 		
 		//process the assoc array, and remove duplicates
 		foreach ($lazyauth_raw as $user) {
@@ -107,7 +122,7 @@ try {
 		}
 		$lazy_a_email_bcc = substr($lazy_a_email_bcc, 0, strlen($lazy_a_email_bcc) - 2);
 		$lazy_a_email_bcc .= '"';
-		if ($DEBUG){fb($lazy_a_email_bcc);}
+		//if ($DEBUG){fb($lazy_a_email_bcc);}
 		
 		//Lazy email to
 		$lazy_a_email_to = '""';

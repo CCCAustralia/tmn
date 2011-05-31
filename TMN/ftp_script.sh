@@ -1,5 +1,5 @@
 
-version='2.2.8'
+version='2.2.9'
 #svn_uname='harro'
 #svn_pword='jonathan'
 svn_uname='tom.moose'

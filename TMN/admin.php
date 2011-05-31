@@ -2,7 +2,7 @@
 include_once 'php/dbconnect.php';
 include_once 'php/classes/Tmn.php';
 include_once 'lib/FirePHPCore/fb.php';
-$DEBUG = 0;
+$DEBUG = 1;
 ob_start();
 try {
 Tmn::authenticate();
@@ -20,7 +20,7 @@ $connection = db_connect();
 function fetchUserList() {
 	////start userlist
 	$returnlist = array();
-	$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM `User_Profiles` WHERE IS_TEST_USER != 1";
+	$sql = "SELECT GUID, FIRSTNAME, SURNAME, FIN_ACC_NUM FROM `User_Profiles`";
 	$sql = mysql_query($sql);
 	for ($index = 0; $index < mysql_num_rows($sql); $index++) {
 		//store them in an array
@@ -104,6 +104,7 @@ foreach ($constants as $fieldname => $value) {
 				$savestring .= $savedvalue.",";
 				$savefield = substr($savedkey, 0, strlen($fieldname));
 				
+				if($DEBUG){fb($savestring);}
 			}
 		}
 		//remove json extras for non-arrays
@@ -125,13 +126,15 @@ foreach ($constants as $fieldname => $value) {
 			//if (true) {//$_GET['edit'] == $fieldname) {
 		////array name
 				echo "<tr><td>".$fieldname."</td><td><form method=POST onsubmit='admin.php'>";
+				$arrayindex = 0;
 				foreach (json_decode($value) as $key => $subvalue) {
+						echo "<input name=".$fieldname.key . $arrayindex." type=textarea value=".$subvalue;
 					if ($subvalue == PHP_INT_MAX) {
-						echo $subvalue."<br />";	//don't allow them to edit intmax
-					} else {
-		////edit array elements
-						echo "<input name= ".$fieldname.$key." type=textarea value=".$subvalue."><input type=submit value='Save' /><br />";
+						echo " readonly=readonly style='background-color:grey;'";	//don't allow them to edit intmax
 					}
+		////edit array elements
+					echo "><input type=submit value='Save' /><br />";
+					$arrayindex++;
 				}
 				echo "</form></td></tr>";
 			/*} else {	
@@ -153,8 +156,9 @@ foreach ($constants as $fieldname => $value) {
 					echo "<tr><td>".$fieldname."</td><td><form name='".$fieldname."' method=POST onsubmit=admin.php>";
 
 					//Output a combobox of users with the current database value selected
-					if($DEBUG)fb($value);
+					if($DEBUG){fb($value);}
 					$personalcombo = split($value, $optionlist);
+					if($DEBUG){fb($personalcombo);}
 					if ($personalcombo[1] != NULL) {
 						echo "<select name='".$fieldname."'>";
 							//optionlist with inserted "selected" parameter

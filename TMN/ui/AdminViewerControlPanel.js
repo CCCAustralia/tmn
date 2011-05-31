@@ -55,8 +55,8 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 	this.sessionStore	= new Ext.data.JsonStore({
         itemId:		'session_store',
         root:		'data',
-        fields:		['SESSION_ID', 'SESSION_NAME', 'FIRSTNAME', 'SURNAME', 'EMAIL'],
-        url:		'./php/auth/authviewer.php',
+        fields:		['SESSION_ID', 'SESSION_NAME', 'FIRSTNAME', 'SURNAME'],
+        url:		'./tmn-adminviewer.php',
         autoLoad:	{
         	params: { mode: 'load' }
         },
@@ -94,7 +94,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    id:				'session_combo',
 			        	xtype:			'combo',
 			        	width:			650,
-					    fieldLabel:		'Session',
+					    fieldLabel:		'Sessions awaiting approval',
 					    hiddenName:		'SESSION',
 					    hiddenId:		'SESSION_hidden',
 					    triggerAction:	'all',
@@ -132,7 +132,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    listeners:	{
 					    	scope: this,
 					    	render: function(button) {
-					    		console.log(button.href);
+					    		//console.log(button.href);
 					    	}
 					    }
 					}
