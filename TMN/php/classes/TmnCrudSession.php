@@ -805,7 +805,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		$authProcessor	= $this->getAuthorisationProcessor();
 		
 		if ($authProcessor != null) {
-			return $authProcessor->getAuthProgressForDisplay($user);
+			return $authProcessor->getAuthProgressForDisplay();
 		} else {
 			return array("progress" => array("response" => "", "reasons" => "[]", "total" => 0, "name" => "", "email" => "", "date" => ""));
 		}
