@@ -157,7 +157,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				  columnWidth:1,
 				  autoEl:	{
 					  			tag: 'center',
-					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Approval Trail: </span><br /><span id="tmn-authviewer-overall-status-status" style="color:#999999;">n/a</span></div>'
+					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Approval Trail: </span><span id="tmn-authviewer-overall-status-status" style="color:#999999;">n/a</span></div>'
 					  		}
 			}
 			
@@ -243,8 +243,10 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 			htmlString	= '';
 		
 		//create html from response
-		for (levelCount=0; levelCount < progress.length; levelCount++) {
-			htmlString += '<br />Approved by <a href=\"mailto:' + progress[levelCount].email + '>' + progress[levelCount].name + '</a> - ' + progress[levelCount].date + '<br />';
+		for (level in progress) {
+			if (progress[level].total > 0) {
+				htmlString += '<br />Approved by <a href=\"mailto:' + progress[level].email + '\">' + progress[level].name + '</a> - ' + progress[level].date;
+			}
 		}
 		
 		//set overall status color

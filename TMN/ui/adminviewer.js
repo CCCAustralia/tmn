@@ -23,15 +23,20 @@ tmn.viewer = function() {
 				hasSpouse	= ((data['international-assignment']['s_firstname'] !== undefined && data['international-assignment']['s_firstname'] != null && data['international-assignment']['s_firstname'] != "") ? true : false);
 			}
 			
-			
-			for (levelCount = 0; levelCount < levelCount.length; levelCount++) {
+			for(levelCount = 1; levelCount <= 3; levelCount++) {
 				levelName	= "level_" + levelCount + "_reasonPanel";
+				this[levelName].hidePanel();
+			}
+			
+			levelCount = 1;
+			for (level in progress) {
+				levelName	= "level_" + levelCount + "_reasonPanel";
+				
 				//render reasons
-				if (progress[levelCount].total > 0) {
-					this[levelName].showPanel(Ext.decode(progress[levelCount].reasons));
-				} else {
-					this[levelName].hidePanel();
+				if (progress[level].total > 0) {
+					this[levelName].showPanel(Ext.decode(progress[level].reasons));
 				}
+				levelCount++;
 			}
 
 			//update control panel
@@ -65,9 +70,9 @@ tmn.viewer = function() {
 			
 			//create view
 			this.controlPanel		= new tmn.view.AuthorisationViewerControlPanel(this);
-			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', noNames: true});
-			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', noNames: true});
-			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', noNames: true});
+			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', leader: 'Ministry Overseer', noNames: true});
+			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', leader: 'National Ministry Leader', noNames: true});
+			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', leader: 'National Director', noNames: true});
 			this.summaryPanel	= new tmn.view.SummaryPanel(this);
 			
 			this.controlPanel.setWidth(900);
