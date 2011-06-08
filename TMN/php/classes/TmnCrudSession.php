@@ -792,6 +792,25 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		}
 	}
 	
+	 /**
+	  * Gets all details of the authorising process for the session
+	  * 
+	  * @return an assoc array containing the current response (Yes, No, Pending)
+	  * 		ie 	{progress:	{response,reasons,total,name,email,date},
+	  * 						{response,reasons,total,name,email,date},
+	  * 						{response,reasons,total,name,email,date}
+	  * 			}
+	  */
+	public function getAuthProgressForDisplay() {
+		$authProcessor	= $this->getAuthorisationProcessor();
+		
+		if ($authProcessor != null) {
+			return $authProcessor->getAuthProgressForDisplay($user);
+		} else {
+			return array("progress" => array("response" => "", "reasons" => "[]", "total" => 0, "name" => "", "email" => "", "date" => ""));
+		}
+	}
+	
 }
 
 ?>

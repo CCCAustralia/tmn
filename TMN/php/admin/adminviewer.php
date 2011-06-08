@@ -22,21 +22,13 @@ if (isset($_POST['mode'])) {
 			$mode		= $_POST['mode'];
 	
 			if ($mode == "load") {
-				//sql to grab sessions for the user that is logged in
+				/*
+				//Grab the sessions
 				$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
-				$sessionSql .= "(AUTH_USER = :guid ".																																" && FINANCE_RESPONSE = 'Pending') || ";
-				$sessionSql .= "(AUTH_LEVEL_1 = :guid ".											"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
-				$sessionSql .= "(AUTH_LEVEL_2 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".													"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
-				$sessionSql .= "(AUTH_LEVEL_3 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".													" && FINANCE_RESPONSE = 'Pending'))";
-				$sessionGuid = array(':guid' => $tmn->getAuthenticatedGuid());
-				
-				if ($financeguid == $tmn->getAuthenticatedGuid()) {
-					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
-					//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
-					$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".																"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
-					$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".	"&& AUTH_LEVEL_2 IS NOT NULL ".								"&& LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
-					$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".	"&& AUTH_LEVEL_2 IS NOT NULL ".	"&& AUTH_LEVEL_3 IS NOT NULL && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending'))";
-				}
+				//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
+				$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".																"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
+				$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".	"&& AUTH_LEVEL_2 IS NOT NULL ".								"&& LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
+				$sessionSql .= "(AUTH_LEVEL_1 IS NOT NULL ".	"&& AUTH_LEVEL_2 IS NOT NULL ".	"&& AUTH_LEVEL_3 IS NOT NULL && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending'))";
 				
 				//sql for grabbing the owner info associated with each session
 				$ownerSql	= "SELECT FIRSTNAME, SURNAME, EMAIL FROM User_Profiles WHERE GUID=:ownerGuid";
@@ -71,6 +63,8 @@ if (isset($_POST['mode'])) {
 				$return_data = array('data' => $data);
 				
 				echo json_encode($return_data);
+				*/
+				echo "Not Implemented";
 			} elseif ($mode == 'get') {
 				
 				if (isset($_POST['session'])) {
@@ -84,6 +78,7 @@ if (isset($_POST['mode'])) {
 					$home_assignment_session_id				= $session->getField('home_assignment_session_id');
 					$international_assignment_session;
 					$home_assignment_session;
+					
 					
 					//retrieve the overseas based sessions from the database
 					if ($international_assignment_session_id != null || $home_assignment_session_id != null) {
@@ -108,10 +103,11 @@ if (isset($_POST['mode'])) {
 						$return_data						= array('aussie-based'					=>	$session->produceAssocArrayForDisplay());
 					}
 					
+				
+					
 					$response				= array("success"=>true);
 					$response['data']		= $return_data;
-					$response['progress']	= $session->getOverallProgress();
-					$response['authoriser']	= $session->getAuthoriserDetailsForUser($tmn->getUser());
+					$response['progress']	= $session->getAuthProgressForDisplay();
 					
 				} else {
 					//if there is no data return success false

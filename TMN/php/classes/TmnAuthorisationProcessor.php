@@ -555,7 +555,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	}
 	
 	/**
-	 * Fetches the current authorisation progress of the session
+	 * Fetches the current authorisation progress of the session at it's current stage
 	 * 
 	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
 	 * 			ie {response:<authorisers response>, name: <authorisers full name>, email: <auth email>, date: <the data of this action>}
@@ -649,6 +649,136 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		return $returnArray;
 	}
+	
+
+	/**
+	 * Fetches the current authorisation progress of the session
+	 * 
+	 * @return an assoc array containing the current response (Yes, No, Pending) and a name (who is responsible for that response)
+	 * 			ie {response:<authorisers response>, name: <authorisers full name>, email: <auth email>, date: <the data of this action>}
+	 */
+	public function getAuthProgressForDisplay() {
+		$returnArray = array();
+		$responseArray	= array("response" => "", "reasons" => "", "total" => "", "name" => "", "email" => "", "date" => "");
+		
+		for ($responseCount = 1; $responseCount <= 3; $responseCount++) {
+			if ($this->getField("auth_level_".$responseCount) != "") {
+				$responseArray["response"] = 	$this->getField("level_".$responseCount."_response");
+				$responseArray["reasons"] = 	$this->getField("auth_level_".$responseCount."_reasons");
+				
+											////Calculate the total reasons
+												$reason	= json_decode($responseArray["reasons"], true);
+												$total	= 0;
+												if (isset($reason['aussie-based'])) {
+													$total += count($reason['aussie-based']['reasons']);
+												}
+												if (isset($reason['home-assignment'])) {
+													$total += count($reason['home-assignment']['reasons']);
+												}
+												if (isset($reason['international-assignment'])) {
+													$total += count($reason['international-assignment']['reasons']);
+												}
+											////
+				
+				$responseArray["total"] = 		$total;
+				
+				$responseArray["name"] = 		$this->getNameFromGuid($this->getField("auth_level_".$responseCount));
+				$responseArray["email"] = 		$this->getEmailFromGuid($this->getField("auth_level_".$responseCount));
+				$responseArray["date"] = 		date(" g:i a, j-M-Y", strtotime($this->getField("level_".$responseCount."_timestamp")));
+				
+				$returnArray[$responseCount] = $responseArray;
+			}
+		}
+		
+		
+		/*
+		//finance is the last response
+		if ($this->getField('finance_response') == 'Pending') {
+			
+			//check if the user has withdrawn the submition
+			if ($this->getField('user_response') == 'No') {
+				//grab the user object for user
+				$user						= $this->getUserForLevel(0);
+				
+				//set all the data we have access to
+				$returnArray['response']	= $this->getField('user_response');
+				if ($user != null) {
+					$returnArray['name']		= $user->getField('firstname') . " " . $user->getField('surname');
+					$returnArray['email']		= $user->getField('email');
+				}
+				$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('user_timestamp')));
+				
+				return $returnArray;
+			}			
+			
+			//run through the other authorisers to see if they have rejected it or we are waiting on them
+			$foundNo	= false;
+			for ($responseCount = 1; $responseCount <= 3; $responseCount++) {
+				if ($this->getField('level_' . $responseCount . '_response') == 'No') {
+					$foundNo	= true;
+					break;
+				}
+				
+				if ($this->getField('level_' . $responseCount . '_response') == 'Pending') {
+					break;
+				}
+			}
+			
+			//if it has been rejected by someone
+			if ($foundNo) {
+				//grab the user object for level 1
+				$levelUser					= $this->getUserForLevel($responseCount);
+				
+				//set all the data we have access to
+				$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
+				if ($levelUser != null) {
+					$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
+					$returnArray['email']		= $levelUser->getField('email');
+				}
+				$returnArray['date']			= date(" g:i a, j-M-Y", strtotime($this->getField('level_' . $responseCount . '_timestamp')));
+				
+				return $returnArray;
+				
+			} else {
+				//if the level that the loop ended on is 3 (this last level) and the response is yes then we are actually waiting on finance
+				//OR if the first level where pending is found doesn't have a guid set we are also actually waiting on finance
+				if (($responseCount == 3 && $this->getField('level_' . $responseCount . '_response') == 'Yes')
+					|| ($this->getField('auth_level_' . $responseCount) == "" || $this->getField('auth_level_' . $responseCount) == null)) {
+					$returnArray['response']	= "Pending";
+					$returnArray['name']		= "Finance";
+					$returnArray['name']		= "payroll@ccca.org.au";
+				
+					return $returnArray;
+				
+				//if we aren't waiting on finance return who we are waiting on
+				} else {
+					//grab the user object for level 1
+					$levelUser					= $this->getUserForLevel($responseCount);
+					
+					//set all the data we have access to
+					$returnArray['response']	= $this->getField('level_' . $responseCount . '_response');
+					if ($levelUser != null) {
+						$returnArray['name']		= $levelUser->getField('firstname') . " " . $levelUser->getField('surname');
+						$returnArray['email']		= $levelUser->getField('email');
+					}
+					$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('level_' . $responseCount . '_timestamp')));
+				
+					return $returnArray;
+				}
+			}
+			
+		//if finance has given a response return it
+		} else {
+			$returnArray['response']	= $this->getField('finance_response');
+			$returnArray['name']		= "Finance";
+			$returnArray['name']		= "payroll@ccca.org.au";
+			$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('finance_timestamp')));
+		}
+		*/
+		
+		return $returnArray;
+	}
+	
 	
 	 /**
 	  * Gets the details of the authoriser that matches the user passed to this function
