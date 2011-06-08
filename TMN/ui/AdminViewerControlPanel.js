@@ -157,7 +157,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 				  columnWidth:1,
 				  autoEl:	{
 					  			tag: 'center',
-					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Overall Status: </span><span id="tmn-authviewer-overall-status-status" style="color:#999999;">n/a</span></div>'
+					  			html: '<div id="tmn-authviewer-overall-status" class=""><span id="tmn-authviewer-overall-status-label">Approval Trail: </span><br /><span id="tmn-authviewer-overall-status-status" style="color:#999999;">n/a</span></div>'
 					  		}
 			}
 			
@@ -224,7 +224,7 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 		this.session	= record.get('SESSION_ID');
 		
 		Ext.Ajax.request({
-			url: './php/auth/authviewer.php',
+			url: './php/admin/adminviewer.php',
 			scope: this,
 			params: {
 				mode: 'get',
@@ -243,15 +243,13 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 			htmlString	= '';
 		
 		//create html from response
-		for (authCount=0; authCount < progress.length; authCount++) {
-			htmlString += '<br />Approved by ' + progress[authCount].firstname + ' ' + progress[authCount].surname + ' - ' + progress.date;
+		for (levelCount=0; levelCount < progress.length; levelCount++) {
+			htmlString += '<br />Approved by <a href=\"mailto:' + progress[levelCount].email + '>' + progress[levelCount].name + '</a> - ' + progress[levelCount].date + '<br />';
 		}
 		
-		//set overall status
-		if (progress.response == 'Yes') {
-			statusEl.setStyle('color', "#336600");
-			statusEl.update(htmlString);
-		}
+		//set overall status color
+		statusEl.setStyle('color', "#336600");
+		statusEl.update(htmlString);
 	},
 	
 	resetControls:	function() {

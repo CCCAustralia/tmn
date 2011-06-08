@@ -7,7 +7,6 @@ tmn.viewer = function() {
 		display: function(response, options){
 			var responseObj = Ext.util.JSON.decode(response.responseText),
 				progress	= responseObj['progress'],
-				auth		= responseObj['authoriser'],
 				data		= responseObj['data'],
 				session		= options.params.session,
 				isOverseas	= false,
@@ -17,22 +16,26 @@ tmn.viewer = function() {
 			if (data['aussie-based'] !== undefined)	{						//if its the aussie based only version of the tmn
 				isOverseas	= false;
 				hasSpouse	= ((data['aussie-based']['s_firstname'] !== undefined && data['aussie-based']['s_firstname'] != null && data['aussie-based']['s_firstname'] != "") ? true : false);
-				//TODO:change to if international assignment
-			} else {
+			}
+
+			if (data['international-assignment'] !== undefined) {			//if its an international version of the tmn
 				isOverseas	= true;
 				hasSpouse	= ((data['international-assignment']['s_firstname'] !== undefined && data['international-assignment']['s_firstname'] != null && data['international-assignment']['s_firstname'] != "") ? true : false);
 			}
-			/*
-			//TODO: add all three reasons-
-			//render reasons
-			if (auth.total > 0) {
-				this.reasonPanel.showPanel(Ext.decode(auth.reasons));
-			} else {
-				this.reasonPanel.hidePanel();
+			
+			
+			for (levelCount = 0; levelCount < levelCount.length; levelCount++) {
+				levelName	= "level_" + levelCount + "_reasonPanel";
+				//render reasons
+				if (progress[levelCount].total > 0) {
+					this[levelName].showPanel(Ext.decode(progress[levelCount].reasons));
+				} else {
+					this[levelName].hidePanel();
+				}
 			}
-			*/
+
 			//update control panel
-			this.controlPanel.processSession(progress, auth);
+			this.controlPanel.processSession(progress);
 			
 			//show actual tmn data
 			this.summaryPanel.renderSummary(data, isOverseas, hasSpouse);
