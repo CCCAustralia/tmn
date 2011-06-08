@@ -713,7 +713,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 									////
 		
 		$responseArray["total"] = 		$total;
-		$responseArray["name"] = 		$this->getNameFromGuid($this->financeguid);
+		$responseArray["name"] = 		"Finance";
 		$responseArray["email"] = 		$this->getEmailFromGuid($this->financeguid);
 		$responseArray["date"] = 		date(" g:i a, j-M-Y", strtotime($this->getField("finance_timestamp")));
 		

@@ -238,6 +238,7 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 	},
 	
 	processSession: function(progress) {
+		////Approval Trail
 		
 		var statusEl	= Ext.get("tmn-authviewer-overall-status-status"),
 			htmlString	= '';
@@ -245,8 +246,15 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 		//create html from response
 		for (level in progress) {
 			if (progress[level].total > 0) {
-				htmlString += '<br />Approved by <a href=\"mailto:' + progress[level].email + '\">' + progress[level].name + '</a> - ' + progress[level].date;
+				//Authorisers "approve"
+				htmlString += '<br />Approved';
 			}
+			if (progress[level].name == 'Finance') {
+				//Finance "processes"
+				htmlString += '<br />Processed';
+			}
+			
+			 htmlString += ' by <a href=\"mailto:' + progress[level].email + '\">' + progress[level].name + '</a> - ' + progress[level].date;
 		}
 		
 		//set overall status color
