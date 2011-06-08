@@ -661,8 +661,11 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$returnArray = array();
 		$responseArray	= array("response" => "", "reasons" => "", "total" => "", "name" => "", "email" => "", "date" => "");
 		
+	////Get auth details for levels 1-3
 		for ($responseCount = 1; $responseCount <= 3; $responseCount++) {
+			//if the authorisation level exists
 			if ($this->getField("auth_level_".$responseCount) != "") {
+				
 				$responseArray["response"] = 	$this->getField("level_".$responseCount."_response");
 				$responseArray["reasons"] = 	$this->getField("auth_level_".$responseCount."_reasons");
 				
@@ -686,10 +689,36 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				$responseArray["email"] = 		$this->getEmailFromGuid($this->getField("auth_level_".$responseCount));
 				$responseArray["date"] = 		date(" g:i a, j-M-Y", strtotime($this->getField("level_".$responseCount."_timestamp")));
 				
+				//add the level details array to the return array
 				$returnArray[$responseCount] = $responseArray;
 			}
 		}
 		
+	///get auth details for finance (4)
+		$responseArray["response"] = 	$this->getField("finance_response");
+		$responseArray["reasons"] = 	$this->getField("auth_finance_reasons");
+		
+									////Calculate the total reasons
+										$reason	= json_decode($responseArray["reasons"], true);
+										$total	= 0;
+										if (isset($reason['aussie-based'])) {
+											$total += count($reason['aussie-based']['reasons']);
+										}
+										if (isset($reason['home-assignment'])) {
+											$total += count($reason['home-assignment']['reasons']);
+										}
+										if (isset($reason['international-assignment'])) {
+											$total += count($reason['international-assignment']['reasons']);
+										}
+									////
+		
+		$responseArray["total"] = 		$total;
+		$responseArray["name"] = 		$this->getNameFromGuid($this->financeguid);
+		$responseArray["email"] = 		$this->getEmailFromGuid($this->financeguid);
+		$responseArray["date"] = 		date(" g:i a, j-M-Y", strtotime($this->getField("finance_timestamp")));
+		
+		//Add to the return data array
+		$returnArray[4] = $responseArray;
 		
 		/*
 		//finance is the last response
