@@ -230,6 +230,7 @@ try {
 						<div id="tmn-level-1-reasonpanel-cont"></div>
 						<div id="tmn-level-2-reasonpanel-cont"></div>
 						<div id="tmn-level-3-reasonpanel-cont"></div>
+						<div id="tmn-level-4-reasonpanel-cont"></div>
 						<div id="tmn-viewer-cont"></div>
 					</center>
 				</body>

@@ -23,7 +23,7 @@ tmn.viewer = function() {
 				hasSpouse	= ((data['international-assignment']['s_firstname'] !== undefined && data['international-assignment']['s_firstname'] != null && data['international-assignment']['s_firstname'] != "") ? true : false);
 			}
 			
-			for(levelCount = 1; levelCount <= 3; levelCount++) {
+			for(levelCount = 1; levelCount <= 4; levelCount++) {
 				levelName	= "level_" + levelCount + "_reasonPanel";
 				this[levelName].hidePanel();
 			}
@@ -69,11 +69,12 @@ tmn.viewer = function() {
 			this.session		=  G_SESSION;
 			
 			//create view
-			this.controlPanel		= new tmn.view.AuthorisationViewerControlPanel(this);
+			this.controlPanel			= new tmn.view.AuthorisationViewerControlPanel(this);
 			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', leader: 'Ministry Overseer', noNames: true});
 			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', leader: 'National Ministry Leader', noNames: true});
 			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', leader: 'National Director', noNames: true});
-			this.summaryPanel	= new tmn.view.SummaryPanel(this);
+			this.level_4_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_4_reason_panel', leader: 'Finance', noNames: true});
+			this.summaryPanel			= new tmn.view.SummaryPanel(this);
 			
 			this.controlPanel.setWidth(900);
 			this.controlPanel.render('tmn-viewer-controls-cont');
@@ -86,6 +87,9 @@ tmn.viewer = function() {
 			
 			this.level_3_reasonPanel.setWidth(900);
 			this.level_3_reasonPanel.render('tmn-level-3-reasonpanel-cont');
+			
+			this.level_4_reasonPanel.setWidth(900);
+			this.level_4_reasonPanel.render('tmn-level-4-reasonpanel-cont');
 			
 			this.summaryPanel.setWidth(900);
 			this.summaryPanel.render('tmn-viewer-cont');
