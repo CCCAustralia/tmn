@@ -1,5 +1,5 @@
 
-version='2.2.10'
+version='2.2.11'
 #svn_uname='harro'
 #svn_pword='jonathan'
 svn_uname='tom.moose'
@@ -111,6 +111,8 @@ mkdir pdf
 mput pdf/*
 mkdir php
 mput php/*
+mkdir php/admin
+mput php/admin/*
 mkdir php/auth
 mput php/auth/*
 mkdir php/classes
@@ -143,6 +145,8 @@ lcd "~/svn_temp/TMN ${version}"
 mput *.php
 mkdir php
 mput php/*
+mkdir php/admin
+mput php/admin/*
 mkdir php/auth
 mput php/auth/*
 mkdir php/classes
