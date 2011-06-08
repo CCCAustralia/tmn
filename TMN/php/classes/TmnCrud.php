@@ -434,10 +434,10 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		}
 	}
 	
-	public function loadDataFromAssocArray($array) {
-		
+	public function loadDataFromAssocArray($arr) {
+		$array	= array();
 		//make sure all keys in array are lowercase
-		foreach ($array as $key=>$value) {
+		foreach ($arr as $key=>$value) {
 			$array[strtolower($key)] = $value;
 		}
 		

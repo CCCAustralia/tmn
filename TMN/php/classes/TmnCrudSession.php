@@ -339,7 +339,13 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		}
 	}
 	
-	public function loadDataFromAssocArray($array) {
+	public function loadDataFromAssocArray($arr) {
+		$array	= array();
+		//make sure all keys in array are lowercase
+		foreach ($arr as $key=>$value) {
+			$array[strtolower($key)] = $value;
+		}
+		
 		$processedArray = $this->removeFormatingFromFields($array);
 		
 		parent::loadDataFromAssocArray($processedArray);

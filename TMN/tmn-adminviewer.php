@@ -25,6 +25,11 @@ if ($NEWVERSION && $DEBUG == 1){
 	$force_reload = "";
 }
 
+//authenticate
+if ($_POST['mode'] != "load") {
+	Tmn::authenticate();
+}
+
 try {
 	//create a tmn helper
 	$tmn	= new Tmn($LOGFILE);
@@ -33,20 +38,22 @@ try {
 	$db		= TmnDatabase::getInstance($LOGFILE);
 	
 	if ($_POST['mode'] == 'load') {
-		$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_1 != '' && LEVEL_1_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_2 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_3 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Pending'))");
 		
-		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$returndata = array();
-		$returndata['data'] = $data;
-		fb($returndata);
-		echo (json_encode($returndata));
-		
-		
-		die();	//Don't spit out the adminviewer page
+		if ($tmn->isAuthenticated()) {
+			$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_1 != '' && LEVEL_1_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_2 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_3 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Pending'))");
+			
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$returndata = array();
+			$returndata['data'] = $data;
+			fb($returndata);
+			echo (json_encode($returndata));
+			
+			die();	//Don't spit out the adminviewer page
+		} else {
+			die("{success: false}");
+		}
 	}
 	
-	//authenticate
-	Tmn::authenticate();
 	
 	//check if they are a valid user (If not show the rego page)
 	$stmt	= $db->query("SELECT GUID FROM User_Profiles WHERE GUID='" . $tmn->getAuthenticatedGuid() . "'");

@@ -1966,6 +1966,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		
 		//if a session has been set prior to this to be loaded then load the session
 		if (this.getSession() !== undefined && this.getSession() != '' && this.getSession() != null) {
+			//console.info('loadForm: load session url');
 			//load this session
 			this.fireEvent('loadsession', this);
 			
@@ -1974,12 +1975,15 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			
 		//if no session needs to be loaded then load local data or defaults
 		} else {
-		
+			
+			this.fireEvent('resetsession', this);
+		/*
 			//load grid
 			this.getComponent('internal_transfers_panel').loadInternalTransfers(this.getSession());
 			
 			//load fields with local data
 			if (local_data === undefined) {
+				console.info('loadForm: load url');
 				//if no local data is avaiblable grab the data from the backend
 				this.load({
 					url: this.load_url,
@@ -1996,6 +2000,16 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				});
 			//otherwise load defaults
 			} else {
+				
+				console.info('loadForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+				//update backend with defaults
+				this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], this.getForm().items.map['os_resident_for_tax_purposes'].getValue(), false);
+				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
+				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', false);
+				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', false);
+				this.fireEvent('financialdataupdated', this, this.getForm().items.map['mfb_rate'], this.getForm().items.map['mfb_rate'].getValue(), false);
+				this.fireEvent('financialdataupdated', this, this.getForm().items.map['s_mfb_rate'], this.getForm().items.map['s_mfb_rate'].getValue(), false);
+				
 				//load values from last form
 				for (field in local_data) {
 					if (this.getForm().items.map[field.toLowerCase()] !== undefined) {
@@ -2009,15 +2023,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 					if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 						this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
 				}
-				console.info('loadForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
-				//update backend with defaults
-				this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], this.getForm().items.map['os_resident_for_tax_purposes'].getValue(), false);
-				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
-				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'pre_tax_super_mode';}}, 'auto', false);
-				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', false);
-				this.fireEvent('financialdataupdated', this, this.getForm().items.map['mfb_rate'], this.getForm().items.map['mfb_rate'].getValue(), false);
-				this.fireEvent('financialdataupdated', this, this.getForm().items.map['s_mfb_rate'], this.getForm().items.map['s_mfb_rate'].getValue(), false);
 			}
+		*/
 		}
 	},
 	
@@ -2032,7 +2039,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if ( !isNaN(parseInt(form.items.items[fieldCount].getValue())) )
 				form.items.items[fieldCount].setValue(parseInt(form.items.items[fieldCount].getValue()));
 		}
-		console.info('onLoadSuccess: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+		//console.info('onLoadSuccess: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
 		this.fireEvent('financialdataupdated', this, form.items.map['os_resident_for_tax_purposes'], form.items.map['os_resident_for_tax_purposes'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
@@ -2060,7 +2067,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if ( !isNaN(parseInt(form.items.items[fieldCount].getValue())) )
 				form.items.items[fieldCount].setValue(parseInt(form.items.items[fieldCount].getValue()));
 		}
-		console.info('onLoadFailure: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+		//console.info('onLoadFailure: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
 		this.fireEvent('financialdataupdated', this, form.items.map['os_resident_for_tax_purposes'], form.items.map['os_resident_for_tax_purposes'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);
@@ -2251,7 +2258,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			if (this.rendered) {
 				//save the session combo's state before the form is reset
 				var sessionIDtemp = data['session_id'];
-				console.info('onLoadSessionSuccess: call resetForm, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+				//console.info('onLoadSessionSuccess: call resetForm, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+				
 				this.resetForm();
 				
 				//stop financial data being sent to the backend for processing while data is loaded into the form
@@ -2354,7 +2362,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			
 				//mark form as saved
 				this.saved = true;
-				
+
 			//if the form hasn't been rendered yet just store the session to be loaded once it has been rendered
 			} else {
 				this.setSession(data['session_id']);
@@ -2588,7 +2596,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		for (fieldCount = 0; fieldCount < this.getForm().items.length; fieldCount++){
 			this.getForm().items.items[fieldCount].reset();
 		}
-		console.info('resetForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+		//console.info('resetForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 		//update backend with defaults
 		//TODO: reset state as well as value
 		this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], 1, false);
@@ -2611,6 +2619,6 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		
 		//make sure the session is unlocked
 		this.unlock();
-		
+		//console.info('resetForm: finished load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 	}
 });

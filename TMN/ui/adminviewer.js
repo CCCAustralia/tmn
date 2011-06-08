@@ -22,7 +22,7 @@ tmn.viewer = function() {
 				isOverseas	= true;
 				hasSpouse	= ((data['international-assignment']['s_firstname'] !== undefined && data['international-assignment']['s_firstname'] != null && data['international-assignment']['s_firstname'] != "") ? true : false);
 			}
-			
+			/*
 			//TODO: add all three reasons-
 			//render reasons
 			if (auth.total > 0) {
@@ -30,7 +30,7 @@ tmn.viewer = function() {
 			} else {
 				this.reasonPanel.hidePanel();
 			}
-			
+			*/
 			//update control panel
 			this.controlPanel.processSession(progress, auth);
 			

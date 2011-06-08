@@ -117,6 +117,7 @@ class FinancialProcessor {
 		$this->logger->setDebug($this->DEBUG);
 		if($this->DEBUG) fb("DEBUGGING MODE");		
 		//choose the appropriate set of tax figures
+		
 		if ($this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES']) {
 			$this->x = $this->x_resident;
 			$this->a = $this->a_resident;
