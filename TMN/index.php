@@ -47,7 +47,8 @@ try {
 		echo '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
 		<html>
 			<head>
-				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
+				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+				<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />';
 		
 				if ($DEBUG) {
 					echo '<link rel="stylesheet" type="text/css" href="lib/resources/css/loading.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/ext-all.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/customclasses/statusbar/css/statusbar.css'.$force_reload.'" /><link rel="stylesheet" type="text/css" href="lib/resources/css/customstyles.css'.$force_reload.'" />';
@@ -136,7 +137,7 @@ try {
 					echo 	'<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
 							<html>
 								<head>
-									<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+									<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 									<style type="text/css">
 										.body-look{
 											padding:10px;
@@ -180,7 +181,7 @@ try {
 			echo	'<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
 					<html>
 						<head>
-							<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+							<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 							<style type="text/css">
 								.body-look{
 									padding:10px;

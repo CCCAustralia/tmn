@@ -55,7 +55,11 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 	this.sessionStore	= new Ext.data.JsonStore({
         itemId:		'session_store',
         root:		'data',
-        fields:		['SESSION_ID', 'SESSION_NAME', 'FIRSTNAME', 'SURNAME'],
+        fields:		['SESSION_ID', 'SESSION_NAME', 'FIRSTNAME', 'SURNAME', 'FAN', 'DATE_MODIFIED'],
+        sortInfo:	{
+        	field:		'SURNAME',
+            direction:	'ASC'
+        },
         url:		'./tmn-adminviewer.php',
         autoLoad:	{
         	params: { mode: 'load' }
@@ -94,7 +98,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    id:				'session_combo',
 			        	xtype:			'combo',
 			        	width:			650,
-					    fieldLabel:		'Sessions awaiting approval',
+					    fieldLabel:		'Approved Sessions',
 					    hiddenName:		'SESSION',
 					    hiddenId:		'SESSION_hidden',
 					    triggerAction:	'all',
@@ -107,8 +111,8 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    store:			this.sessionStore,
 					    
 					    valueField:		'SESSION_ID',
-						displayField:	'SESSION_NAME',
-					    tpl:			'<tpl for=\".\"><div class=\"x-combo-list-item\">({SESSION_ID}) {SESSION_NAME} - created by {FIRSTNAME} {SURNAME}</div></tpl>',
+						displayField:	'SURNAME',
+					    tpl:			'<tpl for=\".\"><div class=\"x-combo-list-item\">{SURNAME}, {FIRSTNAME} - {FAN} - {DATE_MODIFIED}</div></tpl>',
 					    listeners:		{
 					    	scope:	this,
 					    	select: function(combo, record, index) {
@@ -126,7 +130,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					{
 					    id:			'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
 			        	xtype:		'linkbutton',
-			        	fieldLabel:	'Email Missionaries who haven\'t submitted a TMN in the last 6 months',
+			        	fieldLabel:	'Email Missionaries who haven\'t submitted/resubmitted a TMN in the last 4 weeks',
 					    text:		'Email Lazy Missionaries',
 					    href:		'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
 					    listeners:	{
