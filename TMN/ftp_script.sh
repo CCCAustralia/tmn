@@ -1,5 +1,5 @@
 
-version='2.2.11'
+version='2.2.12'
 #svn_uname='harro'
 #svn_pword='jonathan'
 svn_uname='tom.moose'
@@ -8,7 +8,7 @@ ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
 create_tag=true
-full_refresh=true
+full_refresh=false
 
 #save the current directory so the user can be returned here
 pushd . > /dev/null

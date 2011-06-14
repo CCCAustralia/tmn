@@ -45,7 +45,7 @@ try {
 			//$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_1 != '' && LEVEL_1_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_2 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_3 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Pending'))");
 			
 			//All sessions approved by finance
-			$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE FINANCE_RESPONSE = 'Yes')");
+			$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME, `Tmn_Sessions`.FAN, `Tmn_Sessions`.DATE_MODIFIED FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE FINANCE_RESPONSE = 'Yes') && `Tmn_Sessions`.INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL");
 			
 			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$returndata = array();
