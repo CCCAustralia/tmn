@@ -1581,7 +1581,7 @@ class CASClient
 //      $cas_url = $this->getServerProxyURL().'?targetService='.preg_replace('/&/','%26',$target_service).'&pgt='.$this->getPGT();
       $cas_url = $this->getServerProxyURL().'?targetService='.urlencode($target_service).'&pgt='.$this->getPGT();
 
-#      if( eregi("www.mygcx.org", $target_service, $regs)) {
+#      if( eregi("thekey.me", $target_service, $regs)) {
 #        $target_service = eregi_replace("^https://", "http://", $target_service);
 #        $cas_url = $this->getServerProxyURL().'?targetService='.urlencode($target_service).'&pgt='.$this->getPGT();
 #      }

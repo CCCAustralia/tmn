@@ -1983,7 +1983,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			
 			//load fields with local data
 			if (local_data === undefined) {
-				console.info('loadForm: load url');
+				//console.info('loadForm: load url');
 				//if no local data is avaiblable grab the data from the backend
 				this.load({
 					url: this.load_url,
@@ -2001,7 +2001,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			//otherwise load defaults
 			} else {
 				
-				console.info('loadForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
+				//console.info('loadForm: load defaults, ' + ((this.home_assignment) ? 'home ass': 'not home ass'));
 				//update backend with defaults
 				this.fireEvent('financialdataupdated', this, this.getForm().items.map['os_resident_for_tax_purposes'], this.getForm().items.map['os_resident_for_tax_purposes'].getValue(), false);
 				this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'home_assignment';}}, this.home_assignment, false);

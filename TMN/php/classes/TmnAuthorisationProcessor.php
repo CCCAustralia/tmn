@@ -266,6 +266,18 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailbody .= $authviewerurl;
 			$emailbody .= "\n\n-The TMN Development Team";
 			
+			try {
+				$nmauser = new TMNCrudUser($this->logfile, $authguids[0]);
+				$isnma = $nmauser->getField("mpd");
+				if ($isnma) {
+					$emailbody .= "\n\nIMPORTANT:\nYou selected that you are in MPD.\n";
+					$emailbody .= "To get paid, all new missionaries MUST submit their payment details with the form at the address below.\n";
+					$emailbody .= $curpageurl."/pdf/UpdatePaymentMethods.pdf";
+				}
+			} catch (Exception $e) {
+				
+			}
+			
 		}
 		
 		//notify auth<1-3>

@@ -7,7 +7,7 @@
 //GCX login
 include_once('../../lib/cas/cas.php');		//include the CAS module
 //phpCAS::setDebug();			//Debugging mode
-phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
+phpCAS::client(CAS_VERSION_2_0,'thekey.me',443,'cas');	//initialise phpCAS
 $_CAS_CLIENT_CALLED = 1;
 phpCAS::setNoCasServerValidation();	//no SSL validation for the CAS server
 phpCAS::forceAuthentication();		//require the user to log in to CAS
@@ -25,7 +25,7 @@ if (isset($_REQUEST['logout'])) {
 if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 {
 //echo GetMainBaseFromURL(curPageURL()). "<br />";
-    header("Location: https://signin.mygcx.org/cas/login?service=".curPageURL());
+    header("Location: https://thekey.me/cas/login?service=".curPageURL());
 }
 
 function curPageURL() {

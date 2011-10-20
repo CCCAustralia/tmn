@@ -9,7 +9,7 @@ $html = '<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http
 	'<body>' .
 		'<center>' .
 			'<div class="title-look" style="position:relative;left:20px;width:608px;text-align:left;">User Not Found!</div>' .
-			'<div class="body-look" style="position:relative;left:20px;width:600px;">You where not found in our system.<br />If you think you should be able to submit a TMN then register your details for processing.<br />Our Security checks are usually take One buisness day to complete.</div>' .
+			'<div class="body-look" style="position:relative;left:20px;width:600px;">You where not found in our system.<br />If you think you should be able to submit a TMN then register your details for processing.<br />Our Security checks usually take One buisness day to complete.</div>' .
 		'</center>' .
 
 		'<br />' .

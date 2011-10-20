@@ -36,7 +36,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		
 		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
 		if ( !isset($GLOBALS['CAS_CLIENT_CALLED']) ) {
-			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
+			phpCAS::client(CAS_VERSION_2_0,'thekey.me',443,'cas');
 			$GLOBALS['CAS_CLIENT_CALLED'] = 1;
 		}
 		
@@ -87,7 +87,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		
 		//initialise phpCAS if hasn't happened yet (is done here so that it isn't repeated everytime an object is created)
 		if ( !isset($GLOBALS['CAS_CLIENT_CALLED']) ) {
-			phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');
+			phpCAS::client(CAS_VERSION_2_0,'thekey.me',443,'cas');
 			$GLOBALS['CAS_CLIENT_CALLED'] = 1;
 		}
 		
@@ -103,7 +103,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		//fetch a ticket if absent
 		if ($_REQUEST['ticket'] == '' && $_REQUEST['id'] == '')
 		{
-		    header("Location: https://signin.mygcx.org/cas/login?service=". self::curPageURL());
+		    header("Location: https://thekey.me/cas/login?service=". self::curPageURL());
 		}
     }
     

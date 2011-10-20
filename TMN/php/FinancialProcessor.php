@@ -19,7 +19,7 @@ if (file_exists("mysqldriver.php")) {
 
 //Authenticate the user in GCX with phpCAS
 if ( !isset($CAS_CLIENT_CALLED) ) {
-	phpCAS::client(CAS_VERSION_2_0,'signin.mygcx.org',443,'cas');	//initialise phpCAS
+	phpCAS::client(CAS_VERSION_2_0,'thekey.me',443,'cas');	//initialise phpCAS
 	$CAS_CLIENT_CALLED = 1;
 }
 if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
