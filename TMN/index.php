@@ -215,7 +215,7 @@ try {
 								
 								<label for="email">The Key Email Address: </label>
 								<input type="text" name="email" value="' . $tmn->getEmail() . '" style="position:relative;left:70px;" readonly /><br />
-								<span>(this is how we will contact you, if it is wrong go to <a href="https://thekey.me/cas/service/selfservice?execution=e3s1">https://thekey.me/cas/service/selfservice?execution=e3s1</a> and update it. Then try to register again.)</span><br /><br />
+								<span>(this is how we will contact you, if it is wrong go to <a href="https://thekey.me/cas/service/selfservice?target=displayAccountDetails">https://thekey.me/cas/service/selfservice?target=displayAccountDetails</a> and update it. Then try to register again.)</span><br /><br />
 								<label for="fan">Financial Account Number: </label><input type="text" name="fan" style="position:relative;left:26px;" /> <br />
 								<input type="submit" value="Submit" />
 							</form>
