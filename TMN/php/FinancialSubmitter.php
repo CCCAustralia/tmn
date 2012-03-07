@@ -180,6 +180,9 @@ class FinancialSubmitter extends FinancialProcessor {
 	
 	
 	public function submit(){
+		
+		//error array
+		$err	= array();
 
 		//Fetch names
 		$sql = mysql_query("SELECT * FROM User_Profiles WHERE guid='".$this->guid."'");
@@ -527,7 +530,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		if(is_null($this->financial_data['INTERNATIONAL_DONATIONS']) || $this->financial_data['INTERNATIONAL_DONATIONS'] < ($subtotal + $transfers_total))
 			$this->data['international_donations']=	$this->financial_data['INTERNATIONAL_DONATIONS'];
 		else
-			$err .= "INTERNATIONAL_DONATIONS:\"This figure must be smaller than your TMN.\", ";
+			$err["INTERNATIONAL_DONATIONS"] = "This figure must be smaller than your TMN.";
 		
 		//CCCA Levy								//this has been changed so its not just a percentage of the subtotal but a percentage of the whole TMN
 		$this->data['ccca_levy']					=	round(($subtotal + $total_transfers - $this->data['international_donations']) * ($this->constants['CCCA_LEVY_RATE']/(1-$this->constants['CCCA_LEVY_RATE'])));
@@ -710,16 +713,16 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//check that net stipend for both spouses is over $100
 		if ($this->data['net_stipend'] < $this->constants['STIPEND_MIN'])
-			$err .= "NET_STIPEND:\"You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".\", ";
+			$err["NET_STIPEND"] = "You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".";
 		if ($this->data['s_net_stipend'] < $this->constants['STIPEND_MIN'] && $iscouple)
-			$err .= "S_NET_STIPEND:\"You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".\", ";
+			$err["S_NET_STIPEND"] = "You cannot have a stipend less than $".$this->constants['STIPEND_MIN'].".";
 			
 		//check that housing is less than total mfbs
 		//if ($this->data['housing'] > ($this->data['max_mfb']+$this->data['s_max_mfb']))
 		//	$err .= "HOUSING:\"You cannot have a housing amount greater than your total MFB\'s ($".($this->data['max_mfb']+$this->data['s_max_mfb']).").\", ";
 
-		if ($err == '') {
-			$result = array('success'=>'true');
+		if (count($err) == 0) {
+			$result = array('success'=>true);
 			$result['tmn_data'] = $this->data;
 			
 			return json_encode($result);
@@ -729,7 +732,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			
 			//return '{success: true}';
 		} else {
-			$result = array('success'=>'false');
+			$result = array('success'=>false);
 			$result['errors'] = $err;
 			return json_encode($result);
 			//return '{success: false, errors:{'.trim($err,", ").'} }'; //Return with errors

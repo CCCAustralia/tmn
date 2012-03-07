@@ -1,0 +1,5 @@
+[2012/02/27 01:26:25] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. mmr= should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('mmr', '', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(351): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(278): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}

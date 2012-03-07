@@ -713,6 +713,29 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		return json_encode($this->produceAssocArrayForDisplay($add_auth_reasons));
 	}
 	
+	//TODO: Remove once UI is rewritten.
+	//NOTE: This is a hack. These ids are not needed and returning them resulted in them being overwitten with old values.
+	//overwriting the parent function is not a great solution. A better one would be to rewrite the interface so there are
+	//not inconsistencies in what is stored in the different data stores for Financial Data. ExtJS 4 solves this with a
+	//centralized model object.
+	public function produceAssocArray() {
+		
+		$array = parent::produceAssocArray();
+		
+		//remove international assignment session id from what is returned
+		if (isset($array['international_assignment_session_id'])) {
+			unset($array['international_assignment_session_id']);
+		}
+		
+		//remove home assignment session id from what is returned
+		if (isset($array['home_assignment_session_id'])) {
+			unset($array['home_assignment_session_id']);
+		}
+		
+		return $array;
+		
+	}
+	
 	
 	
 			///////////////////////AUTHORISATION METHODS////////////////////////

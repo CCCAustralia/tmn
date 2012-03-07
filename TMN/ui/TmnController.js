@@ -674,7 +674,7 @@ tmn.TmnController = function() {
 				if (form_panel.aussie_form) {
 					form_panel.onSaveSession(this.financial_data[form_panel.id]);
 				}
-				
+
 				//if its an overseas form combine the data of the two sessions into an object and save that
 				if (form_panel.overseas_form) {
 					//grab the forms
@@ -695,7 +695,7 @@ tmn.TmnController = function() {
 						//set the home assignment start date to international end data
 						dataObject['home-assignment']['OS_ASSIGNMENT_START_DATE'] = dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'];
 					}
-					
+
 					//save the data for both forms (it doesn't matter which form you use)
 					form_panel.onSaveSession(dataObject);
 				}
@@ -719,7 +719,7 @@ tmn.TmnController = function() {
 				default_name	= form_panel.getSessionName() + " copy";
 			}
 			
-			
+
 			if (form_panel.aussie_form) {
 				
 				var dataObject = this.financial_data[form_panel.id];
@@ -776,6 +776,29 @@ tmn.TmnController = function() {
 				var home_assignment_form					= this.getForm('home-assignment');
 				var international_assignment_form			= this.getForm('international-assignment');
 				
+				//make sure there is data for international assignment before running through it
+				if (this.financial_data[international_assignment_form.id]  !== undefined) {
+					//remove session id, it is about to be copied and given a new id
+					if (this.financial_data[international_assignment_form.id]['session_id'] !== undefined) {
+						delete (this.financial_data[international_assignment_form.id]['session_id']);
+					}
+					
+					//remove auth session id, it is about to be copied and the new session will not have an auth session
+					if (this.financial_data[international_assignment_form.id]['auth_session_id'] !== undefined) {
+						delete (this.financial_data[international_assignment_form.id]['auth_session_id']);
+					}
+					
+					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
+					if (this.financial_data[international_assignment_form.id]['home_assignment_session_id'] !== undefined) {
+						delete (this.financial_data[international_assignment_form.id]['home_assignment_session_id']);
+					}
+					
+					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
+					if (this.financial_data[international_assignment_form.id]['international_assignment_session_id'] !== undefined) {
+						delete (this.financial_data[international_assignment_form.id]['international_assignment_session_id']);
+					}
+				}
+				
 				var dataObject = {};
 				 //use the international data because the user will be made to save for the first time on the international form
 				//so save as will never have access to home assignment data as it won't yet exist
@@ -791,53 +814,7 @@ tmn.TmnController = function() {
 					//set the home assignment start date to international end data
 					dataObject['home-assignment']['OS_ASSIGNMENT_START_DATE'] = dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'];
 				}
-				
-				//make sure there is data for home assignment before running through it
-				if (dataObject['home-assignment']  !== undefined) {
-					//remove session id, it is about to be copied and given a new id
-					if (dataObject['home-assignment']['session_id'] !== undefined) {
-						delete dataObject['home-assignment']['session_id'];
-					}
-					
-					//remove auth session id, it is about to be copied and the new session will not have an auth session
-					if (dataObject['home-assignment']['auth_session_id'] !== undefined) {
-						delete dataObject['home-assignment']['auth_session_id'];
-					}
-					
-					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
-					if (dataObject['home-assignment']['home_assignment_session_id'] !== undefined) {
-						delete dataObject['home-assignment']['home_assignment_session_id'];
-					}
-					
-					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
-					if (dataObject['home-assignment']['international_assignment_session_id'] !== undefined) {
-						delete dataObject['home-assignment']['international_assignment_session_id'];
-					}
-				}
-			
-				//make sure there is data for international assignment before running through it
-				if (dataObject['international-assignment']  !== undefined) {
-					//remove session id, it is about to be copied and given a new id
-					if (dataObject['international-assignment']['session_id'] !== undefined) {
-						delete dataObject['international-assignment']['session_id'];
-					}
-					
-					//remove auth session id, it is about to be copied and the new session will not have an auth session
-					if (dataObject['international-assignment']['auth_session_id'] !== undefined) {
-						delete dataObject['international-assignment']['auth_session_id'];
-					}
-					
-					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
-					if (dataObject['international-assignment']['home_assignment_session_id'] !== undefined) {
-						delete dataObject['international-assignment']['home_assignment_session_id'];
-					}
-					
-					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
-					if (dataObject['international-assignment']['international_assignment_session_id'] !== undefined) {
-						delete dataObject['international-assignment']['international_assignment_session_id'];
-					}
-				}
-				
+
 				Ext.MessageBox.prompt(
 						"Save As",
 						"Give your session a name:",
@@ -900,7 +877,8 @@ tmn.TmnController = function() {
 					}
 				}
 			}
-			
+		
+		
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
@@ -936,6 +914,7 @@ tmn.TmnController = function() {
 					
 					form_panel.saveAsInternalTransfers(international_assignment_data['session_id']);
 				}
+
 			}
 			
 		},
