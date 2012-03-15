@@ -258,19 +258,19 @@ tmn.view.PrintForm = function(view, config) {
 				new tmn.view.AuthorisationPanel(this, {
 					id: 	'authorisation_level_3_panel',
 					title:	'Authorisation Level Three',
-					leader:	'National Director',
+					leader:	'Level 3',
 					mode:	'level_3'
 				}),
 				new tmn.view.AuthorisationPanel(this, {
 					id: 	'authorisation_level_2_panel',
 					title:	'Authorisation Level Two',
-					leader:	'National Ministry Leader',
+					leader:	'Level 2',
 					mode:	'level_2'
 				}),
 				new tmn.view.AuthorisationPanel(this, {
 					id: 	'authorisation_level_1_panel',
 					title:	'Authorisation Level One',
-					leader:	'Ministry Overseer',
+					leader:	'Level 1',
 					mode:	'level_1'
 				}),
 				new tmn.view.SummaryPanel(this, {

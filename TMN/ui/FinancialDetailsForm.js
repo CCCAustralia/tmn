@@ -417,6 +417,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										readOnly: true,
 										cls: 'x-form-readonly-red',
 										fieldLabel: 'Housing Stipend',
+										value: 0,
 										listeners: {
 											focus: function(field)	{field.blur();},
 											render: function(c) {
@@ -428,17 +429,18 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										}
 									},
 									{
-										itemId: 'first_home_saver_account',
-										name: 'FIRST_HOME_SAVER_ACCOUNT',
+										itemId: 'taxable_future_investment',
+										name: 'TAXABLE_FUTURE_INVESTMENT',
 										readOnly: true,
 										cls: 'x-form-readonly-red',
-										fieldLabel: 'First Home Saver Account',
+										fieldLabel: 'Taxable Future Investment',
+										value: 0,
 										listeners: {
 											focus: function(field)	{field.blur();},
 											render: function(c) {
 												Ext.QuickTips.register({
 													target: c.getEl(),
-													text: 'This is the 9% of your stipend that goes toward your First Home Saver Account. If you would like to put more toward your First Home Saver Account please just increase your Stipend.'
+													text: 'This is the 9% of your stipend that goes toward your Future Investment e.g. First Home Saver Account. If you would like to put more toward your Future Investment please just increase your Stipend and notify the Finance Department of where you want it to go.'
 												});
 											}
 										}
@@ -449,6 +451,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										readOnly: true,
 										cls: 'x-form-readonly-red',
 										fieldLabel: 'Net Stipend',
+										value: 0,
 										listeners: {
 											focus: function(field)	{field.blur();},
 											render: function(c) {
@@ -576,6 +579,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										readOnly: true,
 										cls: 'x-form-readonly-red',
 										fieldLabel: 'Housing Stipend',
+										value: 0,
 										listeners: {
 											focus: function(field)	{field.blur();},
 											render: function(c) {
@@ -587,11 +591,29 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										}
 									},
 									{
+										itemId: 's_taxable_future_investment',
+										name: 'S_TAXABLE_FUTURE_INVESTMENT',
+										readOnly: true,
+										cls: 'x-form-readonly-red',
+										fieldLabel: 'Taxable Future Investment',
+										value: 0,
+										listeners: {
+											focus: function(field)	{field.blur();},
+											render: function(c) {
+												Ext.QuickTips.register({
+													target: c.getEl(),
+													text: 'This is the 9% of your stipend that goes toward your Future Investment e.g. First Home Saver Account. If you would like to put more toward your Future Investment please just increase your Stipend and notify the Finance Department of where you want it to go.'
+												});
+											}
+										}
+									},
+									{
 										itemId: 's_net_stipend',
 										name: 'S_NET_STIPEND',
 										readOnly: true,
 										cls: 'x-form-readonly-red',
 										fieldLabel: 'Net Stipend',
+										value: 0,
 										listeners: {
 											focus: function(field)	{field.blur();},
 											render: function(c) {
@@ -758,6 +780,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								readOnly: true,
 								cls: 'x-form-readonly-red',
 								fieldLabel: 'Additional Mortgage Payment',
+								value: 0,
 								listeners: {
 									focus: function(field)	{field.blur();},
 									render: function(c) {
@@ -774,6 +797,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								readOnly: true,
 								cls: 'x-form-readonly-red',
 								fieldLabel: 'Total Housing Payment',
+								value: 0,
 								listeners: {
 									focus: function(field)	{field.blur();},
 									render: function(c) {
@@ -1427,55 +1451,147 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						
 						items: [
 							{
-								itemId:				's_pre_tax_super',
-								name:				'S_PRE_TAX_SUPER',
-								cls:				'x-form-readonly',
-								fieldLabel:			'Pre Tax Super',
-								value:				0,
-								enableKeyEvents:	true,
-								listeners: {
+								width: 140,
+								itemId: 's_retirement_investment_mode',
+								xtype: 'combo',
+								fieldLabel: 'Where do you want your Retirement Investment to go?',
+								name: 'S_RETIREMENT_INVESTMENT_MODE',
+								hiddenName: 'S_RETIREMENT_INVESTMENT_MODE',
+								hiddenId: 'S_RETIREMENT_INVESTMENT_MODE_hidden',
+								triggerAction:'all',
+								emptyText: 'Pre-tax super...',
+								validationEvent: 'blur',
+								allowBlank: false,
+								editable:false,
+							    mode:'local',
+							    hiddenValue: 0,
+							    value: 'Pre-Tax Super',
+							    
+							    store:new Ext.data.SimpleStore({
+							         fields:['retirementInvestmentCode', 'retirementInvestmentName'],
+							         data:[[0,'Pre-Tax Super'],[1,'Mortgage'],[2,'First Home Saver Account'],[3,'Other Investment']]
+							    }),
+							    displayField:'retirementInvestmentName',
+							    valueField:'retirementInvestmentCode',
+							    
+							    listeners: {
 									scope: this,
+							    	//when index 1, "No", is selected show life cover amount
+							    	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
+							    	select: function(combo, record, index) {
+							    		//actions for Pre Tax Super
+										if (index == 0) {
+											//undo other options
+											//hide and set to zero Mortgage
+											this.getComponent('housing_panel').getComponent('am').hide();
+											//hide and set to zero First Home Saver Account
+											this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+											//hide and set to zero Other Investment
+											
+											//apply changes for pre tax super
+											combo.nextSibling().expand();
+										
+										//actions for Mortgage
+										} else if (index == 1) {
+											//undo other options
+											//hide and set to zero Pre-Tax Super
+											combo.nextSibling().collapse();
+											//hide and set to zero First Home Saver Account
+											this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+											//hide and set to zero Other Investment
+											
+											//apply changes for Mortgage
+											//combo.nextSibling().collapse();
+											
+										//actions for First Home Saver Account
+										} else if (index == 2) {
+											//undo other options
+											//hide and set to zero Pre-Tax Super
+											//hide and set to zero Mortgage
+											//hide and set to zero Other Investment
+											
+											//apply changes for First Home Saver Account
+											//combo.nextSibling().collapse();
+											
+										//actions for Other Investments
+										} else if (index == 3) {
+											//undo other options
+											//hide and set to zero Pre-Tax Super
+											//hide and set to zero Mortgage
+											//hide and set to zero First Home Saver
+											
+											//apply changes for Other Investment
+											//combo.nextSibling().collapse();
+										}
+										
+										this.fireEvent('financialdataupdated', this, combo, index, false);
+							    	},
 									render: function(c) {
 										Ext.QuickTips.register({
 											target: c.getEl(),
-											text: 'Record the amount of Pre-tax Super you would like to be paid from your Support Account each month.<br />This amount is not Taxed.'
+											text: '9% of your Taxable Income goes toward your Super Fund. This is a compulsary amount enforced by the government. As missionaries we also get MFBs. The government does not require a compulsary percentage of your MFBs to go toward your Super Fund. However, to look after you CCCA requires you, as a minimum, to set aside another 9% of your stipend (for someone on Half-MFBs it would be 4.5% of your Stipend, for somone on Zero-MFBs it would be 0% of your Stipend) toward your future. This amount is called your Retirement Investment. You may add more than the minimum and you can select where it goes using this combo box.'
 										});
 									}
-								}
+							    }
 							},
 							{
-								xtype: 'button',
-								itemId: 's_pre_tax_super_mode',
-								enableToggle: true,
-								text: 'Manually Set Pre Tax Super',
-								margins: {top:0, right:0, bottom:3, left:0},
-								scope: this,
-								toggleHandler: function(button, state){
-									//Button has been pressed so they are in manual mode
-									if(state == true){
-										//removes readonly
-										this.getForm().items.map['s_pre_tax_super'].purgeListeners();
-										this.getForm().items.map['s_pre_tax_super'].removeClass('x-form-readonly');
-										//update the mode to manual
-										//(needs to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
-										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'manual', this.processingAllowed);
-										//add update listener
-										this.getForm().items.map['s_pre_tax_super'].enableKeyEvents = true;
-										this.getForm().items.map['s_pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), this.processingAllowed);}, this, {buffer: this.keyup_timeout});
-									} else {
-										//stops it updating on change
-										this.getForm().items.map['s_pre_tax_super'].purgeListeners();
-										//makes it readonly
-										this.getForm().items.map['s_pre_tax_super'].addClass('x-form-readonly');
-										this.getForm().items.map['s_pre_tax_super'].enableKeyEvents = false;
-										this.getForm().items.map['s_pre_tax_super'].addListener('focus', function(field){field.blur();});
-										//update the mode to auto
-										//(need to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
-										//with the getName() method to tell it which value it needs to update)
-										this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', this.processingAllowed);
+								itemId: 's_pre_tax_super_panel',
+								xtype: 'panel',
+								layout: 'form',
+								//collapsed: true,
+								items: [
+									{
+										itemId:				's_pre_tax_super',
+										name:				'S_PRE_TAX_SUPER',
+										cls:				'x-form-readonly',
+										fieldLabel:			'Pre Tax Super',
+										value:				0,
+										enableKeyEvents:	true,
+										listeners: {
+											scope: this,
+											render: function(c) {
+												Ext.QuickTips.register({
+													target: c.getEl(),
+													text: 'Record the amount of Pre-tax Super you would like to be paid from your Support Account each month.<br />This amount is not Taxed.'
+												});
+											}
+										}
+									},
+									{
+										xtype: 'button',
+										itemId: 's_pre_tax_super_mode',
+										enableToggle: true,
+										text: 'Manually Set Pre Tax Super',
+										margins: {top:0, right:0, bottom:3, left:0},
+										scope: this,
+										toggleHandler: function(button, state){
+											//Button has been pressed so they are in manual mode
+											if(state == true){
+												//removes readonly
+												this.getForm().items.map['s_pre_tax_super'].purgeListeners();
+												this.getForm().items.map['s_pre_tax_super'].removeClass('x-form-readonly');
+												//update the mode to manual
+												//(needs to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
+												//with the getName() method to tell it which value it needs to update)
+												this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'manual', this.processingAllowed);
+												//add update listener
+												this.getForm().items.map['s_pre_tax_super'].enableKeyEvents = true;
+												this.getForm().items.map['s_pre_tax_super'].addListener('keyup', function(field, event) {this.fireEvent('financialdataupdated', this, field, field.getValue(), this.processingAllowed);}, this, {buffer: this.keyup_timeout});
+											} else {
+												//stops it updating on change
+												this.getForm().items.map['s_pre_tax_super'].purgeListeners();
+												//makes it readonly
+												this.getForm().items.map['s_pre_tax_super'].addClass('x-form-readonly');
+												this.getForm().items.map['s_pre_tax_super'].enableKeyEvents = false;
+												this.getForm().items.map['s_pre_tax_super'].addListener('focus', function(field){field.blur();});
+												//update the mode to auto
+												//(need to send it {getName: function(){return 's_pre_tax_super_mode';}} as the field because it is expecting an object
+												//with the getName() method to tell it which value it needs to update)
+												this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 's_pre_tax_super_mode';}}, 'auto', this.processingAllowed);
+											}
+										}
 									}
-								}
+								]
 							},
 							{
 								itemId: 's_employer_super',
@@ -2454,9 +2570,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				//load pre tax super mode first if it exists
 				if (data['s_pre_tax_super_mode'] !== undefined) {
 					if (data['s_pre_tax_super_mode'] == 'manual') {
-						this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(true);
+						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(true);
 					} else {
-						this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(false);
+						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(false);
 					}
 				}
 				

@@ -35,6 +35,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 				'fin_acc_num'	=>	"i",
 				'mpd'			=>	"i",
 				'm_guid'		=>	"s",
+				'auth_level'	=>	"i",
 				'admin_tab'		=>	"i"
 			)
 		);

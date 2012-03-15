@@ -103,7 +103,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
 			items:		[
 				 {
 					 xtype:	'label',
-					 text:	'Enter the name of your ' + this.leader + ':',
+					 text:	'Enter the name of your ' + this.leader + ' Authoriser:',
 					 style:	{
 				         marginBottom: '10px'
 				     }
@@ -122,11 +122,11 @@ tmn.view.AuthorisationPanel = function(view, config) {
 							name:			'FIRSTNAME',
 							hiddenName:		'FIRSTNAME',
 							hiddenId:		'FIRSTNAME_hidden',
-						    emptyText:		'First Name...',
+						    emptyText:		'Authoriser Name...',
 				            allowBlank:		false,
-						    hideTrigger:	true,
+						    hideTrigger:	false,
 							typeAhead:		true,
-							editable: 		true,
+							editable: 		false,
 							forceSelection:	true,
 						    mode:			'local',
 						    store:			this.nameStore,
@@ -136,16 +136,18 @@ tmn.view.AuthorisationPanel = function(view, config) {
 						    listeners: {
 						    	select: function(combo, record, index) {
 						    		this.user_id	= record.data.ID;
+						    		/*
 						    		var compositefield = this.getForm().items.map['name'];
 						    		compositefield.items.each(function(item, index, length){
 						    			if (item.getItemId() == 'last_name') {
 						    				item.setValue(this.data.SURNAME);
 						    			}
 						    		}, record);
+						    		*/
 						    	},
 						    	scope: this
 						    }
-						},
+						}/*,
 						{
 							itemId:			'last_name',
 							xtype:			'combo',
@@ -156,7 +158,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
 							hiddenId:		'SURNAME_hidden',
 						    emptyText:		'Last Name...',
 				            allowBlank:		false,
-						    hideTrigger:	true,
+						    hideTrigger:	false,
 							typeAhead:		true,
 							editable: 		true,
 							forceSelection:	true,
@@ -177,7 +179,7 @@ tmn.view.AuthorisationPanel = function(view, config) {
 						    	},
 						    	scope: this
 						    }
-						}
+						}*/
 			    	 ]
 			     }
 			     

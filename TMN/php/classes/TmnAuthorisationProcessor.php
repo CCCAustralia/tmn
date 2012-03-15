@@ -84,7 +84,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$this->authsessionid			= $auth_session_id;
 		
 		//get the finance user guid
-		$this->financeguid = getConstants(array('FINANCE_USER'));
+		$this->financeguid = getConstants(getVersionNumber());
 		$this->financeguid = $this->financeguid['FINANCE_USER'];
 		
 		//$this->authcrud = $newObj;
@@ -120,7 +120,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	}
 	
 	private function getFinanceGuid() {
-		$constants = getConstants(array("FINANCE_USER"));
+		$constants = getConstants(getVersionNumber());
 		return $constants['FINANCE_USER'];
 	}
 	
@@ -261,7 +261,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailaddress = $this->getEmailFromGuid($authguids[0]);	//get the user's email
 			
 			$emailbody = "Your TMN has been submitted for approval!\n";
-			$emailbody .= "Your Ministry Overseer: ".$this->getNameFromGuid($authguids[1])." has been emailed, requesting approval for your TMN.\n";
+			$emailbody .= "Your Level 1 Authoriser: ".$this->getNameFromGuid($authguids[1])." has been emailed, requesting approval for your TMN.\n";
 			$emailbody .= "\nYou can view or cancel your submission at the following link:\n";
 			$emailbody .= $authviewerurl;
 			$emailbody .= "\n\n-The TMN Development Team";
@@ -273,6 +273,11 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					$emailbody .= "\n\nIMPORTANT:\nYou selected that you are in MPD.\n";
 					$emailbody .= "To get paid, all new missionaries MUST submit their payment details with the form at the address below.\n";
 					$emailbody .= $curpageurl."/pdf/UpdatePaymentMethods.pdf";
+				} else {
+					
+					$emailbody .= "\n\nIf you need to update your payment details (i.e. banking or housing details) fill out the following form and return it to the CCCA National Office.\n";
+					$emailbody .= "$curpageurl/pdf/UpdatePaymentMethods.pdf";
+					
 				}
 			} catch (Exception $e) {
 				

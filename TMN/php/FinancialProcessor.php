@@ -67,39 +67,13 @@ class FinancialProcessor {
 	public function __construct($findat, $dbug) {
 		//////////  SET UP CONSTANTS  //////////
 		include_once('classes/TmnConstants.php');
-		$this->constants = getConstants(array(	"STIPEND_MIN", 
-											"MIN_SUPER_RATE", 
-											"MIN_ADD_SUPER_RATE", 
-											"OS_STIPEND_MAX", 
-											"x_resident", 
-											"a_resident", 
-											"b_resident", 
-											"x_non_resident", 
-											"a_non_resident", 
-											"b_non_resident",
-											"MAX_HOUSING_MFB",
-											"MAX_HOUSING_MFB_COUPLES"
-								));
+		$this->constants = getConstants(getVersionNumber());
 		
 		//tax values
 		//formula and values grabbed from:
 		//Statement of formulas for calculating amounts to be withheld
 		
 		//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
-		$this->x_resident 		= json_decode($this->constants['x_resident']);
-		$this->a_resident 		= json_decode($this->constants['a_resident']);
-		$this->b_resident 		= json_decode($this->constants['b_resident']);
-		$this->x_non_resident 	= json_decode($this->constants['x_non_resident']);
-		$this->a_non_resident 	= json_decode($this->constants['a_non_resident']);
-		$this->b_non_resident 	= json_decode($this->constants['b_non_resident']);
-		
-		//remove the tax values once they have been decoded
-		unset($this->constants['x_resident']);
-		unset($this->constants['a_resident']);
-		unset($this->constants['b_resident']);
-		unset($this->constants['x_non_resident']);
-		unset($this->constants['a_non_resident']);
-		unset($this->constants['b_non_resident']);
 		
 		//////////      DONE      //////////
 						
@@ -119,13 +93,13 @@ class FinancialProcessor {
 		//choose the appropriate set of tax figures
 		
 		if ($this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES']) {
-			$this->x = $this->x_resident;
-			$this->a = $this->a_resident;
-			$this->b = $this->b_resident;
+			$this->x = $this->constants['x_resident'];
+			$this->a = $this->constants['a_resident'];
+			$this->b = $this->constants['b_resident'];
 		} else {
-			$this->x = $this->x_non_resident;
-			$this->a = $this->a_non_resident;
-			$this->b = $this->b_non_resident;
+			$this->x = $this->constants['x_non_resident'];
+			$this->a = $this->constants['a_non_resident'];
+			$this->b = $this->constants['b_non_resident'];
 		}
 		if($this->DEBUG) fb($this->x);
 	}
@@ -213,6 +187,56 @@ class FinancialProcessor {
 		
 		//Housing
 		$this->financial_data['ADDITIONAL_HOUSING'] = $this->getAdditionalHousing();
+		
+		//Taxable Income Panel
+		//if Aussie
+		if (!$this->financial_data['overseas']) {
+			
+			if (isset($this->financial_data['STIPEND'])) {
+				
+				$netIncome			= $this->financial_data['STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];
+				$oldTaxableIncome	= $this->calculateTaxableIncome($netIncome);
+				$housingStipend		= 0;
+				$futureInvestment	= 0;
+				$change				= PHP_INT_MAX;
+				$accuracy			= 1;
+				$iterations			= 0;
+				$maxIterations		= 100;
+				
+				//while (housing stipend needs to be calculated or a taxable future investment needs to be calculated) and (we are above acceptable accuracy or less than an acceptable number of iterations)
+				while ((( $this->getMonthlyHousing() - $this->getAdditionalHousing() > $this->calculateMaxMFB($oldTaxableIncome, $this->getMfbRate($this->financial_data['MFB_RATE']), $this->getDaysPerWeek(0))) || $this->financial_data['future_investment_mode'] != 0) && ($change >= $accuracy && $iterations < $maxIterations)) {
+					
+					//if a taxable future investment needs to be calculated
+					if ($this->financial_data['future_investment_mode'] != 0) {
+						
+						$futureInvestment	= $oldTaxableIncome * $this->constants['MIN_SUPER_RATE'];
+						$newTaxableIncome	+= $this->calculateTaxableIncome($netIncome + $futureInvestment);
+						
+					} else {
+						
+						$newTaxableIncome	= $oldTaxableIncome;
+						$futureInvestment	= 0;
+						
+					}
+					
+					//housing stipend needs to be calculated
+					if ($this->getMonthlyHousing() - $this->getAdditionalHousing() > $this->calculateMaxMFB($oldTaxableIncome, $this->getMfbRate($this->financial_data['MFB_RATE']), $this->getDaysPerWeek(0))) {
+						
+						$housingStipend		= $this->getMonthlyHousing() - $this->getAdditionalHousing() - $this->calculateMaxMFB($oldTaxableIncome, $this->getMfbRate($this->financial_data['MFB_RATE']), $this->getDaysPerWeek(0));
+						$newTaxableIncome	= $this->calculateTaxableIncome($netIncome + $futureInvestment + $housingStipend);
+						
+					}
+					
+					//update change and iteration variables
+					$change				= abs($newTaxableIncome - $oldTaxableIncome);
+					$oldTaxableIncome	= $newTaxableIncome;
+					$iterations++;
+					
+				}
+				
+			}
+			
+		}
 		
 		
 		//Taxable Income Panel

@@ -20,125 +20,224 @@ if (isset($_REQUEST['mode'])) {
 	
 	try {
 		
+		////Get User
 		$tmn = new Tmn($LOGFILE);
 		$user = $tmn->getUser();
-		$userguid = $user->getGuid();
-		$userNMLguid = "";
-		//$tmn->authenticate();
 		
 		if ($tmn->isAuthenticated()) {
-	////Get User
-	////Get all users from User_Profiles table
-			$sql = "SELECT ID, GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM FROM `User_Profiles` WHERE ID IS NOT NULL";
-			$sql = mysql_query($sql);
-			$userlist_all = array();
-		////Sort the users into a single array
-			for ($row = 0; $row < mysql_num_rows($sql); $row++) {
-				$temp = mysql_fetch_assoc($sql);
-				$userlist_all[$temp['GUID']] = $temp;
-			}
-			//fb("userlist_all:"); fb($userlist_all);
 
-	////Get all authorisers from Authorisers table
-			$sql = "SELECT GUID, MINISTRY FROM `Authorisers` WHERE GUID IS NOT NULL";
-			$sql = mysql_query($sql);
-			//get nmls
-			$userlist_nml = array();
-			//get ND
-			$userlist_nd = array();
-		////Sort the authorisers into arrays
-			for ($row = 0; $row < mysql_num_rows($sql); $row++) {
-				$temp = mysql_fetch_assoc($sql);
-				if ($temp['MINISTRY'] == 'National Director') {
-					//Store the ND
-					$userlist_nd[$temp['GUID']] = $temp;
-					$userlist_nd[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
-					$userlist_nd[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
-					$userlist_nd[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
+			//initialise variables for the script
+			$mode				= $_REQUEST['mode'];
+			$returnArray		= array();
+			$listOfLevel1Users	= array();
+			$listOfLevel2Users	= array();
+			$listOfLevel3Users	= array();
+			$listOfAllUsers		= array();
+			
+			////Get all users from User_Profiles table
+			$sql				= "SELECT ID, GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM, AUTH_LEVEL FROM `User_Profiles` WHERE ID IS NOT NULL";
+			$result				= mysql_query($sql);
+			
+			////Sort the users into appropriate lists
+			for ($userCount = 0; $userCount < mysql_num_rows($result); $userCount++) {
+				$currentUser = mysql_fetch_assoc($result);
+				
+				//add current user to list of all users
+					$listOfAllUsers[$currentUser['GUID']]		= $currentUser;
+				
+				//if current user has level 1 authority add them to level 1 list
+				if ($currentUser['AUTH_LEVEL'] == 1) {
 					
-					//Store the NMLs
-					$userlist_nml[$temp['GUID']] = $temp;
-					$userlist_nml[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
-					$userlist_nml[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
-					$userlist_nml[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
-				} else {
-					//Store the NMLs
-					$userlist_nml[$temp['GUID']] = $temp;
-					$userlist_nml[$temp['GUID']]['FIRSTNAME'] = $userlist_all[$temp['GUID']]['FIRSTNAME'];
-					$userlist_nml[$temp['GUID']]['SURNAME'] = $userlist_all[$temp['GUID']]['SURNAME'];
-					$userlist_nml[$temp['GUID']]['ID'] = $userlist_all[$temp['GUID']]['ID'];
+					$listOfLevel1Users[$currentUser['GUID']]	= $currentUser;
+					
+				//if current user has level 2 authority add them to level 2 list
+				} else if ($currentUser['AUTH_LEVEL'] == 2) {
+					
+					$listOfLevel2Users[$currentUser['GUID']]	= $currentUser;
+					
+				//if current user has level 3 authority add them to level 3 list
+				} else if ($currentUser['AUTH_LEVEL'] == 3) {
+					
+					$listOfLevel3Users[$currentUser['GUID']]	= $currentUser;
+					
+				}
+			}
+			
+			
+			if ($mode == 'all') {
+				
+				$returnArray = $listOfAllUsers;
+				
+			} else {
+			
+				//generate different sets of lists depending on what level of authorisation the user has
+				switch ($user->getField("auth_level")) {
+					
+					//if the user is just a level 1 then give them the standard lists
+					case 1:
+						
+						//check which list is being requested
+						switch ($mode) {
+							
+							//for level 1 generate a list of all level 1 users in the user's ministry + all level 2 users in the user's minsitry + all level 3 users
+							case 'level_1':
+								
+								foreach ($listOfAllUsers as $guid => $currentUser) {
+									
+									if (	($currentUser['AUTH_LEVEL'] == 1 && $currentUser['MINISTRY'] == $user->getField('ministry'))
+										||	($currentUser['AUTH_LEVEL'] == 2 && $currentUser['MINISTRY'] == $user->getField('ministry'))
+										||	($currentUser['AUTH_LEVEL'] == 3)	) {
+											
+										$returnArray[$guid] = $currentUser;
+										
+									}
+									
+								}
+								
+								break;
+								
+							//for level 2 generate a list of all level 2 users in the user's minsitry + all level 3 users
+							case 'level_2':
+								
+								foreach ($listOfAllUsers as $guid => $currentUser) {
+									
+									if (	($currentUser['AUTH_LEVEL'] == 2 && $currentUser['MINISTRY'] == $user->getField('ministry'))
+										||	($currentUser['AUTH_LEVEL'] == 3)	) {
+											
+										$returnArray[$guid] = $currentUser;
+										
+									}
+									
+								}
+								
+								break;
+								
+							//for level 3 generate a list of all level 3 users
+							case 'level_3':
+								
+								$returnArray	= $listOfLevel3Users;
+								
+								break;
+								
+							//by default do nothing
+							default:
+								break;
+							
+						}
+						
+						break;
+						
+					//if the user is level 2 then make level 1 & 2 their peers and level 3 their superiors
+					case 2:
+						
+						//check which list is being requested
+						switch ($mode) {
+							
+							//for level 1 generate a list of level 2 users in user's ministry + level 3 authorisers 
+							case 'level_1':
+								
+								foreach ($listOfLevel2Users as $guid => $currentUser) {
+									
+									if (	$currentUser['MINISTRY'] == $user->getField('ministry')	) {
+											
+										$returnArray[$guid] = $currentUser;
+										
+									}
+									
+								}
+								
+								$returnArray	= array_merge($returnArray, $listOfLevel3Users);
+								//$returnArray	= array_merge($listOfLevel2Users, $listOfLevel3Users);
+								
+								break;
+								
+							//for level 2 generate a list of level 2 users in user's ministry + level 3 authorisers 
+							case 'level_2':
+								
+								foreach ($listOfLevel2Users as $guid => $currentUser) {
+									
+									if (	$currentUser['MINISTRY'] == $user->getField('ministry')	) {
+											
+										$returnArray[$guid] = $currentUser;
+										
+									}
+									
+								}
+								
+								$returnArray	= array_merge($returnArray, $listOfLevel3Users);
+								//$returnArray	= array_merge($listOfLevel2Users, $listOfLevel3Users);
+								
+								break;
+								
+							//for level 3 generate a list of
+							case 'level_3':
+								
+								$returnArray	= $listOfLevel3Users;
+								
+								break;
+								
+							//by default do nothing
+							default:
+								break;
+							
+						}
+						
+						break;
+						
+					//if the user is level 3 then make level 1, 2 & 3 all lists of their peers
+					case 3:
+						
+						//check which list is being requested
+						switch ($mode) {
+							
+							//for level 1 generate a list of
+							case 'level_1':
+								
+								$returnArray	= $listOfLevel3Users;
+								
+								break;
+								
+							//for level 2 generate a list of
+							case 'level_2':
+								
+								$returnArray	= $listOfLevel3Users;
+								
+								break;
+								
+							//for level 3 generate a list of
+							case 'level_3':
+								
+								$returnArray	= $listOfLevel3Users;
+								
+								break;
+								
+							//by default do nothing
+							default:
+								break;
+							
+						}
+						
+						break;
+						
+					//default should be to return an error message
+					default:
+						
+						die(json_encode(array('success' => false, 'alert' => "Invalid Parameters.")));
+						
+						break;
+					
 				}
 				
-				//Store the user's ministry NML
-				if ($temp['MINISTRY'] == $user->getField('ministry')) {
-					$userNMLguid = $temp['GUID'];
-				}
-			}
-			
-			
-			
-		////Check what level the user is
-			$userauthlevel = 1;		//default is level 1
-			if (isset($userlist_nml[$userguid])) {
-				//user is NML
-				$userauthlevel = 2;
-			}
-			if (isset($userlist_nd[$userguid])) {
-				//user is ND
-				$userauthlevel = 3;
-			}
-			
-			//fb("userauthlevel:"); fb($userauthlevel);
-			
-			//store the requested authlevel
-			$mode		= $_REQUEST['mode'];
-			//fb("$mode requested");
-			$returnarray	= array();
-			
-		////Authlevel 1
-			if ($mode == 'level_1') {
-				//set is all users
-				$returnarray = $userlist_all;
-				
-				//if user is NML or ND, level 1 is NML
-				if ($userauthlevel == 2 || $userauthlevel == 3) {
-					$returnarray = $userlist_nml;
-				}
-			} 
-		////Authlevel 2
-			if ($mode == 'level_2') {
-			////return set is user's ministry NML unless user is NML or ND
-				if ($userauthlevel == 2 || $userauthlevel == 3) {
-					//if NML or ND		
-					$returnarray = $userlist_nml;
-				} else {
-					$returnarray = array($userlist_nml[$userNMLguid]);
-				}
-			}
-		////Authlevel 3
-			if ($mode == 'level_3') {
-			////return set is user's ministry NML unless user is NML or ND
-				if ($userauthlevel == 3) {
-					//if ND		
-					$returnarray = $userlist_nml;
-				} else {
-					//else return set is ND
-					$returnarray = $userlist_nd;
-				}
-			}
-		////mode=all
-			if ($mode == "all") {
-				$returnarray = $userlist_all;
 			}
 				
 		////Remove the user from the returned list
-			unset($returnarray[$userguid]);
+			unset($returnArray[$user->getGuid()]);
 		
 			//json root = data
 		////Set up array for json
 			$temparray = array();
 			$newindex = 0;
-			foreach ($returnarray as $key => $value) {
+			foreach ($returnArray as $key => $value) {
 				$temparray[$newindex] = $value;
 			////remove test accounts
 				if ((int)$temparray[$newindex]['FIN_ACC_NUM'] > 9990000 
@@ -155,11 +254,11 @@ if (isset($_REQUEST['mode'])) {
 				}
 			}
 			//fb($temparray);
-			$returnarray = $temparray;
-			$returnarray = array('success' => true, 'data' => $returnarray);
+			$returnArray = $temparray;
+			$returnArray = array('success' => true, 'data' => $returnArray);
 			
 		////echo json packet
-			echo json_encode($returnarray);
+			echo json_encode($returnArray);
 		
 		} else {
 			die(json_encode(array('success' => false, 'alert' => "You are not authenticated.")));

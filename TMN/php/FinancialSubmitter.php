@@ -162,18 +162,9 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//////////  SET UP CONSTANTS  //////////
 		include_once('classes/TmnConstants.php');
-		$constants = getConstants(array(	"WORKERS_COMP_RATE", 
-											"CCCA_LEVY_RATE",
-											"BAND_FP_COUPLE", 
-											"BAND_FP_SINGLE", 
-											"BAND_TMN_COUPLE_MIN", 
-											"BAND_TMN_COUPLE_MAX", 
-											"BAND_TMN_SINGLE_MIN", 
-											"BAND_TMN_SINGLE_MAX",
-											"VERSIONNUMBER"
-								));
+		$constants = getConstants(getVersionNumber());
 								
-		$this->constants = array_merge($this->constants, $constants);
+		$this->constants = array_merge($this->constants, getVersionNumberAsArray());
 		
 		$this->logger = new logger("logs/submit_fd.log");
 	}

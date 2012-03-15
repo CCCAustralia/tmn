@@ -3,7 +3,7 @@ include_once('php/classes/Tmn.php');
 include_once('php/classes/TmnDatabase.php');
 include_once('php/classes/email.php');
 include_once('php/classes/TmnConstants.php');
-$constants = getConstants(array("VERSIONNUMBER"));
+$constants = getVersionNumberAsArray();
 $LOGFILE		= 'php/logs/index.log';
 $DEBUG			= 1;
 $NEWVERSION		= 1;

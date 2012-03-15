@@ -6,7 +6,7 @@ include_once('../classes/TmnConstants.php');
 
 
 //add constants to extra data (will be appended to data before its saved)
-$e_data = getConstants(array("VERSIONNUMBER"));
+$e_data = getVersionNumberAsArray();
 //set the log path
 $LOGFILE	= "../logs/session_crud.log";
 

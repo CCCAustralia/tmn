@@ -5,7 +5,7 @@ include_once 'classes/TmnCrudSession.php';
 include_once('classes/TmnConstants.php');
 
 //add constants to extra data (will be appended to data before its saved)
-$e_data = getConstants(array("VERSIONNUMBER"));
+$e_data = getVersionNumber();
 $extra_data	= array();
 foreach ($e_data as $key=>$value) {
 	$extra_data[strtolower($key)]	= $value;
@@ -45,11 +45,11 @@ try {
 					
 					if ($authorisers['level_1']['user_id'] == $authorisers['level_2']['user_id']) {
 						
-						$auth_error	= 'You have selected the same person as your Ministry Overseer & your National Ministry Leader. Please select different people for each.';
+						$auth_error	= 'You have selected the same person as your Level 1 Authoriser & your Level 2 Authoriser. Please select different people for each.';
 						
 					} elseif ($authorisers['level_1']['user_id'] == $authorisers['level_3']['user_id']) {
 						
-						$auth_error	= 'You have selected the same person as your Ministry Overseer & your National Director. Please select different people for each.';
+						$auth_error	= 'You have selected the same person as your Level 1 Authoriser & your Level 3 Authoriser. Please select different people for each.';
 						
 					} else {
 
@@ -64,7 +64,7 @@ try {
 					
 					if ($authorisers['level_2']['user_id'] == $authorisers['level_3']['user_id']) {
 						
-						$auth_error	= 'You have selected the same person as your National Ministry Leader & your National Director. Please select different people for each.';
+						$auth_error	= 'You have selected the same person as your Level 2 Authoriser & your Level 3 Authoriser. Please select different people for each.';
 						
 					} else {
 						$authlevel2 = new TmnCrudUser($logfile, $authorisers['level_2']['user_id']);

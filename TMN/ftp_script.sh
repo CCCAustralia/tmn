@@ -1,9 +1,6 @@
 
 version='2.2.13'
-#svn_uname='harro'
-#svn_pword='jonathan'
-svn_uname='tom.moose'
-svn_pword='johnwayn3'
+repo_url='http://10.32.16.4/git/tmn.git'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
@@ -16,6 +13,28 @@ pushd . > /dev/null
 echo ''
 echo 'Start Publishing TMN'
 
+echo 'Start Clone'
+echo ''
+
+mkdir ~/tmn_temp
+cd ~/tmn_temp
+git clone ${repo_url}
+#svn export --force "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}"
+
+echo ''
+echo 'Export Complete'
+echo 'Start String Replacement'
+echo ''
+
+ls
+cd "tmn/TMN"
+perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
+perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
+perl -pi -e 's/[\ \t]*\$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
+perl -pi -e 's/console/\/\/console/g;' ui/*.js
+
+echo 'String Replacement Complete'
+
 if $create_tag ; then
 echo ''
 echo 'Start Creating Tag'
@@ -26,26 +45,6 @@ echo ''
 echo 'Tag Creation Complete'
 fi
 
-echo 'Start Export'
-echo ''
-
-mkdir ~/svn_temp
-cd ~/svn_temp
-svn export --force "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}"
-
-echo ''
-echo 'Export Complete'
-echo 'Start String Replacement'
-echo ''
-
-ls
-cd "TMN ${version}"
-perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
-perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
-perl -pi -e 's/[\ \t]*\$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
-perl -pi -e 's/console/\/\/console/g;' ui/*.js
-
-echo 'String Replacement Complete'
 echo 'Starting File Compression'
 echo ''
 
@@ -169,7 +168,7 @@ echo 'FTP Upload Complete'
 echo 'Starting Cleaning Up'
 echo ''
 
-rm -rf ~/svn_temp
+rm -rf ~/tmn_temp
 
 #return user to there original directory
 popd > /dev/null
