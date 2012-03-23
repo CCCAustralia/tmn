@@ -62,6 +62,13 @@ interface TmnCrudUserInterface {
 	public function getSpouse();
 	
 	/**
+	 * Returns a bool telling you if this User has a spouse
+	 * 
+	 * @return bool
+	 */
+	public function hasSpouse();
+	
+	/**
 	 * Returns the currently set spouse guid
 	 * 
 	 * @return string

@@ -9,7 +9,7 @@ $constants = getVersionNumberAsArray();
 $LOGFILE		= 'php/logs/index.log';
 $DEBUG			= 1;
 $NEWVERSION		= 1;
-$VERSIONNUMBER	= $constants['VERSIONNUMBER'];//"2-1-1";
+$BUILDNUMBER	= "current_build_number_will_be_inserted_by_upload_script";
 
 if ($DEBUG) {
 	$force_debug = "-debug";
@@ -20,7 +20,7 @@ if ($DEBUG) {
 if ($NEWVERSION && $DEBUG == 1){
 	$force_reload = "?" . time();
 } else if ($NEWVERSION && $DEBUG == 0) {
-	$force_reload = "?" . $VERSIONNUMBER;
+	$force_reload = "?" . $BUILDNUMBER;
 } else {
 	$force_reload = "";
 }

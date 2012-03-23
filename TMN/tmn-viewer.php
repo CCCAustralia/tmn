@@ -2,7 +2,7 @@
 
 $DEBUG = 0;
 $NEWVERSION = 0;
-$VERSIONNUMBER = "0-0-1";
+$BUILDNUMBER = "current_build_number_will_be_inserted_by_upload_script";
 
 if ($DEBUG) {
 	$force_debug = "-debug";
@@ -11,7 +11,7 @@ if ($DEBUG) {
 }
 
 if ($NEWVERSION){
-	$force_reload = "?" . $VERSIONNUMBER;
+	$force_reload = "?" . $BUILDNUMBER;
 } else {
 	$force_reload = "";
 }

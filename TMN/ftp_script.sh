@@ -1,6 +1,7 @@
 
 version='2.2.13'
-repo_url='http://10.32.16.4/git/tmn.git'
+repo_url='http://10.32.16.4:git/tmn.git'
+yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
@@ -19,31 +20,22 @@ echo ''
 mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
-#svn export --force "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}"
 
 echo ''
-echo 'Export Complete'
+echo 'Clone Complete'
 echo 'Start String Replacement'
 echo ''
 
 ls
 cd "tmn/TMN"
+perl -pi -e 's/BUILDNUMBER[\ \t]*=[\ \t]*\"current_build_number_will_be_inserted_by_upload_script\"/BUILDNUMBER\ =\ \"${version}\"/g;' *.php
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
 perl -pi -e 's/[\ \t]*\$this->DEBUG[\ \t]*=[\ \t]*1/\t\t\$this->DEBUG\ =\ 0/g;' php/classes/Reporter.php
 perl -pi -e 's/console/\/\/console/g;' ui/*.js
 
 echo 'String Replacement Complete'
-
-if $create_tag ; then
 echo ''
-echo 'Start Creating Tag'
-echo ''
-
-svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
-echo ''
-echo 'Tag Creation Complete'
-fi
 
 echo 'Starting File Compression'
 echo ''
@@ -51,25 +43,25 @@ echo ''
 echo 'Compressing JavaScript Files ...'
 cd ui
 cat AuthorisationPanel.js SummaryPanel.js PrintForm.js InternalTransfers.js FinancialDetailsForm.js PersonalDetailsForm.js TmnView.js TmnController.js > tmn-all_long.js
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-all.js tmn-all_long.js
+java -jar ${yuicompressor_path} -o tmn-all.js tmn-all_long.js
 rm tmn-all_long.js
 
 cat AuthorisationViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js authviewer.js > tmn-authviewer-all_long.js
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-authviewer-all.js tmn-authviewer-all_long.js
+java -jar ${yuicompressor_path} -o tmn-authviewer-all.js tmn-authviewer-all_long.js
 rm tmn-authviewer-all_long.js
 
 cat AdminViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js adminviewer.js > tmn-adminviewer-all_long.js
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o tmn-adminviewer-all.js tmn-adminviewer-all_long.js
+java -jar ${yuicompressor_path} -o tmn-adminviewer-all.js tmn-adminviewer-all_long.js
 rm tmn-adminviewer-all_long.js
 
 cat SummaryPanel.js viewer.js > viewer-all_long.js
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o viewer-all.js viewer-all_long.js
+java -jar ${yuicompressor_path} -o viewer-all.js viewer-all_long.js
 rm viewer-all_long.js
 
 echo 'Compressing CSS Files ...'
 cd ../lib
 cat resources/css/loading.css resources/css/ext-all.css resources/css/customstyles.css customclasses/statusbar/css/statusbar.css > tmn-all_long.css
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o resources/css/tmn-all.css tmn-all_long.css
+java -jar ${yuicompressor_path} -o resources/css/tmn-all.css tmn-all_long.css
 rm tmn-all_long.css
 
 echo 'Compressing ExtJS Files ...'
@@ -78,11 +70,28 @@ cat ext-base.js ext-all.js > ext.js
 echo 'Compressing Custom Library Files ...'
 cd customclasses
 cat Ext.LinkButton.js DateRangeValidationType.js statusbar/StatusBar.js statusbar/ValidationStatus.js Printer-all.js Ext.ux.IconCombo.js > custom-libraries-all_long.js
-java -jar /Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o custom-libraries-all.js custom-libraries-all_long.js
+java -jar ${yuicompressor_path} -o custom-libraries-all.js custom-libraries-all_long.js
 rm custom-libraries-all_long.js
+
+cd ../../
 
 echo ''
 echo 'File Compression Complete'
+
+
+if $create_tag ; then
+echo ''
+echo 'Start Creating Tag'
+echo ''
+
+git add *
+git commit -a -m "Changes for Uploading Version ${version}"
+git tag "TMN${version}"
+git push --tags
+#svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
+echo ''
+echo 'Tag Creation Complete'
+fi
 
 
 if $full_refresh ; then
@@ -92,7 +101,6 @@ echo ''
 echo 'Starting lib Compression'
 echo ''
 
-cd ../../
 zip -r lib.zip lib/
 
 echo 'lib Compression Complete'

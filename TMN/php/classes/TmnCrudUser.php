@@ -96,6 +96,16 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		}
 	}
 	
+	public function hasSpouse() {
+		
+		if ($this->getSpouse()) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
 	public function getSpouseGuid() {
 		return $this->getField('spouse_guid');
 	}
