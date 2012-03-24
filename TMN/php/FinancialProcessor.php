@@ -16,11 +16,6 @@ if (file_exists("mysqldriver.php")) {
 	include_once('lib/cas/cas.php');
 }
 
-define("FOR_USER", 0);
-define("FOR_SPOUSE", 1);
-define("HOUSING_FREQUENCY_MONTHLY", 0);
-define("HOUSING_FREQUENCY_FORTNIGHTLY", 1);
-
 
 //Authenticate the user in GCX with phpCAS
 if ( !isset($CAS_CLIENT_CALLED) ) {
@@ -33,6 +28,24 @@ if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
 class FinancialProcessor {
 	
 	protected $constants;
+	
+	//tax values
+	//formula and values grabbed from:
+	//Statement of formulas for calculating amounts to be withheld
+	
+	//Scale 7 (Where payee not eligible to receive leave loading and has claimed tax-free threshold)
+	protected $x_resident;
+				
+	protected $a_resident;
+				
+	protected $b_resident;
+				
+	//Scale 3 (Foreign Residents)
+	protected $x_non_resident;
+				
+	protected $a_non_resident;
+	
+	protected $b_non_resident;
 	
 	//personal details
 	protected $guid;
@@ -52,7 +65,9 @@ class FinancialProcessor {
 	//						$dbug		- (number 0,1) tells the object if it should use debug mode or not
 	//returns				n/a
 	public function __construct($findat, $dbug) {
-		
+		//////////  SET UP CONSTANTS  //////////
+		include_once('classes/TmnConstants.php');
+		$this->constants = getConstants(getVersionNumber());
 		
 		//tax values
 		//formula and values grabbed from:
@@ -77,11 +92,16 @@ class FinancialProcessor {
 		if($this->DEBUG) fb("DEBUGGING MODE");		
 		//choose the appropriate set of tax figures
 		
-		//////////  SET UP CONSTANTS  //////////
-		include_once('classes/TmnConstants.php');
-		$this->constants = getConstants(getVersionNumber(), $this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES']);
-		
-		if($this->DEBUG) fb($this->constants['x']);
+		if ($this->financial_data['OS_RESIDENT_FOR_TAX_PURPOSES']) {
+			$this->x = $this->constants['x_resident'];
+			$this->a = $this->constants['a_resident'];
+			$this->b = $this->constants['b_resident'];
+		} else {
+			$this->x = $this->constants['x_non_resident'];
+			$this->a = $this->constants['a_non_resident'];
+			$this->b = $this->constants['b_non_resident'];
+		}
+		if($this->DEBUG) fb($this->x);
 	}
 	
 	
@@ -89,8 +109,6 @@ class FinancialProcessor {
 	//params:			n/a
 	//returns			a string that describes a json object (will contain {"success": "true", "financial_data": ... } or {"success": "false", "err": ... }
 	public function process() {
-		
-		$err	= array();
 	
 		//Spouse Guid
 		$this->spouse = $this->getSpouseGuid();
@@ -170,9 +188,6 @@ class FinancialProcessor {
 		//Housing
 		$this->financial_data['ADDITIONAL_HOUSING'] = $this->getAdditionalHousing();
 		
-		//Taxable Income Panel
-		
-		
 		
 		//Taxable Income Panel
 		if (isset($this->financial_data['STIPEND'])){
@@ -184,16 +199,13 @@ class FinancialProcessor {
 			$this->financial_data['NET_STIPEND'] = $this->financial_data['STIPEND'] + $this->financial_data['HOUSING_STIPEND'];
 			
 			//check min stipend
-			$msg	= $this->validateStipend($this->financial_data['NET_STIPEND'], $this->financial_data['HOUSING_STIPEND']);
-			if (is_null($msg)) {
-				$err['NET_STIPEND'] = $msg;
-			}
+			$err .= $this->validateStipend(0);//0 means STIPEND, 1 means S_STIPEND
 			
 			$annum = $this->financial_data['NET_STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];	//calculate yearly figure
 			
-			$this->financial_data['TAXABLE_INCOME'] = $this->calculateTaxableIncome($annum, $this->x, $this->a, $this->b);
-			$this->financial_data['TAX'] = $this->calculateTax($this->financial_data['TAXABLE_INCOME'], $this->x, $this->a, $this->b);
-			$this->financial_data['EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME'], $this->constants['MIN_SUPER_RATE']);
+			$this->financial_data['TAXABLE_INCOME'] = $this->calculateTaxableIncome($annum);
+			$this->financial_data['TAX'] = $this->calculateTax($this->financial_data['TAXABLE_INCOME']);
+			$this->financial_data['EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
 		}
 		
 		//Maximum MFB & Pre-tax Super
@@ -203,16 +215,16 @@ class FinancialProcessor {
 			$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
 		
 			//Pre Tax Super (if its not set then set it to the min)
-			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate, FOR_USER);
+			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,0);//the 0 means return my value
 			
 			//Fetch Days Per Week
-			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek(FOR_USER);
+			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek(0);
 			
 			//calc max mfbs
 			$this->financial_data['MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
 			
 			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-			$this->financial_data['CLAIMABLE_MFB'] = $this->getClaimableMfb(FOR_USER);
+			$this->financial_data['CLAIMABLE_MFB'] = $this->getClaimableMfb(0);//0 for my claimable mfb
 		}
 		
 		
@@ -226,16 +238,13 @@ class FinancialProcessor {
 				$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
 				
 				//check min stipend
-				$msg	= $this->validateStipend($this->financial_data['S_NET_STIPEND'], $this->financial_data['S_HOUSING_STIPEND']);
-				if (is_null($msg)) {
-					$err['S_NET_STIPEND'] = $msg;
-				}
+				$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
 				
 				$s_annum = $this->financial_data['S_NET_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];	//calculate yearly figure
 				
-				$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum, $this->x, $this->a, $this->b);
-				$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME'], $this->x, $this->a, $this->b);
-				$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME'], $this->constants['MIN_SUPER_RATE']);
+				$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum);
+				$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME']);
+				$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
 			}
 			
 			//Spouse Maximum MFB && Pre Tax Super
@@ -245,15 +254,15 @@ class FinancialProcessor {
 				$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//Spouse Pre Tax Super (if its not set then set it to the min)
-				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate, FOR_SPOUSE);
+				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
 				
 				//Fetch the user's days per week
-				$this->financial_data['S_DAYS_PER_WEEK']	= $this->getDaysPerWeek(FOR_SPOUSE);
+				$this->financial_data['S_DAYS_PER_WEEK']	= $this->getDaysPerWeek(1);
 				
 				$this->financial_data['S_MAX_MFB']			= round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
 				
 				//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-				$this->financial_data['S_CLAIMABLE_MFB']	= $this->getClaimableMfb(FOR_SPOUSE);
+				$this->financial_data['S_CLAIMABLE_MFB']	= $this->getClaimableMfb(1);//1 for spouse claimable mfb
 			}
 		}
 		
@@ -261,25 +270,16 @@ class FinancialProcessor {
 	
 		if ($this->DEBUG) fb($this->financial_data);
 		
-		if (count($err) == 0) {
+		if ($err == '') {
 		
-			$result = array('success'=> true );
+			$result = array('success'=>'true');
 			$result['financial_data'] = $this->financial_data;
 			$result['warnings'] = $warnings;
-			
 			if($this->DEBUG) fb($result);
-			
 			return json_encode($result);
-			
-		} else {
-			
-			$result = array('success' => false);
-			$result['errors'] = $err;
-			
-			if($this->DEBUG) fb($result);
-			
-			return json_encode($result);	//Return with errors
-			
+		}
+		else {
+			return '{"success": false, "errors":{'.trim($err,", ").'} }';	//Return with errors
 		}
 		
 	}
@@ -305,10 +305,11 @@ class FinancialProcessor {
 		return $assoc_array;
 	}
 	
+
 	public function calculateTaxableIncomeComponentsForAussie($stipend, $post_tax_super, $additional_tax, $monthly_housing, $additional_housing_allowance, $mfb_rate, $days_per_week, $future_investment_mode, $constants) {
 		
 		$netIncome			= $stipend + $post_tax_super + $additional_tax;
-		$oldTaxableIncome	= $this->calculateTaxableIncome($netIncome, $constants);
+		$oldTaxableIncome	= $this->calculateTaxableIncome($netIncome);
 		$housingStipend		= 0;
 		$futureInvestment	= 0;
 		$change				= PHP_INT_MAX;
@@ -325,7 +326,7 @@ class FinancialProcessor {
 			if ($future_investment_mode != 0) {
 				
 				$futureInvestment	= $oldTaxableIncome * $constants['MIN_SUPER_RATE'];
-				$newTaxableIncome	+= $this->calculateTaxableIncome($netIncome + $futureInvestment, $constants);
+				$newTaxableIncome	+= $this->calculateTaxableIncome($netIncome + $futureInvestment);
 				
 				//recalc max mfb with new Taxable Income
 				$maxMfbs			= $this->calculateMaxMFB($newTaxableIncome, $mfb_rate, $days_per_week);
@@ -341,7 +342,7 @@ class FinancialProcessor {
 			if ($housingLessAdditionalHousingAllowance > $maxMfbs) {
 				
 				$housingStipend		= $housingLessAdditionalHousingAllowance - $maxMfbs;
-				$newTaxableIncome	= $this->calculateTaxableIncome($netIncome + $futureInvestment + $housingStipend, $constants);
+				$newTaxableIncome	= $this->calculateTaxableIncome($netIncome + $futureInvestment + $housingStipend);
 				
 				//recalc max mfb with new Taxable Income
 				$maxMfbs			= $this->calculateMaxMFB($newTaxableIncome, $mfb_rate, $days_per_week);
@@ -363,24 +364,23 @@ class FinancialProcessor {
 		
 	}
 	
+	
 	//calculateEmployerSuper:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
-	//params:					$taxable_income - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
+	//params:					$taxableincome - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
 	//returns					employer super (a whole number >= 0)
-	public function calculateEmployerSuper($taxable_income, $constants){
-		
-		return	round($taxable_income * $constants['MIN_SUPER_RATE']);
-		
+	public function calculateEmployerSuper($taxableincome){
+		return	round($taxableincome * $this->constants['MIN_SUPER_RATE']);
 	}
 	
 	
 	//calculateMaxMFB:			Calculates and returns the max mfbs a person can take
-	//params:					$taxable_income - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
+	//params:					$taxableincome - (a whole number > 0) taxable income (freq doen't matter can take weekly, monthly, annually, etc)
 	//							$mfbrate - (a decimal number 0 <= $mfbrate <= 1) the rate of mfbs they are entitled to (atm they are 0% 25% 50% of your taxable income)
 	//							$daysperweek - (a whole number 1,2,3,4,5)
 	//returns					maxmfb (a whole number >= 0)
-	public function calculateMaxMFB($taxable_income, $mfbrate, $daysperweek) {
+	public function calculateMaxMFB($taxableincome, $mfbrate, $daysperweek) {
 		
-		$maxmfb = $taxable_income;
+		$maxmfb = $taxableincome;
 		
 		$maxmfb = $maxmfb * ($mfbrate);
 		
@@ -393,228 +393,70 @@ class FinancialProcessor {
 	//calculateMaxWage:					Takes an index of the weekly tax ranges and returns the range for a wage
 	//params:							$index - (an int >= 0) the index of a range in the $this->x variable
 	//returns							weekly max wage (a whole number >= 0)
-	public function calculateMaxWage($index, $constants) {
+	public function calculateMaxWage($index) {
 		//formula and values grabed from:
 		//Statement of formulas for calculating amounts to be withheld
 		
 		//the max taxable income - the tax of max taxable income gives us the max wage for that tax bracket
-		return $constants['x'][$index] - round($constants['a'][$index] * (floor($constants['x'][$index]) + 0.99) - $constants['b'][$index]);
+		return $this->x[$index] - round($this->a[$index] * (floor($this->x[$index]) + 0.99) - $this->b[$index]);
 	}
 	
 	
 	//calculateTaxableIncome:			Takes a wage and returns a taxable income
 	//params:							$wage - (a whole number > 0) the monthly wage
 	//returns							monthly taxable income (a number >= 0)
-	public function calculateTaxableIncome($wage, $constants){
-		return $wage + $this->calculateTaxFromWage($wage, $constants);
+	public function calculateTaxableIncome($wage){
+		return $wage + $this->calculateTaxFromWage($wage);
 	}
 	
 	
 	//calculateTaxFromWage:				Takes a wage and returns a taxable income
 	//params:							$wage - (a whole number > 0) the monthly wage
 	//returns							monthly tax (a whole number >= 0)
-	public function calculateTaxFromWage($wage, $constants) {
+	public function calculateTaxFromWage($wage) {
 		//formula and values derived from:
 		//Statement of formulas for calculating amounts to be withheld
 		if($this->DEBUG) fb("wage: ".$wage);
 		//convert from months to weeks
 		$wage = floor(floor($wage) * 12 / 52);
 		
-		for ( $rangeCount = 0; $rangeCount < count($constants['x']); $rangeCount++ ) {
-			if ($wage < $this->calculateMaxWage($rangeCount, $constants))
+		for( $rangeCount = 0; $rangeCount < count($this->x); $rangeCount++ ){
+			if ($wage < $this->calculateMaxWage($rangeCount))
 				break;
 		}
 		if($this->DEBUG) fb("rangecount: ".$rangeCount);
-		return round(ceil(($constants['a'][$rangeCount] * ($wage) - $constants['b'][$rangeCount]) / (1 - $constants['a'][$rangeCount])) * 52 / 12);
+		return round(ceil(($this->a[$rangeCount] * ($wage) - $this->b[$rangeCount]) / (1 - $this->a[$rangeCount])) * 52 / 12);
 	}
 	
 	
 	//calculateTax:						Takes a monthly taxable income and returns the tax (formula and values grabed from: Statement of formulas for calculating amounts to be withheld. On the ATO website)
-	//params:							$taxable_income - (a whole number > 0) the weekly taxable income
+	//params:							$taxableincome - (a whole number > 0) the weekly taxable income
 	//returns							monthly tax (a whole number >= 0)
-	public function calculateTax($taxable_income, $constants) {
+	public function calculateTax($taxableincome) {
 		//formula and values grabbed from:
 		//Statement of formulas for calculating amounts to be withheld
 		
-		//ATO rounding for monthly to weekly convertion (if $taxable_income ends with 33 cents then add one cent)
-		if ( ( $taxable_income - floor($taxable_income) ) == 0.33 ) $taxable_income += 0.01;
+		//ATO rounding for monthly to weekly convertion (if $taxableincome ends with 33 cents then add one cent)
+		if (($taxableincome-floor($taxableincome)) == 0.33) $taxableincome += 0.01;
 		
 		//convert from monthly to weekly
-		$taxable_income = $taxable_income * 3 / 13; //same as $taxable_income = $taxable_income * 12 / 52
+		$taxableincome = $taxableincome * 3 / 13; //same as $taxableincome = $taxableincome * 12 / 52
 		
 		//ATO rounding for weekly Tax calculation (ignore cents and add 0.99)
-		$taxable_income = floor($taxable_income) + 0.99;
+		$taxableincome = floor($taxableincome) + 0.99;
 		
-		//find which weekly tax bracket $taxable_income falls in
-		for( $rangeCount = 0; $rangeCount < count($constants['x']); $rangeCount++ ){
-			if ($taxable_income < $constants['x'][$rangeCount])
+		//find which weekly tax bracket $taxableincome falls in
+		for( $rangeCount = 0; $rangeCount < count($this->x); $rangeCount++ ){
+			if ($taxableincome < $this->x[$rangeCount])
 				break;
 		}
 		//calculate tax
-		$tax = round($constants['a'][$rangeCount] * $taxable_income - $constants['b'][$rangeCount]);
+		$tax = round($this->a[$rangeCount] * $taxableincome - $this->b[$rangeCount]);
 		//convert back to monthly before returning
 		return round($tax * 13 / 3); //same as $tax * 52 / 12
 	}
 	
 	
-	//getAdditionalHousing:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
-	//params:				n/a
-	//returns				additional_housing (a number >= 0)
-	public function calculateAdditionalHousingAllowance($monthly_housing){
-		
-		//get max cut off
-		$max_housing_mfb = $this->getMaxHousingMfb();
-			
-		//calc additional housing
-		return round(max( 0, ($monthly_housing - $max_housing_mfb) ));
-			
-	}
-	
-	//getClaimableMfb:	Calculates a persons claimable mfbs (the mfbs that are left after your housing has been taken out)
-	//params:			$me_or_spouse	- (number 0 or 1) tells function wether you, 0, want your pretax super or the spouses, 1, pretax super
-	//returns			claimable mfb (a number >= 0)
-	public function calculateClaimableMfb($user_or_spouse, $monthly_housing, $user_max_mfb, $spouse_max_mfb = 0) {
-		
-		$max_housing_mfb = $this->getMaxHousingMfb();
-		
-		//for a single
-		if ($this->spouse) {
-			
-			if ($user_or_spouse == FOR_USER) {
-				
-				//calcs single claimable mfb otherwise
-				return max(0, $user_max_mfb - min($monthly_housing, $max_housing_mfb));
-				
-			} else {
-				
-				//returns 0 for spouse given the user is single
-				return 0;
-				
-			}
-			
-		//for a married user
-		} else {
-			
-			if ($user_or_spouse == FOR_USER) {
-				
-				//calcs single claimable mfb for the primary user
-				return max(0, $user_max_mfb - min($monthly_housing, $max_housing_mfb));
-				
-			} else {
-				
-				//calcs spouse claimable mfb (take user mfb off housing first and if there is housing still to be coverd take it from spouse mfb)
-				return max(0, $spouse_max_mfb - max(0, min($monthly_housing, $max_housing_mfb) - $user_max_mfb));
-				
-			}
-			
-		}
-			
-	}
-	
-	//getMonthlyHousing:	Uses the housing frequency to return the housing amount as a monthly figure
-	//params:				n/a
-	//returns				monthly_housing (a number >= 0)
-	public function calculateMonthlyHousing($housing, $housing_frequency) {
-		
-		//convert fornightly housing to monthly housing
-		if ($housing_frequency == HOUSING_FREQUENCY_FORTNIGHTLY) {
-			
-			return round($housing * 26 / 12);
-			
-		} else {
-			
-			return $housing;
-			
-		}
-		
-	}
-	
-	
-	//getPreTaxSuper:	Calculates a persons pretax super and returns it
-	//params:			$mfbrate		- (a number 0-1) give it the rate to multiply it by
-	//					$me_or_spouse	- (number 0 or 1) tells function wether you want your pretax super or the spouses pretax super
-	//returns			pretax super (a number > 0)
-	public function calculatePreTaxSuper($taxable_income, $mfbrate, $constants, $pre_tax_super_mode, $pre_tax_super = 0){
-	
-		//Pre Tax Super (if its not set then set it to the min)
-		if ($pre_tax_super_mode == 'auto') {
-			
-			return round($taxable_income * $mfbrate * $constants['MIN_ADD_SUPER_RATE']);
-			
-		} else {
-			
-			$min_pre_tax_super = round($taxable_income * $mfbrate * $constants['MIN_ADD_SUPER_RATE']);
-			
-			//if the manual value is bigger than the minimum amount then return the manual amount
-			if ($pre_tax_super > $min_pre_tax_super) {
-				
-				return $pre_tax_super;
-				
-			//if the manual amount isn't high enough then return the minimum amount
-			} else {
-				
-				return $min_pre_tax_super;
-				
-			}
-			
-		}
-		
-	}
-	
-	//getMaxHousingMfb:		It will return the max housing mfb based on if there is a spouse or not
-	//						(this is the limit of how much of your mfbs will go toward housing)
-	//params:				n/a
-	//returns				max housing mfb (a number > 0)
-	public function calculateMaxHousingMfb($has_spouse, $constants){
-		//update 2011 - fetch from database as a constant. was 960/1600c
-		return $has_spouse ? $constants['MAX_HOUSING_MFB_COUPLES'] : $constants['MAX_HOUSING_MFB'];
-	}
-	
-	//getMfbRate:		Takes an MFB_RATE index and returns the actual rate
-	//params:			$MFB_RATE		- (number 0,1,2) give it the rate index
-	//returns			mfbrate (a number 0-1)
-	public function calculateFractionFromMfbRate($MFB_RATE){
-		//enumerate mfb rate
-		switch ($MFB_RATE) {
-			case 0:
-			//Zero MFBs
-				$mfbrate = 0;
-				break;
-			case 1:
-			//Half MFBs
-				$mfbrate = 0.5;
-				break;
-			case 2:
-			//Full MFBs
-				$mfbrate = 1;
-				break;
-			default:
-			//Full MFBs
-				$mfbrate = 1;
-				break;
-		}
-		return $mfbrate;
-	}
-	
-	//validateStipend:		Checks if stipend is valid, if not it returns an error message
-	//params:				$me_or_spouse	- (number 0 or 1) tells function wether you want your values or your spouses values
-	//returns				error message (a string, empty if valid)
-	public function validateStipend($stipend, $housingStipend){
-		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
-		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
-		
-		//check min stipend
-		if ($stipend < $this->constants['STIPEND_MIN']){
-			if($housingStipend > 0)
-				return "Net Stipend is too low: must be at least $" . $this->constants['STIPEND_MIN'] . ".";
-			else
-				return "Stipend is too low: must be at least $" . $this->constants['STIPEND_MIN'] . ".";
-		}
-		
-		return null;
-	}
-	
-	/*
 	//getAdditionalHousing:	Calculates and returns the additional housing allowance (the amount of housing above the max housing mfb, set by Memeber Care)
 	//params:				n/a
 	//returns				additional_housing (a number >= 0)
@@ -631,11 +473,11 @@ class FinancialProcessor {
 			$monthly_housing = $this->getMonthlyHousing();
 			
 			//get days per week ratio
-			//TODO: apply $days_per_week_ratio to the calculation
+			//TODO: apply it to the calculation
 			if ($this->spouse)
-				$days_per_week_ratio = ($this->getDaysPerWeek(FOR_USER) + $this->getDaysPerWeek(FOR_SPOUSE)) / 10; //couple ratio
+				$days_per_week_ratio = ($this->getDaysPerWeek(0) + $this->getDaysPerWeek(1)) / 10; //couple ratio
 			else
-				$days_per_week_ratio = $this->getDaysPerWeek(FOR_USER) / 5; //singles ratio
+				$days_per_week_ratio = $this->getDaysPerWeek(0) / 5; //singles ratio
 				
 			//calc additional housing
 			return round(max( 0, ($monthly_housing - $maxhousingmfb) ));
@@ -679,10 +521,32 @@ class FinancialProcessor {
 		}
 		return 0;
 	}
-	*/
+	
+	//getDaysPerWeek:	Takes a guid and grabs that persons days per week from the database
+	//params:			$me_or_spouse	- (number 0 or 1) tells function wether you, 0, want your values or the spouses, 1, values
+	//returns			days_per_week (a number 0,1,2,3,4,5) (0 means not found in DB)
+	public function getDaysPerWeek($me_or_spouse){
+		//grabs data from correct class variables based on if we are dealing with me or spouse
+		if ($me_or_spouse) {$guid = $this->spouse; $days_per_week = $this->s_days_per_week;} else {$guid = $this->guid; $days_per_week = $this->days_per_week;}
+		//grabs it from DB only if it has not already been grabed (ie when its not its default value of 0)
+		if ($days_per_week == 0){
+			//Fetch the user's days per week
+			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
+			if (mysql_num_rows($sql) == 1) {
+				$row = mysql_fetch_assoc($sql);
+				if ($row['FT_PT_OS'] == 0){
+					$days_per_week = 5;
+				} else {
+					$days_per_week = $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
+				}
+			}
+		}
+		//saves data to correct class variables based on if we are dealing with me or spouse
+		if ($me_or_spouse) $this->s_days_per_week = $days_per_week; else $this->days_per_week = $days_per_week;
+		return $days_per_week;//zero means not found in DB
+	}
 	
 	
-	/*
 	//getHousingStipend:	Calculates and returns the housing stipend (the amount of housing that is not covered by mfbs or
 	//						additional housing allowance and needs to be covered by stipend)
 	//params:				n/a
@@ -784,12 +648,46 @@ class FinancialProcessor {
 		
 		return 0;
 	}
-	*/
 	
 	//////////////////////Should grab these numbers from the DB////////////////////////
 	
+	//getMaxHousingMfb:		It will return the max housing mfb based on if there is a spouse or not
+	//						(this is the limit of how much of your mfbs will go toward housing)
+	//params:				n/a
+	//returns				max housing mfb (a number > 0)
+	public function getMaxHousingMfb(){
+		//update 2011 - fetch from database as a constant. was 960/1600c
+		return $this->spouse ? $this->constants['MAX_HOUSING_MFB_COUPLES'] : $this->constants['MAX_HOUSING_MFB'];
+	}
 	
-	/*
+	
+	//getMfbRate:		Takes an MFB_RATE index and returns the actual rate
+	//params:			$MFB_RATE		- (number 0,1,2) give it the rate index
+	//returns			mfbrate (a number 0-1)
+	public function getMfbRate($MFB_RATE){
+		//enumerate mfb rate
+		switch ($MFB_RATE) {
+			case 0:
+			//Zero MFBs
+				$mfbrate = 0;
+				break;
+			case 1:
+			//Half MFBs
+				$mfbrate = 0.5;
+				break;
+			case 2:
+			//Full MFBs
+				$mfbrate = 1;
+				break;
+			default:
+			//Full MFBs
+				$mfbrate = 1;
+				break;
+		}
+		return $mfbrate;
+	}
+	
+	
 	//getMonthlyHousing:	Uses the housing frequency to return the housing amount as a monthly figure
 	//params:				n/a
 	//returns				monthly_housing (a number >= 0)
@@ -822,7 +720,7 @@ class FinancialProcessor {
 		//if manual mode then return manually entered value
 		return $this->financial_data[$prefix.'PRE_TAX_SUPER'];
 	}
-	*/
+	
 	
 	//getSpouseGuid:		If there is a spouse it will return their guid (a 32 char string that identifies a user in the database)
 	//params:				n/a
@@ -853,33 +751,29 @@ class FinancialProcessor {
 		$this->spouse = $guid;
 	}
 	
-	//getDaysPerWeek:	Takes a guid and grabs that persons days per week from the database
-	//params:			$me_or_spouse	- (number 0 or 1) tells function wether you, 0, want your values or the spouses, 1, values
-	//returns			days_per_week (a number 0,1,2,3,4,5) (0 means not found in DB)
-	public function getDaysPerWeek($user_or_spouse){
-		//grabs data from correct class variables based on if we are dealing with me or spouse
-		if ($user_or_spouse == FOR_USER) {$guid = $this->guid; $days_per_week = $this->days_per_week;} else {$guid = $this->spouse; $days_per_week = $this->s_days_per_week;}
-		//grabs it from DB only if it has not already been grabed (ie when its not its default value of 0)
-		if ($days_per_week == 0){
-			//Fetch the user's days per week
-			$sql = mysql_query("SELECT DAYS_PER_WEEK, FT_PT_OS FROM User_Profiles WHERE guid='".$guid."'");
-			if (mysql_num_rows($sql) == 1) {
-				$row = mysql_fetch_assoc($sql);
-				if ($row['FT_PT_OS'] == 0){
-					$days_per_week = 5;
-				} else {
-					$days_per_week = $row['DAYS_PER_WEEK'] + 1; //+1 because days per week is stored as an index not a number
-				}
-			}
-		}
-		//saves data to correct class variables based on if we are dealing with me or spouse
-		if ($user_or_spouse == FOR_USER) $this->days_per_week = $days_per_week; else $this->s_days_per_week = $days_per_week;
-		return $days_per_week;//zero means not found in DB
-	}
+	
 	
 	public function setFinancialData($findat){
 		$this->financial_data = $findat;
 	}
-
+	
+	
+	//validateStipend:		Checks if stipend is valid, if not it returns an error message
+	//params:				$me_or_spouse	- (number 0 or 1) tells function wether you want your values or your spouses values
+	//returns				error message (a string, empty if valid)
+	public function validateStipend($me_or_spouse){
+		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
+		if ($me_or_spouse) $prefix = "S_"; else $prefix = "";
+		
+		//check min stipend
+		if ($this->financial_data[$prefix.'NET_STIPEND'] < $this->constants['STIPEND_MIN']){
+			if($this->financial_data[$prefix.'HOUSING_STIPEND'] > 0)
+				return "\"".$prefix."NET_STIPEND\":\"Net Stipend is too low: must be at least $".$this->constants['STIPEND_MIN'].".\", ";
+			else
+				return "\"".$prefix."STIPEND\":\"Stipend is too low: must be at least $".$this->constants['STIPEND_MIN'].".\", ";
+		}
+		
+		return "";
+	}
 }
 ?>
