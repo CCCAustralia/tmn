@@ -62,6 +62,48 @@ interface TmnCrudUserInterface {
 	public function getSpouse();
 	
 	/**
+	 * Return a TmnCrudLowAccountProcessor object that is filled with the data associated with financial account number for this user.
+	 * 
+	 * @return TmnCrudLowAccountProcessor
+	 */
+	public function getLowAccountProcessor();
+	
+	/**
+	 * 
+	 * Return the id of the session that is currently active for this user.
+	 * 
+	 * @return int or null
+	 */
+	public function getCurrentSessionID();
+	
+	/**
+	 * 
+	 * Return a TmnCrudSession object that if filled with the data of the session that is currently active for this user.
+	 * 
+	 * @return TmnCrudSession or null
+	 */
+	public function getCurrentSession();
+	
+	/**
+	 * 
+	 * Saves the new current session and date it was made effective to the DB.
+	 * 
+	 * @param int		$session_id
+	 * @param string	$date
+	 * 
+	 * @return bool - on success/failure
+	 */
+	public function updateCurrentSession($session_id, $date_made_effective);
+	
+	/**
+	 * 
+	 * Return the date of the session that is currently active for this user.
+	 * 
+	 * @return string or null
+	 */
+	public function getEffectiveDateForCurrentSession();
+	
+	/**
 	 * Returns a bool telling you if this User has a spouse
 	 * 
 	 * @return bool

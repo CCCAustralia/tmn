@@ -96,6 +96,82 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		}
 	}
 	
+	public function getLowAccountProcessor() {
+		
+		if(file_exists('../classes/TmnCrudLowAccountProcessor.php'))	{ include_once('../classes/TmnCrudLowAccountProcessor.php'); }
+		if(file_exists('classes/TmnCrudLowAccountProcessor.php'))		{ include_once('classes/TmnCrudLowAccountProcessor.php'); }
+		if(file_exists('php/classes/TmnCrudLowAccountProcessor.php'))	{ include_once('php/classes/TmnCrudLowAccountProcessor.php'); }
+		
+		if ($this->getFan() != null) {
+			if ($this->lap == null) {
+				$this->lap = new TmnCrudLowAccountProcessor($this->logfile, $this->getFan());
+			}
+			
+			return $this->lap;
+		} else {
+			//if no guid set then make sure spouse is null (data may have been wiped by parent in mean time so
+			//if reset has been done then apply it here too) and return false
+			$this->lap = null;
+			return false;
+		}
+	}
+	
+	public function getCurrentSessionID() {
+		
+		$low_account_processor	= $this->getLowAccountProcessor();
+		
+		if ($low_account_processor) {
+			
+			return $low_account_processor->getCurrentSessionID();
+		
+		}
+		
+		return null;
+		
+	}
+	
+	public function getCurrentSession() {
+		
+		$low_account_processor	= $this->getLowAccountProcessor();
+		
+		if ($low_account_processor) {
+			
+			return $low_account_processor->getCurrentSession();
+		
+		}
+		
+		return null;
+		
+	}
+	
+	public function updateCurrentSession($session_id, $date) {
+		
+		$low_account_processor	= $this->getLowAccountProcessor();
+		
+		if ($low_account_processor) {
+			
+			return $low_account_processor->updateCurrentSession($session_id, $date);
+		
+		}
+		
+		return false;
+		
+	}
+	
+	public function getEffectiveDateForCurrentSession() {
+		
+		$low_account_processor	= $this->getLowAccountProcessor();
+		
+		if ($low_account_processor) {
+			
+			return $low_account_processor->getEffectiveDateForCurrentSession();
+		
+		}
+		
+		return null;
+		
+	}
+	
 	public function hasSpouse() {
 		
 		if ($this->getSpouse()) {
@@ -230,6 +306,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 			throw new LightException(__CLASS__ . "Exception: User with name: " . $firstname . " " . $surname . " not found.");
 		}
 	}
+
 }
 
 ?>

@@ -45,12 +45,15 @@ try {
 			//$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_1 != '' && LEVEL_1_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_2 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Pending') || (FINANCE_RESPONSE = 'Pending' && AUTH_LEVEL_3 != '' && LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Pending'))");
 			
 			//All sessions approved by finance
-			$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME, `Tmn_Sessions`.FAN, `Tmn_Sessions`.DATE_MODIFIED FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE FINANCE_RESPONSE = 'Yes') && `Tmn_Sessions`.INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL");
+			//$stmt = $db->query("SELECT `Tmn_Sessions`.SESSION_ID, `Tmn_Sessions`.SESSION_NAME, `Tmn_Sessions`.FIRSTNAME, `Tmn_Sessions`.SURNAME, `Tmn_Sessions`.FAN, `Tmn_Sessions`.DATE_MODIFIED FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE FINANCE_RESPONSE = 'Yes') && `Tmn_Sessions`.INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL");
+			
+			//All current sessions approved by finance (removes test users and other non users by only selecting finacial account numbers that are valid, between 1010000 and 1020000)
+			$stmt = $db->query("SELECT low.CURRENT_SESSION_ID AS SESSION_ID, sessions.SESSION_NAME, sessions.FIRSTNAME, sessions.SURNAME, low.FIN_ACC_NUM AS FAN, low.TMN_EFFECTIVE_DATE AS DATE_MODIFIED FROM (SELECT * FROM Low_Account WHERE CURRENT_SESSION_ID IS NOT NULL AND FIN_ACC_NUM >= 1010000 AND FIN_ACC_NUM < 1020000 ) AS low LEFT JOIN Tmn_Sessions AS sessions ON low.CURRENT_SESSION_ID = sessions.SESSION_ID");
 			
 			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$returndata = array();
 			$returndata['data'] = $data;
-			fb($returndata);
+			//fb($returndata);
 			echo (json_encode($returndata));
 			
 			die();	//Don't spit out the adminviewer page
@@ -72,30 +75,22 @@ try {
 		//if there is a session set, drop it into the webpage as a javascript variable
 
 		////get all users guids and emails
-		$stmt = $db->query("SELECT FIRSTNAME, SURNAME, EMAIL, GUID, SPOUSE_GUID FROM User_Profiles WHERE IS_TEST_USER = 0");
+		$stmt = $db->query("SELECT FIRSTNAME, SURNAME, EMAIL, GUID, SPOUSE_GUID FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0");
 		$allusers_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		
 	////Lazy Missios list (emails of users with no processed tmn submitted in the last 6 months (178 days) for them or their spouse)
 		//$sql =  "SELECT EMAIL FROM `User_Profiles` WHERE GUID NOT IN (SELECT `User_Profiles`.SPOUSE_GUID FROM `User_Profiles` WHERE `User_Profiles`.GUID IN (SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178)) && GUID NOT IN (SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178) && `User_Profiles`.IS_TEST_USER = 0";
 		
 		
-		$stmt = $db->query("SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178");
-		$guidsforvalidsessions_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		
-		$guidsforvalidsessions = array();
-		foreach ($guidsforvalidsessions_raw as $key => $guidarray) {
-			$guidsforvalidsessions[$key] = $guidarray['GUID'];
-		}
+		//$stmt = $db->query("SELECT `Tmn_Sessions`.GUID FROM `Tmn_Sessions` WHERE `Tmn_Sessions`.AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM `Auth_Table` WHERE `Auth_Table`.FINANCE_RESPONSE = 'Yes') && DATEDIFF(`Tmn_Sessions`.DATE_MODIFIED, CURRENT_DATE()) < 178");
+		//select the guids of any user that doesn't have a current session or has a current session older than 6 months
+		$stmt = $db->query("SELECT * FROM (SELECT * FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0) AS users LEFT JOIN Low_Account AS low ON users.FIN_ACC_NUM = low.FIN_ACC_NUM WHERE low.CURRENT_SESSION_ID IS NULL OR DATEDIFF(CURRENT_DATE(), low.TMN_EFFECTIVE_DATE) > 180");
+		$lazyusers_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		
 		//produce a list without users with tmns
 		$lazyusers = array();
-		foreach ($allusers_raw as $user) {
-			$lazyusers[$user['GUID']] = array('name' => $user['FIRSTNAME'].' '.$user['SURNAME'], 'email' => $user['EMAIL']);	//copy every user
-			if (in_array($user['GUID'], $guidsforvalidsessions) || in_array($user['SPOUSE_GUID'], $guidsforvalidsessions)) {	//if they've done a tmn
-				//fb($user);
-				unset($lazyusers[$user['GUID']]);	//remove them 						from the lazy list
-				unset($lazyusers[$user['SPOUSE_GUID']]);			//and their spouse 
-			}
+		foreach ($lazyusers_raw as $user) {
+			$lazyusers[$user['GUID']] = array('name' => $user['FIRSTNAME'].' '.$user['SURNAME'], 'email' => $user['EMAIL']);
 		}
 		//fb($lazyusers);
 		
@@ -118,7 +113,7 @@ try {
 		$lazy_m_email_body = '"Our records show that you havent done a TMN in the last 6 months. We require all missionaries to complete one for each financial year.%0A%0aPlease follow the link below to complete your TMN online.%0Ahttp://mportal.ccca.org.au/TMN%0A%0aThanks,%0AMember Care"';
 		
 	////Lazy Authorisers
-		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
+		$stmt = $db->query("SELECT GUID, FIRSTNAME, SURNAME, EMAIL FROM `User_Profiles` WHERE GUID IN (SELECT AUTH_LEVEL_1 FROM `Auth_Table` WHERE (AUTH_LEVEL_1 != '') && (LEVEL_1_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14)) OR GUID IN (SELECT AUTH_LEVEL_2 FROM `Auth_Table` WHERE (AUTH_LEVEL_2 != '') && (LEVEL_2_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14)) OR GUID IN (SELECT AUTH_LEVEL_3 FROM `Auth_Table` WHERE (AUTH_LEVEL_3 != '') && (LEVEL_3_RESPONSE = 'Pending') && (DATEDIFF(CURRENT_DATE(), USER_TIMESTAMP) > 14))");
 		$lazyauth_raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		//if ($DEBUG){fb($lazyauth_raw);}
 		

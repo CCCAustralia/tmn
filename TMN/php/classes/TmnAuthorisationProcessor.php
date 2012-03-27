@@ -196,6 +196,16 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			
 			//email the appropriate recipiants
 			if ($response == "Yes") {
+				
+				//if the finance user approved the session then activate the session for the user
+				if ($userauthlevel == 4) {
+					
+					$owner	= new TmnCrudUser($logfile, $this->getField("auth_user"));
+					
+					$owner->updateCurrentSession($session_id, date('Y-m-d', $now[0]));
+					
+				}
+				
 				//$authlevel = current user's authlevel
 				$nextauthlevel = $this->getNextAuthLevel($userauthlevel);	//calculate the next authlevel
 				//$nextauthlevel = 3; //FOR DEBUGGING

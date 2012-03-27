@@ -35,7 +35,7 @@ if (isset($_REQUEST['mode'])) {
 			$listOfAllUsers		= array();
 			
 			////Get all users from User_Profiles table
-			$sql				= "SELECT ID, GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM, AUTH_LEVEL FROM `User_Profiles` WHERE ID IS NOT NULL";
+			$sql				= "SELECT ID, GUID, FIRSTNAME, SURNAME, MINISTRY, FIN_ACC_NUM, AUTH_LEVEL FROM `User_Profiles` WHERE ID IS NOT NULL AND IS_TEST_USER = 0 AND INACTIVE = 0";
 			$result				= mysql_query($sql);
 			
 			////Sort the users into appropriate lists
