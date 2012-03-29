@@ -152,14 +152,15 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 
 					$session = $usersLowAccountProfile->getCurrentSession();
 					
+						//if the user isn't above 200% then they are low again
 					if ($currentBalances[$financial_account_number] < $session->getField("tmn") * 2 ) {
 					
-						$usersLowAccountProfile->actOnLeavingLowAccount();
-						
-						//if the user isn't above 200% then they are low again
+						$usersLowAccountProfile->accountIsLowThisMonth();
+
+						//otherwise they are leaving low account
 					} else {
 						
-						$usersLowAccountProfile->accountIsLowThisMonth();
+						$usersLowAccountProfile->actOnLeavingLowAccount();
 						
 					}
 					
@@ -175,7 +176,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	static private function getAllRequiredBalances() {
 		
 		$db				= TmnDatabase::getInstance($LOGFILE);
-		$balanceSql		= "SELECT low.FIN_ACC_NUM, sessions.BUFFER FROM ( SELECT low_acc.* FROM (SELECT DISTINCT FIN_ACC_NUM FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0) AS valid_users LEFT JOIN Low_Account AS low_acc ON low_acc.FIN_ACC_NUM = valid_users.FIN_ACC_NUM ) AS low LEFT JOIN Tmn_Sessions AS sessions ON low.CURRENT_SESSION_ID = sessions.SESSION_ID";
+		$balanceSql		= "SELECT low.FIN_ACC_NUM, sessions.BUFFER FROM ( SELECT low_acc.* FROM (SELECT DISTINCT FIN_ACC_NUM FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0) AS valid_users LEFT JOIN Low_Account AS low_acc ON low_acc.FIN_ACC_NUM = valid_users.FIN_ACC_NUM ) AS low LEFT JOIN Tmn_Sessions AS sessions ON low.CURRENT_SESSION_ID = sessions.SESSION_ID AND low.CURRENT_SESSION_ID IS NOT NULL";
 		$stmt 			= $db->prepare($sessionSql);
 		$balanceResult	= $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$returnArray	= array();
@@ -210,29 +211,34 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	
 	public function actOnLeavingLowAccount() {
 
-		//reset fields (Kent to finish)
+		//Kent, apply leaving lwo account policies here
+		
+		//the following are some examples of things you will need to do in applying these policies
+		
+		//example for setting fields and then updating the database with your changes
 		$this->setField("consecutive_low_months", 0);
 		$this->setField("pinkslip_exemption", 0);
 		$this->setField("mpd_plan", 0);
 		$this->setField("restrict_mfbmmr", 0);
+		$this->update();//puts the data in the data base
 			
-		//email the right people about leaving low account 
+		//example for emailing the user and spouse (if spouse exists) for the session
 		$session	= $this->getCurrentSession();
 		$user		= $session->getOwner();
 		$spouse		= $user->getSpouse();
 		$userEmail	= $user->getEmail();
 		
-		//construct email (Kent to finish)
+		// example of constructing an email
 		$email_cc		= "";
 		$email_to		= $userEmail . ($spouse ? "," . $spouse->getEmail() : "") . "," . $email_cc;
 		$email_from		= "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au";
-		$email_subject	= "";
-		$email_body		= "";
+		$email_subject	= "My Subject";
+		$email_body		= "This is the body";
 		
+		//example of sending an email
 		$notifyemail = new Email($email_to, $email_subject, $email_body, $email_from);
 		$notifyemail->send();
 		
-		$this->update();
 		
 	}
 	

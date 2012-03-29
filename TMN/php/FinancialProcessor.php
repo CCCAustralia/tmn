@@ -192,20 +192,29 @@ class FinancialProcessor {
 		//Taxable Income Panel
 		if (isset($this->financial_data['STIPEND'])){
 			
-			//Housing Stipend while debug will return 0
-			$this->financial_data['HOUSING_STIPEND'] = $this->getHousingStipend();
-		if ($this->DEBUG) fb($this->financial_data);
-			//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
-			$this->financial_data['NET_STIPEND'] = $this->financial_data['STIPEND'] + $this->financial_data['HOUSING_STIPEND'];
+			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['STIPEND'],
+																					$this->financial_data['POST_TAX_SUPER'],
+																					$this->financial_data['ADDITIONAL_TAX'],
+																					$this->getMonthlyHousing(),
+																					$this->financial_data['ADDITIONAL_HOUSING'],
+																					$this->getMfbRate($this->financial_data['MFB_RATE']),
+																					$this->getDaysPerWeek(0),
+																					$this->financial_data['FUTURE_INVESTMENT_MODE'],
+																					$this->constants);
 			
+			//Copy across taxable components
+			$this->financial_data['HOUSING_STIPEND']			= $taxable_components['housing_stipend'];
+			$this->financial_data['TAXABLE_FUTURE_INVESTMENT']	= $taxable_components['future_investment'];
+			$this->financial_data['NET_STIPEND']				= $taxable_components['net_stipend'];
+			$this->financial_data['TAXABLE_INCOME']				= $taxable_components['taxable_income'];
+			
+			//calc tax and super from taxable income
+			$this->financial_data['TAX']						= $this->calculateTax($this->financial_data['TAXABLE_INCOME']);
+			$this->financial_data['EMPLOYER_SUPER']				= $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
+
 			//check min stipend
 			$err .= $this->validateStipend(0);//0 means STIPEND, 1 means S_STIPEND
 			
-			$annum = $this->financial_data['NET_STIPEND'] + $this->financial_data['POST_TAX_SUPER'] + $this->financial_data['ADDITIONAL_TAX'];	//calculate yearly figure
-			
-			$this->financial_data['TAXABLE_INCOME'] = $this->calculateTaxableIncome($annum);
-			$this->financial_data['TAX'] = $this->calculateTax($this->financial_data['TAXABLE_INCOME']);
-			$this->financial_data['EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
 		}
 		
 		//Maximum MFB & Pre-tax Super
@@ -215,7 +224,7 @@ class FinancialProcessor {
 			$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
 		
 			//Pre Tax Super (if its not set then set it to the min)
-			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate,0);//the 0 means return my value
+			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate, $this->financial_data['FUTURE_INVESTMENT_MODE'], 0);//the 0 means return my value
 			
 			//Fetch Days Per Week
 			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek(0);
@@ -231,20 +240,28 @@ class FinancialProcessor {
 		//Spouse Taxable Income Panel
 		if ($this->spouse) {
 			if (isset($this->financial_data['S_STIPEND'])){
-						//calc housing stipend (diff between housing and what your mfbs & additional housing allowance will cover)
-						$this->financial_data['S_HOUSING_STIPEND'] = 0;
-					
-				//calc net stipend (stipend (money in your account) + housing stipend (extra stipend needed to cover housing amount)
-				$this->financial_data['S_NET_STIPEND'] = $this->financial_data['S_STIPEND'] + $this->financial_data['S_HOUSING_STIPEND'];
+				$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['S_STIPEND'],
+																						$this->financial_data['S_POST_TAX_SUPER'],
+																						$this->financial_data['S_ADDITIONAL_TAX'],
+																						$this->getMonthlyHousing(),
+																						$this->financial_data['S_ADDITIONAL_HOUSING'],
+																						$this->getMfbRate($this->financial_data['S_MFB_RATE']),
+																						$this->getDaysPerWeek(1),
+																						$this->financial_data['S_FUTURE_INVESTMENT_MODE'],
+																						$this->constants);
+			
+				//Copy across taxable components
+				$this->financial_data['S_HOUSING_STIPEND']				= $taxable_components['housing_stipend'];
+				$this->financial_data['S_TAXABLE_FUTURE_INVESTMENT']	= $taxable_components['future_investment'];
+				$this->financial_data['S_NET_STIPEND']					= $taxable_components['net_stipend'];
+				$this->financial_data['S_TAXABLE_INCOME']				= $taxable_components['taxable_income'];
 				
+				//calc tax and super from taxable income
+				$this->financial_data['S_TAX']							= $this->calculateTax($this->financial_data['S_TAXABLE_INCOME']);
+				$this->financial_data['S_EMPLOYER_SUPER']				= $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
+	
 				//check min stipend
 				$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
-				
-				$s_annum = $this->financial_data['S_NET_STIPEND'] + $this->financial_data['S_POST_TAX_SUPER'] + $this->financial_data['S_ADDITIONAL_TAX'];	//calculate yearly figure
-				
-				$this->financial_data['S_TAXABLE_INCOME'] = $this->calculateTaxableIncome($s_annum);
-				$this->financial_data['S_TAX'] = $this->calculateTax($this->financial_data['S_TAXABLE_INCOME']);
-				$this->financial_data['S_EMPLOYER_SUPER'] = $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
 			}
 			
 			//Spouse Maximum MFB && Pre Tax Super
@@ -254,7 +271,7 @@ class FinancialProcessor {
 				$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//Spouse Pre Tax Super (if its not set then set it to the min)
-				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate,1); //the 1 means return spouse value
+				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], 1); //the 1 means return spouse value
 				
 				//Fetch the user's days per week
 				$this->financial_data['S_DAYS_PER_WEEK']	= $this->getDaysPerWeek(1);
@@ -359,7 +376,8 @@ class FinancialProcessor {
 		return array(
 			"taxable_income"	=> $oldTaxableIncome,
 			"future_investment"	=> $futureInvestment,
-			"housing_stipend"	=> $housingStipend
+			"housing_stipend"	=> $housingStipend,
+			"net_stipend"		=> $stipend + $futureInvestment + $housingStipend
 		);
 		
 	}
@@ -547,6 +565,7 @@ class FinancialProcessor {
 	}
 	
 	
+	/*
 	//getHousingStipend:	Calculates and returns the housing stipend (the amount of housing that is not covered by mfbs or
 	//						additional housing allowance and needs to be covered by stipend)
 	//params:				n/a
@@ -648,6 +667,7 @@ class FinancialProcessor {
 		
 		return 0;
 	}
+	*/
 	
 	//////////////////////Should grab these numbers from the DB////////////////////////
 	
@@ -704,7 +724,15 @@ class FinancialProcessor {
 	//params:			$mfbrate		- (a number 0-1) give it the rate to multiply it by
 	//					$me_or_spouse	- (number 0 or 1) tells function wether you want your pretax super or the spouses pretax super
 	//returns			pretax super (a number > 0)
-	public function getPreTaxSuper($mfbrate, $me_or_spouse){
+	public function getPreTaxSuper($mfbrate, $future_investment_mode = 0, $me_or_spouse){
+		
+		//if the user has asked for no pre tax super then return 0
+		if ($future_investment_mode > 0) {
+			
+			return 0;
+			
+		}
+		
 		//changes wether it grabs your or spouse values (adds S_ prefix to keys)
 		if ($me_or_spouse){$prefix = "S_"; $little_prefix = "s_"; } else {$prefix = ""; $little_prefix = "";}
 	

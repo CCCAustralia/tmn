@@ -101,12 +101,6 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 	(config.overseas_form === undefined) ? this.overseas_form = false : this.overseas_form = config.overseas_form;
 	
 	//class wide variables definitions
-	/**
-	 * This is the object/associative array of financial data for each form.
-	 * When a form writes to this variable the value is put into financial_data[<insert the form's id>][<insert the field's name>].
-	 * @type Object/Associative Array
-	 */
-	this.financial_data = {};
 	
 	//register events
 	this.addEvents(
@@ -427,7 +421,19 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 												});
 											}
 										}
-									},
+									}
+								]
+							},
+							{
+								itemId: 'fi',
+								xtype: 'panel',
+								layout: 'form',
+								defaultType: 'numberfield',
+								defaults:{
+									allowBlank: false,
+									minValue: 0
+								},
+								items: [
 									{
 										itemId: 'taxable_future_investment',
 										name: 'TAXABLE_FUTURE_INVESTMENT',
@@ -444,7 +450,19 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 												});
 											}
 										}
-									},
+									}
+								]
+							},
+							{
+								itemId: 'ns',
+								xtype: 'panel',
+								layout: 'form',
+								defaultType: 'numberfield',
+								defaults:{
+									allowBlank: false,
+									minValue: 0
+								},
+								items: [
 									{
 										itemId: 'net_stipend',
 										name: 'NET_STIPEND',
@@ -525,21 +543,6 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										});
 									}
 								}
-							},
-							{
-								xtype: 'button',
-								text: 'Show/Hide Your Last Saved TMN of 2009',
-								enableToggle: true,
-								scope: this,
-								toggleHandler: function (button, state){
-									if (state == true){
-										tmn.view.LastTMN.html = '<iframe src=\"http://mportal.ccca.org.au/TMN/php/tmn_2009.php\" height=400px width=400px></iframe>';
-										tmn.view.LastTMN.show();
-									} else {
-										tmn.view.LastTMN.hide();
-									}
-								},
-								tooltip: 'This is NOT necessarily the TMN you submitted in 2009!'
 							}
 						]
 					},
@@ -589,7 +592,19 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 												});
 											}
 										}
-									},
+									}
+								]
+							},
+							{
+								itemId: 'fi',
+								xtype: 'panel',
+								layout: 'form',
+								defaultType: 'numberfield',
+								defaults:{
+									allowBlank: false,
+									minValue: 0
+								},
+								items: [
 									{
 										itemId: 's_taxable_future_investment',
 										name: 'S_TAXABLE_FUTURE_INVESTMENT',
@@ -606,7 +621,19 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 												});
 											}
 										}
-									},
+									}
+								]
+							},
+							{
+								itemId: 'ns',
+								xtype: 'panel',
+								layout: 'form',
+								defaultType: 'numberfield',
+								defaults:{
+									allowBlank: false,
+									minValue: 0
+								},
+								items: [
 									{
 										itemId: 's_net_stipend',
 										name: 'S_NET_STIPEND',
@@ -1149,90 +1176,88 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						columnWidth: 0.5,
 						
 						items: [
-						    {
-						    	width: 140,
-				            	itemId: 'retirement_investment_mode',
-				           		xtype: 'combo',
-				           		fieldLabel: 'Where do you want your Retirement Investment to go?',
-				           		name: 'RETIREMENT_INVESTMENT_MODE',
-				            	hiddenName: 'RETIREMENT_INVESTMENT_MODE',
-				            	hiddenId: 'RETIREMENT_INVESTMENT_MODE_hidden',
-				           		triggerAction:'all',
-				           		emptyText: 'Pre-tax super...',
-				           		validationEvent: 'blur',
-				           		allowBlank: false,
-				            	editable:false,
-				                mode:'local',
-						        hiddenValue: 0,
-						        value: 'Pre-Tax Super',
-				                
-				                store:new Ext.data.SimpleStore({
-				                     fields:['retirementInvestmentCode', 'retirementInvestmentName'],
-				                     data:[[0,'Pre-Tax Super'],[1,'Mortgage'],[2,'First Home Saver Account'],[3,'Other Investment']]
-				                }),
-				                displayField:'retirementInvestmentName',
-				                valueField:'retirementInvestmentCode',
-				                
-				                listeners: {
-									scope: this,
-				                	//when index 1, "No", is selected show life cover amount
-				                	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
-				                	select: function(combo, record, index) {
-				                		//actions for Pre Tax Super
-										if (index == 0) {
-											//undo other options
-											//hide and set to zero Mortgage
-											this.getComponent('housing_panel').getComponent('am').hide();
-											//hide and set to zero First Home Saver Account
-											this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
-											//hide and set to zero Other Investment
-											
-											//apply changes for pre tax super
-											combo.nextSibling().expand();
-										
-										//actions for Mortgage
-										} else if (index == 1) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											combo.nextSibling().collapse();
-											//hide and set to zero First Home Saver Account
-											this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
-											//hide and set to zero Other Investment
-											
-											//apply changes for Mortgage
-											//combo.nextSibling().collapse();
-											
-										//actions for First Home Saver Account
-										} else if (index == 2) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											//hide and set to zero Mortgage
-											//hide and set to zero Other Investment
-											
-											//apply changes for First Home Saver Account
-											//combo.nextSibling().collapse();
-											
-										//actions for Other Investments
-										} else if (index == 3) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											//hide and set to zero Mortgage
-											//hide and set to zero First Home Saver
-											
-											//apply changes for Other Investment
-											//combo.nextSibling().collapse();
-										}
-										
-										this.fireEvent('financialdataupdated', this, combo, index, false);
-				                	},
-									render: function(c) {
-										Ext.QuickTips.register({
-											target: c.getEl(),
-											text: '9% of your Taxable Income goes toward your Super Fund. This is a compulsary amount enforced by the government. As missionaries we also get MFBs. The government does not require a compulsary percentage of your MFBs to go toward your Super Fund. However, to look after you CCCA requires you, as a minimum, to set aside another 9% of your stipend (for someone on Half-MFBs it would be 4.5% of your Stipend, for somone on Zero-MFBs it would be 0% of your Stipend) toward your future. This amount is called your Retirement Investment. You may add more than the minimum and you can select where it goes using this combo box.'
-										});
-									}
-				                }
-						    },
+							{
+								itemId: 'future_investment_panel',
+								xtype: 'panel',
+								layout: 'form',
+								//collapsed: true,
+								items: [
+								    {
+								    	width: 140,
+						            	itemId: 'future_investment_mode',
+						           		xtype: 'combo',
+						           		fieldLabel: 'Where do you want your Future Investment to go?',
+						           		name: 'FUTURE_INVESTMENT_MODE',
+						            	hiddenName: 'FUTURE_INVESTMENT_MODE',
+						            	hiddenId: 'FUTURE_INVESTMENT_MODE_hidden',
+						           		triggerAction:'all',
+						           		emptyText: 'Pre-tax super...',
+						           		validationEvent: 'blur',
+						           		allowBlank: false,
+						            	editable:false,
+						                mode:'local',
+								        hiddenValue: 0,
+								        value: 'Pre-Tax Super',
+						                
+						                store:new Ext.data.SimpleStore({
+						                     fields:['futureInvestmentCode', 'futureInvestmentName'],
+						                     data:[[0,'Pre-Tax Super'],[1,'Mortgage'],[2,'First Home Saver Account']]
+						                }),
+						                displayField:'futureInvestmentName',
+						                valueField:'futureInvestmentCode',
+						                
+						                listeners: {
+											scope: this,
+						                	//when index 1, "No", is selected show life cover amount
+						                	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
+						                	select: function(combo, record, index) {
+						                		/*
+						                		//actions for Pre Tax Super
+												if (index == 0) {
+													//undo other options
+													//hide and set to zero Mortgage
+													this.getComponent('housing_panel').getComponent('am').hide();
+													//hide and set to zero First Home Saver Account
+													this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+													
+													//apply changes for pre tax super
+													combo.nextSibling().expand();
+												
+												//actions for Mortgage
+												} else if (index == 1) {
+													//undo other options
+													//hide and set to zero Pre-Tax Super
+													combo.nextSibling().collapse();
+													//hide and set to zero First Home Saver Account
+													this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+													
+													//apply changes for Mortgage
+													
+													
+												//actions for First Home Saver Account
+												} else if (index == 2) {
+													//undo other options
+													//hide and set to zero Pre-Tax Super
+													//hide and set to zero Mortgage
+													
+													//apply changes for First Home Saver Account
+													
+													
+												}
+												*/
+						                		
+												this.fireEvent('financialdataupdated', this, combo, index, true);
+						                	},
+											render: function(c) {
+												Ext.QuickTips.register({
+													target: c.getEl(),
+													text: '9% of your Taxable Income goes toward your Super Fund. This is a compulsary amount enforced by the government. As missionaries we also get MFBs. The government does not require a compulsary percentage of your MFBs to go toward your Super Fund. However, to look after you CCCA requires you, as a minimum, to set aside another 9% of your stipend (for someone on Half-MFBs it would be 4.5% of your Stipend, for somone on Zero-MFBs it would be 0% of your Stipend) toward your future. This amount is called your Future Investment. You may add more than the minimum and you can select where it goes using this combo box.'
+												});
+											}
+						                }
+								    }
+								]
+							},
 						    {
 				            	itemId: 'pre_tax_super_panel',
 				            	xtype: 'panel',
@@ -1451,91 +1476,91 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						
 						items: [
 							{
-								width: 140,
-								itemId: 's_retirement_investment_mode',
-								xtype: 'combo',
-								fieldLabel: 'Where do you want your Retirement Investment to go?',
-								name: 'S_RETIREMENT_INVESTMENT_MODE',
-								hiddenName: 'S_RETIREMENT_INVESTMENT_MODE',
-								hiddenId: 'S_RETIREMENT_INVESTMENT_MODE_hidden',
-								triggerAction:'all',
-								emptyText: 'Pre-tax super...',
-								validationEvent: 'blur',
-								allowBlank: false,
-								editable:false,
-							    mode:'local',
-							    hiddenValue: 0,
-							    value: 'Pre-Tax Super',
-							    
-							    store:new Ext.data.SimpleStore({
-							         fields:['retirementInvestmentCode', 'retirementInvestmentName'],
-							         data:[[0,'Pre-Tax Super'],[1,'Mortgage'],[2,'First Home Saver Account'],[3,'Other Investment']]
-							    }),
-							    displayField:'retirementInvestmentName',
-							    valueField:'retirementInvestmentCode',
-							    
-							    listeners: {
-									scope: this,
-							    	//when index 1, "No", is selected show life cover amount
-							    	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
-							    	select: function(combo, record, index) {
-							    		//actions for Pre Tax Super
-										if (index == 0) {
-											//undo other options
-											//hide and set to zero Mortgage
-											this.getComponent('housing_panel').getComponent('am').hide();
-											//hide and set to zero First Home Saver Account
-											this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
-											//hide and set to zero Other Investment
-											
-											//apply changes for pre tax super
-											combo.nextSibling().expand();
-										
-										//actions for Mortgage
-										} else if (index == 1) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											combo.nextSibling().collapse();
-											//hide and set to zero First Home Saver Account
-											this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
-											//hide and set to zero Other Investment
-											
-											//apply changes for Mortgage
-											//combo.nextSibling().collapse();
-											
-										//actions for First Home Saver Account
-										} else if (index == 2) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											//hide and set to zero Mortgage
-											//hide and set to zero Other Investment
-											
-											//apply changes for First Home Saver Account
-											//combo.nextSibling().collapse();
-											
-										//actions for Other Investments
-										} else if (index == 3) {
-											//undo other options
-											//hide and set to zero Pre-Tax Super
-											//hide and set to zero Mortgage
-											//hide and set to zero First Home Saver
-											
-											//apply changes for Other Investment
-											//combo.nextSibling().collapse();
-										}
-										
-										this.fireEvent('financialdataupdated', this, combo, index, false);
-							    	},
-									render: function(c) {
-										Ext.QuickTips.register({
-											target: c.getEl(),
-											text: '9% of your Taxable Income goes toward your Super Fund. This is a compulsary amount enforced by the government. As missionaries we also get MFBs. The government does not require a compulsary percentage of your MFBs to go toward your Super Fund. However, to look after you CCCA requires you, as a minimum, to set aside another 9% of your stipend (for someone on Half-MFBs it would be 4.5% of your Stipend, for somone on Zero-MFBs it would be 0% of your Stipend) toward your future. This amount is called your Retirement Investment. You may add more than the minimum and you can select where it goes using this combo box.'
-										});
+								itemId: 'future_investment_panel',
+								xtype: 'panel',
+								layout: 'form',
+								//collapsed: true,
+								items: [
+									{
+										width: 140,
+										itemId: 's_future_investment_mode',
+										xtype: 'combo',
+										fieldLabel: 'Where do you want your Future Investment to go?',
+										name: 'S_FUTURE_INVESTMENT_MODE',
+										hiddenName: 'S_FUTURE_INVESTMENT_MODE',
+										hiddenId: 'S_FUTURE_INVESTMENT_MODE_hidden',
+										triggerAction:'all',
+										emptyText: 'Pre-tax super...',
+										validationEvent: 'blur',
+										allowBlank: false,
+										editable:false,
+									    mode:'local',
+									    hiddenValue: 0,
+									    value: 'Pre-Tax Super',
+									    
+									    store:new Ext.data.SimpleStore({
+									         fields:['futureInvestmentCode', 'futureInvestmentName'],
+									         data:[[0,'Pre-Tax Super'],[1,'Mortgage'],[2,'First Home Saver Account']]
+									    }),
+									    displayField:'futureInvestmentName',
+									    valueField:'futureInvestmentCode',
+									    
+									    listeners: {
+											scope: this,
+									    	//when index 1, "No", is selected show life cover amount
+									    	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
+									    	select: function(combo, record, index) {
+									    		/*
+									    		//actions for Pre Tax Super
+												if (index == 0) {
+													//undo other options
+													//hide and set to zero Mortgage
+													this.getComponent('housing_panel').getComponent('am').hide();
+													//hide and set to zero First Home Saver Account
+													this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+													//hide and set to zero Other Investment
+													
+													//apply changes for pre tax super
+													combo.nextSibling().expand();
+												
+												//actions for Mortgage
+												} else if (index == 1) {
+													//undo other options
+													//hide and set to zero Pre-Tax Super
+													combo.nextSibling().collapse();
+													//hide and set to zero First Home Saver Account
+													this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+													//hide and set to zero Other Investment
+													
+													//apply changes for Mortgage
+													//combo.nextSibling().collapse();
+													
+												//actions for First Home Saver Account
+												} else if (index == 2) {
+													//undo other options
+													//hide and set to zero Pre-Tax Super
+													//hide and set to zero Mortgage
+													//hide and set to zero Other Investment
+													
+													//apply changes for First Home Saver Account
+													//combo.nextSibling().collapse();
+													
+												}
+												*/
+												this.fireEvent('financialdataupdated', this, combo, index, true);
+									    	},
+											render: function(c) {
+												Ext.QuickTips.register({
+													target: c.getEl(),
+													text: '9% of your Taxable Income goes toward your Super Fund. This is a compulsary amount enforced by the government. As missionaries we also get MFBs. The government does not require a compulsary percentage of your MFBs to go toward your Super Fund. However, to look after you CCCA requires you, as a minimum, to set aside another 9% of your stipend (for someone on Half-MFBs it would be 4.5% of your Stipend, for somone on Zero-MFBs it would be 0% of your Stipend) toward your future. This amount is called your Future Investment. You may add more than the minimum and you can select where it goes using this combo box.'
+												});
+											}
+									    }
 									}
-							    }
+								]
 							},
 							{
-								itemId: 's_pre_tax_super_panel',
+								itemId: 'pre_tax_super_panel',
 								xtype: 'panel',
 								layout: 'form',
 								//collapsed: true,
@@ -1958,7 +1983,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Returns the current session that is being modified.
 	 * @returns {number}			A number that is the id of the user's session.
 	 */
-	getSession: function() {return this.financial_data.session_id;},
+	getSession: function() {return this.session_id;},
 	
 	/**
 	 * Sets the id of the current session that is being modified.
@@ -1973,7 +1998,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			this.setSessionName(sessionStore.getAt(sessionRecordId).data.SESSION_NAME);
 		}
 
-		this.financial_data.session_id = session;
+		this.session_id = session;
 		this.getComponent('internal_transfers_panel').setSession(session);
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_id';}}, session, false);
 	},
@@ -1981,14 +2006,14 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Returns the current session that is being modified.
 	 * @returns {number}			A number that is the id of the user's session.
 	 */
-	getSessionName: function() {return this.financial_data.session_name;},
+	getSessionName: function() {return this.session_name;},
 	
 	/**
 	 * Sets the id of the current session that is being modified.
 	 * @param {number}	session		The number representing the user's session.
 	 */
 	setSessionName: function(name) {
-		this.financial_data.session_name = name;
+		this.session_name = name;
 		this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return 'session_name';}}, name, false);
 	},
 	
@@ -2012,25 +2037,25 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 	 * Returns whether the user has a spouse or not.
 	 * @returns {boolean}			A boolean that tell you if the user has a spouse.
 	 */
-	hasSpouse: function() {return this.financial_data.spouse;},
+	hasSpouse: function() {return this.spouse;},
 	
 	/**
 	 * Lets this form know if the user has a spouse or not.
 	 * @param {boolean}	spouse		A boolean that tell you if the user has a spouse.
 	 */
-	setSpouse: function(spouse) {this.financial_data.spouse = spouse;},
+	setSpouse: function(spouse) {this.spouse = spouse;},
 	
 	/**
 	 * Returns whether the user serves overseas or not.
 	 * @returns {boolean}			A boolean that tell you if the user serves overseas.
 	 */
-	isOverseas: function() {return this.financial_data.overseas;},
+	isOverseas: function() {return this.overseas;},
 	
 	/**
 	 * Lets this form know if the user serves overseas or not.
 	 * @param {boolean}	overseas	A boolean that tell you if the user serves overseas.
 	 */
-	setOverseas: function(overseas) {this.financial_data.overseas = overseas;},
+	setOverseas: function(overseas) {this.overseas = overseas;},
 	
 	/**
 	 * Gets the start date of the assignment.
@@ -2149,6 +2174,10 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.getComponent('mfb_panel').hide();
 		this.getComponent('os_overseas_housing_panel').items.each(function (item, index, length) {item.disable();}); //disable all the o/s add extras fields
 		this.getComponent('os_overseas_housing_panel').hide();
+		this.getComponent('super_panel').getComponent('my').getComponent('future_investment_panel').hide();
+		this.getForm().items.map['future_investment_mode'].setValue(0);
+		this.getComponent('super_panel').getComponent('spouse').getComponent('future_investment_panel').hide();
+		this.getForm().items.map['s_future_investment_mode'].setValue(0);
 		
 		//show overseas stuff
 		this.getComponent('taxable_income_panel').getComponent('os_residency').show();
@@ -2180,6 +2209,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		if (this.hasSpouse()) this.getComponent('mfb_panel').getComponent('spouse').items.each(function (item, index, length) {item.enable();}); //disable all the mfb fields
 		this.getComponent('os_overseas_housing_panel').show();
 		this.getComponent('os_overseas_housing_panel').items.each(function (item, index, length) {item.enable();}); //enable all the o/s add extras fields
+		this.getComponent('super_panel').getComponent('my').getComponent('future_investment_panel').show();
+		this.getComponent('super_panel').getComponent('spouse').getComponent('future_investment_panel').show();
 	},
 	
 	/**
@@ -2203,6 +2234,8 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.getComponent('mfb_panel').show();
 		this.getComponent('mfb_panel').getComponent('my').items.each(function (item, index, length) {item.enable();}); //disable all the mfb fields
 		if (this.hasSpouse()) this.getComponent('mfb_panel').getComponent('spouse').items.each(function (item, index, length) {item.enable();}); //disable all the mfb fields
+		this.getComponent('super_panel').getComponent('my').getComponent('future_investment_panel').show();
+		this.getComponent('super_panel').getComponent('spouse').getComponent('future_investment_panel').show();
 	},
 	
 	/**
@@ -2220,7 +2253,31 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		//checks if stuff should be hidden ( uses !(valid condition) because we are not just checking valid we are also checking if its set )
 		if (!(this.getForm().items.map['housing_stipend'].getValue() > 0)){
 			this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+		}
+		
+		if (!(this.getForm().items.map['s_housing_stipend'].getValue() > 0)){
 			this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+		}
+		
+		if (!(this.getForm().items.map['taxable_future_investment'].getValue() > 0)){
+			this.getComponent('taxable_income_panel').getComponent('my').getComponent('fi').hide();
+		}
+		
+		if (!(this.getForm().items.map['s_taxable_future_investment'].getValue() > 0)){
+			this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('fi').hide();
+		}
+		
+		if (!(this.getForm().items.map['taxable_future_investment'].getValue() > 0) || !(this.getForm().items.map['housing_stipend'].getValue() > 0)){
+			this.getComponent('taxable_income_panel').getComponent('my').getComponent('ns').hide();
+		}
+		
+		if (!(this.getForm().items.map['s_taxable_future_investment'].getValue() > 0) || !(this.getForm().items.map['s_housing_stipend'].getValue() > 0)){
+			this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('ns').hide();
+		}
+		
+		//checks if additional mortgage should be hidden
+		if (!(this.getForm().items.map['additional_mortgage'].getValue() > 0)) {
+			this.getComponent('housing_panel').getComponent('am').hide();
 		}
 		
 		//change the visual layout of the form based on if this instance of the class is for an overseas, overseas while on home assignment or aussie based missionary.
@@ -2436,27 +2493,70 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 
 		//check if it returned data or errrors
 		if (return_object.success == true || return_object.success == 'true'){
-			this.financial_data = financial_data;
 
 			//go through all the returned values and put them in their appropriate fields
-			for (field in this.financial_data) {
+			for (field in financial_data) {
 				if (fieldArray[field.toLowerCase()] !== undefined) {						//if the field exists
-					fieldArray[field.toLowerCase()].setValue(this.financial_data[field]);	//set the value of the field to the processed value
+					fieldArray[field.toLowerCase()].setValue(financial_data[field]);	//set the value of the field to the processed value
 				}
 			}
 
-			//hide/show the spouse's housing stipend as needed
-			if (this.financial_data.S_HOUSING_STIPEND !== undefined && this.financial_data.S_HOUSING_STIPEND > 0){
+			//hide/show the spouse's optional panels in taxable income as needed
+			if (financial_data.S_HOUSING_STIPEND !== undefined && financial_data.S_HOUSING_STIPEND > 0) {
 				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').show();
 			} else {
 				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
 			}
+			
+			if (financial_data.S_TAXABLE_FUTURE_INVESTMENT !== undefined && financial_data.S_TAXABLE_FUTURE_INVESTMENT > 0) {
+				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('fi').show();
+			} else {
+				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('fi').hide();
+			}
+			
+			if ((financial_data.S_TAXABLE_FUTURE_INVESTMENT !== undefined && financial_data.S_TAXABLE_FUTURE_INVESTMENT > 0) || (financial_data.S_TAXABLE_FUTURE_INVESTMENT !== undefined && financial_data.S_TAXABLE_FUTURE_INVESTMENT > 0)) {
+				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('ns').show();
+			} else {
+				this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('ns').hide();
+			}
 
-			//hide/show the housing stipend as needed
-			if (this.financial_data.HOUSING_STIPEND !== undefined && this.financial_data.HOUSING_STIPEND > 0){
+			//hide/show the optional panels in taxable income as needed
+			if (financial_data.HOUSING_STIPEND !== undefined && financial_data.HOUSING_STIPEND > 0) {
 				this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').show();
 			} else {
 				this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+			}
+			
+			if (financial_data.TAXABLE_FUTURE_INVESTMENT !== undefined && financial_data.TAXABLE_FUTURE_INVESTMENT > 0) {
+				this.getComponent('taxable_income_panel').getComponent('my').getComponent('fi').show();
+			} else {
+				this.getComponent('taxable_income_panel').getComponent('my').getComponent('fi').hide();
+			}
+			
+			if ((financial_data.TAXABLE_FUTURE_INVESTMENT !== undefined && financial_data.TAXABLE_FUTURE_INVESTMENT > 0) || (financial_data.HOUSING_STIPEND !== undefined && financial_data.HOUSING_STIPEND > 0)) {
+				this.getComponent('taxable_income_panel').getComponent('my').getComponent('ns').show();
+			} else {
+				this.getComponent('taxable_income_panel').getComponent('my').getComponent('ns').hide();
+			}
+			
+			//hide/show the optional panels in housing as needed
+			if (financial_data.ADDITIONAL_MORTGAGE !== undefined && financial_data.ADDITIONAL_MORTGAGE > 0) {
+				this.getComponent('housing_panel').getComponent('am').show();
+			} else {
+				this.getComponent('housing_panel').getComponent('am').hide();
+			}
+			
+			//checks if pre tax super should be hidden
+			if (financial_data.FUTURE_INVESTMENT_MODE == 0 || (financial_data.PRE_TAX_SUPER !== undefined && financial_data.PRE_TAX_SUPER > 0)) {
+				this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_panel').show();
+			} else {
+				this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_panel').hide();
+			}
+			
+			if (financial_data.S_FUTURE_INVESTMENT_MODE == 0 || (financial_data.S_PRE_TAX_SUPER !== undefined && financial_data.S_PRE_TAX_SUPER > 0)) {
+				this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').show();
+			} else {
+				this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').hide();
 			}
 
 			if (return_object.warnings !== undefined) {
@@ -2550,12 +2650,62 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				this.processingAllowed	= false;
 				
 				//checks if housing stipend should be hidden
-				if ((data['housing_stipend'] !== undefined && data['housing_stipend'] > 0) || (data['s_housing_stipend'] !== undefined && data['s_housing_stipend'] > 0)) {
+				if (data['housing_stipend'] !== undefined && data['housing_stipend'] > 0) {
 					this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').show();
-					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').show();
 				} else {
 					this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
+				}
+				
+				if (data['s_housing_stipend'] !== undefined && data['s_housing_stipend'] > 0) {
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').show();
+				} else {
 					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
+				}
+				
+				//checks if future investment should be hidden
+				if (data['taxable_future_investment'] !== undefined && data['taxable_future_investment'] > 0) {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('fi').show();
+				} else {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('fi').hide();
+				}
+				
+				if (data['s_taxable_future_investment'] !== undefined && data['s_taxable_future_investment'] > 0) {
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('fi').show();
+				} else {
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('fi').hide();
+				}
+				
+				//checks if net stipend should be hidden
+				if ((data['taxable_future_investment'] !== undefined && data['taxable_future_investment'] > 0) || (data['housing_stipend'] !== undefined && data['housing_stipend'] > 0)) {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('ns').show();
+				} else {
+					this.getComponent('taxable_income_panel').getComponent('my').getComponent('ns').hide();
+				}
+				
+				if ((data['s_taxable_future_investment'] !== undefined && data['s_taxable_future_investment'] > 0) || (data['s_housing_stipend'] !== undefined && data['s_housing_stipend'] > 0)) {
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('ns').show();
+				} else {
+					this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('ns').hide();
+				}
+				
+				//checks if additional mortgage should be hidden
+				if (data['additional_mortgage'] !== undefined && data['additional_mortgage'] > 0) {
+					this.getComponent('housing_panel').getComponent('am').show();
+				} else {
+					this.getComponent('housing_panel').getComponent('am').hide();
+				}
+				
+				//checks if pre tax super should be hidden
+				if (data['future_investment_mode'] == 0 || (data['pre_tax_super'] !== undefined && data['pre_tax_super'] > 0)) {
+					this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_panel').show();
+				} else {
+					this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_panel').hide();
+				}
+				
+				if (data['s_future_investment_mode'] == 0 || (data['s_pre_tax_super'] !== undefined && data['s_pre_tax_super'] > 0)) {
+					this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').show();
+				} else {
+					this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').hide();
 				}
 				
 				//load pre tax super mode first if it exists
@@ -2570,9 +2720,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				//load pre tax super mode first if it exists
 				if (data['s_pre_tax_super_mode'] !== undefined) {
 					if (data['s_pre_tax_super_mode'] == 'manual') {
-						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(true);
+						this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(true);
 					} else {
-						this.getComponent('super_panel').getComponent('spouse').getComponent('s_pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(false);
+						this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(false);
 					}
 				}
 				

@@ -1100,6 +1100,7 @@ tmn.TmnController = function() {
 				this.financial_data[form_panel.id][field.getName()] = newVal;	//add the new value to this forms financial data array
 				this.financial_data[form_panel.id]['overseas'] = this.overseas;	//add the misso's other status info
 				this.financial_data[form_panel.id]['spouse'] = this.spouse;
+				this.financial_data[form_panel.id]['home_assignment'] = form_panel.home_assignment;
 				
 				if (send_ajax_request == true) {
 					Ext.Ajax.request({											//send all the data about the misso to the server for processing
