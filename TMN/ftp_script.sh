@@ -1,6 +1,6 @@
 
 version='2.2.13'
-repo_url='http://10.32.16.4:git/tmn.git'
+repo_url='git@10.32.16.4:/srv/repos/git/tmn.git'
 yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
