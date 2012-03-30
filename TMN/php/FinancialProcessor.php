@@ -324,7 +324,104 @@ class FinancialProcessor {
 	
 
 	public function calculateTaxableIncomeComponentsForAussie($stipend, $post_tax_super, $additional_tax, $monthly_housing, $additional_housing_allowance, $mfb_rate, $days_per_week, $future_investment_mode, $constants) {
+
+		$change					= PHP_INT_MAX;
+		$accuracy				= 1;
+		$iterations				= 0;
+		$maxIterations			= 100;
+		$housingLessAdditionalHousingAllowance	= $monthly_housing - $additional_housing_allowance;
 		
+		$futureInvestment		= array();
+		$futureInvestmentTax	= array();
+		$grossStipend			= array();
+		$tax					= array();
+		$housingStipend			= array();
+		$housingStipendTax		= array();
+		
+		$futureInvestment[0]	= 0;
+		$futureInvestmentTax[0]	= 0;
+		$grossStipend[0]		= $stipend + $post_tax_super + $additional_tax;
+		$tax[0]					= $this->calculateTaxFromWage( $grossStipend[0] );
+		$housingStipend[0]		= max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[0] + $tax[0] ) ) );
+		if ($housingStipend[0] > 0) {
+			$housingStipendTax[0]		=	$this->calculateTaxFromWage( $grossStipend[0] + $housingStipend[0] ) - $this->calculateTaxFromWage( $grossStipend[0] );
+		} else {
+			$housingStipendTax[0]		=	0;
+		}
+		
+		
+		for ($iterations = 1; ($iterations < $maxIterations && $change > $accuracy); $iterations++) {
+			
+			if ($future_investment_mode == 2) {
+				
+				$futureInvestment[$iterations]		=	$constants['MIN_SUPER_RATE'] * ( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $tax[$iterations - 1]
+														+ $housingStipendTax[$iterations - 1] );
+				$futureInvestmentTax[$iterations]	=	$this->calculateTaxFromWage( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $futureInvestment[$iterations] )
+														- $this->calculateTaxFromWage( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] );
+														
+			} else {
+				
+				$futureInvestment[$iterations]		=	0;
+				$futureInvestmentTax[$iterations]	=	0;
+				
+			}
+			
+			$grossStipend[$iterations]				=	$grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $futureInvestment[$iterations];
+			$tax[$iterations]						=	$tax[$iterations - 1] + $housingStipendTax[$iterations - 1] + $futureInvestmentTax[$iterations];
+			
+			$housingStipend[$iterations]			=	max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[$iterations] + $tax[$iterations] ) ) );
+			
+			if ($housingStipend[$iterations] > 0) {
+				
+				$housingStipendTax[$iterations]		=	$this->calculateTaxFromWage( $grossStipend[$iterations] + $housingStipend[$iterations] )
+														- $this->calculateTaxFromWage( $grossStipend[$iterations] );
+			} else {
+				
+				$housingStipendTax[$iterations]		=	0;
+				
+			}
+
+			
+			$change								= ($future_investment_mode == 2 ? $futureInvestmentTax[$iterations] - $futureInvestmentTax[$iterations - 1] : $housingStipendTax[$iterations] - $housingStipendTax[$iterations - 1] );
+			
+		}
+		
+		fb('futureInvestment');
+		fb($futureInvestment);
+		fb('futureInvestmentTax');
+		fb($futureInvestmentTax);
+		fb('housingStipend');
+		fb($housingStipend);
+		fb('housingStipendTax');
+		fb($housingStipendTax);
+		
+		$maxIterations	= $iterations;
+		
+		for ($iterations = 1; $iterations <= $maxIterations; $iterations++) {
+			
+			$futureInvestmentTotal				+=	$futureInvestment[$iterations];
+			$housingStipendTotal				+=	$housingStipend[$iterations];
+			
+		}
+		
+		$netStipendTotal						= $stipend + $futureInvestmentTotal + $housingStipendTotal;
+		$grossStipendTotal						= $grossStipend[0] + $futureInvestmentTotal + $housingStipendTotal;
+		$taxableIncomeTotal						= $this->calculateTaxableIncome($grossStipendTotal);
+		
+		if($this->DEBUG) fb("iterations: ".$iterations);
+		if($this->DEBUG) fb("future_investment: ".$futureInvestmentTotal);
+		if($this->DEBUG) fb("housing_stipend: ".$housingStipendTotal);
+		if($this->DEBUG) fb("net_stipend: ".$netStipendTotal);
+		if($this->DEBUG) fb("taxable_income: ".$taxableIncomeTotal);
+		
+		return array(
+			"future_investment"	=> floor($futureInvestmentTotal),
+			"housing_stipend"	=> floor($housingStipendTotal),
+			"net_stipend"		=> floor($netStipendTotal),
+			"taxable_income"	=> floor($taxableIncomeTotal)
+		);
+		
+		/*
 		$netIncome			= $stipend + $post_tax_super + $additional_tax;
 		$oldTaxableIncome	= $this->calculateTaxableIncome($netIncome);
 		$housingStipend		= 0;
@@ -379,6 +476,7 @@ class FinancialProcessor {
 			"housing_stipend"	=> $housingStipend,
 			"net_stipend"		=> $stipend + $futureInvestment + $housingStipend
 		);
+		*/
 		
 	}
 	
@@ -432,9 +530,14 @@ class FinancialProcessor {
 	//params:							$wage - (a whole number > 0) the monthly wage
 	//returns							monthly tax (a whole number >= 0)
 	public function calculateTaxFromWage($wage) {
+		
+		if ($wage <= 0) {
+			return 0;
+		}
+		
 		//formula and values derived from:
 		//Statement of formulas for calculating amounts to be withheld
-		if($this->DEBUG) fb("wage: ".$wage);
+	//if($this->DEBUG) fb("wage: ".$wage);
 		//convert from months to weeks
 		$wage = floor(floor($wage) * 12 / 52);
 		
@@ -442,7 +545,7 @@ class FinancialProcessor {
 			if ($wage < $this->calculateMaxWage($rangeCount))
 				break;
 		}
-		if($this->DEBUG) fb("rangecount: ".$rangeCount);
+	//if($this->DEBUG) fb("rangecount: ".$rangeCount);
 		return round(ceil(($this->a[$rangeCount] * ($wage) - $this->b[$rangeCount]) / (1 - $this->a[$rangeCount])) * 52 / 12);
 	}
 	
@@ -451,6 +554,11 @@ class FinancialProcessor {
 	//params:							$taxableincome - (a whole number > 0) the weekly taxable income
 	//returns							monthly tax (a whole number >= 0)
 	public function calculateTax($taxableincome) {
+		
+		if ($taxableincome <= 0) {
+			return 0;
+		}
+		
 		//formula and values grabbed from:
 		//Statement of formulas for calculating amounts to be withheld
 		
@@ -728,7 +836,7 @@ class FinancialProcessor {
 		
 		//if the user has asked for no pre tax super then return 0
 		if ($future_investment_mode > 0) {
-			
+			fb("no pre tax super");
 			return 0;
 			
 		}
