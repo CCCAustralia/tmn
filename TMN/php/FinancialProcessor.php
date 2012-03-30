@@ -323,96 +323,120 @@ class FinancialProcessor {
 	}
 	
 
+	/**
+	 * Calculates the user's future investment, housing stipend, net stipend and taxable income from the data the user entered.
+	 * 
+	 * Calculates these values by iteratively calculating the amount of future invesment and tax that needs to be added from any amounts that were added in the last iteration.
+	 * Repeating this process results in the series converging on an optimal solution.
+	 * 
+	 * @param int $stipend
+	 * @param int $post_tax_super
+	 * @param int $additional_tax
+	 * @param int $monthly_housing
+	 * @param int $additional_housing_allowance
+	 * @param float $mfb_rate
+	 * @param int $days_per_week
+	 * @param int $future_investment_mode
+	 * @param assoc array $constants - must include $constants['MIN_SUPER_RATE']
+	 * @return array( "future_investment" => int, "housing_stipend" => int, "net_stipend" => int, "taxable_income" => int )
+	 */
 	public function calculateTaxableIncomeComponentsForAussie($stipend, $post_tax_super, $additional_tax, $monthly_housing, $additional_housing_allowance, $mfb_rate, $days_per_week, $future_investment_mode, $constants) {
 
-		$change					= PHP_INT_MAX;
-		$accuracy				= 1;
-		$iterations				= 0;
-		$maxIterations			= 100;
-		$housingLessAdditionalHousingAllowance	= $monthly_housing - $additional_housing_allowance;
-		
+		//init variables
 		$futureInvestment		= array();
 		$futureInvestmentTax	= array();
 		$grossStipend			= array();
 		$tax					= array();
 		$housingStipend			= array();
 		$housingStipendTax		= array();
+		$iterations				= 0;
+		$maxIterations			= 300;
+		$housingLessAdditionalHousingAllowance	= $monthly_housing - $additional_housing_allowance;
 		
-		$futureInvestment[0]	= 0;
-		$futureInvestmentTax[0]	= 0;
+			////////Set Initial Conditions For Iterative Series////////
+		
+		//the initial gross stipend is just the sum of the taxable values entered by the user
 		$grossStipend[0]		= $stipend + $post_tax_super + $additional_tax;
+		$grossStipendSum		= $grossStipend[0];
+		//the initial tax is the tax on the initial gross stipend
 		$tax[0]					= $this->calculateTaxFromWage( $grossStipend[0] );
-		$housingStipend[0]		= max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[0] + $tax[0] ) ) );
-		if ($housingStipend[0] > 0) {
-			$housingStipendTax[0]		=	$this->calculateTaxFromWage( $grossStipend[0] + $housingStipend[0] ) - $this->calculateTaxFromWage( $grossStipend[0] );
+		$taxSum					= $tax[0];
+		//if the user has asked for future investment calculate it otherwise set it to zero
+		if ($future_investment_mode == 2) {
+			//the initial future investment is the super rate applied to the initial taxable income (gross income + tax)
+			$futureInvestment[0]	= $constants['MIN_SUPER_RATE'] * ( $grossStipend[0] + $tax[0] );
+			//calculate tax on the initial future investment
+			//(Note: To calculate tax on a particular segment you need calculate the tax on everything with the segment minus the tax on everything without the segment ie tax(everythingWithoutSegment + segment) - tax(everythingWithoutSegment))
+			$futureInvestmentTax[0]	= $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] ) - $this->calculateTaxFromWage( $grossStipend[0] );
 		} else {
-			$housingStipendTax[0]		=	0;
+			$futureInvestment[0]	= 0;
+			$futureInvestmentTax[0]	= 0;
 		}
+		//the housing stipend is what is left when you take the additional housing allowance and the user's mfbs from the housing. ie the amount that needs to come out of their stipend to cover housing.
+		$housingStipend[0]		= max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[0] + $tax[0] + $futureInvestment[0] + $futureInvestmentTax[0] ) ) );
+		$housingStipendSum		= $housingStipend[0];
+		//calculate tax on the initial housing stipend
+		//(Note: To calculate tax on a particular segment you need calculate the tax on everything with the segment minus the tax on everything without the segment ie tax(everythingWithoutSegment + segment) - tax(everythingWithoutSegment))
+		$housingStipendTax[0]	= $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] + $housingStipend[0] ) - $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] );
 		
 		
-		for ($iterations = 1; ($iterations < $maxIterations && $change > $accuracy); $iterations++) {
+			//////////Loop Through Calculating Each Term In Series/////////
+		
+		
+		//The following loop will seek to at each iteration calculate the future investment and tax that needs to be added.
+		//This is because in the previous iteration a bit more future investment and tax were added and the future investment and tax were those bits have not yet been added.
+		//Adding the future investment and tax for consecutive iterations that get smaller and smaller will result in the optimum result being converged upon.
+		//This process will continue until an acceptable accuracy has been achieved (After 300 iterations no more accuracy can be achieved due to the limits of a php variable).
+		for ($iterations = 1; $iterations < $maxIterations; $iterations++) {
 			
+			//the gross stipend for this iteration is the little bit of future investment and housing stipend calculated in the last iteration
+			$grossStipend[$iterations]				=	$futureInvestment[$iterations - 1] + $housingStipend[$iterations - 1];
+			$grossStipendSum						+=	$grossStipend[$iterations];
+			//the tax for this iteration is the tax for the future investment from the last iteration plus the tax for the housing stipend from the last iteration
+			$tax[$iterations]						=	$futureInvestmentTax[$iterations - 1] + $housingStipendTax[$iterations - 1];
+			$taxSum									+=	$tax[$iterations];
+			
+			//if the user has asked for future investment
 			if ($future_investment_mode == 2) {
 				
-				$futureInvestment[$iterations]		=	$constants['MIN_SUPER_RATE'] * ( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $tax[$iterations - 1]
-														+ $housingStipendTax[$iterations - 1] );
-				$futureInvestmentTax[$iterations]	=	$this->calculateTaxFromWage( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $futureInvestment[$iterations] )
-														- $this->calculateTaxFromWage( $grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] );
-														
+				//calculate the future investment for the last iteration
+				$futureInvestment[$iterations]		=	$constants['MIN_SUPER_RATE'] * ( $grossStipend[$iterations] + $housingStipend[$iterations] );
+				//and calculate the tax on the future investment for this iteration
+				$futureInvestmentTax[$iterations]	=	$this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum );
+			
+			//if the user has not asked for future investment then zero it
 			} else {
 				
 				$futureInvestment[$iterations]		=	0;
 				$futureInvestmentTax[$iterations]	=	0;
 				
 			}
-			
-			$grossStipend[$iterations]				=	$grossStipend[$iterations - 1] + $housingStipend[$iterations - 1] + $futureInvestment[$iterations];
-			$tax[$iterations]						=	$tax[$iterations - 1] + $housingStipendTax[$iterations - 1] + $futureInvestmentTax[$iterations];
-			
-			$housingStipend[$iterations]			=	max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[$iterations] + $tax[$iterations] ) ) );
-			
-			if ($housingStipend[$iterations] > 0) {
-				
-				$housingStipendTax[$iterations]		=	$this->calculateTaxFromWage( $grossStipend[$iterations] + $housingStipend[$iterations] )
-														- $this->calculateTaxFromWage( $grossStipend[$iterations] );
-			} else {
-				
-				$housingStipendTax[$iterations]		=	0;
-				
-			}
 
-			
-			$change								= ($future_investment_mode == 2 ? $futureInvestmentTax[$iterations] - $futureInvestmentTax[$iterations - 1] : $housingStipendTax[$iterations] - $housingStipendTax[$iterations - 1] );
-			
+			//caluclate the housing stipend needed for the whole amount  then substract all previous housing stipend iterations to get the difference between this point and
+			//the point at the last iteration. This difference represents the housing stipend for this iteration.
+			$housingStipend[$iterations]			=	max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipendSum + $taxSum + $futureInvestment[$iterations] + $futureInvestmentTax[$iterations] ) ) ) - $housingStipendSum;
+			$housingStipendSum						+=	$housingStipend[$iterations];
+			//calculate the tax on the housing stipend for this iteration
+			$housingStipendTax[$iterations]			=	$this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] + $housingStipend[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] );
+
 		}
 		
-		fb('futureInvestment');
-		fb($futureInvestment);
-		fb('futureInvestmentTax');
-		fb($futureInvestmentTax);
-		fb('housingStipend');
-		fb($housingStipend);
-		fb('housingStipendTax');
-		fb($housingStipendTax);
 		
-		$maxIterations	= $iterations;
+			/////////Calculate Required Values From Series///////////
 		
-		for ($iterations = 1; $iterations <= $maxIterations; $iterations++) {
+		
+		//add up all the iterations to get the final values for future investment and housing stipend
+		for ($iterations = 0; $iterations <= $maxIterations; $iterations++) {
 			
 			$futureInvestmentTotal				+=	$futureInvestment[$iterations];
 			$housingStipendTotal				+=	$housingStipend[$iterations];
 			
 		}
 		
+		//calculate the required return values from the final values
 		$netStipendTotal						= $stipend + $futureInvestmentTotal + $housingStipendTotal;
 		$grossStipendTotal						= $grossStipend[0] + $futureInvestmentTotal + $housingStipendTotal;
 		$taxableIncomeTotal						= $this->calculateTaxableIncome($grossStipendTotal);
-		
-		if($this->DEBUG) fb("iterations: ".$iterations);
-		if($this->DEBUG) fb("future_investment: ".$futureInvestmentTotal);
-		if($this->DEBUG) fb("housing_stipend: ".$housingStipendTotal);
-		if($this->DEBUG) fb("net_stipend: ".$netStipendTotal);
-		if($this->DEBUG) fb("taxable_income: ".$taxableIncomeTotal);
 		
 		return array(
 			"future_investment"	=> floor($futureInvestmentTotal),
@@ -420,63 +444,6 @@ class FinancialProcessor {
 			"net_stipend"		=> floor($netStipendTotal),
 			"taxable_income"	=> floor($taxableIncomeTotal)
 		);
-		
-		/*
-		$netIncome			= $stipend + $post_tax_super + $additional_tax;
-		$oldTaxableIncome	= $this->calculateTaxableIncome($netIncome);
-		$housingStipend		= 0;
-		$futureInvestment	= 0;
-		$change				= PHP_INT_MAX;
-		$accuracy			= 1;
-		$iterations			= 0;
-		$maxIterations		= 100;
-		$maxMfbs			= $this->calculateMaxMFB($oldTaxableIncome, $mfb_rate, $days_per_week);
-		$housingLessAdditionalHousingAllowance		= $this->getMonthlyHousing() - $this->getAdditionalHousing();
-		
-		//while (housing stipend needs to be calculated or a taxable future investment needs to be calculated) and (we are above acceptable accuracy or less than an acceptable number of iterations)
-		while ( ( $housingLessAdditionalHousingAllowance > $maxMfbs || $future_investment_mode != 0) && ($change >= $accuracy && $iterations < $maxIterations) ) {
-			
-			//if a taxable future investment needs to be calculated
-			if ($future_investment_mode != 0) {
-				
-				$futureInvestment	= $oldTaxableIncome * $constants['MIN_SUPER_RATE'];
-				$newTaxableIncome	+= $this->calculateTaxableIncome($netIncome + $futureInvestment);
-				
-				//recalc max mfb with new Taxable Income
-				$maxMfbs			= $this->calculateMaxMFB($newTaxableIncome, $mfb_rate, $days_per_week);
-				
-			} else {
-				
-				$newTaxableIncome	= $oldTaxableIncome;
-				$futureInvestment	= 0;
-				
-			}
-			
-			//housing stipend needs to be calculated
-			if ($housingLessAdditionalHousingAllowance > $maxMfbs) {
-				
-				$housingStipend		= $housingLessAdditionalHousingAllowance - $maxMfbs;
-				$newTaxableIncome	= $this->calculateTaxableIncome($netIncome + $futureInvestment + $housingStipend);
-				
-				//recalc max mfb with new Taxable Income
-				$maxMfbs			= $this->calculateMaxMFB($newTaxableIncome, $mfb_rate, $days_per_week);
-				
-			}
-			
-			//update change and iteration variables
-			$change				= abs($newTaxableIncome - $oldTaxableIncome);
-			$oldTaxableIncome	= $newTaxableIncome;
-			$iterations++;
-			
-		}
-		
-		return array(
-			"taxable_income"	=> $oldTaxableIncome,
-			"future_investment"	=> $futureInvestment,
-			"housing_stipend"	=> $housingStipend,
-			"net_stipend"		=> $stipend + $futureInvestment + $housingStipend
-		);
-		*/
 		
 	}
 	

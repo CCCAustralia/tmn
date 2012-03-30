@@ -1,0 +1,20 @@
+[2012/03/30 09:23:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/namefil...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/namefil...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/namefill.php(24): Tmn->__construct('../logs/namefil...')
+#3 {main}
+[2012/03/30 09:23:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/namefil...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/namefil...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/namefill.php(24): Tmn->__construct('../logs/namefil...')
+#3 {main}
+[2012/03/30 09:23:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/namefil...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/namefil...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/namefill.php(24): Tmn->__construct('../logs/namefil...')
+#3 {main}
+[2012/03/30 09:23:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/namefil...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/namefil...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/namefill.php(24): Tmn->__construct('../logs/namefil...')
+#3 {main}
