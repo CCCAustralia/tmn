@@ -175,9 +175,8 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	//needs to return an associative array of required balances that are indexed by their financial account number eg array(1010045 => 20000, 1010001 => 5000, <financial account number 7>, <required balance for financial account number 7>)
 	static private function getAllRequiredBalances() {
 		
-		$db				= TmnDatabase::getInstance($LOGFILE);
 		$balanceSql		= "SELECT low.FIN_ACC_NUM, sessions.BUFFER FROM ( SELECT low_acc.* FROM (SELECT DISTINCT FIN_ACC_NUM FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0) AS valid_users LEFT JOIN Low_Account AS low_acc ON low_acc.FIN_ACC_NUM = valid_users.FIN_ACC_NUM ) AS low LEFT JOIN Tmn_Sessions AS sessions ON low.CURRENT_SESSION_ID = sessions.SESSION_ID AND low.CURRENT_SESSION_ID IS NOT NULL";
-		$stmt 			= $db->prepare($sessionSql);
+		$stmt 			= $this->db->prepare($balanceSql);
 		$balanceResult	= $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$returnArray	= array();
 		

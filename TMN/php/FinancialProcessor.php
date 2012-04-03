@@ -16,6 +16,19 @@ if (file_exists("mysqldriver.php")) {
 	include_once('lib/cas/cas.php');
 }
 
+define("FOR_USER", 0);
+define("FOR_SPOUSE", 1);
+
+define("HOUSING_FREQUENCY_MONTHLY", 0);
+define("HOUSING_FREQUENCY_FORTNIGHTLY", 1);
+
+define("FUTURE_INVESTMENT_MODE_PRE_TAX", 0);
+define("FUTURE_INVESTMENT_MODE_MORTGAGE", 1);
+define("FUTURE_INVESTMENT_MODE_TAXABLE", 2);
+
+define("MFB_RATE_ZERO", 0);
+define("MFB_RATE_HALF", 1);
+define("MFB_RATE_FULL", 2);
 
 //Authenticate the user in GCX with phpCAS
 if ( !isset($CAS_CLIENT_CALLED) ) {
@@ -186,56 +199,8 @@ class FinancialProcessor {
 		}
 		
 		//Housing
-		$this->financial_data['ADDITIONAL_HOUSING'] = $this->getAdditionalHousing();
-		
-		
-		//Taxable Income Panel
-		if (isset($this->financial_data['STIPEND'])){
-			
-			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['STIPEND'],
-																					$this->financial_data['POST_TAX_SUPER'],
-																					$this->financial_data['ADDITIONAL_TAX'],
-																					$this->getMonthlyHousing(),
-																					$this->financial_data['ADDITIONAL_HOUSING'],
-																					$this->getMfbRate($this->financial_data['MFB_RATE']),
-																					$this->getDaysPerWeek(0),
-																					$this->financial_data['FUTURE_INVESTMENT_MODE'],
-																					$this->constants);
-			
-			//Copy across taxable components
-			$this->financial_data['HOUSING_STIPEND']			= $taxable_components['housing_stipend'];
-			$this->financial_data['TAXABLE_FUTURE_INVESTMENT']	= $taxable_components['future_investment'];
-			$this->financial_data['NET_STIPEND']				= $taxable_components['net_stipend'];
-			$this->financial_data['TAXABLE_INCOME']				= $taxable_components['taxable_income'];
-			
-			//calc tax and super from taxable income
-			$this->financial_data['TAX']						= $this->calculateTax($this->financial_data['TAXABLE_INCOME']);
-			$this->financial_data['EMPLOYER_SUPER']				= $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
-
-			//check min stipend
-			$err .= $this->validateStipend(0);//0 means STIPEND, 1 means S_STIPEND
-			
-		}
-		
-		//Maximum MFB & Pre-tax Super
-		if (isset($this->financial_data['TAXABLE_INCOME'])) {
-		
-			//mfb rate
-			$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
-		
-			//Pre Tax Super (if its not set then set it to the min)
-			$this->financial_data['PRE_TAX_SUPER'] = $this->getPreTaxSuper($mfbrate, $this->financial_data['FUTURE_INVESTMENT_MODE'], 0);//the 0 means return my value
-			
-			//Fetch Days Per Week
-			$this->financial_data['DAYS_PER_WEEK'] = $this->getDaysPerWeek(0);
-			
-			//calc max mfbs
-			$this->financial_data['MAX_MFB'] = round($this->calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
-			
-			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-			$this->financial_data['CLAIMABLE_MFB'] = $this->getClaimableMfb(0);//0 for my claimable mfb
-		}
-		
+		$this->financial_data['ADDITIONAL_HOUSING']		= $this->getAdditionalHousing();
+		$this->financial_data['ADDITIONAL_MORTGAGE']	= 0;
 		
 		//Spouse Taxable Income Panel
 		if ($this->spouse) {
@@ -243,10 +208,10 @@ class FinancialProcessor {
 				$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['S_STIPEND'],
 																						$this->financial_data['S_POST_TAX_SUPER'],
 																						$this->financial_data['S_ADDITIONAL_TAX'],
-																						$this->getMonthlyHousing(),
-																						$this->financial_data['S_ADDITIONAL_HOUSING'],
+																						0,//these are set to zero because the spouse doesn't get housing stipend
+																						0,
 																						$this->getMfbRate($this->financial_data['S_MFB_RATE']),
-																						$this->getDaysPerWeek(1),
+																						$this->getDaysPerWeek(FOR_SPOUSE),
 																						$this->financial_data['S_FUTURE_INVESTMENT_MODE'],
 																						$this->constants);
 			
@@ -261,7 +226,7 @@ class FinancialProcessor {
 				$this->financial_data['S_EMPLOYER_SUPER']				= $this->calculateEmployerSuper($this->financial_data['S_TAXABLE_INCOME']);
 	
 				//check min stipend
-				$err .= $this->validateStipend(1);//0 means STIPEND, 1 means S_STIPEND
+				$err .= $this->validateStipend(FOR_SPOUSE);//0 means STIPEND, 1 means S_STIPEND
 			}
 			
 			//Spouse Maximum MFB && Pre Tax Super
@@ -271,16 +236,101 @@ class FinancialProcessor {
 				$mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//Spouse Pre Tax Super (if its not set then set it to the min)
-				$this->financial_data['S_PRE_TAX_SUPER']	= $this->getPreTaxSuper($mfbrate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], 1); //the 1 means return spouse value
+				$this->financial_data['S_PRE_TAX_SUPER']		= $this->getPreTaxSuper($mfbrate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], FOR_SPOUSE); //the 1 means return spouse value
 				
+				//Additional Mortgage payments
+				$this->financial_data['ADDITIONAL_MORTGAGE']	+= $this->getAdditionalMortgage($this->financial_data['S_TAXABLE_INCOME'],
+																								$this->getMfbRate($this->financial_data['S_MFB_RATE']),
+																								$this->financial_data['S_FUTURE_INVESTMENT_MODE'],
+																								$this->constants);
+			
 				//Fetch the user's days per week
-				$this->financial_data['S_DAYS_PER_WEEK']	= $this->getDaysPerWeek(1);
+				$this->financial_data['S_DAYS_PER_WEEK']		= $this->getDaysPerWeek(FOR_SPOUSE);
 				
-				$this->financial_data['S_MAX_MFB']			= round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
+				$this->financial_data['S_MAX_MFB']				= round($this->calculateMaxMFB($this->financial_data['S_TAXABLE_INCOME'], $mfbrate, $this->financial_data['S_DAYS_PER_WEEK']));
 				
 				//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
-				$this->financial_data['S_CLAIMABLE_MFB']	= $this->getClaimableMfb(1);//1 for spouse claimable mfb
+				$this->financial_data['S_CLAIMABLE_MFB']		= $this->getClaimableMfb(FOR_SPOUSE);//1 for spouse claimable mfb
 			}
+		}
+		
+		//Taxable Income Panel
+		if (isset($this->financial_data['STIPEND'])){
+			
+			fb($this->financial_data['S_MAX_MFB']);
+			$housing	= (isset($this->financial_data['S_MAX_MFB']) ? max(0, $this->getMonthlyHousing() - $this->financial_data['S_MAX_MFB']) : $this->getMonthlyHousing());
+			fb('params');
+			fb($this->financial_data['STIPEND']);
+			fb($this->financial_data['POST_TAX_SUPER']);
+			fb($this->financial_data['ADDITIONAL_TAX']);
+			fb($housing);
+			fb($this->financial_data['ADDITIONAL_HOUSING']);
+			fb($spouse_max_mfbs);
+			fb($this->getMfbRate($this->financial_data['MFB_RATE']));
+			fb($this->getDaysPerWeek(FOR_USER));
+			fb($this->financial_data['FUTURE_INVESTMENT_MODE']);
+			fb($this->constants);
+			
+			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['STIPEND'],
+																					$this->financial_data['POST_TAX_SUPER'],
+																					$this->financial_data['ADDITIONAL_TAX'],
+																					$housing,
+																					$this->financial_data['ADDITIONAL_HOUSING'],
+																					$this->getMfbRate($this->financial_data['MFB_RATE']),
+																					$this->getDaysPerWeek(FOR_USER),
+																					$this->financial_data['FUTURE_INVESTMENT_MODE'],
+																					$this->constants);
+			
+			//Copy across taxable components
+			$this->financial_data['HOUSING_STIPEND']			= $taxable_components['housing_stipend'];
+			$this->financial_data['TAXABLE_FUTURE_INVESTMENT']	= $taxable_components['future_investment'];
+			$this->financial_data['NET_STIPEND']				= $taxable_components['net_stipend'];
+			$this->financial_data['TAXABLE_INCOME']				= $taxable_components['taxable_income'];
+			
+			//calc tax and super from taxable income
+			$this->financial_data['TAX']						= $this->calculateTax($this->financial_data['TAXABLE_INCOME']);
+			$this->financial_data['EMPLOYER_SUPER']				= $this->calculateEmployerSuper($this->financial_data['TAXABLE_INCOME']);
+
+			//check min stipend
+			$err .= $this->validateStipend(FOR_USER);//0 means STIPEND, 1 means S_STIPEND
+			
+		}
+		
+		//Maximum MFB & Pre-tax Super
+		if (isset($this->financial_data['TAXABLE_INCOME'])) {
+		
+			//mfb rate
+			$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
+		
+			//Pre Tax Super (if its not set then set it to the min)
+			$this->financial_data['PRE_TAX_SUPER']			= $this->getPreTaxSuper($mfbrate, $this->financial_data['FUTURE_INVESTMENT_MODE'], FOR_USER);//the 0 means return my value
+			
+			//Additional Mortgage payments
+			$this->financial_data['ADDITIONAL_MORTGAGE']	+= $this->getAdditionalMortgage($this->financial_data['TAXABLE_INCOME'],
+																							$this->getMfbRate($this->financial_data['MFB_RATE']),
+																							$this->financial_data['FUTURE_INVESTMENT_MODE'],
+																							$this->constants);
+			
+			//Fetch Days Per Week
+			$this->financial_data['DAYS_PER_WEEK']			= $this->getDaysPerWeek(FOR_USER);
+			
+			//calc max mfbs
+			$this->financial_data['MAX_MFB']				= round($this->calculateMaxMFB($this->financial_data['TAXABLE_INCOME'], $mfbrate, $this->financial_data['DAYS_PER_WEEK']));
+			
+			//calc claimable mfbs (the mfbs that are left after your housing has been taken out)
+			$this->financial_data['CLAIMABLE_MFB']			= $this->getClaimableMfb(FOR_USER);//0 for my claimable mfb
+		}
+		
+		
+		//Additional Mortgage
+		if ($this->financial_data['ADDITIONAL_MORTGAGE'] > 0) {
+			
+			$this->financial_data['TOTAL_HOUSING']	= $this->getMonthlyHousing() + $this->financial_data['ADDITIONAL_MORTGAGE'];
+			
+		} else {
+			
+			$this->financial_data['TOTAL_HOUSING']	= 0;
+			
 		}
 		
 		
@@ -289,14 +339,17 @@ class FinancialProcessor {
 		
 		if ($err == '') {
 		
-			$result = array('success'=>'true');
-			$result['financial_data'] = $this->financial_data;
-			$result['warnings'] = $warnings;
+			$result						= array('success'=>true);
+			$result['financial_data']	= $this->financial_data;
+			$result['warnings']			= $warnings;
 			if($this->DEBUG) fb($result);
 			return json_encode($result);
 		}
 		else {
-			return '{"success": false, "errors":{'.trim($err,", ").'} }';	//Return with errors
+			$result				= array('success'=>false);
+			$result['errors']	= json_decode('{'.trim($err,", ").'}');
+			return json_encode($result);
+			//return '{"success": false, "errors":{'.trim($err,", ").'} }';	//Return with errors
 		}
 		
 	}
@@ -337,7 +390,7 @@ class FinancialProcessor {
 	 * @param float $mfb_rate
 	 * @param int $days_per_week
 	 * @param int $future_investment_mode
-	 * @param assoc array $constants - must include $constants['MIN_SUPER_RATE']
+	 * @param assoc array $constants - must include $constants['MIN_ADD_SUPER_RATE']
 	 * @return array( "future_investment" => int, "housing_stipend" => int, "net_stipend" => int, "taxable_income" => int )
 	 */
 	public function calculateTaxableIncomeComponentsForAussie($stipend, $post_tax_super, $additional_tax, $monthly_housing, $additional_housing_allowance, $mfb_rate, $days_per_week, $future_investment_mode, $constants) {
@@ -350,9 +403,9 @@ class FinancialProcessor {
 		$housingStipend			= array();
 		$housingStipendTax		= array();
 		$iterations				= 0;
-		$maxIterations			= 300;
+		$maxIterations			= 301;
 		$housingLessAdditionalHousingAllowance	= $monthly_housing - $additional_housing_allowance;
-		
+		fb($housingLessAdditionalHousingAllowance);
 			////////Set Initial Conditions For Iterative Series////////
 		
 		//the initial gross stipend is just the sum of the taxable values entered by the user
@@ -362,9 +415,9 @@ class FinancialProcessor {
 		$tax[0]					= $this->calculateTaxFromWage( $grossStipend[0] );
 		$taxSum					= $tax[0];
 		//if the user has asked for future investment calculate it otherwise set it to zero
-		if ($future_investment_mode == 2) {
+		if ($future_investment_mode == FUTURE_INVESTMENT_MODE_TAXABLE) {
 			//the initial future investment is the super rate applied to the initial taxable income (gross income + tax)
-			$futureInvestment[0]	= $constants['MIN_SUPER_RATE'] * ( $grossStipend[0] + $tax[0] );
+			$futureInvestment[0]	= $constants['MIN_ADD_SUPER_RATE'] * $mfb_rate * ( $grossStipend[0] + $tax[0] );
 			//calculate tax on the initial future investment
 			//(Note: To calculate tax on a particular segment you need calculate the tax on everything with the segment minus the tax on everything without the segment ie tax(everythingWithoutSegment + segment) - tax(everythingWithoutSegment))
 			$futureInvestmentTax[0]	= $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] ) - $this->calculateTaxFromWage( $grossStipend[0] );
@@ -375,10 +428,12 @@ class FinancialProcessor {
 		//the housing stipend is what is left when you take the additional housing allowance and the user's mfbs from the housing. ie the amount that needs to come out of their stipend to cover housing.
 		$housingStipend[0]		= max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipend[0] + $tax[0] + $futureInvestment[0] + $futureInvestmentTax[0] ) ) );
 		$housingStipendSum		= $housingStipend[0];
+		//fb(( $mfb_rate * ( $grossStipend[0] + $tax[0] + $futureInvestment[0] + $futureInvestmentTax[0] ) ));
+		//fb($housingStipend[0]);
 		//calculate tax on the initial housing stipend
 		//(Note: To calculate tax on a particular segment you need calculate the tax on everything with the segment minus the tax on everything without the segment ie tax(everythingWithoutSegment + segment) - tax(everythingWithoutSegment))
 		$housingStipendTax[0]	= $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] + $housingStipend[0] ) - $this->calculateTaxFromWage( $grossStipend[0] + $futureInvestment[0] );
-		
+		//fb($housingStipendTax[0]);
 		
 			//////////Loop Through Calculating Each Term In Series/////////
 		
@@ -397,27 +452,34 @@ class FinancialProcessor {
 			$taxSum									+=	$tax[$iterations];
 			
 			//if the user has asked for future investment
-			if ($future_investment_mode == 2) {
+			if ($future_investment_mode == FUTURE_INVESTMENT_MODE_TAXABLE) {
 				
 				//calculate the future investment for the last iteration
-				$futureInvestment[$iterations]		=	$constants['MIN_SUPER_RATE'] * ( $grossStipend[$iterations] + $housingStipend[$iterations] );
+				$futureInvestment[$iterations]		=	$constants['MIN_ADD_SUPER_RATE'] * $mfb_rate * ( $grossStipend[$iterations] + $housingStipend[$iterations] );
 				//and calculate the tax on the future investment for this iteration
 				$futureInvestmentTax[$iterations]	=	$this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum );
 			
+				//caluclate the housing stipend needed for the whole amount  then substract all previous housing stipend iterations to get the difference between this point and
+				//the point at the last iteration. This difference represents the housing stipend for this iteration.
+				$housingStipend[$iterations]			=	max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipendSum + $taxSum + $futureInvestment[$iterations] + $futureInvestmentTax[$iterations] ) ) ) - $housingStipendSum;
+				fb("mfbs:". ( $mfb_rate * ( $grossStipendSum + $taxSum + $futureInvestment[$iterations] + $futureInvestmentTax[$iterations] ) ) ." ,gss:$grossStipendSum, ts:$taxSum");
+				$housingStipendSum						+=	$housingStipend[$iterations];
+				//calculate the tax on the housing stipend for this iteration
+				$housingStipendTax[$iterations]			=	$this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] + $housingStipend[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] );
+				
 			//if the user has not asked for future investment then zero it
 			} else {
 				
-				$futureInvestment[$iterations]		=	0;
-				$futureInvestmentTax[$iterations]	=	0;
+				$futureInvestment[$iterations]			=	0;
+				$futureInvestmentTax[$iterations]		=	0;
+				
+				$housingStipend[$iterations]			=	$housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipendSum + $taxSum ) );
+				$housingStipendSum						+=	$housingStipend[$iterations];
+				//calculate the tax on the housing stipend for this iteration
+				$housingStipendTax[$iterations]			=	$this->calculateTaxFromWage( $grossStipendSum + $housingStipend[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum );
 				
 			}
 
-			//caluclate the housing stipend needed for the whole amount  then substract all previous housing stipend iterations to get the difference between this point and
-			//the point at the last iteration. This difference represents the housing stipend for this iteration.
-			$housingStipend[$iterations]			=	max( 0, $housingLessAdditionalHousingAllowance - ( $mfb_rate * ( $grossStipendSum + $taxSum + $futureInvestment[$iterations] + $futureInvestmentTax[$iterations] ) ) ) - $housingStipendSum;
-			$housingStipendSum						+=	$housingStipend[$iterations];
-			//calculate the tax on the housing stipend for this iteration
-			$housingStipendTax[$iterations]			=	$this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] + $housingStipend[$iterations] ) - $this->calculateTaxFromWage( $grossStipendSum + $futureInvestment[$iterations] );
 
 		}
 		
@@ -432,7 +494,7 @@ class FinancialProcessor {
 			$housingStipendTotal				+=	$housingStipend[$iterations];
 			
 		}
-		
+		fb($housingStipend);
 		//calculate the required return values from the final values
 		$netStipendTotal						= $stipend + $futureInvestmentTotal + $housingStipendTotal;
 		$grossStipendTotal						= $grossStipend[0] + $futureInvestmentTotal + $housingStipendTotal;
@@ -560,7 +622,7 @@ class FinancialProcessor {
 			$maxhousingmfb = $this->getMaxHousingMfb();
 			
 			//set housing freq to the default if not set
-			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = 0;
+			if (!isset($this->financial_data['HOUSING_FREQUENCY'])) $this->financial_data['HOUSING_FREQUENCY'] = HOUSING_FREQUENCY_MONTHLY;
 			
 			//make sure housing is monthly
 			$monthly_housing = $this->getMonthlyHousing();
@@ -568,9 +630,9 @@ class FinancialProcessor {
 			//get days per week ratio
 			//TODO: apply it to the calculation
 			if ($this->spouse)
-				$days_per_week_ratio = ($this->getDaysPerWeek(0) + $this->getDaysPerWeek(1)) / 10; //couple ratio
+				$days_per_week_ratio = ($this->getDaysPerWeek(FOR_USER) + $this->getDaysPerWeek(FOR_SPOUSE)) / 10; //couple ratio
 			else
-				$days_per_week_ratio = $this->getDaysPerWeek(0) / 5; //singles ratio
+				$days_per_week_ratio = $this->getDaysPerWeek(FOR_USER) / 5; //singles ratio
 				
 			//calc additional housing
 			return round(max( 0, ($monthly_housing - $maxhousingmfb) ));
@@ -667,8 +729,8 @@ class FinancialProcessor {
 				$s_mfbrate = $this->getMfbRate($this->financial_data['S_MFB_RATE']);
 				
 				//calc lastest joint max mfbs
-				$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
-				$s_maxmfb = $this->calculateMaxMFB($s_taxableincome, $s_mfbrate, $this->getDaysPerWeek(1));
+				$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(FOR_USER));
+				$s_maxmfb = $this->calculateMaxMFB($s_taxableincome, $s_mfbrate, $this->getDaysPerWeek(FOR_SPOUSE));
 				$joint_maxmfb = $maxmfb + $s_maxmfb;
 			
 				//calc housing stipend from lastest values
@@ -679,7 +741,7 @@ class FinancialProcessor {
 					//recalc taxable income and max mfb with the calc housing stipend
 					$annum += $housing_stipend;
 					$taxableincome = $this->calculateTaxableIncome($annum);
-					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
+					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(FOR_USER));
 					$joint_maxmfb = $maxmfb + $s_maxmfb;
 
 					//max housing mfb
@@ -709,7 +771,7 @@ class FinancialProcessor {
 					$mfbrate = $this->getMfbRate($this->financial_data['MFB_RATE']);
 					
 					//calc lastest max mfbs
-					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
+					$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(FOR_USER));
 				
 					//calc housing stipend from lastest values
 					$housing_stipend = max(0, $monthly_housing - $maxmfb - $this->financial_data['ADDITIONAL_HOUSING']);
@@ -719,7 +781,7 @@ class FinancialProcessor {
 						//recalc taxable income and max mfb with the calc housing stipend
 						$annum += $housing_stipend;
 						$taxableincome = $this->calculateTaxableIncome($annum);
-						$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(0));
+						$maxmfb = $this->calculateMaxMFB($taxableincome, $mfbrate, $this->getDaysPerWeek(FOR_USER));
 
 						$max_housing_mfb = $this->getMaxHousingMfb();
 	
@@ -762,15 +824,15 @@ class FinancialProcessor {
 	public function getMfbRate($MFB_RATE){
 		//enumerate mfb rate
 		switch ($MFB_RATE) {
-			case 0:
+			case MFB_RATE_ZERO:
 			//Zero MFBs
 				$mfbrate = 0;
 				break;
-			case 1:
+			case MFB_RATE_HALF:
 			//Half MFBs
 				$mfbrate = 0.5;
 				break;
-			case 2:
+			case MFB_RATE_FULL:
 			//Full MFBs
 				$mfbrate = 1;
 				break;
@@ -788,10 +850,11 @@ class FinancialProcessor {
 	//returns				monthly_housing (a number >= 0)
 	public function getMonthlyHousing() {
 		//convert fornightly housing to monthly housing
-		if ($this->financial_data['HOUSING_FREQUENCY'] == 1)
+		if ($this->financial_data['HOUSING_FREQUENCY'] == HOUSING_FREQUENCY_FORTNIGHTLY) {
 			return round($this->financial_data['HOUSING'] * 26 / 12);
-		else
+		} else {
 			return $this->financial_data['HOUSING'];
+		}
 	}
 	
 	
@@ -822,6 +885,21 @@ class FinancialProcessor {
 		}
 		//if manual mode then return manually entered value
 		return $this->financial_data[$prefix.'PRE_TAX_SUPER'];
+	}
+	
+	public function getAdditionalMortgage($taxable_income, $mfb_rate, $future_investment_mode, $constants) {
+		
+		if ($future_investment_mode == FUTURE_INVESTMENT_MODE_MORTGAGE) {
+
+			return round($taxable_income * $mfb_rate * $constants['MIN_ADD_SUPER_RATE']);
+			
+		} else {
+			
+			return 0;
+			
+		}
+		
+		
 	}
 	
 	

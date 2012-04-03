@@ -77,6 +77,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'employer_super'						=>	"i",
 				'mmr'									=>	"i",
 				'stipend'								=>	"i",
+				'taxable_future_investment'				=>	"i",
+				'future_investment_mode'				=>	"i",
 				'housing_stipend'						=>	"i",
 				'housing_mfb'							=>	"i",
 				'mfb_rate'								=>	"i",
@@ -100,6 +102,8 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				's_employer_super'						=>	"i",
 				's_mmr'									=>	"i",
 				's_stipend'								=>	"i",
+				's_taxable_future_investment'			=>	"i",
+				's_future_investment_mode'				=>	"i",
 				's_housing_stipend'						=>	"i",
 				's_housing_mfb'							=>	"i",
 				's_mfb_rate'							=>	"i",
@@ -118,9 +122,11 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 				'international_donations'				=>	"i",
 				'additional_housing'					=>	"i",
 				'monthly_housing'						=>	"i",
+				'additional_mortgage'					=>	"i",
+				'total_housing'							=>	"i",
 				'housing'								=>	"i",
 				'housing_frequency'						=>	"i",
-				'versionnumber'							=>	"s"
+				'versionnumber'							=>	"i"
 			)
 		);
 		

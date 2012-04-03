@@ -58,6 +58,8 @@ class FinancialSubmitter extends FinancialProcessor {
 						's_stipend'							=>	"__",
 						'housing_stipend'					=>	"__",
 						's_housing_stipend'					=>	"__",
+						'taxable_future_investment'			=>	"__",
+						's_taxable_future_investment'		=>	"__",
 						'net_stipend'						=>	"__",
 						's_net_stipend'						=>	"__",
 						'tax'								=>	"__",
@@ -72,7 +74,9 @@ class FinancialSubmitter extends FinancialProcessor {
 						'pre_tax_super'						=>	"__",
 						's_pre_tax_super'					=>	"__",
 						'housing'							=>	"__",
-						'monthly_housing'					=>	"--",
+						'monthly_housing'					=>	"__",
+						'additional_mortgage'				=>	"__",
+						'total_housing'						=>	"__",
 						'housing_frequency'					=>	"__",
 						'additional_housing'				=>	"__",
 						'additional_housing_allowance'		=>	"__",
@@ -97,6 +101,8 @@ class FinancialSubmitter extends FinancialProcessor {
 						'ministry_levy'						=>	"__",
 						's_ministry_levy'					=>	"__",
 						
+						'future_investment_mode'			=>	"__",
+						's_future_investment_mode'			=>	"__",
 						'pre_tax_super'						=>	"__",
 						's_pre_tax_super'					=>	"__",
 						'employer_super'					=>	"__",
@@ -160,17 +166,11 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		parent::__construct($findat, $dbug);
 		
-		//////////  SET UP CONSTANTS  //////////
-		include_once('classes/TmnConstants.php');
-		$constants = getConstants(getVersionNumber());
-								
-		$this->constants = array_merge($this->constants, getVersionNumberAsArray());
-		
 		$this->logger = new logger("logs/submit_fd.log");
 	}
 	
 	
-	public function submit(){
+	public function submit() {
 		
 		//error array
 		$err	= array();
@@ -246,28 +246,87 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		
 		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
+
+			//Future Investment
+			$this->data['taxable_future_investment']	= $this->financial_data['TAXABLE_FUTURE_INVESTMENT'];
+			$this->data['s_taxable_future_investment']	= $this->financial_data['S_TAXABLE_FUTURE_INVESTMENT'];
+			$this->data['future_investment_mode']		= $this->financial_data['FUTURE_INVESTMENT_MODE'];
+			$this->data['s_future_investment_mode']		= $this->financial_data['S_FUTURE_INVESTMENT_MODE'];
+			
 			//Housing
 			$this->data['housing']						=	$this->financial_data['HOUSING'];
 			$this->data['monthly_housing']				=	$this->getMonthlyHousing();
 					
+			//Additional Mortgage Payment
+			$this->data['additional_mortgage']			=	$this->financial_data['ADDITIONAL_MORTGAGE'];
+			$this->data['total_housing']				=	$this->financial_data['TOTAL_HOUSING'];
+			
 			//Total Additional Housing Allowance
-			$this->financial_data['ADDITIONAL_HOUSING']	=	$this->getAdditionalHousing();
+			//$this->financial_data['ADDITIONAL_HOUSING']	=	$this->getAdditionalHousing();
 			$this->data['additional_housing']			=	$this->financial_data['ADDITIONAL_HOUSING'];
+			
+			$this->data['housing_stipend']				= $this->financial_data['HOUSING_STIPEND'];
+			$this->data['s_housing_stipend']			= $this->financial_data['S_HOUSING_STIPEND'];
+			
+			/*
+			//for user
+			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['STIPEND'],
+																					$this->financial_data['POST_TAX_SUPER'],
+																					$this->financial_data['ADDITIONAL_TAX'],
+																					$this->getMonthlyHousing(),
+																					$this->financial_data['ADDITIONAL_HOUSING'],
+																					$this->getMfbRate($this->financial_data['MFB_RATE']),
+																					$this->getDaysPerWeek(FOR_USER),
+																					$this->financial_data['FUTURE_INVESTMENT_MODE'],
+																					$this->constants);
+			
+			//Copy across taxable components
+			$this->financial_data['HOUSING_STIPEND']			= $taxable_components['housing_stipend'];
+			$this->data['housing_stipend']						= $this->financial_data['HOUSING_STIPEND'];
+			$this->financial_data['TAXABLE_FUTURE_INVESTMENT']	= $taxable_components['future_investment'];
+			$this->data['taxable_future_investment']			= $this->financial_data['TAXABLE_FUTURE_INVESTMENT'];
+			$this->financial_data['NET_STIPEND']				= $taxable_components['net_stipend'];
+			$this->data['net_stipend']							= $this->financial_data['NET_STIPEND'];
+			$this->financial_data['TAXABLE_INCOME']				= $taxable_components['taxable_income'];
+			$this->data['taxable_income']						= $this->financial_data['TAXABLE_INCOME'];
+			
+			//for spouse
+			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['S_STIPEND'],
+																						$this->financial_data['S_POST_TAX_SUPER'],
+																						$this->financial_data['S_ADDITIONAL_TAX'],
+																						0,//these are set to zero because the spouse doesn't get housing stipend
+																						0,
+																						$this->getMfbRate($this->financial_data['S_MFB_RATE']),
+																						$this->getDaysPerWeek(FOR_SPOUSE),
+																						$this->financial_data['S_FUTURE_INVESTMENT_MODE'],
+																						$this->constants);
+			//Copy across taxable components
+			$this->financial_data['S_HOUSING_STIPEND']			= $taxable_components['housing_stipend'];
+			$this->data['s_housing_stipend']					= $this->financial_data['S_HOUSING_STIPEND'];
+			$this->financial_data['S_TAXABLE_FUTURE_INVESTMENT']= $taxable_components['future_investment'];
+			$this->data['s_taxable_future_investment']			= $this->financial_data['S_TAXABLE_FUTURE_INVESTMENT'];
+			$this->financial_data['S_NET_STIPEND']				= $taxable_components['net_stipend'];
+			$this->data['s_net_stipend']						= $this->financial_data['S_NET_STIPEND'];
+			$this->financial_data['S_TAXABLE_INCOME']			= $taxable_components['taxable_income'];
+			$this->data['s_taxable_income']						= $this->financial_data['S_TAXABLE_INCOME'];
 			
 			//Stipend
 			//-from Form on Page
 			$this->data['housing_stipend']				=	$this->getHousingStipend();
 			$this->data['s_housing_stipend']			=	0;
+			*/
 		}
+		
 		
 		//Net Stipend
 		//-from Form on Page
 		//NOTE: The old TMN refers to and displays this as Gross Stipend.
 		//Either way, this value is as such: <Net/Gross Stipend> + <Additional Tax> + <Post-Tax Super> = Taxable Income
-		$this->financial_data['NET_STIPEND']		=	$this->data['stipend'] + $this->data['housing_stipend'];
+		//$this->financial_data['NET_STIPEND']		=	$this->data['stipend'] + $this->data['housing_stipend'];
 		$this->data['net_stipend']					=	$this->financial_data['NET_STIPEND'];
-		$this->financial_data['S_NET_STIPEND']		=	$this->data['s_stipend'] + $this->data['s_housing_stipend'];
+		//$this->financial_data['S_NET_STIPEND']		=	$this->data['s_stipend'] + $this->data['s_housing_stipend'];
 		$this->data['s_net_stipend']				=	$this->financial_data['S_NET_STIPEND'];
+		
 		
 		if ( $this->financial_data['aussie_form'] || ($this->financial_data['overseas_form'] && $this->financial_data['home_assignment']) ) {
 			//user Additional Housing Allowance
@@ -286,12 +345,14 @@ class FinancialSubmitter extends FinancialProcessor {
 		$this->data['post_tax_super']				=	$this->financial_data['POST_TAX_SUPER'];
 		$this->data['s_post_tax_super']				=	$this->financial_data['S_POST_TAX_SUPER'];
 		
+		
 		//Taxable Income
 		//-calculated using sum of (Net Stipend, Add. Tax, and Post-Tax Super)
 		//$this->financial_data['TAXABLE_INCOME']		=	$this->calculateTaxableIncome($this->data['net_stipend'] + $this->data['additional_tax'] + $this->data['post_tax_super']);
 		$this->data['taxable_income']				=	$this->financial_data['TAXABLE_INCOME'];
 		//$this->financial_data['S_TAXABLE_INCOME']	=	$this->calculateTaxableIncome($this->data['s_net_stipend'] + $this->data['s_additional_tax'] + $this->data['s_post_tax_super']);
 		$this->data['s_taxable_income']				=	$this->financial_data['S_TAXABLE_INCOME'];
+		
 		
 		//Tax
 		//-from Form on Page
@@ -349,9 +410,9 @@ class FinancialSubmitter extends FinancialProcessor {
 			$this->data['s_max_mfb']						=	$this->financial_data['S_MAX_MFB'];
 			
 			//Claimable Ministry Fringe Benefits
-			$this->financial_data['CLAIMABLE_MFB']		=	$this->getClaimableMfb(0);//$this->financial_data['CLAIMABLE_MFB'];
+			$this->financial_data['CLAIMABLE_MFB']		=	$this->getClaimableMfb(FOR_USER);//$this->financial_data['CLAIMABLE_MFB'];
 			$this->data['claimable_mfb']				=	$this->financial_data['CLAIMABLE_MFB'];
-			$this->financial_data['S_CLAIMABLE_MFB']	=	$this->getClaimableMfb(1);
+			$this->financial_data['S_CLAIMABLE_MFB']	=	$this->getClaimableMfb(FOR_SPOUSE);
 			$this->data['s_claimable_mfb']				=	$this->financial_data['S_CLAIMABLE_MFB'];
 			
 			//Housing Ministry Fringe Benefits
@@ -360,19 +421,17 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		
 		//Pre-Tax Super
-		$min_pretax_super 							= 	round($mfb_rate * $this->constants['MIN_ADD_SUPER_RATE'] * $this->data['taxable_income']);
-		$this->financial_data['PRE_TAX_SUPER']		=	$this->getPreTaxSuper($mfbrate, 0);
+		$this->financial_data['PRE_TAX_SUPER']		=	$this->getPreTaxSuper($mfbrate, $this->financial_data['FUTURE_INVESTMENT_MODE'], FOR_USER);
 		$this->data['pre_tax_super']				=	$this->financial_data['PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
-		$this->financial_data['RESC']				=	round($this->data['pre_tax_super'] - $min_pretax_super);
+		$this->financial_data['RESC']				=	round($this->data['pre_tax_super']);
 		$this->data['resc']							=	$this->financial_data['RESC'];
 		
 		//Spouse Pre-Tax Super
-		$s_min_pretax_super 						=	round($s_mfb_rate * $this->constants['MIN_ADD_SUPER_RATE'] * $this->data['s_taxable_income']);
-		$this->financial_data['S_PRE_TAX_SUPER']	=	$this->getPreTaxSuper($s_mfbrate, 1);
+		$this->financial_data['S_PRE_TAX_SUPER']	=	$this->getPreTaxSuper($s_mfbrate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], FOR_SPOUSE);
 		$this->data['s_pre_tax_super']				=	$this->financial_data['S_PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
-		$this->financial_data['S_RESC']				=	round($this->data['s_pre_tax_super'] - $s_min_pretax_super);
+		$this->financial_data['S_RESC']				=	round($this->data['s_pre_tax_super']);
 		$this->data['s_resc']						=	$this->financial_data['S_RESC'];
 
 		//OVERSEAS DATA
@@ -544,7 +603,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		//Apply multiplier to limits and bands
 		$this->constants['BAND_FP_COUPLE']			=	$this->constants['BAND_FP_COUPLE']			*	$this->MULTIPLIER;
 		$this->constants['BAND_FP_SINGLE']			=	$this->constants['BAND_FP_SINGLE']			*	$this->MULTIPLIER;
-		$this->constants['BAND_TMN_COUPLE_MIN']		=	$this->constants['BAND_TMN_COUPLE_MIN'] 		* 	$this->MULTIPLIER;
+		$this->constants['BAND_TMN_COUPLE_MIN']		=	$this->constants['BAND_TMN_COUPLE_MIN'] 	* 	$this->MULTIPLIER;
 		$this->constants['BAND_TMN_COUPLE_MAX']		=	$this->constants['BAND_TMN_COUPLE_MAX']		*	$this->MULTIPLIER;
 		$this->constants['BAND_TMN_SINGLE_MIN']		=	$this->constants['BAND_TMN_SINGLE_MIN']		*	$this->MULTIPLIER;
 		$this->constants['BAND_TMN_SINGLE_MAX']		=	$this->constants['BAND_TMN_SINGLE_MAX']		*	$this->MULTIPLIER;
@@ -657,7 +716,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		//bug out (softly) if the database will clip the reasons
 		foreach ($reasons as $k => $v) {
 			if (strlen(json_encode($v)) > 1500) {
-				die(json_encode(array('success' => false, 'alert' => 'FinancialSubmitter.php Level '.$k.' reasons json object is too long for the database')));
+				die(json_encode(array('success' => false, 'alert' => 'Level '.$k.' reasons are too long for the database')));
 			}
 		}
 		

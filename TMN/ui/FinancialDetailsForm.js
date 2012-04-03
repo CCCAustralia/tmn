@@ -792,6 +792,34 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						}
 					},
 					{
+		            	itemId: 'housing_frequency',
+		           		xtype: 'combo',
+		           		fieldLabel: 'How often would you like to be paid your housing allowance?',
+		           		name: 'HOUSING_FREQUENCY',
+		            	hiddenName: 'HOUSING_FREQUENCY',
+		            	hiddenId: 'HOUSING_FREQUENCY_hidden',
+		           		triggerAction:'all',
+		           		emptyText: 'Choose a frequency...',
+		           		validationEvent: 'blur',
+		            	editable:false,
+		                mode:'local',
+		                hiddenValue: 0,
+		                
+		                store:new Ext.data.SimpleStore({
+		                     fields:['housingfrequencyCode', 'housingfrequencyText'],
+		                     data:[[0,'Monthly'],[1,'Fortnightly']]
+		                }),
+		                displayField:'housingfrequencyText',
+		                valueField:'housingfrequencyCode',
+		                
+		                listeners: {
+							scope: this,
+		                	select: function(combo, record, index) {
+								this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
+		                	}
+		                }
+					},
+					{
 						itemId: 'am',
 						xtype: 'panel',
 						layout: 'form',
@@ -806,7 +834,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								name: 'ADDITIONAL_MORTGAGE',
 								readOnly: true,
 								cls: 'x-form-readonly-red',
-								fieldLabel: 'Additional Mortgage Payment',
+								fieldLabel: 'Monthly Additional Mortgage Payment',
 								value: 0,
 								listeners: {
 									focus: function(field)	{field.blur();},
@@ -823,7 +851,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								name: 'TOTAL_HOUSING',
 								readOnly: true,
 								cls: 'x-form-readonly-red',
-								fieldLabel: 'Total Housing Payment',
+								fieldLabel: 'Monthly Total Housing Payment',
 								value: 0,
 								listeners: {
 									focus: function(field)	{field.blur();},
@@ -852,34 +880,6 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								});
 							}
 						}
-					},
-					{
-		            	itemId: 'housing_frequency',
-		           		xtype: 'combo',
-		           		fieldLabel: 'How often would you like to be paid your housing allowance?',
-		           		name: 'HOUSING_FREQUENCY',
-		            	hiddenName: 'HOUSING_FREQUENCY',
-		            	hiddenId: 'HOUSING_FREQUENCY_hidden',
-		           		triggerAction:'all',
-		           		emptyText: 'Choose a frequency...',
-		           		validationEvent: 'blur',
-		            	editable:false,
-		                mode:'local',
-		                hiddenValue: 0,
-		                
-		                store:new Ext.data.SimpleStore({
-		                     fields:['housingfrequencyCode', 'housingfrequencyText'],
-		                     data:[[0,'Monthly'],[1,'Fortnightly']]
-		                }),
-		                displayField:'housingfrequencyText',
-		                valueField:'housingfrequencyCode',
-		                
-		                listeners: {
-							scope: this,
-		                	select: function(combo, record, index) {
-								this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
-		                	}
-		                }
 					}
 				]
 			}, //eo housing
@@ -1211,42 +1211,17 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 						                	//when index 1, "No", is selected show life cover amount
 						                	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
 						                	select: function(combo, record, index) {
-						                		/*
-						                		//actions for Pre Tax Super
-												if (index == 0) {
-													//undo other options
-													//hide and set to zero Mortgage
-													this.getComponent('housing_panel').getComponent('am').hide();
-													//hide and set to zero First Home Saver Account
-													this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
-													
-													//apply changes for pre tax super
-													combo.nextSibling().expand();
-												
-												//actions for Mortgage
-												} else if (index == 1) {
-													//undo other options
-													//hide and set to zero Pre-Tax Super
-													combo.nextSibling().collapse();
-													//hide and set to zero First Home Saver Account
-													this.getComponent('taxable_income_panel').getComponent('my').getComponent('hs').hide();
-													
-													//apply changes for Mortgage
-													
-													
-												//actions for First Home Saver Account
-												} else if (index == 2) {
-													//undo other options
-													//hide and set to zero Pre-Tax Super
-													//hide and set to zero Mortgage
-													
-													//apply changes for First Home Saver Account
-													
-													
-												}
-												*/
 						                		
+						                		//make sure pre tax super manual button is off when not using pre tax super
+						                		if (index != 0) {
+						                			
+						                			this.getComponent('super_panel').getComponent('my').getComponent('pre_tax_super_panel').getComponent('pre_tax_super_mode').toggle(false);
+						                			
+						                		}
+						                		
+						                		Ext.Msg.alert('FUTURE INVESTMENT Change!', '<b>You have changed where your FUTURE INVESTMENT goes.<br /><br />FOR THIS TO TAKE EFFECT YOU MUST SUBMIT THE FUTURE INVESTMENT FORM TO FINANCE!<br /><br />Click <a href="pdf/future_investment.pdf" target="_blank">here</a> to download the Future Investment form.');
 												this.fireEvent('financialdataupdated', this, combo, index, true);
+												
 						                	},
 											render: function(c) {
 												Ext.QuickTips.register({
@@ -1269,10 +1244,10 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 										itemId:				'pre_tax_super',
 										name:				'PRE_TAX_SUPER',
 										cls:				'x-form-readonly',
+										fieldLabel:			'Pre Tax Super',
 										value:				0,
 										minValue:			0,
 										allowBlank:			false,
-										fieldLabel:			'Pre Tax Super',
 										enableKeyEvents:	true,
 										listeners: {
 											focus: function(field){field.blur();},
@@ -1510,44 +1485,17 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 									    	//when index 1, "No", is selected show life cover amount
 									    	//make sure that when the field  is loaded (found at personal_details>listeners>afterRender>this.load) that it does this check too
 									    	select: function(combo, record, index) {
-									    		/*
-									    		//actions for Pre Tax Super
-												if (index == 0) {
-													//undo other options
-													//hide and set to zero Mortgage
-													this.getComponent('housing_panel').getComponent('am').hide();
-													//hide and set to zero First Home Saver Account
-													this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
-													//hide and set to zero Other Investment
-													
-													//apply changes for pre tax super
-													combo.nextSibling().expand();
-												
-												//actions for Mortgage
-												} else if (index == 1) {
-													//undo other options
-													//hide and set to zero Pre-Tax Super
-													combo.nextSibling().collapse();
-													//hide and set to zero First Home Saver Account
-													this.getComponent('taxable_income_panel').getComponent('spouse').getComponent('hs').hide();
-													//hide and set to zero Other Investment
-													
-													//apply changes for Mortgage
-													//combo.nextSibling().collapse();
-													
-												//actions for First Home Saver Account
-												} else if (index == 2) {
-													//undo other options
-													//hide and set to zero Pre-Tax Super
-													//hide and set to zero Mortgage
-													//hide and set to zero Other Investment
-													
-													//apply changes for First Home Saver Account
-													//combo.nextSibling().collapse();
-													
-												}
-												*/
+									    		
+									    		//make sure pre tax super manual button is off when not using pre tax super
+						                		if (index != 0) {
+						                			
+						                			this.getComponent('super_panel').getComponent('spouse').getComponent('pre_tax_super_panel').getComponent('s_pre_tax_super_mode').toggle(false);
+						                			
+						                		}
+
+									    		Ext.Msg.alert('FUTURE INVESTMENT Change!', '<b>You have changed where your FUTURE INVESTMENT goes.<br /><br />FOR THIS TO TAKE EFFECT YOU MUST SUBMIT THE FUTURE INVESTMENT FORM TO FINANCE!<br /><br />Click <a href="pdf/future_investment.pdf" target="_blank">here</a> to download the Future Investment form.');
 												this.fireEvent('financialdataupdated', this, combo, index, true);
+												
 									    	},
 											render: function(c) {
 												Ext.QuickTips.register({
@@ -1566,11 +1514,14 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								//collapsed: true,
 								items: [
 									{
+										xtype:				'numberfield',
 										itemId:				's_pre_tax_super',
 										name:				'S_PRE_TAX_SUPER',
 										cls:				'x-form-readonly',
 										fieldLabel:			'Pre Tax Super',
 										value:				0,
+										minValue:			0,
+										allowBlank:			false,
 										enableKeyEvents:	true,
 										listeners: {
 											scope: this,

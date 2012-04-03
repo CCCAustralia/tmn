@@ -97,6 +97,13 @@
 				<td>${s_housing_stipend}</td>
 			</tr>
 		</tpl>
+		<tpl if="taxable_future_investment &gt; 0 || s_taxable_future_investment &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Future Investment (The amount of your stipend that will go toward your nominated investment)</th>
+				<td>${taxable_future_investment}</td>
+				<td>${s_taxable_future_investment}</td>
+			</tr>
+		</tpl>
 		<tr class="tmn-data">
 			<th colspan="2">Estimated Tax </th>
 			<td>${tax}</td>
@@ -116,18 +123,20 @@
 		    <td colspan="4"><hr /></td>
 		</tr>
 		<tr class="tmn-total">
-			<th colspan="2">Taxable Income (Stipend + <tpl if="housing_stipend &gt; 0 || s_housing_stipend &gt; 0">Housing Stipend + </tpl>Estimated Tax + Additional Tax + Post-Tax Super)</th>
+			<th colspan="2">Taxable Income (Stipend + <tpl if="housing_stipend &gt; 0 || s_housing_stipend &gt; 0">Housing Stipend + </tpl><tpl if="taxable_future_investment &gt; 0 || s_taxable_future_investment &gt; 0">Future Investment + </tpl>Estimated Tax + Additional Tax + Post-Tax Super)</th>
 			<td>${taxable_income}</td>
 			<td>${s_taxable_income}</td>
 		</tr>
 		<tr>
 		    <td colspan="4"><hr /></td>
 		</tr>
-		<tr class="tmn-data">
-			<th colspan="2">Pre-tax Super </th>
-			<td>${pre_tax_super}</td>
-			<td>${s_pre_tax_super}</td>
-		</tr>
+		<tpl if="pre_tax_super &gt; 0 || s_pre_tax_super &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Pre-tax Super </th>
+				<td>${pre_tax_super}</td>
+				<td>${s_pre_tax_super}</td>
+			</tr>
+		</tpl>
 		<tr class="tmn-data">
 			<th colspan="2">Additional Life Cover (per month)</th>
 			<td>${additional_life_cover}</td>
@@ -143,6 +152,12 @@
 				<th colspan="2">Additional Housing Allowance</th>
 				<td>${additional_housing_allowance}</td>
 				<td>${s_additional_housing_allowance}</td>
+			</tr>
+		</tpl>
+		<tpl if="additional_mortgage &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Additional Mortgage Payment</th>
+				<td colspan="2">${additional_mortgage}</td>
 			</tr>
 		</tpl>
 		<tr>
@@ -226,6 +241,12 @@
 				<td>${housing_stipend}</td>
 				<td>${s_housing_stipend}</td>
 			</tr>
+			<tpl if="additional_mortgage &gt; 0">
+				<tr class="tmn-data">
+					<th colspan="2">The amount that comes from your Future Investment (Additional Mortgage Payment) monthly</th>
+					<td colspan="2">${additional_mortgage}</td>
+				</tr>
+			</tpl>
 			<tr class="tmn-data">
 				<th colspan="2">The amount that comes from Additional Housing Allowance monthly</th>
 				<td colspan="2">${additional_housing}</td>
@@ -243,6 +264,17 @@
 			<tr>
 				<th style="text-align:center;" colspan="4">CCCA will pay ${housing} into your elected housing account {housing_frequency}.</th>
 			</tr>
+			<tr>
+				<td colspan="4"><hr /></td>
+			</tr>
+			<tpl if="additional_mortgage &gt; 0">
+				<tr>
+					<th style="text-align:center;" colspan="4">CCCA will also pay an additional ${additional_mortgage} monthly toward your mortgage.<br />This payment will be paid according to the details on your Future Investment Form.</th>
+				</tr>
+				<tr>
+					<td colspan="4"><hr /></td>
+				</tr>
+			</tpl>
 		</table>
 		</div>
 	</tpl>
@@ -296,11 +328,13 @@
 			<td>${post_tax_super}</td>
 			<td>${s_post_tax_super}</td>
 		</tr>
-		<tr class="tmn-data">
-			<th colspan="2">Pre Tax Super</th>
-			<td>${pre_tax_super}</td>
-			<td>${s_pre_tax_super}</td>
-		</tr>
+		<tpl if="pre_tax_super &gt; 0 || s_pre_tax_super &gt; 0">
+			<tr class="tmn-data">
+				<th colspan="2">Pre Tax Super</th>
+				<td>${pre_tax_super}</td>
+				<td>${s_pre_tax_super}</td>
+			</tr>
+		</tpl>
 		<tr class="tmn-data">
 			<th colspan="2">Employer Super</th>
 			<td>${employer_super}</td>

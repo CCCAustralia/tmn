@@ -3,8 +3,6 @@ include_once('../classes/Tmn.php');
 include_once('../classes/TmnDatabase.php');
 include_once('../classes/TmnCrudSession.php');
 include_once('../classes/TmnConstants.php');
-$financeguid = getConstants(getVersionNumber());
-$financeguid = $financeguid['FINANCE_USER'];
 
 //set the log path
 $LOGFILE	= "../logs/authviewer.log";

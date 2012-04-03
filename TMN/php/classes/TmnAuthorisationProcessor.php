@@ -4,19 +4,19 @@ if (file_exists('../classes/TmnCrud.php')) {
 	include_once('../classes/email.php');
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/TmnAuthenticator.php');
-	include_once('../classes/TmnConstants.php');
+	include_once('../classes/TmnFinanceAdminsUsersGroup.php');
 } elseif (file_exists('classes/TmnCrud.php')) {
 	include_once('interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('classes/email.php');
 	include_once('classes/TmnCrud.php');
 	include_once('classes/TmnAuthenticator.php');
-	include_once('classes/TmnConstants.php');
+	include_once('classes/TmnFinanceAdminsUsersGroup.php');
 } else {
 	include_once('php/interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('php/classes/email.php');
 	include_once('php/classes/TmnCrud.php');
 	include_once('php/classes/TmnAuthenticator.php');
-	include_once('php/classes/TmnConstants.php');
+	include_once('php/classes/TmnFinanceAdminsUsersGroup.php');
 }
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
@@ -24,7 +24,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			////Instance Variables////
 	//private $logfile;
 	private $authsessionid;
-	private $financeguid;
+	private $financeAdminsUserGroup;
 	//private $authcrud;
 	private $level_users	= array();
 	
@@ -84,8 +84,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$this->authsessionid			= $auth_session_id;
 		
 		//get the finance user guid
-		$this->financeguid = getConstants(getVersionNumber());
-		$this->financeguid = $this->financeguid['FINANCE_USER'];
+		$this->financeAdminsUserGroup = new TmnFinanceAdminsUsersGroup();
 		
 		//$this->authcrud = $newObj;
 		//$this->d($this);
@@ -119,11 +118,6 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		}
 	}
 	
-	private function getFinanceGuid() {
-		$constants = getConstants(getVersionNumber());
-		return $constants['FINANCE_USER'];
-	}
-	
 	private function getUserForLevel($level) {
 		//if this levels user object has not yet been grabbed then grab it (while doing conversion from number to bad naming system)
 		if (!isset($this->level_users[$level])){
@@ -134,8 +128,6 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					unset($this->level_users[$level]);
 					return null;
 				}
-			} elseif ($level == 4) {
-				$this->level_users[$level]	= new TmnCrudUser($this->getLogfile(), $this->getFinanceGuid());
 			} else {
 				if ($this->getField('auth_level_'.$level) != "" && $this->getField('auth_level_'.$level) != null) {
 					$this->level_users[$level]	= new TmnCrudUser($this->getLogfile(), $this->getField('auth_level_' . $level));
@@ -321,10 +313,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		if ($notifylevel == 4){
 			//get all previous responses, forward names and responses to finance
 			$emailsubject = $this->getNameFromGuid($authguids[0])."'s TMN is ready for processing";
-			$emailaddress = "payroll@ccca.org.au";
+			$emailaddress = $this->financeAdminsUserGroup->getEmailsAsString();
 			
 			//get previous responses, forward names and responses to auth<1-3>
-			$emailbody = "Hi ".$emailaddress."!\n";
+			$emailbody = "Hi!\n";
 			$emailbody .= "\nThe TMN for : ".$this->getNameFromGuid($authguids[0])." has been approved and is ready for processing.\n";
 			if ($notifylevel != 1) {
 				$emailbody .= "\nTheir TMN submission has already been authorised by the following people:\n";
@@ -528,15 +520,19 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			0	=> $this->getField("auth_user"),
 			1	=> $this->getField("auth_level_1"),
 			2	=> $this->getField("auth_level_2"),
-			3	=> $this->getField("auth_level_3"),
-			4	=> $this->financeguid
+			3	=> $this->getField("auth_level_3")
 		);
 		$this->d("TmnAuthorisationProcessor.php<userIsAuthoriser() - authorisers:"); $this->d($authorisers);
 		
-		for ($i = 0; $i <= 4; $i++) {
+		for ($i = 0; $i <= 3; $i++) {
 			if ($user->getGuid() == $authorisers[$i] && $authorisers[$i] != "") {
 				$returndata = $i;
 			}
+		}
+		
+		//check if user is a finance admin
+		if ( $returndata == null && $this->financeAdminsUserGroup->containsUser($user->getGuid()) ) {
+			$returndata = 4;
 		}
 		
 		$this->d("userIsAuthoriser returning value:".$returndata);
@@ -741,7 +737,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		$responseArray["total"] = 		$total;
 		$responseArray["name"] = 		"Finance";
-		$responseArray["email"] = 		$this->getEmailFromGuid($this->financeguid);
+		$responseArray["email"] = 		"payroll@ccca.org.au";
 		$responseArray["date"] = 		date(" g:i a, j-M-Y", strtotime($this->getField("finance_timestamp")));
 		
 		//Add to the return data array
@@ -902,7 +898,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			}
 			return array("response" => $this->getField("level_3_response"), "reasons" => $this->getField("auth_level_3_reasons"), "total" => $total);
 			
-		} elseif ($user->getGuid() == $this->getFinanceGuid()) {
+		} elseif ( $this->financeAdminsUserGroup->containsUser( $user->getGuid() ) ) {
 			$reason	= json_decode($this->getField("auth_finance_reasons"), true);
 			$total	= 0;
 			if (isset($reason['aussie-based'])) {

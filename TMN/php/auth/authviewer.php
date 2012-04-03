@@ -2,14 +2,13 @@
 include_once('../classes/Tmn.php');
 include_once('../classes/TmnDatabase.php');
 include_once('../classes/TmnCrudSession.php');
-include_once('../classes/TmnConstants.php');
-$financeguid = getConstants(getVersionNumber());
-$financeguid = $financeguid['FINANCE_USER'];
+include_once('../classes/TmnFinanceAdminsUsersGroup.php');
 
 //set the log path
-$LOGFILE	= "../logs/authviewer.log";
-$tmn		= new Tmn($LOGFILE);
-$db			= TmnDatabase::getInstance($LOGFILE);
+$LOGFILE				= "../logs/authviewer.log";
+$tmn					= new Tmn($LOGFILE);
+$db						= TmnDatabase::getInstance($LOGFILE);
+$financeAdminsUserGroup = new TmnFinanceAdminsUsersGroup();
 
 //check that there is a mode
 if (isset($_POST['mode'])) {
@@ -30,7 +29,7 @@ if (isset($_POST['mode'])) {
 				$sessionSql .= "(AUTH_LEVEL_3 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Yes'".			"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending'))";
 				$sessionGuid = array(':guid' => $tmn->getAuthenticatedGuid());
 				
-				if ($financeguid == $tmn->getAuthenticatedGuid()) {
+				if ( $financeAdminsUserGroup->containsUser($tmn->getAuthenticatedGuid()) ) {
 					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 					//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".															"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";

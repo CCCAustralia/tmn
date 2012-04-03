@@ -2,19 +2,21 @@
 
 function getVersionNumber() {
 	
-	return "2-2-0";
+	return null;
 	
 }
 
 function getVersionNumberAsArray() {
 	
-	return array("VERSIONNUMBER" => getVersionNumber());
+	$constants	= getConstants();
+	
+	return array("VERSIONNUMBER" => $constants["VERSIONNUMBER"]);
 	
 }
 
-function getConstants($versionNumber, $resident = true) {
+function getConstants($versionNumber=null) {
 	
-	$keyArray		= array(	
+	$keyArray		= array(
 						"STIPEND_MIN",
 						"MIN_SUPER_RATE",
 						"MIN_ADD_SUPER_RATE",
@@ -28,9 +30,9 @@ function getConstants($versionNumber, $resident = true) {
 						"BAND_TMN_COUPLE_MIN",
 						"BAND_TMN_COUPLE_MAX",
 						"BAND_TMN_SINGLE_MIN",
-						"BAND_TMN_SINGLE_MAX",
-						"FINANCE_USER"
+						"BAND_TMN_SINGLE_MAX"
 	);
+	$returnArray = array();
 	
 	if (file_exists('dbconnect.php')) {			include_once 'dbconnect.php';}
 	if (file_exists('../dbconnect.php')) {		include_once '../dbconnect.php';}
@@ -39,10 +41,20 @@ function getConstants($versionNumber, $resident = true) {
 	$connection = db_connect();
 	
 	//grab constants
-	$sql = "SELECT * FROM `Constants` WHERE VERSIONNUMBER = '$versionNumber'";
+	if ( is_null( $versionNumber ) ) {
+
+		$sql = "SELECT * FROM Constants WHERE VERSIONNUMBER=(SELECT MAX(VERSIONNUMBER) FROM Constants)";
+		$keyArray = array_merge($keyArray, array("VERSIONNUMBER"));
+		
+	} else {
+		
+		$sql = "SELECT * FROM `Constants` WHERE VERSIONNUMBER = '$versionNumber'";
+		$returnArray["VERSIONNUMBER"]	= $versionNumber;
+	
+	}
+	
 	$sql = mysql_query($sql);
 	$db_values = mysql_fetch_assoc($sql);
-	$returnArray = array();
 	
 	foreach ($keyArray as $key) {
 		$returnArray[$key] = $db_values[$key];
