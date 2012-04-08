@@ -1747,6 +1747,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								itemId: 'mmr',
 								name: 'MMR',
 								fieldLabel: 'MMR',
+								value:0,
 								listeners: {
 									scope: this,
 									render: function(c) {
@@ -1769,6 +1770,7 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 								itemId: 's_mmr',
 								name: 'S_MMR',
 								fieldLabel: 'MMR (Optional)',
+								value:0,
 								listeners: {
 									scope: this,
 									render: function(c) {
@@ -2241,7 +2243,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		} else {
 			this.doAussieLayout();
 		}
-		
+
 		//if a session has been set prior to this to be loaded then load the session
 		if (this.getSession() !== undefined && this.getSession() != '' && this.getSession() != null) {
 			//console.info('loadForm: load session url');
@@ -2253,7 +2255,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			
 		//if no session needs to be loaded then load local data or defaults
 		} else {
-			
+
 			this.fireEvent('resetsession', this);
 		/*
 			//load grid
@@ -2326,7 +2328,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.fireEvent('financialdataupdated', this, form.items.map['mfb_rate'], form.items.map['mfb_rate'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, form.items.map['s_mfb_rate'], form.items.map['s_mfb_rate'].getValue(), false);
 		//fires an update event that will send an ajax request
-		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
+		//this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
 	},
 	
 	/**
@@ -2354,7 +2356,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.fireEvent('financialdataupdated', this, form.items.map['mfb_rate'], form.items.map['mfb_rate'].getValue(), false);
 		this.fireEvent('financialdataupdated', this, form.items.map['s_mfb_rate'], form.items.map['s_mfb_rate'].getValue(), false);
 		//fires an update event that will send an ajax request
-		this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
+		//this.fireEvent('financialdataupdated', this, form.items.map['mmr'], form.items.map['mmr'].getValue(), this.processingAllowed);
 	},
 	
 	/**
@@ -2690,8 +2692,9 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 				} else {
 					this.getComponent('super_panel').getComponent('spouse').getComponent('s_additional_life_cover_panel').collapse();
 				}
-				
+				console.log("mmr",this.getForm().items.map["mmr"].getValue(), data['mmr']);
 				for (field in data) {
+					//console.log("assign", field, this.getForm().items.map[field.toLowerCase()], data[field]);
 					if (this.getForm().items.map[field.toLowerCase()] !== undefined) {
 						this.getForm().items.map[field.toLowerCase()].setValue(data[field]);
 						this.fireEvent('financialdataupdated', this, this.getForm().items.map[field.toLowerCase()], data[field], false);
@@ -2700,13 +2703,14 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 						this.fireEvent('financialdataupdated', this, {isValid: function() {return true;}, getName: function(){return this.name;}, name:field}, data[field], false);
 					}
 				}
-				
+				console.log("mmr",this.getForm().items.map["mmr"].getValue(), data['mmr']);
 				//convert any strings to numbers (ie "0" to 0)
 				for (fieldCount = 0; fieldCount < this.getForm().items.length; fieldCount++){
+					//console.log("parse", this.getForm().items.items[fieldCount].getValue(), parseInt(this.getForm().items.items[fieldCount].getValue()));
 					if ( !isNaN(parseInt(this.getForm().items.items[fieldCount].getValue())) )
 						this.getForm().items.items[fieldCount].setValue(parseInt(this.getForm().items.items[fieldCount].getValue()));
 				}
-				
+				console.log("mmr",this.getForm().items.map["mmr"].getValue(), data['mmr']);
 				//if no start date is loaded reset date field validation
 				if (this.getForm().items.map['os_assignment_start_date'].getValue() === undefined || this.getForm().items.map['os_assignment_start_date'].getValue() == null || this.getForm().items.map['os_assignment_start_date'].getValue() == '') {
 					this.getForm().items.map['os_assignment_start_date'].setMaxValue(null);
@@ -2724,7 +2728,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 					this.getForm().items.map['os_assignment_end_date'].setMaxValue(null);
 					this.getForm().items.map['os_assignment_end_date'].setMinValue(this.getForm().items.map['os_assignment_start_date'].getValue());
 				}
-			
+
 				//put the session combo's value back
 				this.setSelectedSession(sessionIDtemp);
 				if (!isNaN(parseInt(sessionIDtemp))) {
@@ -2748,14 +2752,14 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 			
 				//mark form as saved
 				this.saved = true;
-
+				console.log("mmr",this.getForm().items.map["mmr"].getValue(), data['mmr']);
 			//if the form hasn't been rendered yet just store the session to be loaded once it has been rendered
 			} else {
 				this.setSession(data['session_id']);
 			}
 
 		}
-		
+		console.log("outside mmr",this.getForm().items.map["mmr"].getValue(), data['mmr']);
 		//if the form is rendered then remove any masks
 		if (this.rendered) {
 			this.el.unmask();

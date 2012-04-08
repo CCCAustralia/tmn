@@ -21,8 +21,12 @@ if (isset($_POST['mode'])) {
 			$mode		= $_POST['mode'];
 	
 			if ($mode == "load") {
+
+				//make a variable for the return data
+				$data	= array();
+				
 				//sql to grab sessions for the user that is logged in
-				$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
+				$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE HOME_ASSIGNMENT_SESSION_ID IS NULL AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 				$sessionSql .= "(AUTH_USER = :guid ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 				$sessionSql .= "(AUTH_LEVEL_1 = :guid ".	"&& LEVEL_1_RESPONSE = 'Pending' ".		"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
 				$sessionSql .= "(AUTH_LEVEL_2 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
@@ -30,11 +34,33 @@ if (isset($_POST['mode'])) {
 				$sessionGuid = array(':guid' => $tmn->getAuthenticatedGuid());
 				
 				if ( $financeAdminsUserGroup->containsUser($tmn->getAuthenticatedGuid()) ) {
-					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
+					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE HOME_ASSIGNMENT_SESSION_ID IS NULL AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 					//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".															"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".	"&& AUTH_LEVEL_2 != '' ".								"&& LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".	"&& AUTH_LEVEL_2 != '' ".	"&& AUTH_LEVEL_3 != '' ".	"&& LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && LEVEL_3_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending'))";
+				}
+				
+				//add users current session to the list
+				$currentUser		= $tmn->getUser();
+				$currentSessionSql	= "SELECT CURRENT_SESSION_ID FROM Low_Account WHERE FIN_ACC_NUM = :fan AND CURRENT_SESSION_ID IS NOT NULL";
+				$currentUserFan		= array(':fan' => $currentUser->getFan());
+				$currentStmt 		= $db->prepare($currentSessionSql);
+				$currentStmt->execute($currentUserFan);
+				
+				//if the user has a current session add it to the list
+				if ($currentStmt->rowCount() == 1) {
+					
+					$currentSessionRow	= $currentStmt->fetch(PDO::FETCH_ASSOC);
+					
+					$currentSessionRow	= array("SESSION_ID"	=> $currentSessionRow["CURRENT_SESSION_ID"],
+												"SESSION_NAME"	=> "My Current TMN",
+												"FIRSTNAME"		=> $currentUser->getField("firstname"),
+												"SURNAME"		=> $currentUser->getField("surname"),
+												"EMAIL"			=> $tmn->getEmail()
+												);
+												
+					$data[count($data)]	= $currentSessionRow;
 				}
 				
 				//sql for grabbing the owner info associated with each session
@@ -47,7 +73,6 @@ if (isset($_POST['mode'])) {
 				
 				//execute sql statment for grabbing sessions
 				$stmt->execute($sessionGuid);
-				$data	= array();
 				
 				for ($sessionCount = 0; $sessionCount < $stmt->rowCount(); $sessionCount++) {
 					//grab values
@@ -64,7 +89,7 @@ if (isset($_POST['mode'])) {
 					unset($sessionRow['GUID']);
 					
 					//let the return object be the combination of the two sets of data
-					$data[$sessionCount]	= array_merge($sessionRow, $ownerRow);
+					$data[count($data)]	= array_merge($sessionRow, $ownerRow);
 				}
 				
 				$return_data = array('data' => $data);

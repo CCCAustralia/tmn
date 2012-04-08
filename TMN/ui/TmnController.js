@@ -327,12 +327,14 @@ tmn.TmnController = function() {
 		 */
 		loadHandler: function(form_panel) {
 			if (this.view.getActiveForm().home_assignment == true) {
+				console.log("ha", this.getFinancialData('international-assignment'));
 				this.view.loadActiveForm(this.getFinancialData('international-assignment'));		//loads the new form with local data
 				
 				this.view.getActiveForm().disableStartDate();
 				
 				this.view.getActiveForm().onLoadSuccess(this.view.getActiveForm().getForm());
 			} else if (this.view.active == this.view.indexOfLastAussieForm() || this.view.active == this.view.indexOfLastOverseasForm()) {
+				console.log("la", this.response);
 				//
 				if (this.overseas == true) {
 					this.view.getActiveForm().setSession(this.getFinancialData('international-assignment')['session_id']);
@@ -341,6 +343,8 @@ tmn.TmnController = function() {
 				}
 				this.view.loadActiveForm(this.response);
 			} else {
+				console.log("other");
+				
 				this.view.loadActiveForm();						//loads the new form
 			}
 			

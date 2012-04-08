@@ -5,7 +5,7 @@ include_once 'classes/TmnCrudSession.php';
 include_once('classes/TmnConstants.php');
 
 //add constants to extra data (will be appended to data before its saved)
-$e_data = getVersionNumber();
+$e_data = getVersionNumberAsArray();
 $extra_data	= array();
 foreach ($e_data as $key=>$value) {
 	$extra_data[strtolower($key)]	= $value;

@@ -199,7 +199,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//if the user object hasn't been made from the guid then create it
 			if ($this->owner == null) {
-				$this->owner = new TmnCrudUser($this->logfile, $this->getField('guid'));
+				$this->owner = new TmnCrudUser($this->getLogfile(), $this->getField('guid'));
 			}
 		
 			//if it is already there or creation happened without throwing exceptions then return the object
@@ -230,7 +230,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//and if the homeAssignment object hasn't been made from the home_assignment_session_id then create it
 			if ($this->homeAssignment == null) {
-				$this->homeAssignment = new TmnCrudSession($this->logfile, $this->getField('home_assignment_session_id'));
+				$this->homeAssignment = new TmnCrudSession($this->getLogfile(), $this->getField('home_assignment_session_id'));
 			}
 		
 			//if it is already there or creation happened without throwing exceptions then return the object
@@ -259,7 +259,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//and if the internationalAssignment object hasn't been made from the international_assignment_session_id then create it
 			if ($this->internationalAssignment == null) {
-				$this->internationalAssignment = new TmnCrudSession($this->logfile, $this->getField('international_assignment_session_id'));
+				$this->internationalAssignment = new TmnCrudSession($this->getLogfile(), $this->getField('international_assignment_session_id'));
 			}
 		
 			//if it is already there or creation happened without throwing exceptions then return the object
@@ -293,7 +293,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			$this->owner->setGuid($guid);
 		} else {
 			//if the owner object doesn't exist then make it
-			$this->owner = new TmnCrudUser($this->logfile, $guid);
+			$this->owner = new TmnCrudUser($this->getLogfile(), $guid);
 		}
 		
 		//if the owner creation/switching worked without throwing an exception then update the guid field
@@ -751,7 +751,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	public function submit( TmnCrudUser $auth_user, $auth_user_reasons = null, TmnCrudUser $auth_level_1, $auth_level_1_reasons = null, TmnCrudUser $auth_level_2 = null, $auth_level_2_reasons = null, TmnCrudUser $auth_level_3 = null, $auth_level_3_reasons = null ) {
 		
 		//initiate the authorisation process and if it works store the id of the session authorisation process
-		$this->authorisationProcessor	= new TmnAuthorisationProcessor($this->logfile);
+		$this->authorisationProcessor	= new TmnAuthorisationProcessor($this->getLogfile());
 		$submitarray = $this->authorisationProcessor->submit($auth_user, $auth_user_reasons, $auth_level_1, $auth_level_1_reasons, $auth_level_2, $auth_level_2_reasons, $auth_level_3, $auth_level_3_reasons, $this->getField('session_id'));
 		//update the session row with the authsessionid
 		$this->setField('auth_session_id', $submitarray['authsessionid']);
@@ -767,7 +767,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 			
 			//if the authprocessor exists, create one
 			if ($this->authorisationProcessor == null) {
-				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+				$this->authorisationProcessor = new TmnAuthorisationProcessor($this->getLogfile(), $this->getField('auth_session_id'));
 			}
 			
 			$this->authorisationProcessor->userIsAuthoriser($user);
@@ -779,7 +779,7 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 	
 	public function authorise(TmnCrudUser $user, $response) {
 		if ($this->authorisationProcessor == null) {
-			$this->authorisationProcessor = new TmnAuthorisationProcessor($this->logfile, $this->getField('auth_session_id'));
+			$this->authorisationProcessor = new TmnAuthorisationProcessor($this->getLogfile(), $this->getField('auth_session_id'));
 		}
 		
 		$this->authorisationProcessor->authorise($user, $response, $this->getField('session_id'));

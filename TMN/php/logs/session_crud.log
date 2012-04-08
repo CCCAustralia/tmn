@@ -3,3 +3,28 @@
 #1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(351): TmnCrud->loadDataFromAssocArray(Array)
 #2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(278): TmnCrudSession->loadDataFromAssocArray(Array)
 #3 {main}
+[2012/04/04 11:44:49] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. versionnumber=2-2-0 should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('versionnumber', '2-2-0', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(91): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/04 12:22:11] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. versionnumber=2-2-0 should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('versionnumber', '2-2-0', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(91): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/04 04:04:43] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. versionnumber=2-2-0 should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('versionnumber', '2-2-0', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(91): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/04 04:11:44] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. versionnumber=2-2-0 should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('versionnumber', '2-2-0', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(259): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 01:02:10] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. mmr= should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('mmr', '', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/imp/session_crud.php(277): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}

@@ -406,7 +406,7 @@ class FinancialSubmitter extends FinancialProcessor {
 			//Ministry Fringe Benefits
 			$this->financial_data['MAX_MFB']				=	$this->calculateMaxMFB($this->data['taxable_income'], $mfb_rate, $this->data['days_per_wk']);
 			$this->data['max_mfb']							=	$this->financial_data['MAX_MFB'];
-			$this->financial_data['S_MAX_MFB']				=	$this->calculateMaxMFB($this->data['s_taxable_income'], $mfb_rate, $this->data['s_days_per_wk']);
+			$this->financial_data['S_MAX_MFB']				=	$this->calculateMaxMFB($this->data['s_taxable_income'], $s_mfb_rate, $this->data['s_days_per_wk']);
 			$this->data['s_max_mfb']						=	$this->financial_data['S_MAX_MFB'];
 			
 			//Claimable Ministry Fringe Benefits
@@ -421,14 +421,14 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		
 		//Pre-Tax Super
-		$this->financial_data['PRE_TAX_SUPER']		=	$this->getPreTaxSuper($mfbrate, $this->financial_data['FUTURE_INVESTMENT_MODE'], FOR_USER);
+		$this->financial_data['PRE_TAX_SUPER']		=	$this->getPreTaxSuper($mfb_rate, $this->financial_data['FUTURE_INVESTMENT_MODE'], FOR_USER);
 		$this->data['pre_tax_super']				=	$this->financial_data['PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
 		$this->financial_data['RESC']				=	round($this->data['pre_tax_super']);
 		$this->data['resc']							=	$this->financial_data['RESC'];
 		
 		//Spouse Pre-Tax Super
-		$this->financial_data['S_PRE_TAX_SUPER']	=	$this->getPreTaxSuper($s_mfbrate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], FOR_SPOUSE);
+		$this->financial_data['S_PRE_TAX_SUPER']	=	$this->getPreTaxSuper($s_mfb_rate, $this->financial_data['S_FUTURE_INVESTMENT_MODE'], FOR_SPOUSE);
 		$this->data['s_pre_tax_super']				=	$this->financial_data['S_PRE_TAX_SUPER'];
 		//Reportable Employer Super Contribution
 		$this->financial_data['S_RESC']				=	round($this->data['s_pre_tax_super']);
@@ -759,6 +759,27 @@ class FinancialSubmitter extends FinancialProcessor {
 			if ((!$this->spouse && substr($k, 0, 2) == 's_') || $v === "__") {
 				unset($this->data[$k]);
 			}
+		}
+		
+		$mfbsAvailableForHousing	= $this->financial_data['MAX_MFB'];
+		$mfbsAvailableForHousing	+= (isset($this->financial_data['S_MAX_MFB']) ? $this->financial_data['S_MAX_MFB'] : 0);
+		$additionalHousingAllowance	= (isset($this->financial_data['ADDITIONAL_HOUSING']) ? $this->financial_data['ADDITIONAL_HOUSING'] : 0);
+		$housingFromMfbs			= $this->getMonthlyHousing() - $additionalHousingAllowance;
+		
+		if ( $housingFromMfbs > $mfbsAvailableForHousing ) {
+			
+			if ($mfb_rate == 0) {
+				
+				$advisement = "Please decrease your housing. You are $" . ( $this->getMonthlyHousing() - $mfbsAvailableForHousing ) . " short.";
+				
+			} else {
+				
+				$advisement = "Please either increase your stipend or decrease your housing. You are $" . ( $housingFromMfbs - $mfbsAvailableForHousing ) . " short. So increase your stipend by about " . ( ( $housingFromMfbs - $mfbsAvailableForHousing ) / ( 1 + $mfb_rate ) ) . ". Or decrease your housing by " . ( $this->getMonthlyHousing() - $mfbsAvailableForHousing ) . ".";
+				
+			}
+			
+			$err["HOUSING"]			.= "You do not have enough MFBs to cover your housing. $advisement";
+			
 		}
 		
 		//check that net stipend for both spouses is over $100

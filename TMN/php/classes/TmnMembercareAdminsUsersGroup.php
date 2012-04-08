@@ -13,7 +13,7 @@ class TmnMembercareAdminsUsersGroup extends TmnUsersGroup {
 	
 	public function __construct() {
 		
-		parent::__construct("Admins", "POSITION", "MEMBERCARE_USER");
+		parent::__construct("Admins", "POSITION", "MEMBERCARE_ADMIN");
 		
 	}
 

@@ -13,7 +13,7 @@ class TmnFinanceAdminsUsersGroup extends TmnUsersGroup {
 	
 	public function __construct() {
 		
-		parent::__construct("Admins", "POSITION", "FINANCE_USER");
+		parent::__construct("Admins", "POSITION", "FINANCE_ADMIN");
 		
 	}
 

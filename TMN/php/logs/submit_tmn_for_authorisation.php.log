@@ -13,3 +13,83 @@
 #1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(351): TmnCrud->loadDataFromAssocArray(Array)
 #2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
 #3 {main}
+[2012/04/09 01:37:08] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 01:37:08] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 01:41:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 01:41:01] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:02:26] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:02:26] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:02:26] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:02:26] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:04:15] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:04:15] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:04:15] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:04:15] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:05:38] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:05:38] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(152): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:05:38] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2012/04/09 02:05:38] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 522; Light Exception; TmnCrud Exception: Type mismatch. s_ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(479): TmnCrud->valueMatchesType('s_ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(159): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}

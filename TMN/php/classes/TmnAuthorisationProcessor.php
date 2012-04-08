@@ -269,7 +269,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$emailbody .= "\n\n-The TMN Development Team";
 			
 			try {
-				$nmauser = new TMNCrudUser($this->logfile, $authguids[0]);
+				$nmauser = new TmnCrudUser($this->getLogfile(), $authguids[0]);
 				$isnma = $nmauser->getField("mpd");
 				if ($isnma) {
 					$emailbody .= "\n\nIMPORTANT:\nYou selected that you are in MPD.\n";
@@ -289,7 +289,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		
 		//notify auth<1-3>
 		if (1 <= $notifylevel && $notifylevel <= 3) {
-			$emailsubject = $this->getEmailFromGuid($authguids[0]). "'s TMN is awaiting your approval";
+			$emailsubject = $this->getNameFromGuid($authguids[0]). "'s TMN is awaiting your approval";
 			$emailaddress = $this->getEmailFromGuid($authguids[$notifylevel]);	//get the approver's email
 			
 			//get previous responses, forward names and responses to auth<1-3>
@@ -348,7 +348,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		////notify of completion	
 			} elseif ($authresponses[4] = "Yes") {
 				$emailsubject = "TMN: Processed";
-				$emailbody = "Your TMN has been processed!\n";
+				$emailbody = "Your TMN has been processed!\n\nYou will now be paid according to your new TMN. If you would like to see it again go to $curpageurl/tmn-authviewer.php?session=$session_id\n";
 			}
 				
 			//Output approvals
@@ -493,21 +493,21 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 	
 	private function getFirstNameFromGuid($guid) {
 		$this->d("Attempting FirstName from ".$guid);
-		$user = new TmnCrudUser($this->logfile, $guid);
+		$user = new TmnCrudUser($this->getLogfile(), $guid);
 		$user->retrieve();
 		return $user->getField("firstname");
 	}
 	
 	private function getNameFromGuid($guid) {
 		$this->d("Attempting name from ".$guid);
-		$user = new TmnCrudUser($this->logfile, $guid);
+		$user = new TmnCrudUser($this->getLogfile(), $guid);
 		$user->retrieve();
 		return $user->getField("firstname")." ".$user->getField("surname");
 	}
 	
 	private function getEmailFromGuid($guid) {
 		$this->d("Attempting email from ".$guid);
-		$user = new TmnCrudUser($this->logfile, $guid);
+		$user = new TmnCrudUser($this->getLogfile(), $guid);
 		$user->retrieve();
 		return $user->getField("email");
 	}
