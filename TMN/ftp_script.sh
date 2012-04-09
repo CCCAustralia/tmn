@@ -18,7 +18,7 @@ echo 'Start Clone'
 echo ''
 
 mkdir ~/tmn_temp
-cd ~/tmn_temp
+cd ~/tmn_temp/tmn/TMN
 git clone ${repo_url}
 
 echo ''
@@ -40,7 +40,6 @@ echo 'Tag Creation Complete'
 fi
 
 ls
-cd "tmn/TMN"
 perl -pi -e 's/BUILDNUMBER[\ \t]*=[\ \t]*\"current_build_number_will_be_inserted_by_upload_script\"/BUILDNUMBER\ =\ \"${version}\"/g;' *.php
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' *.php
 perl -pi -e 's/DEBUG[\ \t]*=[\ \t]*1/DEBUG\ =\ 0/g;' php/*.php
