@@ -5,7 +5,7 @@ yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=false
+create_tag=true
 full_refresh=true
 
 #save the current directory so the user can be returned here
