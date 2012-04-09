@@ -5,7 +5,7 @@ yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=true
+create_tag=false
 full_refresh=true
 
 #save the current directory so the user can be returned here
@@ -18,8 +18,9 @@ echo 'Start Clone'
 echo ''
 
 mkdir ~/tmn_temp
-cd ~/tmn_temp/tmn/TMN
+cd ~/tmn_temp
 git clone ${repo_url}
+cd tmn/TMN
 
 echo ''
 echo 'Clone Complete'
