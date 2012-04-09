@@ -54,8 +54,7 @@ class TmnUsersGroup implements TmnUsersGroupInterface {
 		
 		$positionSql	= "SELECT User_Profiles.* FROM " . $this->tableName . " LEFT JOIN User_Profiles ON " . $this->tableName . ".GUID = User_Profiles.GUID WHERE " . $this->tableName . "." . $this->positionFieldName . " = :position";
 		$values			= array(":position" => $this->position);
-		fb($this->db);
-		fb($positionSql);
+		
 		$stmt 			= $this->db->prepare($positionSql);
 		$stmt->execute($values);
 		$positionResult	= $stmt->fetchAll(PDO::FETCH_ASSOC);

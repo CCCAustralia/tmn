@@ -15,25 +15,30 @@ class Email implements emailInterface{
 	public $headerfrom;
 	
 	public function __construct($addr, $subj, $body, $from) {
-		if ($addr) {
-			if ($this->validateAddress($addr)) {
-				$this->address = $addr;
-			}
+		
+		$this->update($addr, $subj, $body, $from);
+		
+	}
+
+	public function update($addr, $subj, $body, $from=null) {
+		
+		if (!is_null($addr)) {
+			$this->address = $addr;
 		}
 		
-		if ($subj) {
+		if (!is_null($subj)) {
 			$this->subject = $subj;
 		}
 		
-		if ($body) {
+		if (!is_null($body)) {
 			$this->bodytext = $body;
 		}
 		
-		if ($from) {
+		if (!is_null($from)) {
 			$this->headerfrom = $from;
 		}
+		
 	}
-
 	
 	/*
 	 * The regular expression used is taken from http://fightingforalostcause.net/misc/2006/compare-email-regex.php and works as follows:

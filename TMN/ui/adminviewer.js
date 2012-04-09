@@ -61,6 +61,15 @@ tmn.viewer = function() {
 		},
 		
 		init: function() {
+			
+			Ext.QuickTips.init();							// Enables quick tips and validation messages
+			Ext.apply(Ext.QuickTips.getQuickTip(), {		// Quicktip defaults
+			    showDelay: 250,
+			    dismissDelay: 0,
+			    hideDelay: 2000,
+			    trackMouse: false
+			});
+			
 			var loadingMask		= Ext.get('loading-mask');
 			var loading			= Ext.get('loading');
 			
@@ -70,9 +79,9 @@ tmn.viewer = function() {
 			
 			//create view
 			this.controlPanel			= new tmn.view.AuthorisationViewerControlPanel(this);
-			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', leader: 'Ministry Overseer', noNames: true});
-			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', leader: 'National Ministry Leader', noNames: true});
-			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', leader: 'National Director', noNames: true});
+			this.level_1_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_1_reason_panel', leader: 'Level 1 Authoriser', noNames: true});
+			this.level_2_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_2_reason_panel', leader: 'Level 2 Authoriser', noNames: true});
+			this.level_3_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_3_reason_panel', leader: 'Level 3 Authoriser', noNames: true});
 			this.level_4_reasonPanel	= new tmn.view.AuthorisationPanel(this, {id: 'level_4_reason_panel', leader: 'Finance', noNames: true});
 			this.summaryPanel			= new tmn.view.SummaryPanel(this);
 			

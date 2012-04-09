@@ -125,18 +125,33 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 			{
 				layout: 'form',
 	        	labelWidth:	200,
-				columnWidth:.5,
+				columnWidth:.33,
 				items: [
 					{
-					    id:			'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
-			        	xtype:		'linkbutton',
-			        	fieldLabel:	'Email Missionaries who haven\'t submitted/resubmitted a TMN in the last 4 weeks',
+					    id:			'lazy_missionaries',
+			        	xtype:		'button',
 					    text:		'Email Lazy Missionaries',
-					    href:		'mailto:' + G_LAZY_M_EMAIL_TO + '?bcc=' + G_LAZY_M_EMAIL_BCC + '&from=' + G_LAZY_M_EMAIL_FROM + '&subject=' + G_LAZY_M_EMAIL_SUBJECT + '&body=' + G_LAZY_M_EMAIL_BODY,
+					    scope:		this,
+					    handler:	function(button, event) {
+
+					    	button.disable();
+					    	
+					    	Ext.Ajax.request({
+								url: './php/admin/adminprocessor.php',
+								params: {action: 'lazy_missionaries'},
+								success: this.buttonHandler,
+								failure: this.buttonHandler,
+								scope: this
+							});
+					    	
+					    },
 					    listeners:	{
 					    	scope: this,
 					    	render: function(button) {
-					    		//console.log(button.href);
+					    		Ext.QuickTips.register({
+									target: button.getEl(),
+									text: 'Email Missionaries who haven\'t submitted/resubmitted a TMN using the latest version of the TMN. You will be emailed a list of everyone who was emailed.'
+								});
 					    	}
 					    }
 					}
@@ -145,14 +160,70 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 			{
 				layout: 'form',
 	        	labelWidth:	200,
-				columnWidth:.5,
+				columnWidth:.33,
 				items: [
 					{
-					    id:			'mailto:' + G_LAZY_A_EMAIL_TO + '?bcc=' + G_LAZY_A_EMAIL_BCC + '&from=' + G_LAZY_A_EMAIL_FROM + '&subject=' + G_LAZY_A_EMAIL_SUBJECT + '&body=' + G_LAZY_A_EMAIL_BODY,
-			        	xtype:		'linkbutton',
-			        	fieldLabel:	'Email Authorisers who have ignored a TMN for more than 2 weeks',
+					    id:			'low_account',
+			        	xtype:		'button',
+					    text:		'Run Low Account Process',
+					    scope:		this,
+					    handler:	function(button, event) {
+					    	
+					    	button.disable();
+					    	
+					    	Ext.Ajax.request({
+								url: './php/admin/adminprocessor.php',
+								params: {action: 'low_account'},
+								success: this.buttonHandler,
+								failure: this.buttonHandler,
+								scope: this
+							});
+					    	
+					    },
+					    listeners:	{
+					    	scope: this,
+					    	render: function(button) {
+					    		Ext.QuickTips.register({
+									target: button.getEl(),
+									text: 'Runs Low Account Process. Sending emails to everyone who needs to be notified. You will be cced on all emails.'
+								});
+					    	}
+					    }
+					}
+				]
+			},
+			{
+				layout: 'form',
+	        	labelWidth:	200,
+				columnWidth:.33,
+				items: [
+					{
+					    id:			'lazy_authorisers',
+			        	xtype:		'button',
 					    text:		'Email Lazy Authorisers',
-					    href:		'mailto:' + G_LAZY_A_EMAIL_TO + '?bcc=' + G_LAZY_A_EMAIL_BCC + '&from=' + G_LAZY_A_EMAIL_FROM + '&subject=' + G_LAZY_A_EMAIL_SUBJECT + '&body=' + G_LAZY_A_EMAIL_BODY
+					    scope:		this,
+					    handler:	function(button, event) {
+
+					    	button.disable();
+					    	
+					    	Ext.Ajax.request({
+								url: './php/admin/adminprocessor.php',
+								params: {action: 'lazy_authorisers'},
+								success: this.buttonHandler,
+								failure: this.buttonHandler,
+								scope: this
+							});
+					    	
+					    },
+					    listeners:	{
+					    	scope: this,
+					    	render: function(button) {
+					    		Ext.QuickTips.register({
+									target: button.getEl(),
+									text: 'Email Authorisers who have ignored a TMN for more than 2 weeks. You will be emailed a list of everyone who was emailed.'
+								});
+					    	}
+					    }
 					}
 				]
 			},
@@ -180,6 +251,38 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 	
 	setSession: function(session) {
 		this.session	= session;
+	},
+	
+	buttonHandler: function(response, options) {
+
+		var return_object	= Ext.util.JSON.decode(response.responseText),
+			returnMsg		= return_object.message;
+		
+		if (return_object.success === true) {
+			
+			this.showButtonResult(Ext.MessageBox.INFO, "Done!", return_object.message);
+			
+		} else {
+			
+			this.showButtonResult(Ext.MessageBox.ERROR, "Error!", return_object.message);
+
+		}
+	},
+	
+	showButtonResult: function(icon, title, message) {
+		
+		Ext.MessageBox.show({
+			icon: icon,
+			buttons: Ext.MessageBox.OK,
+			closable: false,
+			title: title,
+			msg: message
+		});
+		
+		Ext.getCmp('lazy_missionaries').enable();
+		Ext.getCmp('low_account').enable();
+		Ext.getCmp('lazy_authorisers').enable();
+		
 	},
 	
 	fail: function() {

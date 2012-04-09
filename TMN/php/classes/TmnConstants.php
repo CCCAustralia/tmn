@@ -30,7 +30,8 @@ function getConstants($versionNumber=null) {
 						"BAND_TMN_COUPLE_MIN",
 						"BAND_TMN_COUPLE_MAX",
 						"BAND_TMN_SINGLE_MIN",
-						"BAND_TMN_SINGLE_MAX"
+						"BAND_TMN_SINGLE_MAX",
+						"DATE_MODIFIED"
 	);
 	$returnArray = array();
 	

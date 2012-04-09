@@ -519,11 +519,13 @@
 				<td>${housing_mfb}</td>
 				<td>${s_housing_mfb}</td>
 			</tr>
-			<tr class="tmn-data">
-				<th colspan="2">The amount that comes from you Stipend monthly</th>
-				<td>${housing_stipend}</td>
-				<td>${s_housing_stipend}</td>
-			</tr>
+			<tpl if="housing_stipend &gt; 0 || s_housing_stipend &gt; 0">
+				<tr class="tmn-data">
+					<th colspan="2">The amount that comes from you Stipend monthly</th>
+					<td>${housing_stipend}</td>
+					<td>${s_housing_stipend}</td>
+				</tr>
+			</tpl>
 			<tpl if="additional_mortgage &gt; 0">
 				<tr class="tmn-data">
 					<th colspan="2">The amount that comes from your Future Investment (Additional Mortgage Payment) monthly</th>
