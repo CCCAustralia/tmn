@@ -1,5 +1,5 @@
 
-version='2.2.13'
+version='2.3.0'
 repo_url='git@10.32.16.4:/srv/repos/git/tmn.git'
 yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 ftp_uname='mportal'
@@ -25,6 +25,19 @@ echo ''
 echo 'Clone Complete'
 echo 'Start String Replacement'
 echo ''
+
+if $create_tag ; then
+echo ''
+echo 'Start Creating Tag'
+echo ''
+
+git tag "TMN${version}"
+git push --tags
+#svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
+
+echo ''
+echo 'Tag Creation Complete'
+fi
 
 ls
 cd "tmn/TMN"
@@ -77,21 +90,6 @@ cd ../../
 
 echo ''
 echo 'File Compression Complete'
-
-
-if $create_tag ; then
-echo ''
-echo 'Start Creating Tag'
-echo ''
-
-git add *
-git commit -a -m "Changes for Uploading Version ${version}"
-git tag "TMN${version}"
-git push --tags
-#svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
-echo ''
-echo 'Tag Creation Complete'
-fi
 
 
 if $full_refresh ; then
