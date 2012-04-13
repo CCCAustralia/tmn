@@ -222,13 +222,14 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 		$this->update();//puts the data in the data base
 			
 		//example for emailing the user and spouse (if spouse exists) for the session
+		$membercareAdminsUserGroup	= new TmnMembercareAdminsUsersGroup();
 		$session	= $this->getCurrentSession();
 		$user		= $session->getOwner();
 		$spouse		= $user->getSpouse();
 		$userEmail	= $user->getEmail();
 		
 		// example of constructing an email
-		$email_cc		= "";
+		$email_cc		= $membercareAdminsUserGroup->getEmailsAsString();
 		$email_to		= $userEmail . ($spouse ? "," . $spouse->getEmail() : "") . "," . $email_cc;
 		$email_from		= "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au";
 		$email_subject	= "My Subject";
