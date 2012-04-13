@@ -1,12 +1,12 @@
 
-version='2.3.0'
+version='2.3.1'
 repo_url='git@10.32.16.4:/srv/repos/git/tmn.git'
 yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
 ftp_destination='TMN'
-create_tag=true
-full_refresh=true
+create_tag=false
+full_refresh=false
 
 #save the current directory so the user can be returned here
 pushd . > /dev/null

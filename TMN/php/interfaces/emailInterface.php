@@ -20,7 +20,7 @@ interface emailInterface {
 	 * @param string	$body		-the content of the email, newlines with "\n"
 	 * @param string	$from		-the display name to say who the email is from
 	 */
-	public function update($addr, $subj, $body, $from);
+	public function update($addr, $subj, $body, $from=null);
 	
 	/**
 	 * Checks the current address to see if it is a proper email address.
