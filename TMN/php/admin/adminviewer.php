@@ -86,8 +86,8 @@ if (isset($_POST['mode'])) {
 							$international_assignment_session	= $session;
 							$home_assignment_session			= $international_assignment_session->getHomeAssignment();
 						} else {
-							$home_assignment_session			= new TmnCrudSession($LOGFILE, $international_assignment_session_id);
-							$international_assignment_session	= $home_assignment_session->getInternationalAssignment();
+							$international_assignment_session	= new TmnCrudSession($LOGFILE, $international_assignment_session_id);
+							$home_assignment_session			= $session;
 						}
 						
 						//construct return array for overseas session

@@ -356,7 +356,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		$values[":" . $this->primarykey_name]	= $data[$this->primarykey_name];
 		
 		//Note: sql should now have form - UPDATE `<table name>` SET `<field name in uppercase>` = :<field name>, ... WHERE `<primary key name in uppercase>` = :<primary key name>
-
+UPDATE `Low_Account` SET  WHERE `<primary key name in uppercase>` = :<primary key name>
 		//run the query
 		try {
 			//prepare the statement
