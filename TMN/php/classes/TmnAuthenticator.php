@@ -54,6 +54,7 @@ class TmnAuthenticator extends Reporter implements TmnAuthenticatorInterface {
 		} else {
 			throw new FatalException("Authentication Exception: User's GUID Not Found");
 		}
+		
 	}
 	
 

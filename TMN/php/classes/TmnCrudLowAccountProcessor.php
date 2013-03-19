@@ -109,7 +109,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 		
 		try {
 
-			$this->update();
+			$this->createOrUpdateIfExists();
 			
 		} catch (Exception $e) {
 			

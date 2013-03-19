@@ -1,0 +1,10 @@
+[2012/11/21 04:41:44] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/TmnCrud...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/TmnCrud...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/tests/CopyOfTmnCrudClass-test.php(17): Tmn->__construct('../logs/TmnCrud...')
+#3 {main}
+[2012/11/21 04:43:05] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php; ln 45; Fatal Exception; Authentication Exception: User Not Authenticated
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnAuthenticator.php(65): TmnAuthenticator->__construct('../logs/TmnCrud...')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/Tmn.php(40): TmnAuthenticator::getInstance('../logs/TmnCrud...')
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/tests/CopyOfTmnCrudClass-test.php(17): Tmn->__construct('../logs/TmnCrud...')
+#3 {main}

@@ -248,6 +248,117 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		}
 	}
 	
+	public function createOrUpdateIfExists() {
+		
+		//insert into table (id, name, age) values(1, "A", 19) on duplicate key update names=values(name), age=values(age)
+		
+		//init variables for generating query
+		$data		= array_merge($this->private_data,$this->public_data);
+		$types		= array_merge($this->private_types,$this->public_types);
+		$sql		= "INSERT INTO `" . $this->table_name . "` (";
+		
+		//add the sql query the fields to be INSERTed into database
+		foreach ($data as $key=>$value) {
+			if ($value !== "__") {
+				try {
+					//check type of value before the field is added to the sql statement
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
+						$sql					.=	"`" . strtoupper($key) . "`, ";
+					}
+				} catch (LightException $e) {
+					$this->exceptionHandler($e);
+				}
+			}
+		}
+		
+		//Note: sql should now have the form: INSERT INTO `<table name>` (<field name in uppercase>, ...
+		
+		$sql = trim($sql, ", ") . ") VALUES (";
+		
+		//check and add the values to the query
+		foreach ($data as $key=>$value) {
+			
+			if ($value !== "__") {
+				
+				try {
+					//check type of value before the field is added to the sql statement
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
+						//make the variable in the form that the PDO prepared statement needs ie ":<field name>"
+						$variableName			 =	":" . $key;
+						//add this field's sql to the prepared statement in the form ":<field name>, "
+						$sql					.=	$variableName . ", ";
+						//add this field's value to the values array (will be bound to the prepared statement) will have form (':<field name>' => <value>)
+						$values[$variableName]	 =	$data[$key];
+					}
+				} catch (LightException $e) {
+					$this->exceptionHandler($e);
+				}
+			}
+		}
+
+		//remove extra ", " added by the loop
+		$sql = trim($sql, ", ") . ") on duplicate key update ";
+		
+		//check and add the values to the query
+		foreach ($data as $key=>$value) {
+			
+			if ($value !== "__") {
+				
+				try {
+					//check type of value before the field is added to the sql statement
+					if ($this->valueMatchesType($key, $data[$key], $types[$key])) {
+						//make the variable in the form that the PDO prepared statement needs ie ":<field name>"
+						$variableName			 =	":" . $key;
+						//add this field's sql to the prepared statement in the form ":<field name>, "
+						$sql					.=	"`" . strtoupper($key) . "`=" . $variableName . ", ";
+						//add this field's value to the values array (will be bound to the prepared statement) will have form (':<field name>' => <value>)
+						$values[$variableName]	 =	$data[$key];
+					}
+				} catch (LightException $e) {
+					$this->exceptionHandler($e);
+				}
+			}
+		}
+		
+		//remove extra ", " added by the loop
+		$sql = trim($sql, ", ") . ";";
+		fb($sql);
+		
+		//Note: sql should now have the form: INSERT INTO `<table name>` (<field name in uppercase>, ... ) VALUES (:<field name>, ... )
+		
+		//run the query
+		try {
+			//prepare the statement
+			$stmt		= $this->db->prepare($sql);
+			//bind and execute the statement
+			$stmt->execute($values);
+			
+			//grab new id
+			$id	= $this->db->lastInsertId();
+			//if numeric convert
+			if (is_numeric($id)) {
+				$id = (int)$id;
+			}
+			
+			//if the insert worked find which array the primary key is in
+			if (isset($this->private_data[$this->primarykey_name])) {
+				//update the value of the primary key
+				$this->private_data[$this->primarykey_name] = $id;
+			} else {
+				//update the value of the primary key
+				$this->public_data[$this->primarykey_name] = $id;
+			}
+			
+			//return the primary key of the newly created row
+			return $id;
+			
+		} catch (PDOException $e) {
+			//if the INSERT didn't work, throw an exception
+			throw new LightException(__CLASS__ . " Exception: " . $e->getMessage());
+		}
+		
+	}
+	
 	public function retrieve() {
 		
 		//init variables for generating query
@@ -356,7 +467,7 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		$values[":" . $this->primarykey_name]	= $data[$this->primarykey_name];
 		
 		//Note: sql should now have form - UPDATE `<table name>` SET `<field name in uppercase>` = :<field name>, ... WHERE `<primary key name in uppercase>` = :<primary key name>
-UPDATE `Low_Account` SET  WHERE `<primary key name in uppercase>` = :<primary key name>
+
 		//run the query
 		try {
 			//prepare the statement
