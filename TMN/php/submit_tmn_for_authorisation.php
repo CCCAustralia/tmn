@@ -1,6 +1,7 @@
 <?php
 include_once 'classes/Tmn.php';
 include_once 'classes/TmnAuthorisationProcessor.php';
+include_once 'classes/TmnCrudLowAccountProcessor.php';
 include_once 'classes/TmnCrudSession.php';
 include_once('classes/TmnConstants.php');
 
@@ -102,6 +103,20 @@ try {
 					$authorisers['level_2']['reasons']['aussie-based']['reasons'] 				= array_merge($authorisers['level_3']['reasons']['aussie-based']['reasons'], $authorisers['level_2']['reasons']['aussie-based']['reasons']);
 					$reasons2	= $authorisers['level_2']['reasons'];
 					$reasons3 	= $authorisers['level_3']['reasons'];
+
+					//produce authorizors for submition
+					if ($reasons1 != null && $reasons1 != "") {
+						$authlevel1_for_submition = $authlevel1;
+					}
+
+					if ($reasons2 != null && $reasons2 != "") {
+						$authlevel2_for_submition = $authlevel2;
+					}
+
+					if ($reasons3 != null && $reasons3 != "") {
+						$authlevel3_for_submition = $authlevel3;
+					}
+					
 					
 					//update session with new data
 					$data['aussie-based']	= array_merge($data['aussie-based'], $extra_data);
@@ -109,8 +124,12 @@ try {
 					$session->setField('session_id', (int)$session_id);
 					$session->setOwner($tmn->getUser());
 					$session->update();
+
+					//save authorizers for later
+					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getFan());
+					$lowAccountProcessor->updateAuthorizers($authlevel1, $authlevel2, $authlevel3);
 					
-					$returnArray	= $session->submit($tmn->getUser(), $reasonsu, $authlevel1, $reasons1, $authlevel2, $reasons2, $authlevel3, $reasons3);
+					$returnArray	= $session->submit($tmn->getUser(), $reasonsu, $authlevel1_for_submition, $reasons1, $authlevel2_for_submition, $reasons2, $authlevel3_for_submition, $reasons3);
 					unset($returnArray['authsessionid']);
 				} else {
 					if (count($authorisers['level_1']['reasons']) == 0) {
@@ -160,12 +179,29 @@ try {
 					$ha_session->setField('session_id', (int)$ha_session_id);
 					$ha_session->setOwner($tmn->getUser());
 					$ha_session->update();
+
+					//produce authorizors for submition
+					if ($reasons1 != null && $reasons1 != "") {
+						$authlevel1_for_submition = $authlevel1;
+					}
+
+					if ($reasons2 != null && $reasons2 != "") {
+						$authlevel2_for_submition = $authlevel2;
+					}
+
+					if ($reasons3 != null && $reasons3 != "") {
+						$authlevel3_for_submition = $authlevel3;
+					}
 					
-					$returnArray	= $ia_session->submit($tmn->getUser(), $reasonsu, $authlevel1, $reasons1, $authlevel2, $reasons2, $authlevel3, $reasons3);
+					$returnArray	= $ia_session->submit($tmn->getUser(), $reasonsu, $authlevel1_for_submition, $reasons1, $authlevel2_for_submition, $reasons2, $authlevel3_for_submition, $reasons3);
 					
 					//update the home assignment with the auth id
 					$ha_session->setField('auth_session_id', (int)$returnArray['authsessionid']);
 					$ha_session->update();
+
+					//save authorizers for later
+					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getFan());
+					$lowAccountProcessor->updateAuthorizers($authlevel1, $authlevel2, $authlevel3);
 					
 					unset($returnArray['authsessionid']);
 				}

@@ -461,12 +461,22 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 				}
 				
 			} else {
+
+				//display the values that were just parsed
+				if (level_3_panel.body !== undefined) {
+					level_3_panel.showUnusedPanel();
+				} else {
+					level_3_panel.on('afterrender', level_3_panel.showUnusedPanel);
+				}
+
+				/*
 				//display the values that were just parsed
 				if (level_3_panel.body !== undefined) {
 					level_3_panel.hidePanel();
 				} else {
 					level_3_panel.on('afterrender', level_3_panel.hidePanel);
 				}
+				*/
 			}
 			
 			if (level3Values.total > 0 || level2Values.total > 0) {
@@ -479,12 +489,22 @@ Ext.extend(tmn.view.PrintForm, Ext.Panel, {
 				}
 				
 			} else {
+
+				//display the values that were just parsed
+				if (level_2_panel.body !== undefined) {
+					level_2_panel.showUnusedPanel();
+				} else {
+					level_2_panel.on('afterrender', level_2_panel.showUnusedPanel);
+				}
+
+				/*
 				//display the values that were just parsed
 				if (level_2_panel.body !== undefined) {
 					level_2_panel.hidePanel();
 				} else {
 					level_2_panel.on('afterrender', level_2_panel.hidePanel);
 				}
+				*/
 			}
 			
 			if (values != null) {

@@ -159,8 +159,8 @@ try {
 				
 				//set up constant email variables
 				$membercareAdminsEmails	= $membercareAdminsUserGroup->getEmailsAsString();
-				$lazyAuthorisersEmail	= new Email(null, "A friendly reminder that your TMN is due", null, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
-				$leaderEmail			= new Email(null, "Missionaries who still need to do TMNs", null, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
+				$lazyAuthorisersEmail	= new Email(null, "A friendly reminder that you need to approve TMNs", null, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
+				$leaderEmail			= new Email(null, "Missionaries who still need to approve TMNs", null, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
 				
 				//grab an array of all the leaders
 				$leadersStmt			= $db->query("SELECT MINISTRY, GUID FROM Authorisers" . $where_clause);
@@ -201,15 +201,15 @@ try {
 							$lazyAuthorisersEmailBody	.= "\n\n-The TMN Development Team";
 							
 							$lazyAuthorisersEmail->update($lazyAuthorisersEmailAddress, null, $lazyAuthorisersEmailBody);
-							fb($lazyAuthorisersEmail);
-							//$lazyAuthorisersEmail->send();
+							//fb($lazyAuthorisersEmail);
+							$lazyAuthorisersEmail->send();
 							
 						}
 						
 						$leaderEmailBody .= "\n\n-The TMN Development Team";
 						$leaderEmail->update($leaderEmailAddress, null, $leaderEmailBody);
-						fb($leaderEmail);
-						//$leaderEmail->send();
+						//fb($leaderEmail);
+						$leaderEmail->send();
 						
 					}
 					

@@ -233,6 +233,11 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 	
 	/**
 	 * Needs to have showPanel Called first or it will return with no reasons.
+	 return object:
+	 {
+		user_id: 222,
+		reasons: {}
+	 }
 	 */
 	getData: function() {
 		
@@ -298,9 +303,9 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			
 			//if there is only one record select it and disable fields
 			if (recordArray.length == 1) {
-				this.autoSelectName.call(recordArray[0], this); //this.autoSelectNamecall(scope, param1)
+				this.autoSelectName.call(recordArray[0], this); //this.autoSelectName.call(scope, param1)
 			} else {
-				this.resetFields();				
+				this.resetFields();			
 			}
 		}
 		
@@ -386,6 +391,20 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			}
 			
 		}
+
+	},
+
+	showUnusedPanel: function() {
+
+		var tpl = new Ext.XTemplate(
+							'<div id="tmn-' + this.id + '-authorisation-div">',
+								'<div>',
+									'<tpl for="leaders"><div class="header"> Your {leader} Authoriser does not need to authorise this TMN we just need to record who you report to at this point in time for future reference.</div></tpl>',
+								'</div>',
+							'</div>'
+						);
+				
+		tpl.append(this.body, {'leaders':[{'leader':this.leader}]});
 	},
 	
 	resetPanel: function() {

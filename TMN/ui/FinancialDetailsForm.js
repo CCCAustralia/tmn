@@ -752,6 +752,22 @@ tmn.view.FinancialDetailsForm = function(view, config) {
 									scope: this,
 				                	select: function(combo, record, index) {
 										this.fireEvent('financialdataupdated', this, combo, index, this.processingAllowed);
+
+										if (this.getForm().items.map['os_resident_for_tax_purposes'].getValue() == 1) {
+
+											this.getComponent('os_lafha_panel').show();
+											this.getComponent('os_lafha_panel').getComponent('my').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
+											if (this.hasSpouse()) this.getComponent('os_lafha_panel').getComponent('spouse').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
+
+										} else {
+
+											this.getForm().items.map['os_lafha'].setValue(0);
+											this.getComponent('os_lafha_panel').getComponent('my').items.each(function (item, index, length) {item.disable();}); //disable all the lafha fields
+											if (this.hasSpouse()) this.getComponent('os_lafha_panel').getComponent('spouse').items.each(function (item, index, length) {item.disable();}); //disable all the lafha fields
+											this.getComponent('os_lafha_panel').hide();
+
+										}
+
 				                	}
 					            }
 							}
@@ -2136,9 +2152,22 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.getComponent('taxable_income_panel').getComponent('os_residency').show();
 		this.getComponent('os_assignment_panel').show();
 		this.getComponent('os_assignment_panel').items.each(function (item, index, length) {item.enable();}); //enable all the o/s add extras fields
-		this.getComponent('os_lafha_panel').show();
-		this.getComponent('os_lafha_panel').getComponent('my').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
-		if (this.hasSpouse()) this.getComponent('os_lafha_panel').getComponent('spouse').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
+
+		if (this.getForm().items.map['os_resident_for_tax_purposes'].getValue() == 1) {
+
+			this.getComponent('os_lafha_panel').show();
+			this.getComponent('os_lafha_panel').getComponent('my').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
+			if (this.hasSpouse()) this.getComponent('os_lafha_panel').getComponent('spouse').items.each(function (item, index, length) {item.enable();}); //disable all the lafha fields
+
+		} else {
+
+			this.getForm().items.map['os_lafha'].setValue(0);
+			this.getComponent('os_lafha_panel').getComponent('my').items.each(function (item, index, length) {item.disable();}); //disable all the lafha fields
+			if (this.hasSpouse()) this.getComponent('os_lafha_panel').getComponent('spouse').items.each(function (item, index, length) {item.disable();}); //disable all the lafha fields
+			this.getComponent('os_lafha_panel').hide();
+
+		}
+		
 	},
 	
 	/**
@@ -2164,6 +2193,7 @@ Ext.extend(tmn.view.FinancialDetailsForm, Ext.FormPanel, {
 		this.getComponent('os_overseas_housing_panel').items.each(function (item, index, length) {item.enable();}); //enable all the o/s add extras fields
 		this.getComponent('super_panel').getComponent('my').getComponent('future_investment_panel').show();
 		this.getComponent('super_panel').getComponent('spouse').getComponent('future_investment_panel').show();
+
 	},
 	
 	/**

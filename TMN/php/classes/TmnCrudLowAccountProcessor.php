@@ -1,16 +1,19 @@
 <?php
 if(file_exists('../classes/TmnCrud.php')) {
 	include_once('../interfaces/TmnCrudLowAccountProcessorInterface.php');
+	include_once('../interfaces/TmnCrudUser.php');
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/email.php');
 }
 if(file_exists('classes/TmnCrud.php')) {
 	include_once('interfaces/TmnCrudLowAccountProcessorInterface.php');
+	include_once('classes/TmnCrudUser.php');
 	include_once('classes/TmnCrud.php');
 	include_once('classes/email.php');
 }
 if(file_exists('php/classes/TmnCrud.php')) {
 	include_once('php/interfaces/TmnCrudLowAccountProcessorInterface.php');
+	include_once('php/classes/TmnCrudUser.php');
 	include_once('php/classes/TmnCrud.php');
 	include_once('php/classes/email.php');
 }
@@ -33,7 +36,10 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 				'consecutive_low_months'=>	"i",
 				'pinkslip_exemption'	=>	"i",
 				'mpd_plan'				=>	"i",
-				'restrict_mfbmmr'		=>	"i"
+				'restrict_mfbmmr'		=>	"i",
+				'auth_level_1'			=>	"s",
+				'auth_level_2'			=>	"s",
+				'auth_level_3'			=>	"s"
 			)
 		);
 		
@@ -123,6 +129,31 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 		
 		return true;
 		
+	}
+
+	public function updateAuthorizers( TmnCrudUser $auth_level_1 = null, TmnCrudUser $auth_level_2 = null, TmnCrudUser $auth_level_3 = null ) {
+		
+		$auth_level_1_guid	= ( $auth_level_1 == null ? $auth_level_1 : $auth_level_1->getGuid() );
+		$auth_level_2_guid	= ( $auth_level_2 == null ? $auth_level_2 : $auth_level_2->getGuid() );
+		$auth_level_3_guid	= ( $auth_level_3 == null ? $auth_level_3 : $auth_level_3->getGuid() );
+		
+		$this->setField("auth_level_1", $auth_level_1_guid);
+		$this->setField("auth_level_2", $auth_level_2_guid);
+		$this->setField("auth_level_3", $auth_level_3_guid);
+		
+		try {
+
+			$this->createOrUpdateIfExists();
+			
+		} catch (Exception $e) {
+			
+			$this->exceptionHandler(new LightException(__CLASS__ . " Exception: Cannot update Low Account Row with AUTH_LEVEL_1=" . $auth_level_1_guid . " and AUTH_LEVEL_3=" . $auth_level_2_guid . " and AUTH_LEVEL_3=" . $auth_level_3_guid . " ************ . The previous values were restored. The following Exception was thrown when update was attempted:" . $e->getMessage()));
+			
+			return false;
+		}
+		
+		return true;
+
 	}
 	
 	
