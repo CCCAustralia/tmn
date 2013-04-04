@@ -87,14 +87,22 @@ try {
 				
 				if ($session->getField("home_assignment_session_id") == null && $session->getField("international_assignment_session_id") == null) {
 					
+
+					$authlevel1_is_needed	= false;
+					$authlevel2_is_needed	= false;
+					$authlevel3_is_needed	= false;
+
 					//prepare the reasons variables submittion
 					if (count($authorisers['level_1']['reasons']) == 0) {
+						$authlevel1_is_needed	= true;
 						$authorisers['level_1']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_2']['reasons']) == 0) {
+						$authlevel2_is_needed	= true;
 						$authorisers['level_2']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_3']['reasons']) == 0) {
+						$authlevel3_is_needed	= true;
 						$authorisers['level_3']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					$authorisers['level_1']['reasons']['aussie-based']['reasons'] 				= array_merge($authorisers['level_3']['reasons']['aussie-based']['reasons'], $authorisers['level_2']['reasons']['aussie-based']['reasons'], $authorisers['level_1']['reasons']['aussie-based']['reasons']);
@@ -104,17 +112,27 @@ try {
 					$reasons2	= $authorisers['level_2']['reasons'];
 					$reasons3 	= $authorisers['level_3']['reasons'];
 
+					fb($authlevel1_is_needed);
+					fb($authlevel2_is_needed);
+					fb($authlevel3_is_needed);
+
 					//produce authorizors for submition
-					if ($reasons1 != null && $reasons1 != "") {
+					if (true) {
 						$authlevel1_for_submition = $authlevel1;
+					} else {
+						$authlevel1_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($reasons2 != null && $reasons2 != "") {
+					if ($authlevel2_is_needed) {
 						$authlevel2_for_submition = $authlevel2;
+					} else {
+						$authlevel2_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($reasons3 != null && $reasons3 != "") {
+					if ($authlevel3_is_needed) {
 						$authlevel3_for_submition = $authlevel3;
+					} else {
+						$authlevel3_for_submition = new TmnCrudUser($logfile);
 					}
 					
 					
@@ -126,21 +144,30 @@ try {
 					$session->update();
 
 					//save authorizers for later
-					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getFan());
+					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getField("fan"));
 					$lowAccountProcessor->updateAuthorizers($authlevel1, $authlevel2, $authlevel3);
 					
 					$returnArray	= $session->submit($tmn->getUser(), $reasonsu, $authlevel1_for_submition, $reasons1, $authlevel2_for_submition, $reasons2, $authlevel3_for_submition, $reasons3);
 					unset($returnArray['authsessionid']);
 				} else {
+
+					$authlevel1_is_needed	= true;
+					$authlevel2_is_needed	= true;
+					$authlevel3_is_needed	= true;
+
 					if (count($authorisers['level_1']['reasons']) == 0) {
+						$authlevel1_is_needed = false;
 						$authorisers['level_1']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_2']['reasons']) == 0) {
+						$authlevel2_is_needed = false;
 						$authorisers['level_2']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_3']['reasons']) == 0) {
+						$authlevel3_is_needed = false;
 						$authorisers['level_3']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
+
 					$authorisers['level_1']['reasons']['home-assignment']['reasons'] 			= array_merge($authorisers['level_3']['reasons']['home-assignment']['reasons'], $authorisers['level_2']['reasons']['home-assignment']['reasons'], $authorisers['level_1']['reasons']['home-assignment']['reasons']);
 					$authorisers['level_1']['reasons']['international-assignment']['reasons'] 	= array_merge($authorisers['level_3']['reasons']['international-assignment']['reasons'], $authorisers['level_2']['reasons']['international-assignment']['reasons'], $authorisers['level_1']['reasons']['international-assignment']['reasons']);
 					$reasonsu 	= $authorisers['level_1']['reasons'];
@@ -181,16 +208,22 @@ try {
 					$ha_session->update();
 
 					//produce authorizors for submition
-					if ($reasons1 != null && $reasons1 != "") {
+					if (true) {
 						$authlevel1_for_submition = $authlevel1;
+					} else {
+						$authlevel1_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($reasons2 != null && $reasons2 != "") {
+					if ($authlevel2_is_needed) {
 						$authlevel2_for_submition = $authlevel2;
+					} else {
+						$authlevel2_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($reasons3 != null && $reasons3 != "") {
+					if ($authlevel3_is_needed) {
 						$authlevel3_for_submition = $authlevel3;
+					} else {
+						$authlevel3_for_submition = new TmnCrudUser($logfile);
 					}
 					
 					$returnArray	= $ia_session->submit($tmn->getUser(), $reasonsu, $authlevel1_for_submition, $reasons1, $authlevel2_for_submition, $reasons2, $authlevel3_for_submition, $reasons3);
@@ -200,7 +233,7 @@ try {
 					$ha_session->update();
 
 					//save authorizers for later
-					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getFan());
+					$lowAccountProcessor = new TmnCrudLowAccountProcessor($logfile, $session->getField("fan"));
 					$lowAccountProcessor->updateAuthorizers($authlevel1, $authlevel2, $authlevel3);
 					
 					unset($returnArray['authsessionid']);
