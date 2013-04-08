@@ -158,3 +158,153 @@
 #1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
 #2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(141): TmnCrudSession->loadDataFromAssocArray(Array)
 #3 {main}
+[2013/04/04 05:49:29] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(141): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:49:29] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(141): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:53:06] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(141): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:53:06] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(141): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:54:59] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(144): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:54:59] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(144): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:57:07] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(151): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 05:57:07] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(151): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:01:11] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:01:11] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:02:45] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:02:45] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:05:43] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/04 06:05:43] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(161): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 03:54:30] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(164): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 03:54:30] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(164): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 03:59:09] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(168): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 03:59:09] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(168): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:01:43] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:01:43] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:05:33] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:05:33] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:06:47] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Full Time should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Full Time', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:06:47] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. future_investment_mode=Pre-Tax Super should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('future_investme...', 'Pre-Tax Super', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(165): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:53:29] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(219): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:53:29] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(226): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:57:48] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(219): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 04:57:48] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(226): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 05:10:42] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(219): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}
+[2013/04/08 05:10:42] /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php; ln 633; Light Exception; TmnCrud Exception: Type mismatch. ft_pt_os=Overseas should be of type: Integer
+#0 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrud.php(590): TmnCrud->valueMatchesType('ft_pt_os', 'Overseas', 'i')
+#1 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/classes/TmnCrudSession.php(357): TmnCrud->loadDataFromAssocArray(Array)
+#2 /Users/michaelharrison/Documents/IT/code/git/tmn/TMN/php/submit_tmn_for_authorisation.php(226): TmnCrudSession->loadDataFromAssocArray(Array)
+#3 {main}

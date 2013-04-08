@@ -145,3 +145,6 @@ body.ext-chrome table.x-btn .x-btn-small td.x-btn-mc em a {
 
 .tmn-page .footer
 {font-size:12px; text-align:right;}
+
+.tmn-page .authorisation-note
+{font-size: 11px; font: 11px tahoma,arial,helvetica,sans-serif; color: rgb(68, 68, 68); margin: 0px; padding: 0px;}

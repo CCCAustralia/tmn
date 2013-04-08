@@ -315,8 +315,12 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 		this.reasonArray		= reasonArray;
 		
 		//if this tag has already been added then remove it before adding the new one
-		if (tmnAuthContainer != null) {
-			tmnAuthContainer.remove();
+		if (tmnAuthContainer == null) {
+
+			var tpl = new Ext.XTemplate('<tpl for="id"><div id="tmn-{id}-authorisation-div" class="tmn-page"></div></tpl>');
+				tpl.append(this.body, {'id':[{'id':this.id}]});
+
+			tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
 		}
 
 		//if this is a aussie based session
@@ -325,15 +329,13 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			//make sure there are reasons to output
 			if (reasonArray['aussie-based']['reasons'].length > 0) {
 				var tpl = new Ext.XTemplate(
-							'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
 								'<div class="tmn-authorisation">',
 									'<div class="header">Reasons for Needing ' + this.leader + ' Authorisation</div>',
 									'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
-								'</div>',
-							'</div>'
+								'</div>'
 						);
 				
-				tpl.append(this.body, reasonArray['aussie-based']);
+				tpl.overwrite(tmnAuthContainer, reasonArray['aussie-based']);
 			}
 			
 		//if this is an international based session
@@ -345,15 +347,13 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 			//if there are international reasons append them
 			if (reasonArray['international-assignment']['reasons'].length > 0) {
 				var tpl = new Ext.XTemplate(
-					'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
 						'<div class="tmn-authorisation">',
 							'<div class="header">International Assignment - Reasons for Needing ' + this.leader + ' Authorisation</div>',
 							'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
-						'</div>',
-					'</div>'
+						'</div>'
 				);
 		
-				el = tpl.append(this.body, reasonArray['international-assignment'], true);
+				el = tpl.overwrite(tmnAuthContainer, reasonArray['international-assignment'], true);
 			}
 			
 			//if there are home assignment reasons
@@ -364,15 +364,13 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 				// and if no international reasons were added add the container to the body as well other wise
 				//add a break and append the home reasons
 				if (el == null) {
-					el = this.body;
+					el = tmnAuthContainer;
 					
 					home_tpl = new Ext.XTemplate(
-							'<div id="tmn-' + this.id + '-authorisation-div" class="tmn-page">',
 								'<div class="tmn-authorisation">',
 									'<div class="header">Home Assignment - Reasons for Needing ' + this.leader + ' Authorisation</div>',
 									'<tpl for="reasons"><div class="reason">- {reason}</div></tpl>',
-								'</div>',
-							'</div>'
+								'</div>'
 						);
 					
 				//if there were international reasons added and there are home assignment ones to be added as well
@@ -387,7 +385,7 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 						);
 				}
 		
-				home_tpl.append(el, reasonArray['home-assignment']);
+				home_tpl.overwrite(el, reasonArray['home-assignment']);
 			}
 			
 		}
@@ -396,15 +394,24 @@ Ext.extend(tmn.view.AuthorisationPanel, Ext.form.FormPanel, {
 
 	showUnusedPanel: function() {
 
+		var tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
+
+		//if this tag has already been added then remove it before adding the new one
+		if (tmnAuthContainer == null) {
+
+			var tpl = new Ext.XTemplate('<tpl for="id"><div id="tmn-{id}-authorisation-div" class="tmn-page"></div></tpl>');
+				tpl.append(this.body, {'id':[{'id':this.id}]});
+
+			tmnAuthContainer	= Ext.get('tmn-' + this.id + '-authorisation-div');
+		}
+
 		var tpl = new Ext.XTemplate(
-							'<div id="tmn-' + this.id + '-authorisation-div">',
 								'<div>',
-									'<tpl for="leaders"><div class="header"> Your {leader} Authoriser does not need to authorise this TMN we just need to record who you report to at this point in time for future reference.</div></tpl>',
-								'</div>',
-							'</div>'
+									'<tpl for="leaders"><div class="authorisation-note"> Your {leader} Authoriser does not need to authorise this TMN we just need to record who you report to at this point in time for future reference.</div></tpl>',
+								'</div>'
 						);
 				
-		tpl.append(this.body, {'leaders':[{'leader':this.leader}]});
+		tpl.overwrite(tmnAuthContainer, {'leaders':[{'leader':this.leader}]});
 	},
 	
 	resetPanel: function() {

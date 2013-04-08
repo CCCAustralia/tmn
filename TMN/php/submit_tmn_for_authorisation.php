@@ -92,17 +92,25 @@ try {
 					$authlevel2_is_needed	= false;
 					$authlevel3_is_needed	= false;
 
+					fb(true);
+					fb($authorisers['level_1']['reasons']);
+					fb(count($authorisers['level_1']['reasons']['aussie-based']['reasons']));
+					fb($authlevel2_is_needed || $authlevel3_is_needed);
+					fb($authorisers['level_2']['reasons']);
+					fb(count($authorisers['level_2']['reasons']['aussie-based']['reasons']));
+					fb($authlevel3_is_needed);
+					fb($authorisers['level_3']['reasons']);
+					fb(count($authorisers['level_3']['reasons']['aussie-based']['reasons']));
+					fb("----------");
+
 					//prepare the reasons variables submittion
 					if (count($authorisers['level_1']['reasons']) == 0) {
-						$authlevel1_is_needed	= true;
 						$authorisers['level_1']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_2']['reasons']) == 0) {
-						$authlevel2_is_needed	= true;
 						$authorisers['level_2']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_3']['reasons']) == 0) {
-						$authlevel3_is_needed	= true;
 						$authorisers['level_3']['reasons']	= array('aussie-based'=>array('reasons' => array()));
 					}
 					$authorisers['level_1']['reasons']['aussie-based']['reasons'] 				= array_merge($authorisers['level_3']['reasons']['aussie-based']['reasons'], $authorisers['level_2']['reasons']['aussie-based']['reasons'], $authorisers['level_1']['reasons']['aussie-based']['reasons']);
@@ -112,9 +120,25 @@ try {
 					$reasons2	= $authorisers['level_2']['reasons'];
 					$reasons3 	= $authorisers['level_3']['reasons'];
 
-					fb($authlevel1_is_needed);
-					fb($authlevel2_is_needed);
+					if (count($authorisers['level_1']['reasons']['aussie-based']['reasons']) > 0) {
+						$authlevel1_is_needed	= true;
+					}
+					if (count($authorisers['level_2']['reasons']['aussie-based']['reasons']) > 0) {
+						$authlevel2_is_needed	= true;
+					}
+					if (count($authorisers['level_3']['reasons']['aussie-based']['reasons']) > 0) {
+						$authlevel3_is_needed	= true;
+					}
+
+					fb(true);
+					fb($authorisers['level_1']['reasons']);
+					fb(count($authorisers['level_1']['reasons']['aussie-based']['reasons']));
+					fb($authlevel2_is_needed || $authlevel3_is_needed);
+					fb($authorisers['level_2']['reasons']);
+					fb(count($authorisers['level_2']['reasons']['aussie-based']['reasons']));
 					fb($authlevel3_is_needed);
+					fb($authorisers['level_3']['reasons']);
+					fb(count($authorisers['level_3']['reasons']['aussie-based']['reasons']));
 
 					//produce authorizors for submition
 					if (true) {
@@ -123,7 +147,7 @@ try {
 						$authlevel1_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($authlevel2_is_needed) {
+					if ($authlevel2_is_needed || $authlevel3_is_needed) {
 						$authlevel2_for_submition = $authlevel2;
 					} else {
 						$authlevel2_for_submition = new TmnCrudUser($logfile);
@@ -151,20 +175,17 @@ try {
 					unset($returnArray['authsessionid']);
 				} else {
 
-					$authlevel1_is_needed	= true;
-					$authlevel2_is_needed	= true;
-					$authlevel3_is_needed	= true;
+					$authlevel1_is_needed	= false;
+					$authlevel2_is_needed	= false;
+					$authlevel3_is_needed	= false;
 
 					if (count($authorisers['level_1']['reasons']) == 0) {
-						$authlevel1_is_needed = false;
 						$authorisers['level_1']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_2']['reasons']) == 0) {
-						$authlevel2_is_needed = false;
 						$authorisers['level_2']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
 					if (count($authorisers['level_3']['reasons']) == 0) {
-						$authlevel3_is_needed = false;
 						$authorisers['level_3']['reasons']	= array('home-assignment'=>array('reasons' => array()), 'international-assignment'=>array('reasons' => array()));
 					}
 
@@ -207,6 +228,16 @@ try {
 					$ha_session->setOwner($tmn->getUser());
 					$ha_session->update();
 
+					if (count($authorisers['level_1']['reasons']['home-assignment']['reasons']) > 0 || count($authorisers['level_1']['reasons']['international-assignment']['reasons']) > 0) {
+						$authlevel1_is_needed	= true;
+					}
+					if (count($authorisers['level_2']['reasons']['home-assignment']['reasons']) > 0 || count($authorisers['level_2']['reasons']['international-assignment']['reasons']) > 0) {
+						$authlevel2_is_needed	= true;
+					}
+					if (count($authorisers['level_3']['reasons']['home-assignment']['reasons']) > 0 || count($authorisers['level_3']['reasons']['international-assignment']['reasons']) > 0) {
+						$authlevel3_is_needed	= true;
+					}
+
 					//produce authorizors for submition
 					if (true) {
 						$authlevel1_for_submition = $authlevel1;
@@ -214,7 +245,7 @@ try {
 						$authlevel1_for_submition = new TmnCrudUser($logfile);
 					}
 
-					if ($authlevel2_is_needed) {
+					if ($authlevel2_is_needed || $authlevel3_is_needed) {
 						$authlevel2_for_submition = $authlevel2;
 					} else {
 						$authlevel2_for_submition = new TmnCrudUser($logfile);
@@ -250,47 +281,5 @@ try {
 } catch (Exception $e) {
 	Reporter::newInstance($logfile)->exceptionHandler($e);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ?>
