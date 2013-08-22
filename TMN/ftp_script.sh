@@ -1,10 +1,10 @@
 
-version='2.3.1'
+version='2.4'
 repo_url='git@10.32.16.4:/srv/repos/git/tmn.git'
 yuicompressor_path='/Applications/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 ftp_uname='mportal'
 ftp_pword='***REMOVED***'
-ftp_destination='TMN-dev'
+ftp_destination='TMN'
 create_tag=false
 full_refresh=true
 

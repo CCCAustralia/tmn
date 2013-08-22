@@ -113,6 +113,7 @@ class FinancialProcessor {
 			$this->x = $this->constants['x_non_resident'];
 			$this->a = $this->constants['a_non_resident'];
 			$this->b = $this->constants['b_non_resident'];
+			$this->constants['OS_STIPEND_MAX'] = PHP_INT_MAX;
 		}
 		if($this->DEBUG) fb($this->x);
 	}
