@@ -130,7 +130,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					{
 					    id:			'lazy_missionaries',
 			        	xtype:		'button',
-					    text:		'Email Lazy Missionaries',
+					    text:		'Email Reminder to Missionaries',
 					    scope:		this,
 					    handler:	function(button, event) {
 
@@ -200,7 +200,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					{
 					    id:			'lazy_authorisers',
 			        	xtype:		'button',
-					    text:		'Email Lazy Authorisers',
+					    text:		'Email Reminder to Authorisers',
 					    scope:		this,
 					    handler:	function(button, event) {
 
