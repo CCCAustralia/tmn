@@ -57,7 +57,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	
 	
 			///////////////////ACCESSOR FUNCTIONS/////////////////////
-	
+
 	
 	public function loadRowWithFan($financial_account_number) {
 		

@@ -28,8 +28,9 @@ if ( !isset($CAS_CLIENT_CALLED) ) {
 	phpCAS::client(CAS_VERSION_2_0,'thekey.me',443,'cas');	//initialise phpCAS
 	$CAS_CLIENT_CALLED = 1;
 }
-if (!phpCAS::isAuthenticated()) //if your not logged into gcx quit
+if (!phpCAS::isAuthenticated()) { //if your not logged into gcx quit
 	die('{success: false}');
+}
 
 class FinancialSubmitter extends FinancialProcessor {
 	
