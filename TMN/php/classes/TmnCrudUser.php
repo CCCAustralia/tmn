@@ -84,7 +84,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 	public function getSpouse() {
 		if ($this->getSpouseGuid() != null) {
 			if ($this->spouse == null) {
-				$this->spouse = new TmnCrudUser($this->logfile, $this->getSpouseGuid());
+				$this->spouse = new TmnCrudUser($this->getLogfile(), $this->getSpouseGuid());
 			}
 			
 			return $this->spouse;
@@ -104,7 +104,7 @@ class TmnCrudUser extends TmnCrud implements TmnCrudUserInterface {
 		
 		if ($this->getFan() != null) {
 			if ($this->lap == null) {
-				$this->lap = new TmnCrudLowAccountProcessor($this->logfile, $this->getFan());
+				$this->lap = new TmnCrudLowAccountProcessor($this->getLogfile(), $this->getFan());
 			}
 			
 			return $this->lap;

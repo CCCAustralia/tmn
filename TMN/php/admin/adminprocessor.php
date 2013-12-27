@@ -35,7 +35,7 @@ try {
 		}
 		
 		$constants	= getConstants();
-		$dateOfNow	= getdate();
+		$dateOfNow	= new DateTime();
 		$reminder 	= new TmnReminder($action);
 		
 		if ($reminder) {

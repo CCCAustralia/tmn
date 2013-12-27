@@ -47,8 +47,9 @@ class TmnFinancialUnit {
 
     public static function getActiveFinancialUnits($logfile) {
 
+        $db             = null;
         try {
-            $db             = TmnDatabase::getInstance($logfile);
+            $db         = TmnDatabase::getInstance($logfile);
         } catch (LightException $e) {
             //if there is a problem with the Database kill the object
             throw new FatalException(__CLASS__ . " Exception: Couldn't Connect to Database due to error; " . $e->getMessage());
@@ -106,8 +107,25 @@ class TmnFinancialUnit {
 
     }
 
-    public function getTmnsAwaitingApproval() {
-        //TODO: write sql
+    public function getTmnsAwaitingApprovalSince($date) {
+
+        $date           = ( isset($date) && is_a($date, "DateTime") ? $date : new DateTime() );
+        $tmnSql			= "SELECT * FROM (SELECT * FROM Tmn_Sessions WHERE FAN = :financial_account_number AND AUTH_SESSION_ID IS NOT NULL) as sessions LEFT JOIN Auth_Table as auth ON sessions.AUTH_SESSION_ID = auth.AUTH_SESSION_ID WHERE auth.USER_TIMESTAMP > STR_TO_DATE(:date, '%Y-%m-%d %H:%i:%s') AND (auth.FINANCE_RESPONSE = 'Pending') AND (auth.USER_RESPONSE = 'Yes' OR auth.USER_RESPONSE = 'Pending') AND (auth.LEVEL_1_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending') AND (auth.LEVEL_2_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending') AND (auth.LEVEL_3_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending')";
+        $values         = array( ":financial_account_number" => $this->financial_account_number, ":date" => $date->format("Y-m-d H:i:s") );
+        $stmt 			= $this->db->prepare($tmnSql);
+        $stmt->execute($values);
+        $tmnResult		= $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $returnArray	= array();
+
+        foreach ($tmnResult as $row) {
+
+            $tmn = new TmnCrudSession($this->getLogfile());
+            $tmn->loadDataFromAssocArray($row);
+            array_push($returnArray, $tmn);
+
+        }
+
+        return $returnArray;
     }
 
     public function getEmails() {
