@@ -89,7 +89,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 		
 		if ($this->getCurrentSessionID() != null) {
 			if ($this->current_session == null) {
-				$this->current_session = new TmnCrudSession($this->logfile, $this->getCurrentSessionID());
+				$this->current_session = new TmnCrudSession($this->getLogfile(), $this->getCurrentSessionID());
 			}
 			
 			return $this->current_session;
@@ -160,10 +160,10 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 			///////////////////LOW ACCOUNT PROCESSING FUNCTIONS/////////////////////
 	
 	
-	static public function compareAllAccounts() {
+	static public function compareAllAccounts($logfile) {
 		
-		$currentBalances	= TmnCrudLowAccountProcessor::getAllCurrentBalances();
-		$requiredBalances	= TmnCrudLowAccountProcessor::getAllRequiredBalances();
+		$currentBalances	= TmnCrudLowAccountProcessor::getAllCurrentBalances($logfile);
+		$requiredBalances	= TmnCrudLowAccountProcessor::getAllRequiredBalances($logfile);
 		
 		foreach ($requiredBalances as $financial_account_number => $required_balance) {
 			
@@ -179,7 +179,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 				
 				
 				//if the user is in low account make sure they are above the 200% tmn before letting them leave low account
-				if ( $this->getField("consecutive_low_months") > 0 ) {
+				if ( $usersLowAccountProfile->getField("consecutive_low_months") > 0 ) {
 
 					$session = $usersLowAccountProfile->getCurrentSession();
 					
@@ -204,10 +204,19 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	}
 	
 	//needs to return an associative array of required balances that are indexed by their financial account number eg array(1010045 => 20000, 1010001 => 5000, <financial account number 7>, <required balance for financial account number 7>)
-	static private function getAllRequiredBalances() {
-		
+	static private function getAllRequiredBalances($logfile) {
+
+        $db = null;
+        try {
+            //grab an instance of the TmnDatabase
+            $db	= TmnDatabase::getInstance($logfile);
+
+        } catch (LightException $e) {
+            //if there is a problem with the Database kill the object
+            throw new FatalException(__CLASS__ . " Exception: Couldn't Connect to Database due to error; " . $e->getMessage());
+        }
 		$balanceSql		= "SELECT low.FIN_ACC_NUM, sessions.BUFFER FROM ( SELECT low_acc.* FROM (SELECT DISTINCT FIN_ACC_NUM FROM User_Profiles WHERE IS_TEST_USER = 0 AND INACTIVE = 0) AS valid_users LEFT JOIN Low_Account AS low_acc ON low_acc.FIN_ACC_NUM = valid_users.FIN_ACC_NUM ) AS low LEFT JOIN Tmn_Sessions AS sessions ON low.CURRENT_SESSION_ID = sessions.SESSION_ID AND low.CURRENT_SESSION_ID IS NOT NULL";
-		$stmt 			= $this->db->prepare($balanceSql);
+		$stmt 			= $db->prepare($balanceSql);
 		$balanceResult	= $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$returnArray	= array();
 		
@@ -221,7 +230,7 @@ class TmnCrudLowAccountProcessor extends TmnCrud implements TmnCrudLowAccountPro
 	}
 	
 	//needs to return an associative array of balances that are indexed by their financial account number eg array(1010000 => 15670, 1010001 => 7430, <financial account number 3>, <balance for financial account number 3>)
-	static private function getAllCurrentBalances() {
+	static private function getAllCurrentBalances($logfile) {
 		
 		//Kent, Do soap calls here
 		

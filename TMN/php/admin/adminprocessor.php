@@ -64,9 +64,9 @@ try {
 		} else if ($action == 'low_account') {
 		
 			//TODO: Remove once TmnCrudLowAccountProcessor::compareAllAccounts() is complete
-// 			$returnArray['success']	= false;
-// 			$returnArray['message']	= 'The Low Account Process has not been fully implemented. Contact tech.team@ccca.org.au to find out when it will be finished.';
-// 			
+ 			$returnArray['success']	= false;
+ 			$returnArray['message']	= 'The Low Account Process has not been fully implemented. Contact tech.team@ccca.org.au to find out when it will be finished.';
+
 // 			//TODO: Uncomment once TmnCrudLowAccountProcessor::compareAllAccounts() is complete
 // 			$dateOfNow							= getdate();
 // 			$dateOfLastTimeLowAccountRanStmt	= $db->query("SELECT MAX(LAST_LOW_MONTH_DATE) AS DATE FROM Low_Account");
@@ -80,7 +80,7 @@ try {
 // 			
 // 			} else {
 // 				
-// 				TmnCrudLowAccountProcessor::compareAllAccounts();
+// 				TmnCrudLowAccountProcessor::compareAllAccounts($logfile);
 // 				$returnArray['success']	= true;
 // 				$returnArray['message']	= 'The Low Account Process has been run. Missionaries and their leaders have been notified. Check your email if you would like to see a list of who was notified.';
 // 				
