@@ -19,6 +19,8 @@ class TmnFinancialUnit {
     protected   $people                     = Array();
     public      $financial_account_number   = 0;
     public      $last_tmn_effective_date    = null;
+    private     $authoriser_guid_array      = array();
+    private     $authoriser_array           = array();
 
 	public function __construct($logfile, $data) {
 		
@@ -30,6 +32,18 @@ class TmnFinancialUnit {
 
             if(isset($data['FIN_ACC_NUM'])) {
                 $this->financial_account_number = $data['FIN_ACC_NUM'];
+            }
+
+            if(isset($data['AUTH_LEVEL_1'])) {
+                $this->auth_guid_array[1] = $data['AUTH_LEVEL_1'];
+            }
+
+            if(isset($data['AUTH_LEVEL_2'])) {
+                $this->auth_guid_array[2] = $data['AUTH_LEVEL_2'];
+            }
+
+            if(isset($data['AUTH_LEVEL_3'])) {
+                $this->auth_guid_array[3] = $data['AUTH_LEVEL_3'];
             }
 
 		}
@@ -126,6 +140,30 @@ class TmnFinancialUnit {
         }
 
         return $returnArray;
+    }
+
+    public function getAuthoriserEmailsForLevel(int $level = 0) {
+
+        $level          = min($level, count($this->authoriser_array));
+        $emailString    = "";
+
+        for ($levelCount = 1; $levelCount <= $level; $levelCount) {
+
+            if (!isset($this->authoriser_array[$levelCount])) {
+                $this->authoriser_array[$levelCount] = new TmnCrudUser($this->getLogfile(), $this->authoriser_guid_array[$levelCount]);
+            }
+
+            $authoriser = $this->authoriser_array[$levelCount];
+
+            $emailString .= $authoriser->getField('EMAIL') . ", ";
+        }
+
+        if (count($this->people) > 0) {
+            $emailString    = substr($emailString, 0, -2);
+        }
+
+        return $emailString;
+
     }
 
     public function getEmails() {
