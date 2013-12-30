@@ -11,6 +11,8 @@ include_once("../classes/Tmn.php");
 
 //Create the objects required for authorisation
 try {
+
+
 	$logfile			= "../logs/authprocessor.php.log";								//required for logging
 	$tmn				= new Tmn($logfile);
 	$db					= TmnDatabase::getInstance($logfile);
@@ -39,8 +41,7 @@ try {
 		$reminder 	= new TmnReminder($action);
 		
 		if ($reminder) {
-		
-			$reminderCount			= 0;
+
 			$activeFinancialUnits	= TmnFinancialUnit::getActiveFinancialUnits($logfile);
 		
 			foreach($activeFinancialUnits as $financialUnit) {
@@ -53,13 +54,14 @@ try {
 
 				if ($financialUnit->last_tmn_effective_date < $availableDate) {
 					$reminder->sendEmailsFor($financialUnit);
-					$reminderCount++;
 				}
 		
 			}
-			
+
+            $reminder->sendReportToMemberCare();
+
 			$returnArray['success']	= true;
-			$returnArray['message']	= "$reminderCount Missionaries and their leaders have been notified.";
+			$returnArray['message']	= $reminder->sendCount() . " reminders were sent. A report of what was sent has been delivered to: " . $reminder->memberCareEmails();
 		
 		} else if ($action == 'low_account') {
 		

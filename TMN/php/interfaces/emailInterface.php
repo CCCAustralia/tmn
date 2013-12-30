@@ -11,7 +11,7 @@ interface emailInterface {
 	 * @param string	$from		-the display name to say who the email is from
 	 */
 	
-	public function __construct($addr, $subj, $body, $from);
+	public function __construct($addr, $subj, $body, $from = null);
 	
 	/**
 	 * Updates the details of the email

@@ -23,6 +23,12 @@ if(file_exists('php/classes/TmnDatabase.php')) {
 
 class TmnNotifer {
 
+    protected $round    = "";
+
+    protected $financialUnitsContacted = array();
+    protected $subject  = "";
+    protected $message  = "";
+
     public static function create($action) {
 
         $notifier   = null;
@@ -51,6 +57,29 @@ class TmnNotifer {
         }
 
         return $notifier;
+
+    }
+
+    public function sendReportToMemberCare() {
+
+        $address    = $this->memberCareEmails();
+        $subject    = "TMN Reminder Report: Round " . ( $this->round ? $this->round : 1 );
+        $body       = "Hi MemberCarers, <br /><br />Here is a report of what was just sent out. The following people have not submitted TMNs (the leaders to the right of their names have been cced on the email so that they can discuss):<br />";
+
+        $email  = new Email($address, $subject, $body);
+        $email->send();
+
+    }
+
+    public function memberCareEmails() {
+
+        return "";
+
+    }
+
+    public function sendCount() {
+
+        return count($this->financialUnitsContacted);
 
     }
 

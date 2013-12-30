@@ -14,8 +14,12 @@ class Email implements emailInterface{
 	public $bodytext;
 	public $headerfrom;
 	
-	public function __construct($addr, $subj, $body, $from) {
-		
+	public function __construct($addr, $subj, $body, $from = null) {
+
+        if (!isset($from)) {
+            $from = "no-reply@ccca.org.au";
+        }
+
 		$this->update($addr, $subj, $body, $from);
 		
 	}
