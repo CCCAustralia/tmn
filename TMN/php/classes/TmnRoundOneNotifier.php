@@ -32,9 +32,10 @@ class TmnRoundOneNotifier extends TmnNotifer implements TmnNotifierInterface {
 
         array_push($this->financialUnitsContacted, $financialUnit);
 
+        $mustache   = new Mustache_Engine;
         $address    = $financialUnit->getEmails();
         $subject    = $this->subject;
-        $body       = "Hi " . $financialUnit->getNames() . ", <br /><br />This is a friendly reminder that your TMN is due soon. Go to http://mportal.ccca.org.au/TMN ";
+        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
 
         $email  = new Email($address, $subject, $body);
         $email->send();
