@@ -27,7 +27,7 @@ class TmnUsersGroup implements TmnUsersGroupInterface {
 		
 		try {
 			//grab an instance of the TmnDatabase
-			$this->db	= TmnDatabase::getInstance($logfile);
+			$this->db	= TmnDatabase::getInstance("../php/logs/" . __FILE__ . ".log");
 			
 		} catch (LightException $e) {
 			//if there is a problem with the Database kill the object

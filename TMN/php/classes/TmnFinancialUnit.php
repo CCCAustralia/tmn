@@ -142,7 +142,7 @@ class TmnFinancialUnit {
         return $returnArray;
     }
 
-    public function getAuthoriserEmailsForLevel(int $level = 0) {
+    public function getAuthoriserEmailsForLevel($level = 0) {
 
         $level          = min($level, count($this->authoriser_array));
         $emailString    = "";

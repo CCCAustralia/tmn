@@ -1,7 +1,7 @@
 <?php
 if(file_exists('../classes/TmnCrud.php')) {
 	include_once('../interfaces/TmnCrudLowAccountProcessorInterface.php');
-	include_once('../interfaces/TmnCrudUser.php');
+	include_once('../classes/TmnCrudUser.php');
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/email.php');
 }

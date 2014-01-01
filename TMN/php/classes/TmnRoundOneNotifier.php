@@ -18,7 +18,7 @@ if(file_exists('php/classes/TmnFinancialUnit.php')) {
     include_once('php/classes/email.php');
 }
 
-class TmnRoundOneNotifier extends TmnNotifer implements TmnNotifierInterface {
+class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
 
     public function __construct() {
 
@@ -32,13 +32,15 @@ class TmnRoundOneNotifier extends TmnNotifer implements TmnNotifierInterface {
 
         array_push($this->financialUnitsContacted, $financialUnit);
 
-        $mustache   = new Mustache_Engine;
+//        $mustache   = new Mustache_Engine;
         $address    = $financialUnit->getEmails();
         $subject    = $this->subject;
-        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
+//        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
+        $body       = $this->message;
 
-        $email  = new Email($address, $subject, $body);
-        $email->send();
+        echo("Report - to:". $address . " subject:" . $subject . " body: " . $body);
+//        $email  = new Email($address, $subject, $body);
+//        $email->send();
 
     }
 
