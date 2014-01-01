@@ -32,11 +32,11 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
 
         array_push($this->financialUnitsContacted, $financialUnit);
 
-//        $mustache   = new Mustache_Engine;
+        $mustache   = new Mustache_Engine;
         $address    = $financialUnit->getEmails();
         $subject    = $this->subject;
-//        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
-        $body       = $this->message;
+        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
+//        $body       = $this->message;
 
         echo("Report - to:". $address . " subject:" . $subject . " body: " . $body);
 //        $email  = new Email($address, $subject, $body);

@@ -70,11 +70,12 @@ class TmnFinancialUnit {
         }
 		$fanSql			= "SELECT low.* FROM User_Profiles AS users LEFT JOIN Low_Account AS low ON users.FIN_ACC_NUM=low.FIN_ACC_NUM WHERE users.INACTIVE = 0 AND users.EXEMPT_FROM_TMN = 0 AND users.IS_TEST_USER = 0";
 		$stmt 			= $db->prepare($fanSql);
+        $stmt->execute();
 		$fanResult		= $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$returnArray	= array();
 
 		foreach ($fanResult as $row) {
-
+echo(count($row));
             $financialUnit      = NULL;
 
             if (isset( $returnArray[$row["FIN_ACC_NUM"]] )) {

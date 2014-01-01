@@ -31,6 +31,8 @@ function getConstants($versionNumber=null) {
 						"BAND_TMN_COUPLE_MAX",
 						"BAND_TMN_SINGLE_MIN",
 						"BAND_TMN_SINGLE_MAX",
+                        "STUDENT_LIFE_ACTIVE_DATE",
+                        "EVERYONE_ACTIVE_DATE",
 						"DATE_MODIFIED"
 	);
 	$returnArray = array();

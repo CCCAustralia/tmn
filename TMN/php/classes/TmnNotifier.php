@@ -6,8 +6,8 @@ if(file_exists('../classes/TmnDatabase.php')) {
 //    include_once('../classes/TmnRoundTwoNotifier.php');
 //    include_once('../classes/TmnRoundThreeNotifier.php');
 //    include_once('../classes/TmnRoundFourNotifier.php');
-//    require_once '../../lib/mustache/src/Mustache/Autoloader.php';
-//    Mustache_Autoloader::register();
+    require_once '../../lib/mustache/src/Mustache/Autoloader.php';
+    Mustache_Autoloader::register();
 }
 if(file_exists('classes/TmnDatabase.php')) {
 //    include_once('classes/Reporter.php');
@@ -16,8 +16,8 @@ if(file_exists('classes/TmnDatabase.php')) {
 //    include_once('classes/TmnRoundTwoNotifier.php');
 //    include_once('classes/TmnRoundThreeNotifier.php');
 //    include_once('classes/TmnRoundFourNotifier.php');
-//    require_once '../lib/mustache/src/Mustache/Autoloader.php';
-//    Mustache_Autoloader::register();
+    require_once '../lib/mustache/src/Mustache/Autoloader.php';
+    Mustache_Autoloader::register();
 }
 if(file_exists('php/classes/TmnDatabase.php')) {
 //    include_once('php/classes/Reporter.php');
@@ -26,8 +26,8 @@ if(file_exists('php/classes/TmnDatabase.php')) {
 //    include_once('php/classes/TmnRoundTwoNotifier.php');
 //    include_once('php/classes/TmnRoundThreeNotifier.php');
 //    include_once('php/classes/TmnRoundFourNotifier.php');
-//    require_once 'lib/mustache/src/Mustache/Autoloader.php';
-//    Mustache_Autoloader::register();
+    require_once 'lib/mustache/src/Mustache/Autoloader.php';
+    Mustache_Autoloader::register();
 }
 
 class TmnNotifier {
