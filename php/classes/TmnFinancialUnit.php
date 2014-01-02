@@ -15,6 +15,7 @@ class TmnFinancialUnit {
     ///////////////////INSTANCE VARIABLES/////////////////////
 
 
+    protected   $logfile                    = null;
     protected 	$db		                    = null;
     protected   $people                     = Array();
     public      $financial_account_number   = 0;
@@ -23,7 +24,9 @@ class TmnFinancialUnit {
     private     $authoriser_array           = array();
 
 	public function __construct($logfile, $data) {
-		
+
+        $this->logfile  = $logfile;
+
 		if (is_array($data)) {
 
             if(isset($data['TMN_EFFECTIVE_DATE'])) {
@@ -225,6 +228,10 @@ fb($person);
 
         return $nameString;
 
+    }
+
+    protected function getLogfile() {
+        return $this->logfile;
     }
 
 
