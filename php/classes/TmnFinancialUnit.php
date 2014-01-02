@@ -167,6 +167,30 @@ class TmnFinancialUnit {
 
     }
 
+    public function getAuthoriserNamesForLevel($level = 0) {
+
+        $level          = min($level, count($this->authoriser_array));
+        $nameString     = "";
+
+        for ($levelCount = 1; $levelCount <= $level; $levelCount) {
+
+            if (!isset($this->authoriser_array[$levelCount])) {
+                $this->authoriser_array[$levelCount] = new TmnCrudUser($this->getLogfile(), $this->authoriser_guid_array[$levelCount]);
+            }
+
+            $authoriser = $this->authoriser_array[$levelCount];
+
+            $nameString .= $authoriser->getField('firstname') . ", ";
+        }
+
+        if (count($this->people) > 0) {
+            $nameString    = substr($nameString, 0, -2);
+        }
+
+        return $nameString;
+
+    }
+
     public function getEmails() {
 
         $emailString    = "";

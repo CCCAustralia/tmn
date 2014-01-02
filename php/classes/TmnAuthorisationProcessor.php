@@ -192,7 +192,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 				//if the finance user approved the session then activate the session for the user
 				if ($userauthlevel == 4) {
 					
-					$owner	= new TmnCrudUser($logfile, $this->getField("auth_user"));
+					$owner	= new TmnCrudUser($this->getLogfile(), $this->getField("auth_user"));
 					
 					$owner->updateCurrentSession($session_id, date('Y-m-d', $now[0]));
 					
@@ -641,7 +641,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					|| ($this->getField('auth_level_' . $responseCount) == "" || $this->getField('auth_level_' . $responseCount) == null)) {
 					$returnArray['response']	= "Pending";
 					$returnArray['name']		= "Finance";
-					$returnArray['name']		= "payroll@ccca.org.au";
+					$returnArray['email']		= "payroll@ccca.org.au";
 				
 					return $returnArray;
 				
@@ -666,7 +666,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		} else {
 			$returnArray['response']	= $this->getField('finance_response');
 			$returnArray['name']		= "Finance";
-			$returnArray['name']		= "payroll@ccca.org.au";
+			$returnArray['email']		= "payroll@ccca.org.au";
 			$returnArray['date']		= date(" g:i a, j-M-Y", strtotime($this->getField('finance_timestamp')));
 		}
 		

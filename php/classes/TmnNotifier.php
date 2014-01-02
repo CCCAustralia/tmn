@@ -48,10 +48,10 @@ class TmnNotifier {
                 $notifier   = new TmnRoundOneNotifier();
                 break;
 
-//            case "reminder_round_two":
-//                $notifier   = new TmnRoundTwoNotifier();
-//                break;
-//
+            case "reminder_round_two":
+                $notifier   = new TmnRoundTwoNotifier();
+                break;
+
 //            case "reminder_round_three":
 //                $notifier   = new TmnRoundThreeNotifier();
 //                break;
