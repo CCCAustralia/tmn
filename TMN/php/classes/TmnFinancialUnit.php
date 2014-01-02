@@ -68,14 +68,14 @@ class TmnFinancialUnit {
             //if there is a problem with the Database kill the object
             throw new FatalException(__CLASS__ . " Exception: Couldn't Connect to Database due to error; " . $e->getMessage());
         }
-		$fanSql			= "SELECT low.* FROM User_Profiles AS users LEFT JOIN Low_Account AS low ON users.FIN_ACC_NUM=low.FIN_ACC_NUM WHERE users.INACTIVE = 0 AND users.EXEMPT_FROM_TMN = 0 AND users.IS_TEST_USER = 0";
+		$fanSql			= "SELECT low.*, users.* FROM User_Profiles AS users LEFT JOIN Low_Account AS low ON users.FIN_ACC_NUM=low.FIN_ACC_NUM WHERE users.INACTIVE = 0 AND users.EXEMPT_FROM_TMN = 0 AND users.IS_TEST_USER = 0";
 		$stmt 			= $db->prepare($fanSql);
         $stmt->execute();
 		$fanResult		= $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$returnArray	= array();
 
 		foreach ($fanResult as $row) {
-echo(count($row));
+
             $financialUnit      = NULL;
 
             if (isset( $returnArray[$row["FIN_ACC_NUM"]] )) {
@@ -112,8 +112,8 @@ echo(count($row));
 
         foreach ($this->people as $person) {
 
-            if (!isset($ministryString) || $person->getField('MINISTRY') == "Student Life") {
-                $ministryString = $person->getField('MINISTRY');
+            if (!isset($ministryString) || $person->getField('ministry') == "Student Life") {
+                $ministryString = $person->getField('ministry');
             }
 
         }
@@ -156,7 +156,7 @@ echo(count($row));
 
             $authoriser = $this->authoriser_array[$levelCount];
 
-            $emailString .= $authoriser->getField('EMAIL') . ", ";
+            $emailString .= $authoriser->getField('email') . ", ";
         }
 
         if (count($this->people) > 0) {
@@ -173,7 +173,7 @@ echo(count($row));
 
         foreach ($this->people as $person) {
 
-            $emailString .= $person->getField('EMAIL') . ", ";
+            $emailString .= $person->getField('email') . ", ";
 
         }
 
@@ -190,13 +190,13 @@ echo(count($row));
         $nameString    = "";
 
         foreach ($this->people as $person) {
-
-            $nameString .= $person->getField('FIRSTNAME') . " & ";
+fb($person);
+            $nameString .= $person->getField('firstname') . " & ";
 
         }
 
         if (count($this->people) > 0) {
-            $nameString    = substr($nameString, 0, -2) . $this->people[0]->getField('SURNAME');
+            $nameString    = substr($nameString, 0, -3);//substr($nameString, 0, -2) . $this->people[0]->getField('surname');
         }
 
         return $nameString;

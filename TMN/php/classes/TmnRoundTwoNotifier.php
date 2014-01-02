@@ -24,7 +24,7 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
 
         $this->round    = "One";
         $this->subject  = "TMN: Friendly Reminder";
-        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. Go to http://mportal.ccca.org.au/TMN to complete yours.<br />Thanks for your help.<br /><br />Yours in Christ.<br />TMN Development Team.";
+        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN due date is getting closer. {{}} Go to http://mportal.ccca.org.au/TMN to complete yours.<br />Thanks for your help.<br /><br />Yours in Christ.<br />TMN Development Team.";
 
     }
 
