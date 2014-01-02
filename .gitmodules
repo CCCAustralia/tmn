@@ -1,3 +1,0 @@
-[submodule "TMN/lib/mustache"]
-	path = TMN/lib/mustache
-	url = https://github.com/bobthecow/mustache.php.git
