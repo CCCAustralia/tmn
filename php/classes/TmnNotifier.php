@@ -3,7 +3,7 @@ if(file_exists('../classes/TmnDatabase.php')) {
 //    include_once('../classes/Reporter.php');
     include_once('../classes/TmnDatabase.php');
     include_once('../classes/TmnRoundOneNotifier.php');
-//    include_once('../classes/TmnRoundTwoNotifier.php');
+    include_once('../classes/TmnRoundTwoNotifier.php');
 //    include_once('../classes/TmnRoundThreeNotifier.php');
 //    include_once('../classes/TmnRoundFourNotifier.php');
     require_once '../../lib/mustache/src/Mustache/Autoloader.php';
@@ -13,7 +13,7 @@ if(file_exists('classes/TmnDatabase.php')) {
 //    include_once('classes/Reporter.php');
     include_once('classes/TmnDatabase.php');
     include_once('classes/TmnRoundOneNotifier.php');
-//    include_once('classes/TmnRoundTwoNotifier.php');
+    include_once('classes/TmnRoundTwoNotifier.php');
 //    include_once('classes/TmnRoundThreeNotifier.php');
 //    include_once('classes/TmnRoundFourNotifier.php');
     require_once '../lib/mustache/src/Mustache/Autoloader.php';
@@ -23,7 +23,7 @@ if(file_exists('php/classes/TmnDatabase.php')) {
 //    include_once('php/classes/Reporter.php');
     include_once('php/classes/TmnDatabase.php');
     include_once('php/classes/TmnRoundOneNotifier.php');
-//    include_once('php/classes/TmnRoundTwoNotifier.php');
+    include_once('php/classes/TmnRoundTwoNotifier.php');
 //    include_once('php/classes/TmnRoundThreeNotifier.php');
 //    include_once('php/classes/TmnRoundFourNotifier.php');
     require_once 'lib/mustache/src/Mustache/Autoloader.php';
