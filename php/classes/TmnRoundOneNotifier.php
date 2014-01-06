@@ -23,14 +23,13 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
     public function __construct() {
 
         $this->round    = "One";
+        $this->level    = 0;
         $this->subject  = "TMN: Friendly Reminder";
-        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. Go to http://mportal.ccca.org.au/TMN to complete yours.<br />Thanks for your help.<br /><br />Yours in Christ.<br />TMN Development Team.";
+        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. Go to http://mportal.ccca.org.au/TMN to complete yours.<br />Thanks for your help.<br /><br />Yours in Christ.<br />- TMN Development Team.";
 
     }
 
     public function sendEmailsFor(TmnFinancialUnit $financialUnit) {
-
-        array_push($this->financialUnitsContacted, $financialUnit);
 
         $mustache   = new Mustache_Engine;
         $address    = $financialUnit->getEmails();
@@ -40,6 +39,8 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
         fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
 //        $email  = new Email($address, $subject, $body);
 //        $email->send();
+
+        $this->logNotificationForFinancialUnit($financialUnit);
 
     }
 

@@ -179,14 +179,14 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			$this->d("RESPONSE FOR LVL ".$userauthlevel." UPDATED TO ".$response);
 			//$this->d($this);
 			
-			$now = getdate();
+			$now = new DateTime();
 			
-			$this->setField($fieldname."_timestamp", date( 'Y-m-d H:i:s', $now[0]));
+			$this->setField($fieldname."_timestamp", $now->format('Y-m-d H:i:s'));
 			$this->d($this->getField($fieldname."_timestamp"));
 			
 			$this->update();
 			
-			//email the appropriate recipiants
+			//email the appropriate recipients
 			if ($response == "Yes") {
 				
 				//if the finance user approved the session then activate the session for the user
@@ -194,7 +194,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 					
 					$owner	= new TmnCrudUser($this->getLogfile(), $this->getField("auth_user"));
 					
-					$owner->updateCurrentSession($session_id, date('Y-m-d', $now[0]));
+					$owner->updateCurrentSession($session_id, $now->format('Y-m-d'));
 					
 				}
 				
