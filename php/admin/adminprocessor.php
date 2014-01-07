@@ -43,7 +43,7 @@ try {
 		$dateOfNow	= new DateTime();
 		$reminder 	= TmnNotifier::create($action);
 
-		if ($reminder) {
+		if (isset($reminder)) {
 
 			$activeFinancialUnits	= TmnFinancialUnit::getActiveFinancialUnits($logfile);
 

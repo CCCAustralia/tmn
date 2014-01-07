@@ -38,15 +38,15 @@ class TmnFinancialUnit {
             }
 
             if(isset($data['AUTH_LEVEL_1'])) {
-                $this->auth_guid_array[1] = $data['AUTH_LEVEL_1'];
+                $this->authoriser_guid_array[1] = $data['AUTH_LEVEL_1'];
             }
 
             if(isset($data['AUTH_LEVEL_2'])) {
-                $this->auth_guid_array[2] = $data['AUTH_LEVEL_2'];
+                $this->authoriser_guid_array[2] = $data['AUTH_LEVEL_2'];
             }
 
             if(isset($data['AUTH_LEVEL_3'])) {
-                $this->auth_guid_array[3] = $data['AUTH_LEVEL_3'];
+                $this->authoriser_guid_array[3] = $data['AUTH_LEVEL_3'];
             }
 
 		}
@@ -148,10 +148,10 @@ class TmnFinancialUnit {
 
     public function getAuthoriserEmailsForLevel($level = 0) {
 
-        $level          = min($level, count($this->authoriser_array));
+        $level          = min($level, count($this->authoriser_guid_array));
         $emailString    = "";
 
-        for ($levelCount = 1; $levelCount <= $level; $levelCount) {
+        for ($levelCount = 1; $levelCount <= $level; $levelCount++) {
 
             if (!isset($this->authoriser_array[$levelCount])) {
                 $this->authoriser_array[$levelCount] = new TmnCrudUser($this->getLogfile(), $this->authoriser_guid_array[$levelCount]);
@@ -160,6 +160,7 @@ class TmnFinancialUnit {
             $authoriser = $this->authoriser_array[$levelCount];
 
             $emailString .= $authoriser->getField('email') . ", ";
+
         }
 
         if (count($this->people) > 0) {
@@ -172,10 +173,10 @@ class TmnFinancialUnit {
 
     public function getAuthoriserNamesForLevel($level = 0) {
 
-        $level          = min($level, count($this->authoriser_array));
+        $level          = min($level, count($this->authoriser_guid_array));
         $nameString     = "";
 
-        for ($levelCount = 1; $levelCount <= $level; $levelCount) {
+        for ($levelCount = 1; $levelCount <= $level; $levelCount++) {
 
             if (!isset($this->authoriser_array[$levelCount])) {
                 $this->authoriser_array[$levelCount] = new TmnCrudUser($this->getLogfile(), $this->authoriser_guid_array[$levelCount]);
@@ -217,7 +218,7 @@ class TmnFinancialUnit {
         $nameString    = "";
 
         foreach ($this->people as $person) {
-fb($person);
+
             $nameString .= $person->getField('firstname') . " & ";
 
         }

@@ -85,7 +85,7 @@ class TmnNotifier {
     }
 
     public function sendEmailsFor(TmnFinancialUnit $financialUnit) {
-
+fb($this->level);
         $mustache               = new Mustache_Engine;
         $address                = $financialUnit->getEmails() . ", " . $financialUnit->getAuthoriserEmailsForLevel($this->level);
         $subject                = $this->subject;
@@ -117,7 +117,7 @@ class TmnNotifier {
             )
         );
 
-        fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
+        //fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
 //        $email  = new Email($address, $subject, $body);
 //        $email->send();
 
@@ -127,12 +127,14 @@ class TmnNotifier {
 
         $mustache   = new Mustache_Engine;
         $address    = $this->memberCareEmails();
-        $subject    = "TMN Reminder Report: Round " . ( $this->round ? $this->round : 1 );
-        $body       = "Hi MemberCarers, <br /><br />Here is a report of what was just sent out. The following people have not submitted TMNs (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been submitted):<br />";
+        $subject    = "TMN Reminder Report - Round " . ( $this->round ? $this->round : 1 );
+        $body       = "Hi MemberCarers, <br /><br />Here is a report of the TMN reminders that was just sent out.<br /><br />The following people have not submitted TMNs (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been submitted):<br />";
 
         $template   = '<a href="mailto:{{email_addresses}}">{{names}}</a> - <a href="mailto:{{approver_email_addresses}}">{{approver_names}}</a><br />';
 
-        foreach($this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED] as $key => $financialUnit) {
+        $arrayOfFinancialUnitsWithUnsubmittedTmns   = ( isset($this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED]) ? $this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED] : array() );
+
+        foreach($arrayOfFinancialUnitsWithUnsubmittedTmns as $key => $financialUnit) {
 
             $body   .= $mustache->render($template, array(
                 "email_addresses" => $financialUnit->getEmails(),
@@ -148,7 +150,9 @@ class TmnNotifier {
 
         $body   .= "<br /><br /><br />The following people have TMNs waiting to be approved (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been approved):<br />";
 
-        foreach($this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED] as $key => $financialUnit) {
+        $arrayOfFinancialUnitsWaitingOnTmns   = ( isset($this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED]) ? $this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED] : array() );
+
+        foreach($arrayOfFinancialUnitsWaitingOnTmns as $key => $financialUnit) {
 
             $body   .= $mustache->render($template, array(
                 "email_addresses" => $financialUnit->getEmails(),
@@ -164,7 +168,7 @@ class TmnNotifier {
 
         $body   .= "<br /><br />We hope this report was informative.<br /><br />God Bless<br />- TMN Development Team.";
 
-        echo("Report - to:". $address . " subject:" . $subject . " body: " . $body);
+        echo("to: ". $address . "<br />subject: " . $subject . "<br />body:<br />" . $body);
 //        $email  = new Email($address, $subject, $body);
 //        $email->send();
 
@@ -199,27 +203,37 @@ class TmnNotifier {
 
     protected function logUnsubmittedNotificationForFinancialUnit(TmnFinancialUnit $financialUnit) {
 
-        array_push($this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED], $financialUnit);
+        $this->pushFinancialUnitForKey($financialUnit, TmnNotifier::$USER_HAS_NOT_SUBMITTED);
 
         $this->logNotificationForFinancialUnit($financialUnit);
     }
 
     protected function logWaitingNotificationForFinancialUnit(TmnFinancialUnit $financialUnit) {
 
-        array_push($this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED], $financialUnit);
+        $this->pushFinancialUnitForKey($financialUnit, TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED);
 
         $this->logNotificationForFinancialUnit($financialUnit);
     }
 
     protected function logNotificationForFinancialUnit(TmnFinancialUnit $financialUnit) {
 
-        array_push($this->financialUnitsContacted[TmnNotifier::$ALL], $financialUnit);
+        $this->pushFinancialUnitForKey($financialUnit, TmnNotifier::$ALL);
 
         for ($levelCount = 1; $levelCount < $this->level; $levelCount++) {
 
-            array_push($this->financialUnitsContacted[$financialUnit->auth_guid_array[$levelCount]], $financialUnit);
+            $this->pushFinancialUnitForKey($financialUnit, $financialUnit->auth_guid_array[$levelCount]);
 
         }
+
+    }
+
+    private function pushFinancialUnitForKey(TmnFinancialUnit $financialUnit, $key) {
+
+        if (!isset($this->financialUnitsContacted[$key])) {
+            $this->financialUnitsContacted[$key] = array();
+        }
+
+        array_push($this->financialUnitsContacted[$key], $financialUnit);
 
     }
 

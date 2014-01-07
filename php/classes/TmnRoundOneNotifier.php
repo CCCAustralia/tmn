@@ -25,22 +25,10 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
         $this->round    = "One";
         $this->level    = 0;
         $this->subject  = "TMN: Friendly Reminder";
-        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. Go to http://mportal.ccca.org.au/TMN to complete yours.<br />Thanks for your help.<br /><br />Yours in Christ.<br />- TMN Development Team.";
+        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. {{reason}}<br />Thanks for your help.<br /><br />Yours in Christ.<br />- TMN Development Team.";
 
-    }
-
-    public function sendEmailsFor(TmnFinancialUnit $financialUnit) {
-
-        $mustache   = new Mustache_Engine;
-        $address    = $financialUnit->getEmails();
-        $subject    = $this->subject;
-        $body       = $mustache->render($this->message, array("names" => $financialUnit->getNames()));
-
-        fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
-//        $email  = new Email($address, $subject, $body);
-//        $email->send();
-
-        $this->logNotificationForFinancialUnit($financialUnit);
+        $this->reasons[TmnNotifier::$USER_HAS_NOT_SUBMITTED]  = "We noticed that you have not submitted a TMN to be reviewed by your leaders. To complete your TMN go to http://mportal.ccca.org.au/TMN .";
+        $this->reasons[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED]  = "We noticed that you have submitted it and it is waiting on {{authoriser_name}}. We recommend that you remind {{authoriser_name}}, to go to http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session={{session_id}} to review your TMN.";
 
     }
 
