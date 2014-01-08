@@ -128,9 +128,9 @@ class TmnNotifier {
         $mustache   = new Mustache_Engine;
         $address    = $this->memberCareEmails();
         $subject    = "TMN Reminder Report - Round " . ( $this->round ? $this->round : 1 );
-        $body       = "Hi MemberCarers, <br /><br />Here is a report of the TMN reminders that was just sent out.<br /><br />The following people have not submitted TMNs (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been submitted):<br />";
+        $body       = "Hi MemberCarers, <br /><br />Here is a report of the TMN reminders that was just sent out.<br /><br />The following people have not submitted TMNs (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been submitted):<br /><table><tr><th>Missionary</th><th>Leaders</th></tr>";
 
-        $template   = '<a href="mailto:{{email_addresses}}">{{names}}</a> - <a href="mailto:{{approver_email_addresses}}">{{approver_names}}</a><br />';
+        $template   = '<tr><td><a href="mailto:{{email_addresses}}">{{names}}</a></td><td><a href="mailto:{{approver_email_addresses}}">{{approver_names}}</a></td></tr>';
 
         $arrayOfFinancialUnitsWithUnsubmittedTmns   = ( isset($this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED]) ? $this->financialUnitsContacted[TmnNotifier::$USER_HAS_NOT_SUBMITTED] : array() );
 
@@ -145,10 +145,10 @@ class TmnNotifier {
 
         }
 
-        $body   .= "<br />They received the following email:<br />";
+        $body   .= "</table><br />They received the following email:<br />";
         $body   .= $mustache->render($this->message, array("reason" => $this->reasons[TmnNotifier::$USER_HAS_NOT_SUBMITTED]) );
 
-        $body   .= "<br /><br /><br />The following people have TMNs waiting to be approved (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been approved):<br />";
+        $body   .= "<br /><br /><br />The following people have TMNs waiting to be approved (the leaders to the right of their names have been cced on the email so that they can discuss why it has not been approved):<br /><table><tr><th>Missionary</th><th>Leaders</th></tr>";
 
         $arrayOfFinancialUnitsWaitingOnTmns   = ( isset($this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED]) ? $this->financialUnitsContacted[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED] : array() );
 
@@ -163,7 +163,7 @@ class TmnNotifier {
 
         }
 
-        $body   .= "<br />They received the following email:<br />";
+        $body   .= "</table><br />They received the following email:<br />";
         $body   .= $mustache->render($this->message, array("reason" => $this->reasons[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED]) );
 
         $body   .= "<br /><br />We hope this report was informative.<br /><br />God Bless<br />- TMN Development Team.";
