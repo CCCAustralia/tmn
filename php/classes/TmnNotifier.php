@@ -85,7 +85,7 @@ class TmnNotifier {
     }
 
     public function sendEmailsFor(TmnFinancialUnit $financialUnit) {
-fb($this->level);
+
         $mustache               = new Mustache_Engine;
         $address                = $financialUnit->getEmails() . ", " . $financialUnit->getAuthoriserEmailsForLevel($this->level);
         $subject                = $this->subject;
@@ -138,9 +138,9 @@ fb($this->level);
 
             $body   .= $mustache->render($template, array(
                 "email_addresses" => $financialUnit->getEmails(),
-                "names" => $financialUnit->getNames(),
+                "names" => $financialUnit->getNames(true),
                 "approver_email_addresses" => $financialUnit->getAuthoriserEmailsForLevel($this->level),
-                "approver_names" => $financialUnit->getAuthoriserNamesForLevel($this->level),
+                "approver_names" => $financialUnit->getAuthoriserNamesForLevel($this->level, true),
             ));
 
         }
@@ -156,9 +156,9 @@ fb($this->level);
 
             $body   .= $mustache->render($template, array(
                 "email_addresses" => $financialUnit->getEmails(),
-                "names" => $financialUnit->getNames(),
+                "names" => $financialUnit->getNames(true),
                 "approver_email_addresses" => $financialUnit->getAuthoriserEmailsForLevel($this->level),
-                "approver_names" => $financialUnit->getAuthoriserNamesForLevel($this->level),
+                "approver_names" => $financialUnit->getAuthoriserNamesForLevel($this->level, true),
             ));
 
         }

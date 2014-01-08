@@ -71,7 +71,8 @@ class TmnFinancialUnit {
             //if there is a problem with the Database kill the object
             throw new FatalException(__CLASS__ . " Exception: Couldn't Connect to Database due to error; " . $e->getMessage());
         }
-		$fanSql			= "SELECT low.*, users.* FROM User_Profiles AS users LEFT JOIN Low_Account AS low ON users.FIN_ACC_NUM=low.FIN_ACC_NUM WHERE users.INACTIVE = 0 AND users.EXEMPT_FROM_TMN = 0 AND users.IS_TEST_USER = 0";
+
+		$fanSql			= "SELECT low.*, users.* FROM (SELECT * FROM User_Profiles WHERE User_Profiles.INACTIVE = 0 AND User_Profiles.EXEMPT_FROM_TMN = 0 AND User_Profiles.IS_TEST_USER = 0) AS users LEFT OUTER JOIN Low_Account AS low ON users.FIN_ACC_NUM=low.FIN_ACC_NUM GROUP BY users.ID";
 		$stmt 			= $db->prepare($fanSql);
         $stmt->execute();
 		$fanResult		= $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -171,7 +172,7 @@ class TmnFinancialUnit {
 
     }
 
-    public function getAuthoriserNamesForLevel($level = 0) {
+    public function getAuthoriserNamesForLevel($level = 0, $fullName = false) {
 
         $level          = min($level, count($this->authoriser_guid_array));
         $nameString     = "";
@@ -184,7 +185,12 @@ class TmnFinancialUnit {
 
             $authoriser = $this->authoriser_array[$levelCount];
 
-            $nameString .= $authoriser->getField('firstname') . ", ";
+            $nameString .= $authoriser->getField('firstname');
+            if ($fullName) {
+                $nameString .= " " . $authoriser->getField('surname');
+            }
+            $nameString .= ", ";
+
         }
 
         if (count($this->people) > 0) {
@@ -213,7 +219,7 @@ class TmnFinancialUnit {
 
     }
 
-    public function getNames() {
+    public function getNames($fullName = false) {
 
         $nameString    = "";
 
@@ -224,7 +230,11 @@ class TmnFinancialUnit {
         }
 
         if (count($this->people) > 0) {
-            $nameString    = substr($nameString, 0, -3);//substr($nameString, 0, -2) . $this->people[0]->getField('surname');
+            if($fullName) {
+                $nameString    = substr($nameString, 0, -2) . $this->people[0]->getField('surname');
+            } else {
+                $nameString    = substr($nameString, 0, -3);
+            }
         }
 
         return $nameString;
