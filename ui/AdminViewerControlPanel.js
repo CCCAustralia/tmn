@@ -124,13 +124,13 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 			},
 			{
 				layout: 'form',
-	        	labelWidth:	200,
-				columnWidth:.33,
+	        	labelWidth:	75,
+				columnWidth:.2,
 				items: [
 					{
-					    id:			'lazy_missionaries',
+					    id:			'reminder_round_one',
 			        	xtype:		'button',
-					    text:		'Email Reminder to Missionaries',
+					    text:		'Send Round One Reminders',
 					    scope:		this,
 					    handler:	function(button, event) {
 
@@ -138,7 +138,7 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    	
 					    	Ext.Ajax.request({
 								url: './php/admin/adminprocessor.php',
-								params: {action: 'lazy_missionaries'},
+								params: {action: 'reminder_round_one'},
 								success: this.buttonHandler,
 								failure: this.buttonHandler,
 								scope: this
@@ -150,17 +150,122 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    	render: function(button) {
 					    		Ext.QuickTips.register({
 									target: button.getEl(),
-									text: 'Email Missionaries who haven\'t submitted/resubmitted a TMN using the latest version of the TMN. You will be emailed a list of everyone who was emailed.'
+									text: 'Sends emails to Missionaries with TMN\'s that are unsubmitted or awaiting approval. You will be emailed a list of everyone who was emailed.'
 								});
 					    	}
 					    }
 					}
 				]
 			},
+            {
+                layout: 'form',
+                labelWidth:	75,
+                columnWidth:.2,
+                items: [
+                    {
+                        id:			'reminder_round_two',
+                        xtype:		'button',
+                        text:		'Send Round Two Reminders',
+                        scope:		this,
+                        handler:	function(button, event) {
+
+                            button.disable();
+
+                            Ext.Ajax.request({
+                                url: './php/admin/adminprocessor.php',
+                                params: {action: 'reminder_round_two'},
+                                success: this.buttonHandler,
+                                failure: this.buttonHandler,
+                                scope: this
+                            });
+
+                        },
+                        listeners:	{
+                            scope: this,
+                            render: function(button) {
+                                Ext.QuickTips.register({
+                                    target: button.getEl(),
+                                    text: 'Sends emails to Missionaries with TMN\'s that are unsubmitted or awaiting approval. It also cc\'s their first approver. You will be emailed a list of everyone who was emailed.'
+                                });
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                layout: 'form',
+                labelWidth:	75,
+                columnWidth:.2,
+                items: [
+                    {
+                        id:			'reminder_round_three',
+                        xtype:		'button',
+                        text:		'Send Round Three Reminders',
+                        scope:		this,
+                        handler:	function(button, event) {
+
+                            button.disable();
+
+                            Ext.Ajax.request({
+                                url: './php/admin/adminprocessor.php',
+                                params: {action: 'reminder_round_three'},
+                                success: this.buttonHandler,
+                                failure: this.buttonHandler,
+                                scope: this
+                            });
+
+                        },
+                        listeners:	{
+                            scope: this,
+                            render: function(button) {
+                                Ext.QuickTips.register({
+                                    target: button.getEl(),
+                                    text: 'Sends emails to Missionaries with TMN\'s that are unsubmitted or awaiting approval. It also cc\'s their first and second approvers. You will be emailed a list of everyone who was emailed.'
+                                });
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                layout: 'form',
+                labelWidth:	75,
+                columnWidth:.2,
+                items: [
+                    {
+                        id:			'reminder_round_four',
+                        xtype:		'button',
+                        text:		'Send Round Four Reminders',
+                        scope:		this,
+                        handler:	function(button, event) {
+
+                            button.disable();
+
+                            Ext.Ajax.request({
+                                url: './php/admin/adminprocessor.php',
+                                params: {action: 'reminder_round_four'},
+                                success: this.buttonHandler,
+                                failure: this.buttonHandler,
+                                scope: this
+                            });
+
+                        },
+                        listeners:	{
+                            scope: this,
+                            render: function(button) {
+                                Ext.QuickTips.register({
+                                    target: button.getEl(),
+                                    text: 'Sends emails to Missionaries with TMN\'s that are unsubmitted or awaiting approval. It also cc\'s all three approvers. You will be emailed a list of everyone who was emailed.'
+                                });
+                            }
+                        }
+                    }
+                ]
+            },
 			{
 				layout: 'form',
-	        	labelWidth:	200,
-				columnWidth:.33,
+	        	labelWidth:	75,
+				columnWidth:.2,
 				items: [
 					{
 					    id:			'low_account',
@@ -186,41 +291,6 @@ tmn.view.AuthorisationViewerControlPanel = function(view, config) {
 					    		Ext.QuickTips.register({
 									target: button.getEl(),
 									text: 'Runs Low Account Process. Sending emails to everyone who needs to be notified. You will be cced on all emails.'
-								});
-					    	}
-					    }
-					}
-				]
-			},
-			{
-				layout: 'form',
-	        	labelWidth:	200,
-				columnWidth:.33,
-				items: [
-					{
-					    id:			'lazy_authorisers',
-			        	xtype:		'button',
-					    text:		'Email Reminder to Authorisers',
-					    scope:		this,
-					    handler:	function(button, event) {
-
-					    	button.disable();
-					    	
-					    	Ext.Ajax.request({
-								url: './php/admin/adminprocessor.php',
-								params: {action: 'lazy_authorisers'},
-								success: this.buttonHandler,
-								failure: this.buttonHandler,
-								scope: this
-							});
-					    	
-					    },
-					    listeners:	{
-					    	scope: this,
-					    	render: function(button) {
-					    		Ext.QuickTips.register({
-									target: button.getEl(),
-									text: 'Email Authorisers who have ignored a TMN for more than 2 weeks. You will be emailed a list of everyone who was emailed.'
 								});
 					    	}
 					    }
@@ -260,11 +330,11 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 		
 		if (return_object.success === true) {
 			
-			this.showButtonResult(Ext.MessageBox.INFO, "Done!", return_object.message);
+			this.showButtonResult(Ext.MessageBox.INFO, "Done!", returnMsg);
 			
 		} else {
 			
-			this.showButtonResult(Ext.MessageBox.ERROR, "Error!", return_object.message);
+			this.showButtonResult(Ext.MessageBox.ERROR, "Error!", returnMsg);
 
 		}
 	},
@@ -278,10 +348,14 @@ Ext.extend(tmn.view.AuthorisationViewerControlPanel, Ext.form.FormPanel, {
 			title: title,
 			msg: message
 		});
-		
-		Ext.getCmp('lazy_missionaries').enable();
-		Ext.getCmp('low_account').enable();
-		Ext.getCmp('lazy_authorisers').enable();
+
+        if (icon === Ext.MessageBox.ERROR) {
+            Ext.getCmp('reminder_round_one').enable();
+            Ext.getCmp('reminder_round_two').enable();
+            Ext.getCmp('reminder_round_three').enable();
+            Ext.getCmp('reminder_round_four').enable();
+            Ext.getCmp('low_account').enable();
+        }
 		
 	},
 	

@@ -23,8 +23,10 @@ if ($NEWVERSION && $DEBUG == 1){
 	$force_reload = "";
 }
 
+$mode   = ( isset($_POST['mode']) ? $_POST['mode'] : "" );
+
 //authenticate
-if ($_POST['mode'] != "load") {
+if ($mode != "load") {
 	Tmn::authenticate();
 }
 
@@ -35,7 +37,7 @@ try {
 	//create a db connection
 	$db		= TmnDatabase::getInstance($LOGFILE);
 	
-	if ($_POST['mode'] == 'load') {
+	if ($mode == 'load') {
 		
 		if ($tmn->isAuthenticated()) {
 			

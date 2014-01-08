@@ -118,7 +118,7 @@ class TmnNotifier {
             )
         );
 
-        //fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
+        fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
 //        $email  = new Email($address, $subject, $body);
 //        $email->send();
 
@@ -169,7 +169,7 @@ class TmnNotifier {
 
         $body   .= "<br /><br />We hope this report was informative.<br /><br />God Bless<br />- TMN Development Team.";
 
-        echo("to: ". $address . "<br />subject: " . $subject . "<br />body:<br />" . $body);
+        fb("to: ". $address . "<br />subject: " . $subject . "<br />body:<br />" . $body);
 //        $email  = new Email($address, $subject, $body);
 //        $email->send();
 
