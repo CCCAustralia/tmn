@@ -1,34 +1,31 @@
 <?php
 if(file_exists('../classes/TmnDatabase.php')) {
-//    include_once('../classes/Reporter.php');
     include_once('../classes/TmnDatabase.php');
     include_once("../classes/TmnMembercareAdminsUsersGroup.php");
     include_once('../classes/TmnRoundOneNotifier.php');
     include_once('../classes/TmnRoundTwoNotifier.php');
-//    include_once('../classes/TmnRoundThreeNotifier.php');
-//    include_once('../classes/TmnRoundFourNotifier.php');
+    include_once('../classes/TmnRoundThreeNotifier.php');
+    include_once('../classes/TmnRoundFourNotifier.php');
     require_once '../../lib/mustache/src/Mustache/Autoloader.php';
     Mustache_Autoloader::register();
 }
 if(file_exists('classes/TmnDatabase.php')) {
-//    include_once('classes/Reporter.php');
     include_once('classes/TmnDatabase.php');
     include_once("classes/TmnMembercareAdminsUsersGroup.php");
     include_once('classes/TmnRoundOneNotifier.php');
     include_once('classes/TmnRoundTwoNotifier.php');
-//    include_once('classes/TmnRoundThreeNotifier.php');
-//    include_once('classes/TmnRoundFourNotifier.php');
+    include_once('classes/TmnRoundThreeNotifier.php');
+    include_once('classes/TmnRoundFourNotifier.php');
     require_once '../lib/mustache/src/Mustache/Autoloader.php';
     Mustache_Autoloader::register();
 }
 if(file_exists('php/classes/TmnDatabase.php')) {
-//    include_once('php/classes/Reporter.php');
     include_once('php/classes/TmnDatabase.php');
     include_once("php/classes/TmnMembercareAdminsUsersGroup.php");
     include_once('php/classes/TmnRoundOneNotifier.php');
     include_once('php/classes/TmnRoundTwoNotifier.php');
-//    include_once('php/classes/TmnRoundThreeNotifier.php');
-//    include_once('php/classes/TmnRoundFourNotifier.php');
+    include_once('php/classes/TmnRoundThreeNotifier.php');
+    include_once('php/classes/TmnRoundFourNotifier.php');
     require_once 'lib/mustache/src/Mustache/Autoloader.php';
     Mustache_Autoloader::register();
 }
@@ -60,25 +57,29 @@ class TmnNotifier {
                 break;
 
             case "reminder_round_two":
-                $notifier   = new TmnRoundTwoNotifier();
+                $notifier   = new TmnRoundThreeNotifier();
                 break;
 
-//            case "reminder_round_three":
-//                $notifier   = new TmnRoundThreeNotifier();
-//                break;
-//
-//            case "reminder_round_four":
-//                $notifier   = new TmnRoundFourNotifier();
-//                break;
+            case "reminder_round_three":
+                $notifier   = new TmnRoundThreeNotifier();
+                break;
+
+            case "reminder_round_four":
+                $notifier   = new TmnRoundFourNotifier();
+                break;
 
             default:
                 break;
 
         }
 
-        $constants      = getConstants();
-        $notifier->sinceForStudentLife  = new DateTime($constants['STUDENT_LIFE_ACTIVE_DATE']);
-        $notifier->sinceForEveryone     = new DateTime($constants['EVERYONE_ACTIVE_DATE']);
+        if (!is_null($notifier)) {
+
+            $constants      = getConstants();
+            $notifier->sinceForStudentLife  = new DateTime($constants['STUDENT_LIFE_ACTIVE_DATE']);
+            $notifier->sinceForEveryone     = new DateTime($constants['EVERYONE_ACTIVE_DATE']);
+
+        }
 
         return $notifier;
 
@@ -221,7 +222,7 @@ class TmnNotifier {
 
         for ($levelCount = 1; $levelCount < $this->level; $levelCount++) {
 
-            $this->pushFinancialUnitForKey($financialUnit, $financialUnit->auth_guid_array[$levelCount]);
+            $this->pushFinancialUnitForKey($financialUnit, $financialUnit->getAuthoriserGuidForLevel($levelCount));
 
         }
 

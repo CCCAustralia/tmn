@@ -241,6 +241,12 @@ class TmnFinancialUnit {
 
     }
 
+    public function getAuthoriserGuidForLevel($level = 0) {
+
+        return (isset($this->authoriser_guid_array[$level]) ? $this->authoriser_guid_array[$level] : null );
+
+    }
+
     protected function getLogfile() {
         return $this->logfile;
     }
