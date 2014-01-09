@@ -20,10 +20,10 @@ class TmnDatabase extends Reporter implements TmnDatabaseInterface {
     private static $instance;
 	
 	private $db;
-	private static $db_name		= "mportal_tmn";
-	private static $db_server	= "localhost";
-	private static $db_username	= "mportal";
-	private static $db_password	= "***REMOVED***";
+	private static $db_name;
+	private static $db_server;
+	private static $db_username;
+	private static $db_password;
 	
 	
 			///////////////////CONSTRUCTOR/////////////////////
@@ -32,6 +32,25 @@ class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 	protected function __construct($logfile) {
 		
 		$this->db			= null;
+
+        $configString   = "";
+
+        if (file_exists('config.json')) {
+            $configString = file_get_contents("config.json");
+        } elseif (file_exists(file_exists('../config.json'))) {
+            $configString = file_get_contents("../config.json");
+        } elseif (file_exists(file_exists('../../config.json'))) {
+            $configString = file_get_contents("../../config.json");
+        } else {
+            $configString = file_get_contents("../../../config.json");
+        }
+
+        $config = json_decode($configString,true);
+
+        self::$db_name       = $config["db_name"];
+        self::$db_server     = $config["db_server"];
+        self::$db_username   = $config["db_username"];
+        self::$db_password   = $config["db_password"];
 		
 		try {
 			$this->connect();

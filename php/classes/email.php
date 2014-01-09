@@ -1,14 +1,18 @@
 <?php
 if (file_exists('../interfaces/emailInterface.php')) {
 	include_once('../interfaces/emailInterface.php');
+    include_once('../../lib/sendgrid-php/SendGrid_loader.php');
 } elseif(file_exists('interfaces/emailInterface.php')) {
 	include_once('interfaces/emailInterface.php');
+    include_once('../lib/sendgrid-php/SendGrid_loader.php');
 } else {
 	include_once('php/interfaces/emailInterface.php');
+    include_once('lib/sendgrid-php/SendGrid_loader.php');
 }
 
 class Email implements emailInterface{
-	
+
+    private $sendgrid;
 	public $address;
 	public $subject;
 	public $bodytext;
@@ -19,6 +23,22 @@ class Email implements emailInterface{
         if (!isset($from)) {
             $from = "no-reply@ccca.org.au";
         }
+
+        $configString   = "";
+
+        if (file_exists('config.json')) {
+            $configString = file_get_contents("config.json");
+        } elseif (file_exists(file_exists('../config.json'))) {
+            $configString = file_get_contents("../config.json");
+        } elseif (file_exists(file_exists('../../config.json'))) {
+            $configString = file_get_contents("../../config.json");
+        } else {
+            $configString = file_get_contents("../../../config.json");
+        }
+
+        $config = json_decode($configString,true);
+
+        $this->sendgrid = new SendGrid($config['sendgrid_username'], $config['sendgrid_password']);
 
 		$this->update($addr, $subj, $body, $from);
 		
@@ -104,7 +124,21 @@ class Email implements emailInterface{
 	}
 	
 	public function send() {
-		mail($this->address, $this->subject, $this->bodytext, "From: ".$this->headerfrom);
+        $mail = new SendGrid\Mail();
+        $mail->
+            setFrom($this->headerfrom)->
+            setSubject($this->subject)->
+            setHtml($this->bodytext);
+
+        if(count($this->address)) {
+
+            $recipientArray = explode(",", $this->address);
+
+            foreach($recipientArray as $recipient) {
+                $mail->addTo(trim($recipient));
+            }
+
+        }
 	}
 }
 

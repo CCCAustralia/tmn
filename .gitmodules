@@ -1,3 +1,6 @@
 [submodule "lib/mustache"]
 	path = lib/mustache
 	url = https://github.com/bobthecow/mustache.php.git
+[submodule "lib/sendgrid-php"]
+	path = lib/sendgrid-php
+	url = git://github.com/sendgrid/sendgrid-php.git
