@@ -49,7 +49,7 @@ try {
 
 			foreach($activeFinancialUnits as $financialUnit) {
 
-				if ($financialUnit->getMinistry() == 'StudentLife') {
+				if ($financialUnit->getMinistry() == 'Student Life') {
 					$availableDate = new DateTime($constants['STUDENT_LIFE_ACTIVE_DATE']);
 				} else {
 					$availableDate = new DateTime($constants['EVERYONE_ACTIVE_DATE']);

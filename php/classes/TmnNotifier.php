@@ -57,7 +57,7 @@ class TmnNotifier {
                 break;
 
             case "reminder_round_two":
-                $notifier   = new TmnRoundThreeNotifier();
+                $notifier   = new TmnRoundTwoNotifier();
                 break;
 
             case "reminder_round_three":
@@ -118,9 +118,8 @@ class TmnNotifier {
             )
         );
 
-        fb("Report - to:". $address . " subject:" . $subject . " body: " . $body);
-//        $email  = new Email($address, $subject, $body);
-//        $email->send();
+        $email  = new Email($address, $subject, $body);
+        $email->send();
 
     }
 
@@ -169,9 +168,8 @@ class TmnNotifier {
 
         $body   .= "<br /><br />We hope this report was informative.<br /><br />God Bless<br />- TMN Development Team.";
 
-        fb("to: ". $address . "<br />subject: " . $subject . "<br />body:<br />" . $body);
-//        $email  = new Email($address, $subject, $body);
-//        $email->send();
+        $email  = new Email($address, $subject, $body);
+        $email->send();
 
     }
 
@@ -192,7 +190,7 @@ class TmnNotifier {
 
         $since  = null;
 
-        if ($financialUnit->getMinistry() == 'StudentLife') {
+        if ($financialUnit->getMinistry() == 'Student Life') {
             $since  = $this->sinceForStudentLife;
         } else {
             $since  = $this->sinceForEveryone;

@@ -30,7 +30,7 @@ class TmnFinancialUnit {
 		if (is_array($data)) {
 
             if(isset($data['TMN_EFFECTIVE_DATE'])) {
-                $this->tmn_effective_date   = new DateTime($data['TMN_EFFECTIVE_DATE']);
+                $this->last_tmn_effective_date   = new DateTime($data['TMN_EFFECTIVE_DATE']);
             }
 
             if(isset($data['FIN_ACC_NUM'])) {
@@ -129,8 +129,9 @@ class TmnFinancialUnit {
     public function getTmnsAwaitingApprovalSince($date) {
 
         $date           = ( isset($date) && is_a($date, "DateTime") ? $date : new DateTime() );
-        $tmnSql			= "SELECT * FROM (SELECT * FROM Tmn_Sessions WHERE FAN = :financial_account_number AND AUTH_SESSION_ID IS NOT NULL) as sessions LEFT JOIN Auth_Table as auth ON sessions.AUTH_SESSION_ID = auth.AUTH_SESSION_ID WHERE auth.USER_TIMESTAMP > STR_TO_DATE(:date, '%Y-%m-%d %H:%i:%s') AND (auth.FINANCE_RESPONSE = 'Pending') AND (auth.USER_RESPONSE = 'Yes' OR auth.USER_RESPONSE = 'Pending') AND (auth.LEVEL_1_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending') AND (auth.LEVEL_2_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending') AND (auth.LEVEL_3_RESPONSE = 'Yes' OR auth.LEVEL_1_RESPONSE = 'Pending')";
-        $values         = array( ":financial_account_number" => $this->financial_account_number, ":date" => $date->format("Y-m-d H:i:s") );
+        $tmnSql			= "SELECT * FROM (SELECT * FROM Tmn_Sessions WHERE FAN = :financial_account_number AND AUTH_SESSION_ID IS NOT NULL) as sessions LEFT JOIN Auth_Table ON sessions.AUTH_SESSION_ID = Auth_Table.AUTH_SESSION_ID WHERE Auth_Table.USER_TIMESTAMP > STR_TO_DATE(:date , '%Y-%m-%d') AND (Auth_Table.FINANCE_RESPONSE = 'Pending') AND (Auth_Table.USER_RESPONSE = 'Yes' OR Auth_Table.USER_RESPONSE = 'Pending') AND (Auth_Table.LEVEL_1_RESPONSE = 'Yes' OR Auth_Table.LEVEL_1_RESPONSE = 'Pending') AND (Auth_Table.LEVEL_2_RESPONSE = 'Yes' OR Auth_Table.LEVEL_2_RESPONSE = 'Pending') AND (Auth_Table.LEVEL_3_RESPONSE = 'Yes' OR Auth_Table.LEVEL_3_RESPONSE = 'Pending')";
+        $values         = array( ":financial_account_number" => $this->financial_account_number, ":date" => $date->format("Y-m-d") );
+
         $stmt 			= $this->db->prepare($tmnSql);
         $stmt->execute($values);
         $tmnResult		= $stmt->fetchAll(PDO::FETCH_ASSOC);
