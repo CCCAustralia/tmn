@@ -5,18 +5,21 @@ if (file_exists('../classes/TmnCrud.php')) {
 	include_once('../classes/TmnCrud.php');
 	include_once('../classes/TmnAuthenticator.php');
 	include_once('../classes/TmnFinanceAdminsUsersGroup.php');
+    include_once('../classes/TmnMembercareAdminsUsersGroup.php');
 } elseif (file_exists('classes/TmnCrud.php')) {
 	include_once('interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('classes/email.php');
 	include_once('classes/TmnCrud.php');
 	include_once('classes/TmnAuthenticator.php');
 	include_once('classes/TmnFinanceAdminsUsersGroup.php');
+    include_once('classes/TmnMembercareAdminsUsersGroup.php');
 } else {
 	include_once('php/interfaces/TmnAuthorisationProcessorInterface.php');
 	include_once('php/classes/email.php');
 	include_once('php/classes/TmnCrud.php');
 	include_once('php/classes/TmnAuthenticator.php');
 	include_once('php/classes/TmnFinanceAdminsUsersGroup.php');
+    include_once('php/classes/TmnMembercareAdminsUsersGroup.php');
 }
 
 class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProcessorInterface {
@@ -218,6 +221,7 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 		$emailbody = "";
 		$emailaddress = "";
 		$emailsubject = "";
+        $memberCareEmails = "";
 		
 	////get guids<0-4> and responses <1-3>, storing them in authguids and authresponses
 		$authguids 		= array();		//guids array
@@ -349,6 +353,10 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			} elseif ($authresponses[4] = "Yes") {
 				$emailsubject = "TMN: Processed";
 				$emailbody = "Your TMN has been processed!\n\nYou will now be paid according to your new TMN. If you would like to see it again go to $curpageurl/tmn-authviewer.php?session=$session_id\n";
+
+                $memberCareAdmins = new TmnMembercareAdminsUsersGroup();
+                $memberCareEmails = $memberCareAdmins->getEmailsAsString();
+
 			}
 				
 			//Output approvals
@@ -358,12 +366,14 @@ class TmnAuthorisationProcessor extends TmnCrud implements TmnAuthorisationProce
 			}
 			$emailbody .= "\n\n-The TMN Development Team";
 		}
-		//ADD IF DEBUGGING
-		//$emailbody .="\n\nDEBUG: target email=".$emailaddress;
-		//$emailaddress = "tom.flynn@ccca.org.au";
+
 		$notifyemail = new Email($emailaddress, $emailsubject, $emailbody, "CCCA TMN <noreply@ccca.org.au>\r\nReply-To: noreply@ccca.org.au");
-		$this->d($notifyemail);
 		$notifyemail->send();
+
+        if (!empty($memberCareEmails)) {
+            $memberCareNotification = new Email($memberCareEmails, "TMN now active for " . $this->getNameFromGuid($authguids[0]), "They received the following email: " . $emailbody);
+            $memberCareNotification->send();
+        }
 		
 		return $emailaddress;
 	}

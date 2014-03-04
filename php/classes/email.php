@@ -1,13 +1,25 @@
 <?php
 if (file_exists('../interfaces/emailInterface.php')) {
 	include_once('../interfaces/emailInterface.php');
-    include_once('../../lib/sendgrid-php/SendGrid_loader.php');
+    include_once('../../lib/unirest-php/lib/Unirest.php');
+    include_once('../../lib/sendgrid-php/lib/SendGrid.php');
+    include_once('../../lib/smtpapi-php/lib/Smtpapi.php');
+    SendGrid::register_autoloader();
+    Smtpapi::register_autoloader();
 } elseif(file_exists('interfaces/emailInterface.php')) {
 	include_once('interfaces/emailInterface.php');
-    include_once('../lib/sendgrid-php/SendGrid_loader.php');
+    include_once('../lib/unirest-php/lib/Unirest.php');
+    include_once('../lib/sendgrid-php/lib/SendGrid.php');
+    include_once('../lib/smtpapi-php/lib/Smtpapi.php');
+    SendGrid::register_autoloader();
+    Smtpapi::register_autoloader();
 } else {
 	include_once('php/interfaces/emailInterface.php');
-    include_once('lib/sendgrid-php/SendGrid_loader.php');
+    include_once('lib/unirest-php/lib/Unirest.php');
+    include_once('lib/sendgrid-php/lib/SendGrid.php');
+    include_once('lib/smtpapi-php/lib/Smtpapi.php');
+    SendGrid::register_autoloader();
+    Smtpapi::register_autoloader();
 }
 
 class Email implements emailInterface{
@@ -28,9 +40,9 @@ class Email implements emailInterface{
 
         if (file_exists('config.json')) {
             $configString = file_get_contents("config.json");
-        } elseif (file_exists(file_exists('../config.json'))) {
+        } elseif (file_exists('../config.json')) {
             $configString = file_get_contents("../config.json");
-        } elseif (file_exists(file_exists('../../config.json'))) {
+        } elseif (file_exists('../../config.json')) {
             $configString = file_get_contents("../../config.json");
         } else {
             $configString = file_get_contents("../../../config.json");
@@ -38,7 +50,7 @@ class Email implements emailInterface{
 
         $config = json_decode($configString,true);
 
-        $this->sendgrid = new SendGrid($config['sendgrid_username'], $config['sendgrid_password']);
+        $this->sendgrid = new SendGrid($config['sendgrid_username'], $config['sendgrid_password'], array("turn_off_ssl_verification" => true));
 
 		$this->update($addr, $subj, $body, $from);
 		
@@ -124,21 +136,35 @@ class Email implements emailInterface{
 	}
 	
 	public function send() {
-        $mail = new SendGrid\Mail();
-        $mail->
+
+        $email = new SendGrid\Email();
+        $email->
             setFrom($this->headerfrom)->
-            setSubject($this->subject)->
-            setHtml($this->bodytext);
+            setSubject($this->subject);
+
+        if ( strlen($this->bodytext) != strlen(strip_tags($this->bodytext)) ) {
+
+            $email->setHtml($this->bodytext);
+
+        } else {
+
+            $email->setText($this->bodytext);
+
+        }
 
         if(count($this->address)) {
 
             $recipientArray = explode(",", $this->address);
 
             foreach($recipientArray as $recipient) {
-                $mail->addTo(trim($recipient));
+                $email->addTo(trim($recipient));
             }
 
+            $response =  $this->sendgrid->send($email);
+            var_dump($response);
+
         }
+
 	}
 }
 

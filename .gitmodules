@@ -4,3 +4,9 @@
 [submodule "lib/sendgrid-php"]
 	path = lib/sendgrid-php
 	url = git://github.com/sendgrid/sendgrid-php.git
+[submodule "lib/unirest-php"]
+	path = lib/unirest-php
+	url = https://github.com/Mashape/unirest-php.git
+[submodule "lib/smtpapi-php"]
+	path = lib/smtpapi-php
+	url = https://github.com/sendgrid/smtpapi-php.git
