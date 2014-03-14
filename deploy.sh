@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#usage . ftp_script.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]}
-#eg: . ftp_script.sh user_name password full/path/to/config.stage.json stage true
+#usage . deploy.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]}
+#eg: . deploy.sh user_name password full/path/to/config.stage.json stage true
 
 version='2.5'
 repo_url='https://github.com/michaelharro/tmn.git'
@@ -31,7 +31,7 @@ else
 exit 1
 fi
 
-if [-n "$3" ]
+if [ -n "$3" ]
 then
 config_path=$3
 else
