@@ -1,13 +1,48 @@
 #!/bin/sh
 
-version='2.4'
+#usage . ftp_script.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]}
+#eg: . ftp_script.sh user_name password full/path/to/config.stage.json stage true
+
+version='2.5'
 repo_url='https://github.com/michaelharro/tmn.git'
 yuicompressor_path='lib/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
-ftp_uname='mportal'
-ftp_pword='***REMOVED***'
+config_path='config.json'
+ftp_uname=''
+ftp_pword=''
 ftp_destination='TMN'
-create_tag=false
+create_tag=true
 full_refresh=true
+
+if [ $# -ne 5 ]; then
+exit 1
+fi
+
+if [ -n "$1" ]
+then
+ftp_uname=$1
+else
+exit 1
+fi
+
+if [ -n "$2" ]
+then
+ftp_pword=$2
+else
+exit 1
+fi
+
+if [-n "$3" ]
+then
+config_path=$3
+else
+exit 1
+fi
+
+if [ $4=='stage' ]
+then
+ftp_destination='stage/TMN'
+create_tag=false
+fi
 
 #save the current directory so the user can be returned here
 pushd . > /dev/null
@@ -21,12 +56,14 @@ echo ''
 mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
-cd tmn/TMN
+cd tmn
 
-echo ''
-echo 'Clone Complete'
-echo 'Start String Replacement'
-echo ''
+if [ ${#config_path} -gt 0 ]
+then
+cp ${config_path} config.json
+else
+exit 1
+fi
 
 if $create_tag ; then
 echo ''
@@ -35,7 +72,6 @@ echo ''
 
 git tag "TMN${version}"
 git push --tags
-#svn copy "svn://${svn_uname}@10.32.16.4/svn/tmn/trunk/TMN" "svn://${svn_uname}@10.32.16.4/svn/tmn/tags/TMN%20${version}" --password ${svn_pword} -m "Created tag for version ${version}"
 
 echo ''
 echo 'Tag Creation Complete'
@@ -109,8 +145,8 @@ ftp -inv mportal.ccca.org.au<<ENDFTP
 user ${ftp_uname} ${ftp_pword}
 mkdir "public_html/${ftp_destination}"
 cd "public_html/${ftp_destination}"
-lcd "~/svn_temp/TMN ${version}"
 mput *.php
+mput config.json
 mkdir images
 mput images/*
 mkdir pdf
@@ -147,8 +183,8 @@ ftp -inv mportal.ccca.org.au<<ENDFTP
 user ${ftp_uname} ${ftp_pword}
 mkdir "public_html/${ftp_destination}"
 cd "public_html/${ftp_destination}"
-lcd "~/svn_temp/TMN ${version}"
 mput *.php
+mput config.json
 mkdir php
 mput php/*
 mkdir php/admin
