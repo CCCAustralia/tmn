@@ -92,17 +92,6 @@ try {
 					$authlevel2_is_needed	= false;
 					$authlevel3_is_needed	= false;
 
-					fb(true);
-					fb($authorisers['level_1']['reasons']);
-					fb(count($authorisers['level_1']['reasons']['aussie-based']['reasons']));
-					fb($authlevel2_is_needed || $authlevel3_is_needed);
-					fb($authorisers['level_2']['reasons']);
-					fb(count($authorisers['level_2']['reasons']['aussie-based']['reasons']));
-					fb($authlevel3_is_needed);
-					fb($authorisers['level_3']['reasons']);
-					fb(count($authorisers['level_3']['reasons']['aussie-based']['reasons']));
-					fb("----------");
-
 					//prepare the reasons variables submittion
 					if (count($authorisers['level_1']['reasons']) == 0) {
 						$authorisers['level_1']['reasons']	= array('aussie-based'=>array('reasons' => array()));

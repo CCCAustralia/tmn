@@ -254,20 +254,20 @@ class FinancialProcessor {
 		
 		//Taxable Income Panel
 		if (isset($this->financial_data['STIPEND'])){
-			
-			fb($this->financial_data['S_MAX_MFB']);
+
+            if($this->DEBUG) fb($this->financial_data['S_MAX_MFB']);
 			$housing	= (isset($this->financial_data['S_MAX_MFB']) ? max(0, $this->getMonthlyHousing() - $this->financial_data['S_MAX_MFB']) : $this->getMonthlyHousing());
-			fb('params');
-			fb($this->financial_data['STIPEND']);
-			fb($this->financial_data['POST_TAX_SUPER']);
-			fb($this->financial_data['ADDITIONAL_TAX']);
-			fb($housing);
-			fb($this->financial_data['ADDITIONAL_HOUSING']);
-			fb($spouse_max_mfbs);
-			fb($this->getMfbRate($this->financial_data['MFB_RATE']));
-			fb($this->getDaysPerWeek(FOR_USER));
-			fb($this->financial_data['FUTURE_INVESTMENT_MODE']);
-			fb($this->constants);
+            if($this->DEBUG) fb('params');
+            if($this->DEBUG) fb($this->financial_data['STIPEND']);
+            if($this->DEBUG) fb($this->financial_data['POST_TAX_SUPER']);
+            if($this->DEBUG) fb($this->financial_data['ADDITIONAL_TAX']);
+            if($this->DEBUG) fb($housing);
+            if($this->DEBUG) fb($this->financial_data['ADDITIONAL_HOUSING']);
+            if($this->DEBUG) fb($spouse_max_mfbs);
+            if($this->DEBUG) fb($this->getMfbRate($this->financial_data['MFB_RATE']));
+            if($this->DEBUG) fb($this->getDaysPerWeek(FOR_USER));
+            if($this->DEBUG) fb($this->financial_data['FUTURE_INVESTMENT_MODE']);
+            if($this->DEBUG) fb($this->constants);
 			
 			$taxable_components	= $this->calculateTaxableIncomeComponentsForAussie(	$this->financial_data['STIPEND'],
 																					$this->financial_data['POST_TAX_SUPER'],
@@ -859,7 +859,7 @@ class FinancialProcessor {
 		
 		//if the user has asked for no pre tax super then return 0
 		if ($future_investment_mode > 0) {
-			fb("no pre tax super");
+            if($this->DEBUG) fb("no pre tax super");
 			return 0;
 			
 		}

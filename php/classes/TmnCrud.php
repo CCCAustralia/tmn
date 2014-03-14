@@ -322,7 +322,6 @@ class TmnCrud extends Reporter implements TmnCrudInterface {
 		
 		//remove extra ", " added by the loop
 		$sql = trim($sql, ", ") . ";";
-		fb($sql);
 		
 		//Note: sql should now have the form: INSERT INTO `<table name>` (<field name in uppercase>, ... ) VALUES (:<field name>, ... )
 		

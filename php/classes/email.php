@@ -161,7 +161,6 @@ class Email implements emailInterface{
             }
 
             $response =  $this->sendgrid->send($email);
-            var_dump($response);
 
         }
 
