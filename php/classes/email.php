@@ -33,7 +33,7 @@ class Email implements emailInterface{
 	public function __construct($addr, $subj, $body, $from = null) {
 
         if (!isset($from)) {
-            $from = "no-reply@ccca.org.au";
+            $from = "network.admin@ccca.org.au";
         }
 
         $configString   = "";
