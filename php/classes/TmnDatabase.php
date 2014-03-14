@@ -37,9 +37,9 @@ class TmnDatabase extends Reporter implements TmnDatabaseInterface {
 
         if (file_exists('config.json')) {
             $configString = file_get_contents("config.json");
-        } elseif (file_exists(file_exists('../config.json'))) {
+        } elseif (file_exists('../config.json')) {
             $configString = file_get_contents("../config.json");
-        } elseif (file_exists(file_exists('../../config.json'))) {
+        } elseif (file_exists('../../config.json')) {
             $configString = file_get_contents("../../config.json");
         } else {
             $configString = file_get_contents("../../../config.json");
