@@ -4,7 +4,7 @@
 #eg: . deploy.sh user_name password full/path/to/config.stage.json stage true
 
 version='2.5'
-repo_url='https://github.com/michaelharro/tmn.git'
+repo_url='https://github.com/CCCAustralia/tmn.git'
 yuicompressor_path='lib/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
 config_path='config.json'
 ftp_uname=''
@@ -57,6 +57,8 @@ mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
 cd tmn
+git submodule init
+git submodule update
 
 if [ ${#config_path} -gt 0 ]
 then
