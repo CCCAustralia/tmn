@@ -95,25 +95,25 @@ echo ''
 echo 'Compressing JavaScript Files ...'
 cd ui
 cat AuthorisationPanel.js SummaryPanel.js PrintForm.js InternalTransfers.js FinancialDetailsForm.js PersonalDetailsForm.js TmnView.js TmnController.js > tmn-all_long.js
-java -jar ${yuicompressor_path} -o tmn-all.js tmn-all_long.js
+java -jar "../${yuicompressor_path}" -o tmn-all.js tmn-all_long.js
 rm tmn-all_long.js
 
 cat AuthorisationViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js authviewer.js > tmn-authviewer-all_long.js
-java -jar ${yuicompressor_path} -o tmn-authviewer-all.js tmn-authviewer-all_long.js
+java -jar "../${yuicompressor_path}" -o tmn-authviewer-all.js tmn-authviewer-all_long.js
 rm tmn-authviewer-all_long.js
 
 cat AdminViewerControlPanel.js AuthorisationPanel.js SummaryPanel.js adminviewer.js > tmn-adminviewer-all_long.js
-java -jar ${yuicompressor_path} -o tmn-adminviewer-all.js tmn-adminviewer-all_long.js
+java -jar "../${yuicompressor_path}" -o tmn-adminviewer-all.js tmn-adminviewer-all_long.js
 rm tmn-adminviewer-all_long.js
 
 cat SummaryPanel.js viewer.js > viewer-all_long.js
-java -jar ${yuicompressor_path} -o viewer-all.js viewer-all_long.js
+java -jar "../${yuicompressor_path}" -o viewer-all.js viewer-all_long.js
 rm viewer-all_long.js
 
 echo 'Compressing CSS Files ...'
 cd ../lib
 cat resources/css/loading.css resources/css/ext-all.css resources/css/customstyles.css customclasses/statusbar/css/statusbar.css > tmn-all_long.css
-java -jar ${yuicompressor_path} -o resources/css/tmn-all.css tmn-all_long.css
+java -jar "../${yuicompressor_path}" -o resources/css/tmn-all.css tmn-all_long.css
 rm tmn-all_long.css
 
 echo 'Compressing ExtJS Files ...'
@@ -122,7 +122,7 @@ cat ext-base.js ext-all.js > ext.js
 echo 'Compressing Custom Library Files ...'
 cd customclasses
 cat Ext.LinkButton.js DateRangeValidationType.js statusbar/StatusBar.js statusbar/ValidationStatus.js Printer-all.js Ext.ux.IconCombo.js > custom-libraries-all_long.js
-java -jar ${yuicompressor_path} -o custom-libraries-all.js custom-libraries-all_long.js
+java -jar "../../${yuicompressor_path}" -o custom-libraries-all.js custom-libraries-all_long.js
 rm custom-libraries-all_long.js
 
 cd ../../
