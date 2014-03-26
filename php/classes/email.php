@@ -32,9 +32,10 @@ class Email implements emailInterface{
 	
 	public function __construct($addr, $subj, $body, $from = null) {
 
-        if (!isset($from)) {
-            $from = "network.admin@ccca.org.au";
-        }
+        //don't allow the from variable to be set.
+        //if (!isset($from)) {
+            $from = "CCCA TMN <network.admin@ccca.org.au>";
+        //}
 
         $configString   = "";
 
