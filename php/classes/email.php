@@ -32,11 +32,6 @@ class Email implements emailInterface{
 	
 	public function __construct($addr, $subj, $body, $from = null) {
 
-        //don't allow the from variable to be set.
-        //if (!isset($from)) {
-            $from = "CCCA TMN <network.admin@ccca.org.au>";
-        //}
-
         $configString   = "";
 
         if (file_exists('config.json')) {
@@ -49,9 +44,11 @@ class Email implements emailInterface{
             $configString = file_get_contents("../../../config.json");
         }
 
-        $config = json_decode($configString,true);
+        $config         = json_decode($configString,true);
 
         $this->sendgrid = new SendGrid($config['sendgrid_username'], $config['sendgrid_password'], array("turn_off_ssl_verification" => true));
+        //overwrite $from parameter
+        $from           = $config['default_from_address'];
 
 		$this->update($addr, $subj, $body, $from);
 		
