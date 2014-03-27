@@ -26,7 +26,7 @@ if (isset($_POST['mode'])) {
 				$data	= array();
 				
 				//sql to grab sessions for the user that is logged in
-				$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE HOME_ASSIGNMENT_SESSION_ID IS NULL AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
+				$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE ( ( HOME_ASSIGNMENT_SESSION_ID IS NULL && INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL ) OR ( HOME_ASSIGNMENT_SESSION_ID IS NOT NULL && INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL ) ) AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 				$sessionSql .= "(AUTH_USER = :guid ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 				$sessionSql .= "(AUTH_LEVEL_1 = :guid ".	"&& LEVEL_1_RESPONSE = 'Pending' ".		"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
 				$sessionSql .= "(AUTH_LEVEL_2 = :guid ".	"&& LEVEL_1_RESPONSE = 'Yes' ".			"&& LEVEL_2_RESPONSE = 'Pending' ".		"&& LEVEL_3_RESPONSE = 'Pending'".		" && FINANCE_RESPONSE = 'Pending') || ";
@@ -34,7 +34,7 @@ if (isset($_POST['mode'])) {
 				$sessionGuid = array(':guid' => $tmn->getAuthenticatedGuid());
 				
 				if ( $financeAdminsUserGroup->containsUser($tmn->getAuthenticatedGuid()) ) {
-					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE HOME_ASSIGNMENT_SESSION_ID IS NULL AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
+					$sessionSql = "SELECT SESSION_ID, SESSION_NAME, GUID FROM Tmn_Sessions WHERE ( ( HOME_ASSIGNMENT_SESSION_ID IS NULL && INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL ) OR ( HOME_ASSIGNMENT_SESSION_ID IS NOT NULL && INTERNATIONAL_ASSIGNMENT_SESSION_ID IS NULL ) ) AND AUTH_SESSION_ID IN (SELECT AUTH_SESSION_ID FROM Auth_Table WHERE ";
 					//$sessionSql .= "(AUTH_USER IS NOT NULL ".																																" && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".															"&& LEVEL_1_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
 					$sessionSql .= "(AUTH_LEVEL_1 != '' ".	"&& AUTH_LEVEL_2 != '' ".								"&& LEVEL_1_RESPONSE = 'Yes' && LEVEL_2_RESPONSE = 'Yes' && FINANCE_RESPONSE = 'Pending') || ";
