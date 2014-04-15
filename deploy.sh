@@ -38,7 +38,7 @@ else
 exit 1
 fi
 
-if [ $4=='stage' ]
+if [ "$4" -eq "stage" ]
 then
 ftp_destination='stage/TMN'
 create_tag=false

@@ -24,8 +24,8 @@ class TmnRoundOneNotifier extends TmnNotifier implements TmnNotifierInterface {
 
         $this->round    = "One";
         $this->level    = 0;
-        $this->subject  = "TMN: Friendly Reminder";
-        $this->message  = "Hi {{names}}, <br /><br />This is a friendly reminder that your TMN is due soon. {{reason}}<br />Thanks for your help.<br /><br />Yours in Christ.<br />- TMN Development Team.";
+        $this->subject  = "TMN reminder: needs to be approved by end of month";
+        $this->message  = "Hi {{names}}, <br /><br />This is a reminder that your 2014 TMN is due by the end of this month. {{reason}}<br /><br />Thanks for your cooperation.<br /><br />- Member Care";
 
         $this->reasons[TmnNotifier::$USER_HAS_NOT_SUBMITTED]  = "We noticed that you have not submitted a TMN to be reviewed by your leaders. To complete your TMN go to http://mportal.ccca.org.au/TMN .";
         $this->reasons[TmnNotifier::$AUTHORISER_HAS_NOT_APPROVED]  = "We noticed that you have submitted it and it is waiting on {{authoriser_name}}. We recommend that you remind {{authoriser_name}}, to go to http://mportal.ccca.org.au/TMN/tmn-authviewer.php?session={{session_id}} to review your TMN.";
