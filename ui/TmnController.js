@@ -1,10 +1,10 @@
 
-Ext.BLANK_IMAGE_URL = 'lib/resources/images/default/s.gif';	//the path of Ext's blank image (used for 
+Ext.BLANK_IMAGE_URL = 'lib/resources/images/default/s.gif';	//the path of Ext's blank image (used for
 Ext.ns('tmn');												//the namespace of the project
 
 /**
  * @class 		tmn.TmnController
- * 
+ *
  * <p>
  * <b>Description:</b> Entry point for the tmn.<br />
  * Manages the User Interface (the view) and interactions between the User Interface and the PHP backend (the model).
@@ -42,31 +42,31 @@ Ext.ns('tmn');												//the namespace of the project
  * <b>If you want to change the Database in the TMN, these are the steps:</b><br />
  * - Refer to the TMN PHP API.
  * </p><br />
- * 
+ *
  * @author		Michael Harrison	(<a href="mailto:michael.harrison@ccca.org.au">michael.harrison@ccca.org.au</a>)
  * 				& Thomas Flynn		(<a href="mailto:tom.flynn@ccca.org.au">tom.flynn@ccca.org.au</a>)
- * 
+ *
  * @namespace 	tmn
  * @version		TMN 2.1.0
  * @note		The TMN uses the MVC design structure, read up on it at <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">http://en.wikipedia.org/wiki/Model-view-controller</a>).
  * @demo		http://mportal.ccca.org.au/TMN
  */
 tmn.TmnController = function() {
-	
+
 	return {
-		
+
 		/**
 		 * holds the tmn's view ({@link tmn.view.TmnView}). Set in init, Do Not edit!
 		 * @type TmnView
 		 */
 		view: null,		//holds the tmn's view (tmn.view.TmnView)
-		
+
 		/**
 		 * holds the financial data for each form as it gets processed (indexed by form's id)
 		 * @type Associative array of Objects
 		 */
 		financial_data: {},
-		
+
 		/**
 		 * Returns the form named by form_name.
 		 * @param	{String}		form_name	The name of the form we are searching for (can have the values: 'international-assignment', 'home-assignment' or 'aussie-based').
@@ -78,7 +78,7 @@ tmn.TmnController = function() {
 
 			switch (form_name) {
 				case 'international-assignment':
-					
+
 					for (var formCount = 0; formCount < this.view.length(); formCount++) {
 						form = this.view.getFormAt(formCount);
 						if (form.aussie_form == false && form.overseas_form == true && form.home_assignment == false)
@@ -102,10 +102,10 @@ tmn.TmnController = function() {
 				default:
 					break;
 			}
-			
+
 			return form;
 		},
-		
+
 		/**
 		 * Returns the financial data of the form named by form_name.
 		 * @param	{String}		form_name	The name of the form we are searching for (can have the values: 'international-assignment', 'home-assignment' or 'aussie-based').
@@ -115,7 +115,7 @@ tmn.TmnController = function() {
 		getFinancialData: function(form_name) {
 			//get the form object with that name
 			var form = this.getForm(form_name);
-			
+
 			//if there was a form by that name returns its data
 			if (form != null) {
 				return this.financial_data[form.id];
@@ -124,13 +124,13 @@ tmn.TmnController = function() {
 				return this.financial_data;
 			}
 		},
-		
+
 		/**
 		 * holds the response for each form after it is submitted successfully (indexed by form's id)
 		 * @type Associative array of Strings
 		 */
 		response: {},
-		
+
 		/**
 		 * Returns the response of the form named by form_name.
 		 * @param	{String}		form_name	The name of the form we are searching for (can have the values: 'international-assignment', 'home-assignment' or 'aussie-based').
@@ -141,7 +141,7 @@ tmn.TmnController = function() {
 		getResponse: function(form_name) {
 			//get the form object with that name
 			var form = this.getForm(form_name);
-			
+
 			//if there was a form by that name returns its data
 			if (form != null) {
 				return this.response[form.id];
@@ -150,16 +150,16 @@ tmn.TmnController = function() {
 				return this.response;
 			}
 		},
-		
+
 		/**
 		 * Handler for when a user clicks next in the view; it will submit the form.
 		 * (submit can have success or failure, look at those handlers to see what happens after submit)
 		 */
 		onNext: function() {
 			var form = this.view.getActiveForm();
-			
+
 			//the following will make the user save before they continue
-			
+
 			//if its not a financial details form (ie its for both aussies and internationals) then just submit
 			if (form.aussie_form && form.overseas_form) {
 				this.view.submitActiveForm();
@@ -180,7 +180,7 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler for when a user clicks previous in the view.
 		 * it will hide the active form and show the previous form.
@@ -189,7 +189,7 @@ tmn.TmnController = function() {
 			index = this.view.active;		//grabs the index of the previous form
 			if (this.overseas == true) {
 				do {index--;} while (this.view.getFormAt(index).overseas_form == false);
-				
+
 				if (this.view.length == 1){
 					this.view.disablePrevious();
 					this.view.disableNext();
@@ -204,7 +204,7 @@ tmn.TmnController = function() {
 				}
 			} else {
 				do {index--;} while	(this.view.getFormAt(index).aussie_form == false);
-				
+
 				if (this.view.length == 1){
 					this.view.disablePrevious();
 					this.view.disableNext();
@@ -225,44 +225,44 @@ tmn.TmnController = function() {
 			//resize the view to better fit the form that was just switched to
 			this.doResize();
 		},
-		
+
 		/**
 		 * Handler for when a form's load ajax request is a success.
 		 * Will call the form's handler as the actions are specific to the form.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Ext.form.BasicForm} 	form: 			The Object that represents just the form (see {@link Ext.form.BasicForm})<br />
 		 * @param {Ext.form.Action} 	action: 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 		 */
 		onLoadSuccess: function(form_panel, form, action) {
-			
+
 			form_panel.onLoadSuccess(form, action);
 		},
-		
+
 		/**
 		 * Handler for when a form's load ajax request is a failure.
 		 * Will call the form's handler to do form specific error handling.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel}	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Ext.form.BasicForm}	form: 			The Object that represents just the form (see {@link Ext.form.BasicForm})<br />
 		 * @param {Ext.form.Action} 	action: 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 		 */
 		onLoadFailure: function(form_panel, form, action) {
-			
+
 			form_panel.onLoadFailure(form, action);
 		},
-		
+
 		/**
 		 * Handler for when a form's submit ajax request is a success.
 		 * Will call the form's handler as the actions are specific to the form.
 		 * It then changes in the next form and loads it.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Ext.form.BasicForm} 	form: 			The Object that represents just the form (see {@link Ext.form.BasicForm})<br />
 		 * @param {Ext.form.Action} 	action: 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 		 */
 		onSubmitSuccess: function(form_panel, form, action) {
-			
+
 			var index = this.view.active;			//grabs the index of the current form
 			if (this.overseas == true) {
 				do {index++;} while	(this.view.getFormAt(index).overseas_form == false);
@@ -300,14 +300,14 @@ tmn.TmnController = function() {
 					}
 				}
 			}
-			
+
 			form_panel.onSubmitSuccess(form, action);						//does any local changes needed after a successful submition
 			this.response[form_panel.id] = action.response.responseText;	//save the response of the form
-			
+
 			if ((this.overseas == true && index <= this.view.indexOfLastOverseasForm()) || (this.overseas == false && index <= this.view.indexOfLastAussieForm())) {
 				this.view.changeForm(index);//hides the current form and shows the form with the index we just passed it
 				Ext.History.add(index);											//add this form to the browsers history
-			
+
 				//load the new form
 				if (this.view.getActiveForm().rendered) {
 					this.loadHandler(form_panel);														//loads new form
@@ -316,12 +316,12 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler that will load the active form once its ready to be loaded.
 		 * It will check what type of form it is to load and will do the appropriate actions needed to load that form.
 		 * It is only called by {@link #onSubmitSuccess} because the only case where you need to load a form is when the last one was successfully submitted and the new one is put in its place.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the form that just successfully submitted.
 		 * 												This object contains the form and the full panel that contains the form (see {@link Ext.form.FormPanel})
 		 */
@@ -329,9 +329,9 @@ tmn.TmnController = function() {
 			if (this.view.getActiveForm().home_assignment == true) {
 				console.log("ha", this.getFinancialData('international-assignment'));
 				this.view.loadActiveForm(this.getFinancialData('international-assignment'));		//loads the new form with local data
-				
+
 				this.view.getActiveForm().disableStartDate();
-				
+
 				this.view.getActiveForm().onLoadSuccess(this.view.getActiveForm().getForm());
 			} else if (this.view.active == this.view.indexOfLastAussieForm() || this.view.active == this.view.indexOfLastOverseasForm()) {
 				console.log("la", this.response);
@@ -344,32 +344,32 @@ tmn.TmnController = function() {
 				this.view.loadActiveForm(this.response);
 			} else {
 				console.log("other");
-				
+
 				this.view.loadActiveForm();						//loads the new form
 			}
-			
+
 
 			//resize the view to better fit the form that was just switched to
 			this.doResize();
 		},
-		
+
 		/**
 		 * Handler for when a form's submit ajax request is a failure.
 		 * Will call the form's handler as the actions are specific to the form.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Ext.form.BasicForm} 	form: 			The Object that represents just the form (see {@link Ext.form.BasicForm})<br />
 		 * @param {Ext.form.Action} 	action: 		The action Object created from the ajax repsonse (see {@link Ext.form.Action})
 		 */
 		onSubmitFailure: function(form_panel, form, action) {
-			
+
 			form_panel.onSubmitFailure(form, action);
 		},
-		
+
 		/**
 		 * Handler for when the user indicates they are Full Time.
 		 * If the user or the spouse indicates they are Full Time make their days per week invisable.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {boolean} 			spouse: 		A boolean variable that tells the handler if it is dealing with the user's fields or the spouse's fields
 		 */
@@ -378,7 +378,7 @@ tmn.TmnController = function() {
 			if (spouse) {
 				form_panel.setSpouseDaysPerWeekVisable(false);	//hide the part time field
 				this.onOverseas(form_panel, true, false);		//set the overseas status to false because Full Time and Part Time are Aussie only states
-				
+
 				//if the user enters overseas for their spouse make sure they don't set their ftptos value to overseas
 				if (form_panel.getFtptosValue() == 'Overseas') {
 					form_panel.copySpouseFtptosValue();
@@ -387,7 +387,7 @@ tmn.TmnController = function() {
 			} else {
 				form_panel.setDaysPerWeekVisable(false);		//hide the part time field
 				this.onOverseas(form_panel, false, false);		//set the overseas status to false because Full Time and Part Time are Aussie only states
-				
+
 				//if the user has a spouse make sure the spouse doen't have their overseas status set to overseas (a couple can't serve in seperate countries)
 				if (form_panel.hasSpouse() && form_panel.getSpouseFtptosValue() == 'Overseas') {
 					form_panel.copyFtptosValue();
@@ -395,11 +395,11 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user indicates they are Part Time.
 		 * If the user or the spouse indicates they are Part Time make their days per week visable.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Boolean}				spouse: 		A boolean variable that tells the handler if it is dealing with the user's fields or the spouse's fields
 		 */
@@ -408,7 +408,7 @@ tmn.TmnController = function() {
 			if (spouse) {
 				form_panel.setSpouseDaysPerWeekVisable(true);	//show the part time field
 				this.onOverseas(form_panel, true, false);		//set the overseas status to false because Full Time and Part Time are Aussie only states
-				
+
 				//if the user enters overseas for their spouse make sure they don't set their ftptos value to overseas
 				if (form_panel.getFtptosValue() == 'Overseas') {
 					form_panel.copySpouseFtptosValue();
@@ -417,7 +417,7 @@ tmn.TmnController = function() {
 			} else {
 				form_panel.setDaysPerWeekVisable(true);			//show the part time field
 				this.onOverseas(form_panel, false, false);		//set the overseas status to false because Full Time and Part Time are Aussie only states
-				
+
 				//if the user has a spouse, make sure the spouse doen't have their overseas status set to overseas (a couple can't serve in seperate countries)
 				if (form_panel.hasSpouse() && form_panel.getSpouseFtptosValue() == 'Overseas') {
 					form_panel.copyFtptosValue();
@@ -425,21 +425,21 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user indicates if they serve overseas or not.
 		 * When it runs, it uses {@link tmn.view.TmnView#setOverseas} to propagate the overseas status through to all the Objects that need to know.
 		 * It also show/hides days per week, because if you serve overseas you are Full Time by default.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel}	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Boolean}				spouse: 		A boolean variable that tells the handler if it is dealing with the user's fields or the spouse's fields
 		 * @param {Boolean} 			overseas		A boolean variable that tells the handler if the user serves overseas or not.
 		 */
 		onOverseas: function (form_panel, spouse, overseas) {
-			
+
 			//reset response when overseas status is changed
 			this.resetResponse();
-			
+
 			if (overseas) {
 				this.overseas = true;
 				this.view.setOverseas(true);
@@ -451,7 +451,7 @@ tmn.TmnController = function() {
 					form_panel.copySpouseFtptosValue();
 				} else {
 					form_panel.setDaysPerWeekVisable(false);			//hide the days per week field
-					
+
 					//if the user has a spouse, make sure the spouse has their overseas status set to overseas too (a couple can't serve in seperate countries)
 					if (form_panel.hasSpouse()) {
 						form_panel.copyFtptosValue();
@@ -463,28 +463,28 @@ tmn.TmnController = function() {
 				this.view.setOverseas(false);						//propergate overseas status through the view
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user changes their MPD status.
 		 * If the user changes their MPD status it will toggle the visibility of the Supervisor fields.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel}	form_panel: 	The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Boolean}				spouse: 		A boolean variable that tells the handler if it is dealing with the user's fields or the spouse's fields
 		 */
 		onMpd: function(form_panel, mpd) {
-			
+
 			if (mpd) {
 				form_panel.setMpdSupervisorVisable(true);
 			} else {
 				form_panel.setMpdSupervisorVisable(false);
 			}
-				
+
 		},
-		
+
 		/**
 		 * Handler for when the program varifies the user's marrital status.
 		 * When it runs, it uses {@link tmn.view.TmnView#setSpouse} to propagate the marrital status through to all the Objects that need to know.
-		 * 
+		 *
 		 * @param {Boolean}				spouse 			A boolean variable that tells the handler if the user has a spouse or not.
 		 */
 		onSpouse: function (spouse) {
@@ -496,15 +496,15 @@ tmn.TmnController = function() {
 				this.view.setSpouse(false);
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to load a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onLoadSession: function(form_panel) {
 			var dataObject	= {session_id:form_panel.getSelectedSession()};
-			
+
 			//if its an aussie form do appropriate checks before loading the session
 			if (form_panel.aussie_form) {
 				//check that it has been saved
@@ -528,7 +528,7 @@ tmn.TmnController = function() {
 					);
 				}
 			}
-			
+
 			//if its an overseas form do appropriate checks before loading the session
 			if (form_panel.overseas_form) {
 				//grab the forms
@@ -536,7 +536,7 @@ tmn.TmnController = function() {
 				var international_assignment_form	= this.getForm('international-assignment');
 				//create the data packet to be sent to the backend
 				var dataObject	= {session_id:form_panel.getSelectedSession()};
-				
+
 				//if both are saved
 				if (home_assignment_form.isSaved() && international_assignment_form.isSaved()) {
 					//load the new session
@@ -559,10 +559,10 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to load a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
 		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
@@ -572,7 +572,7 @@ tmn.TmnController = function() {
 			//parse repsonse
 			var return_object	= Ext.util.JSON.decode(response.responseText),
 				note			= '';
-			
+
 			if (form_panel.aussie_form) {
 				//save the returned data
 				this.financial_data[form_panel.id] = return_object.data;
@@ -580,25 +580,25 @@ tmn.TmnController = function() {
 				form_panel.onLoadSessionSuccess(this.financial_data[form_panel.id]);
 				note = 'We take inflation to be 2.5% and so we multiply your stipend, additional tax, post tax super, pre tax super and mmrs by 1.025.';
 			}
-			
+
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
 				var international_assignment_form	= this.getForm('international-assignment');
-				
+
 				//save the returned data
 				this.financial_data[home_assignment_form.id]			= return_object.data['home-assignment'];
 				this.financial_data[international_assignment_form.id]	= return_object.data['international-assignment'];
-				
+
 				//load the data into the forms
 				home_assignment_form.onLoadSessionSuccess(this.financial_data[home_assignment_form.id]);
 				international_assignment_form.onLoadSessionSuccess(this.financial_data[international_assignment_form.id]);
 				note = 'We take inflation to be 2.5% and so we multiply your stipend, living away from home allowance, additional tax, post tax super, pre tax super and mmrs by 1.025.';
 			}
-			
+
 			//if the data as had inflation applied by the back end tell the user and have the data reprocessed
 			if (return_object.inflation_status !== undefined) {
-				
+
 				if (return_object.inflation_status == 'applied') {
 					Ext.MessageBox.show({
 						icon:		Ext.MessageBox.INFO,
@@ -621,7 +621,7 @@ tmn.TmnController = function() {
 							}
 						}
 					});
-					
+
 					//send a financial data updated event so that the data will get sent to the server for reprocessing
 					form_panel.fireEvent('financialdataupdated', form_panel, {isValid:function(){return true;}, getName:function(){return 'session_id';}}, form_panel.getSession(), true);
 				} else if (return_object.inflation_status == 'needed') {
@@ -638,7 +638,7 @@ tmn.TmnController = function() {
 						scope:		form_panel,
 						fn:			function(button, options) {
 							var dataObject	= {session_id:this.getSelectedSession()};
-							
+
 							if (button == 'yes') {
 								this.onLoadSession(dataObject, true);
 							} else {
@@ -656,24 +656,24 @@ tmn.TmnController = function() {
 					});
 				}
 			}
-			
+
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to save a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onSaveSession: function(form_panel) {
-			
+
 			//if the session has never been saved before (ie the session id is not set) then call save as instead of save
 			if (form_panel.getSession() == '' || form_panel.getSession() === undefined || form_panel.getSession() == null) {
-				
+
 				this.onSaveAsSession(form_panel);
-			
+
 			//otherwise do a normal save
 			} else {
-				
+
 				//if this is a form just save the aussie form
 				if (form_panel.aussie_form) {
 					form_panel.onSaveSession(this.financial_data[form_panel.id]);
@@ -693,7 +693,7 @@ tmn.TmnController = function() {
 					} else {
 						dataObject['home-assignment']		= this.financial_data[international_assignment_form.id];
 					}
-					
+
 					//if the international end date is set copy it to the start date of the home assignment
 					if (dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] !== undefined && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != null && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != '') {
 						//set the home assignment start date to international end data
@@ -703,41 +703,41 @@ tmn.TmnController = function() {
 					//save the data for both forms (it doesn't matter which form you use)
 					form_panel.onSaveSession(dataObject);
 				}
-				
+
 			}
-			
+
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to save a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onSaveAsSession: function(form_panel) {
-			
+
 			var date			= new Date();
 			var default_name	= date.format('Y-m-d H:i:s');
-			
+
 			//if a name exists for the current session then set the default name to that
 			if (!(form_panel.getSessionName() === undefined || form_panel.getSessionName() == null)) {
 				default_name	= form_panel.getSessionName() + " copy";
 			}
-			
+
 
 			if (form_panel.aussie_form) {
-				
+
 				var dataObject = this.financial_data[form_panel.id];
-				
+
 				//remove session id, it is about to be copied and given a new id
 				if (dataObject['session_id'] !== undefined) {
 					delete dataObject['session_id'];
 				}
-				
+
 				//remove auth session id, it is about to be copied and the new session will not have an auth session
 				if (dataObject['auth_session_id'] !== undefined) {
 					delete dataObject['auth_session_id'];
 				}
-				
+
 				Ext.MessageBox.prompt(
 						"Save As",
 						"Give your session a name:",
@@ -760,7 +760,7 @@ tmn.TmnController = function() {
 									//set the session name
 									this.form.setSessionName(text);
 									this.data.session_name	= text;
-									
+
 									//create the session in the database
 									this.form.onSaveAsSession(this.data);
 								}
@@ -772,37 +772,37 @@ tmn.TmnController = function() {
 				);
 
 			} //eo aussie code
-			
-			
+
+
 			if (form_panel.overseas_form) {
-				
+
 				//grab the forms
 				var home_assignment_form					= this.getForm('home-assignment');
 				var international_assignment_form			= this.getForm('international-assignment');
-				
+
 				//make sure there is data for international assignment before running through it
 				if (this.financial_data[international_assignment_form.id]  !== undefined) {
 					//remove session id, it is about to be copied and given a new id
 					if (this.financial_data[international_assignment_form.id]['session_id'] !== undefined) {
 						delete (this.financial_data[international_assignment_form.id]['session_id']);
 					}
-					
+
 					//remove auth session id, it is about to be copied and the new session will not have an auth session
 					if (this.financial_data[international_assignment_form.id]['auth_session_id'] !== undefined) {
 						delete (this.financial_data[international_assignment_form.id]['auth_session_id']);
 					}
-					
+
 					//remove home_assignment_session_id, it is about to be copied and the new session will have a new home assignment session
 					if (this.financial_data[international_assignment_form.id]['home_assignment_session_id'] !== undefined) {
 						delete (this.financial_data[international_assignment_form.id]['home_assignment_session_id']);
 					}
-					
+
 					//remove international_assignment_session_id, it is about to be copied and the new session will have a new international assignment session
 					if (this.financial_data[international_assignment_form.id]['international_assignment_session_id'] !== undefined) {
 						delete (this.financial_data[international_assignment_form.id]['international_assignment_session_id']);
 					}
 				}
-				
+
 				var dataObject = {};
 				 //use the international data because the user will be made to save for the first time on the international form
 				//so save as will never have access to home assignment data as it won't yet exist
@@ -812,7 +812,7 @@ tmn.TmnController = function() {
 				for ($field in dataObject['international-assignment']) {
 					dataObject['home-assignment'][$field]	= dataObject['international-assignment'][$field];
 				}
-				
+
 				//if the international end date is set copy it to the start date of the home assignment
 				if (dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] !== undefined && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != null && dataObject['international-assignment']['OS_ASSIGNMENT_END_DATE'] != '') {
 					//set the home assignment start date to international end data
@@ -843,7 +843,7 @@ tmn.TmnController = function() {
 									this.international_form.setSessionName(text);
 									this.data['home-assignment']['session_name'] = text;
 									this.data['international-assignment']['session_name'] = text;
-									
+
 									//create the session in the database
 									this.form.onSaveAsSession(this.data);
 								}
@@ -857,10 +857,10 @@ tmn.TmnController = function() {
 			} //eo overseas code
 
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to save a new session and it succeeds form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
 		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
@@ -870,7 +870,7 @@ tmn.TmnController = function() {
 			//parse repsonse
 			var return_object				= Ext.util.JSON.decode(response.responseText);
 			var data						= return_object['data'];
-			
+
 			if (form_panel.aussie_form) {
 				if (data !== undefined) {
 					if (data['session_id']) {
@@ -881,21 +881,21 @@ tmn.TmnController = function() {
 					}
 				}
 			}
-		
-		
+
+
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
 				var international_assignment_form	= this.getForm('international-assignment');
 				//grab the returned data
 				var data							= return_object.data;
-				
+
 				if (data !== undefined) {
-					
+
 					//grab data for each of the forms
 					var home_assignment_data				= data['home-assignment'];
 					var international_assignment_data		= data['international-assignment'];
-					
+
 					//if a session id was returned for home assignment set it
 					if (home_assignment_data['session_id']) {
 						//set the new session id
@@ -915,44 +915,44 @@ tmn.TmnController = function() {
 						//let the form deal with the newly saved session
 						international_assignment_form.onSaveAsSessionSuccess(international_assignment_data['session_id']);
 					}
-					
+
 					form_panel.saveAsInternalTransfers(international_assignment_data['session_id']);
 				}
 
 			}
-			
+
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to delete a session into a financial details form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onDeleteSession: function(form_panel) {
 
 			var dataObject	= {};
-			
+
 			//if there is no session to delete then show a warning and don't proceed any further
 			if (form_panel.getSession() == '' || form_panel.getSession() == null || form_panel.getSession() === undefined) {
 				Ext.MessageBox.alert('Warning', 'A Saved Session needs to be loaded for the delete function to work. If you have no Sessions available in the combo box there is no need to delete.');
 				return;
 			}
-			
+
 			if (form_panel.aussie_form) {
 				//create the data object filled with the session id's to be deleted
 				dataObject.session_id					= form_panel.getSession();
 			}
-			
+
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form				= this.getForm('home-assignment');
 				var international_assignment_form		= this.getForm('international-assignment');
-				
+
 				//create the data object filled with the session id's to be deleted
 				dataObject['home-assignment']			= {session_id: home_assignment_form.getSession()};
 				dataObject['international-assignment']	= {session_id: international_assignment_form.getSession()};
 			}
-			
+
 			Ext.MessageBox.confirm(
 					'Warning',
 					'Are you sure you want to delete this session?',
@@ -964,46 +964,46 @@ tmn.TmnController = function() {
 					{form:form_panel, data:dataObject} //this param sets the scope for the callback, I have set the scope as an object full of data I want to use in the callback
 			);
 		},
-		
+
 		/**
 		 * Handler for when the user selects that they want to delete a session and it succeeds form (done using {@link tmn.view.FinancialDetailsForm}).
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
 		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
 		 * @param {Object} 				options: 			The parameter to the request call.
 		 */
 		onDeleteSessionSuccess: function(form_panel, response, options) {
-			
+
 			if (form_panel.aussie_form) {
 				//get form to clean itself up
 				form_panel.onDeleteSessionSuccess();
 			}
-			
+
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
 				var international_assignment_form	= this.getForm('international-assignment');
-				
+
 				//get form's to clean themselves up
 				home_assignment_form.onDeleteSessionSuccess();
 				international_assignment_form.onDeleteSessionSuccess();
-				
+
 				//if the user is on the home assignment form then move them back to the international assignment form
 				if (form_panel.home_assignment) {
 					this.onPrevious();
 				}
 			}
-			
+
 		},
-		
+
 		/**
 		 * Clears the form or forms (for an overseas missionary) of all data associated with the current session
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		onResetSession: function(form_panel) {
-			
+
 			if (form_panel.aussie_form) {
 				//if the form has unsaved changes check whether they want to save first
 				if (!form_panel.isSaved()) {
@@ -1018,18 +1018,18 @@ tmn.TmnController = function() {
 							},
 							form_panel
 					);
-					
+
 				//otherwise just get form to clean itself up
 				} else {
 					form_panel.resetForm();
 				}
 			}
-			
+
 			if (form_panel.overseas_form) {
 				//grab the forms
 				var home_assignment_form			= this.getForm('home-assignment');
 				var international_assignment_form	= this.getForm('international-assignment');
-				
+
 				//if the form has unsaved changes check whether they want to save first
 				if (!home_assignment_form.isSaved() || !international_assignment_form.isSaved()) {
 					Ext.MessageBox.confirm(
@@ -1040,7 +1040,7 @@ tmn.TmnController = function() {
 									//get form's to clean themselves up
 									this.home.resetForm();
 									this.international.resetForm();
-									
+
 									//if the user is on the home assignment form then move them back to the international assignment form
 									if (this.form.home_assignment) {
 										this.controller.onPrevious();
@@ -1049,43 +1049,43 @@ tmn.TmnController = function() {
 							},
 							{controller:this, form:form_panel, home:home_assignment_form, international:international_assignment_form} //set scope to an object that contains the data the callback needs
 					);
-					
+
 				//otherwise just get form to clean itself up
 				} else {
 					//get form's to clean themselves up
 					home_assignment_form.resetForm();
 					international_assignment_form.resetForm();
-					
+
 					//if the user is on the home assignment form then move them back to the international assignment form
 					if (form_panel.home_assignment) {
 						this.onPrevious();
 					}
 				}
-				
+
 			}
 		},
-		
+
 		/**
 		 * Replaces financial_data with empty object for a particular form
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		resetFinancialData: function(form_panel) {
 			this.financial_data[form_panel.id] = {};
 		},
-		
+
 		/**
 		 * Replaces financial_data with empty object for a particular form
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})
 		 */
 		resetResponse: function(form_panel) {
 			this.response = {};
 		},
-		
+
 		/**
 		 * Handler for when the user updates a piece of financial data (done using {@link tmn.view.FinancialDetailsForm}) and it needs to be processed.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the complete panel which also contains the form (see {@link Ext.form.FormPanel})<br />
 		 * @param {Mixed} 				field: 				The Object that represents the field that was just updated (needs to have an isValid() and a getName() method)<br />
 		 * @param {Mixed} 				newVal: 			The new value of the field that was just updated<br />
@@ -1095,7 +1095,7 @@ tmn.TmnController = function() {
 		 * 													unnessisary ajax requests).
 		 */
 		processFinancialData: function(form_panel, field, newVal, send_ajax_request) {
-			
+
 			if (field.isValid())	//ignore any invalid fields
 			{
 				if (this.financial_data[form_panel.id] === undefined) {			//if the form has never sent data to be processed
@@ -1105,7 +1105,7 @@ tmn.TmnController = function() {
 				this.financial_data[form_panel.id]['overseas'] = this.overseas;	//add the misso's other status info
 				this.financial_data[form_panel.id]['spouse'] = this.spouse;
 				this.financial_data[form_panel.id]['home_assignment'] = form_panel.home_assignment;
-				
+
 				if (send_ajax_request == true) {
 					Ext.Ajax.request({											//send all the data about the misso to the server for processing
 						url: 'php/cookie_monster.php',
@@ -1117,10 +1117,10 @@ tmn.TmnController = function() {
 				}
 			}
 		},
-		
+
 		/**
 		 * Handler for when the user updates a piece of financial data (done using {@link tmn.view.FinancialDetailsForm}) and that data is successfully processed.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the form that triggered the update. (the object represents the form and its containing panel)<br />
 		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
 		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
@@ -1136,10 +1136,10 @@ tmn.TmnController = function() {
 
 			form_panel.onProcessFinancialDataSuccess(this.financial_data[form_panel.id], response, options);	//do local processing (will handle both success and error)
 		},
-		
+
 		/**
 		 * Handler for when the user updates a piece of financial data (done using {@link tmn.view.FinancialDetailsForm}) and that data fails to be processed.
-		 * 
+		 *
 		 * @param {Ext.form.FormPanel} 	form_panel: 		The Object that represents the form that triggered the update. (the object represents the form and its containing panel)<br />
 		 * @param {Object} 				response: 			The XMLHttpRequest object containing the response data. (see ,<a href="http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface">
 		 * 													http://www.w3.org/TR/XMLHttpRequest/#the-xmlhttprequest-interface</a> if you don't know what a XMLHttpRequest contains)<br />
@@ -1148,7 +1148,7 @@ tmn.TmnController = function() {
 		onProcessFinancialDataFailure: function(form_panel, response, options) {
 			form_panel.onProcessFinancialDataFailure(response, options);
 		},
-		
+
 		/**
 		 * Handler for when the user has successfully finished submitting their TMN. It will refresh stuff so that the user can't go back and change anything.
 		 */
@@ -1158,12 +1158,12 @@ tmn.TmnController = function() {
 				form.reloadSessionCombo();
 			}, this);
 		},
-		
+
 		/**
 		 * Handler for when the user clicks the forward or back buttons on the browser.
 		 * Look at {@link #onPrevious} and {@link #onSubmitSuccess} for the other lines of code that make the history mangement work.
 		 * Also look at {@link Ext.History} for examples on how to use it.
-		 * 
+		 *
 		 * @param {String}				token: 			String that identifies the active state of the History stack (after the user has gone back). In our case this is the index of the form.
 		 */
 		onHistoryChange: function(token){
@@ -1224,7 +1224,7 @@ tmn.TmnController = function() {
 				});
 			}
 		},
-		
+
 		/**
 		 * Resizes the view's height to the height of the avaiable space in the browser.
 		 */
@@ -1249,7 +1249,7 @@ tmn.TmnController = function() {
 		init: function() {
 			var loadingMask = Ext.get('loading-mask');
 			var loading = Ext.get('loading');
-			
+
 			////////////////Quick Tip Stuff///////////////////
 			Ext.QuickTips.init();							// Enables quick tips and validation messages
 			Ext.apply(Ext.QuickTips.getQuickTip(), {		// Quicktip defaults
@@ -1259,35 +1259,35 @@ tmn.TmnController = function() {
 			    trackMouse: false
 			});
 			Ext.form.Field.prototype.msgTarget = 'side';	// Puts validation messages on the side
-			
+
 			///////////////Init History//////////////////////
 			Ext.History.init();
 			Ext.History.add("0");
 			//manage change in history
 			Ext.History.on('change', this.onHistoryChange, this);
-			
+
 			//create view
 			this.view = new tmn.view.TmnView;
-			
+
 			///////////////Init Resize//////////////////////
-	        
+
 	        // Resize on demand
 	        Ext.EventManager.onWindowResize(this.doResize, this);
-	        
+
 	        //resize the form
 	        this.doResize();
-			
+
 			//register event handlers (see the API doc for tmn.view.TmnView.on() to find out how to do this )
 				//view events
 			this.view.on('next', this.onNext, this);
 			this.view.on('previous', this.onPrevious, this);
-			
+
 				//form_panel events (applies to all forms PersonalDetails, FiancialDetails, ... )
 			this.view.on('loadsuccess', this.onLoadSuccess, this);
 			this.view.on('loadfailure', this.onLoadFailure, this);
 			this.view.on('submitsuccess', this.onSubmitSuccess, this);
 			this.view.on('submitfailure', this.onSubmitFailure, this);
-			
+
 				//PersonalDetailsForm events
 			this.view.on('single', this.onSpouse.createDelegate(this, [false]), this);			//these use createDelegate to send extra parmeters to the handler (ie spouse true or false)
 			this.view.on('married', this.onSpouse.createDelegate(this, [true]), this);
@@ -1297,7 +1297,7 @@ tmn.TmnController = function() {
 			this.view.on('parttime', this.onPartTime, this);
 			this.view.on('mpdyes', this.onMpd.createDelegate(this, [true], true), this);
 			this.view.on('mpdno', this.onMpd.createDelegate(this, [false], true), this);
-			
+
 				//FinancialDetailsForm events
 			this.view.on('resetfinancialdata', this.resetFinancialData, this);
 			this.view.on('financialdataupdated', this.processFinancialData, this);
@@ -1309,13 +1309,13 @@ tmn.TmnController = function() {
 			this.view.on('deletesession', this.onDeleteSession, this);
 			this.view.on('deletesessionsuccess', this.onDeleteSessionSuccess, this);
 			this.view.on('resetsession', this.onResetSession, this);
-			
+
 				//PrintForm events
 			this.view.on('tmnsubmitted', this.onTmnSubmitted, this);
-			
+
 			//load initial form
 			this.view.loadActiveForm();
-			
+
 			////////////////Loading Message Stuff///////////////
 			//  Hide loading message
 			loading.fadeOut({ duration: 0.2, remove: true });
