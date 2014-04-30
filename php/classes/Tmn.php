@@ -56,9 +56,18 @@ class Tmn extends Reporter implements TmnInterface {
 	public function isAuthenticated() {
 		return $this->authenticator->isAuthenticated();
 	}
+
+    public function isCurrentUserARegisteredTmnUser() {
+
+        try {
+            $this->getUser();
+            return true;
+        } catch (FatalException $exception) {
+            return false;
+        }
+    }
 	
 	public function getAuthenticatedGuid() {
-		//return "691EC152-0565-CEF4-B5D8-99286252652B";
 		return $this->authenticator->getGuid();
 	}
 	
