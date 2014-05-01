@@ -14,7 +14,9 @@ ftp_destination='TMN'
 full_refresh=true
 
 if [ $# -ne 6 ]; then
-echo "Parameters missing. Please use this format (all parameters are required):\n${example}"
+echo ""
+echo "Parameters missing. Please use this format (all parameters are required):"
+echo "${example}"
 exit 1
 fi
 
@@ -22,7 +24,9 @@ if [ -n "$1" ]
 then
 ftp_uname=$1
 else
-echo "username missing. Please use this format:\n${example}"
+echo ""
+echo "username missing. Please use this format:"
+echo "${example}"
 exit 1
 fi
 
@@ -30,7 +34,9 @@ if [ -n "$2" ]
 then
 ftp_pword=$2
 else
-echo "password missing. Please use this format:\n${example}"
+echo ""
+echo "password missing. Please use this format:"
+echo "${example}"
 exit 1
 fi
 
@@ -38,15 +44,15 @@ if [ -n "$3" ]
 then
 config_path=$3
 else
-echo "config path missing. Please use this format:\n${example}"
+echo ""
+echo "config path missing. Please use this format:"
+echo "${example}"
 exit 1
 fi
-echo "$4"
-echo ["$4" -eq "stage"]
+
 if [ "$4" -eq "stage" ]
 then
 ftp_destination='stage/TMN'
-create_tag=false
 fi
 
 if [ "$5" -eq "false" ]
@@ -58,7 +64,9 @@ if [ -n "$6" ]
 then
 version=$6
 else
-echo "version number missing. Please use this format:\n${example}"
+echo ""
+echo "version number missing. Please use this format:"
+echo "${example}"
 exit 1
 fi
 
@@ -67,7 +75,7 @@ pushd . > /dev/null
 
 echo ''
 echo 'Start Publishing TMN'
-
+echo ''
 echo 'Start Clone'
 echo ''
 
@@ -75,6 +83,7 @@ mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
 cd tmn
+git checkout v${version}
 git submodule init
 git submodule update
 
@@ -84,18 +93,11 @@ cp ${config_path} config.json
 else
 exit 1
 fi
-
-if $create_tag ; then
 echo ''
-echo 'Start Creating Tag'
+echo 'Clone Complete'
 echo ''
-
-git tag "TMN${version}"
-git push --tags
-
+echo 'Start String Replacement'
 echo ''
-echo 'Tag Creation Complete'
-fi
 
 ls
 perl -pi -e 's/BUILDNUMBER[\ \t]*=[\ \t]*\"current_build_number_will_be_inserted_by_upload_script\"/BUILDNUMBER\ =\ \"${version}\"/g;' *.php
