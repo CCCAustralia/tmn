@@ -1,8 +1,9 @@
 #!/bin/sh
 
-#usage . deploy.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]}
-#eg: . deploy.sh user_name password full/path/to/config.stage.json stage true
+#usage . deploy.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]} version
+#eg: . deploy.sh user_name password full/path/to/config.stage.json stage true 2.5
 
+example='. deploy.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]} version'
 version='2.5'
 repo_url='https://github.com/CCCAustralia/tmn.git'
 yuicompressor_path='lib/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar'
@@ -10,10 +11,10 @@ config_path='config.json'
 ftp_uname=''
 ftp_pword=''
 ftp_destination='TMN'
-create_tag=true
 full_refresh=true
 
-if [ $# -ne 5 ]; then
+if [ $# -ne 6 ]; then
+echo "Parameters missing. Please use this format (all parameters are required):\n${example}"
 exit 1
 fi
 
@@ -21,6 +22,7 @@ if [ -n "$1" ]
 then
 ftp_uname=$1
 else
+echo "username missing. Please use this format:\n${example}"
 exit 1
 fi
 
@@ -28,6 +30,7 @@ if [ -n "$2" ]
 then
 ftp_pword=$2
 else
+echo "password missing. Please use this format:\n${example}"
 exit 1
 fi
 
@@ -35,13 +38,28 @@ if [ -n "$3" ]
 then
 config_path=$3
 else
+echo "config path missing. Please use this format:\n${example}"
 exit 1
 fi
-
+echo "$4"
+echo ["$4" -eq "stage"]
 if [ "$4" -eq "stage" ]
 then
 ftp_destination='stage/TMN'
 create_tag=false
+fi
+
+if [ "$5" -eq "false" ]
+then
+full_refresh=false
+fi
+
+if [ -n "$6" ]
+then
+version=$6
+else
+echo "version number missing. Please use this format:\n${example}"
+exit 1
 fi
 
 #save the current directory so the user can be returned here
