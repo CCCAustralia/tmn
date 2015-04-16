@@ -85,7 +85,7 @@ mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
 cd tmn
-if [ ${branch} -ne "master" ]
+if [ "$branch" -ne "master" ]
 then
 git fetch origin ${branch}
 fi
