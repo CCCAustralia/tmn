@@ -630,6 +630,16 @@ class TmnCrudSession extends TmnCrud implements TmnCrudSessionInterface {
 		}
 		
 		//format income_protection_cover_source for display
+		if (is_numeric($this->getField('additional_life_cover'))) {
+			$obj['additional_life_cover'] = $this->getField('additional_life_cover') * 52 / 12;
+		}
+		
+		//format s_income_protection_cover_source for display
+		if (is_numeric($this->getField('s_additional_life_cover'))) {
+			$obj['s_additional_life_cover'] = $this->getField('s_additional_life_cover') * 52 / 12;
+		}
+		
+		//format income_protection_cover_source for display
 		switch ($this->getField('income_protection_cover_source')) {
 			case 0:
 				$obj['income_protection_cover_source']			= "Support Account";
