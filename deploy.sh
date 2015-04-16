@@ -51,13 +51,13 @@ echo "${example}"
 exit 1
 fi
 
-if [ "$4" -eq "stage" ]
+if [ "$4" = "stage" ]
 then
 ftp_destination='stage/TMN'
 branch='dev'
 fi
 
-if [ "$5" -eq "false" ]
+if [ "$5" = "false" ]
 then
 full_refresh=false
 fi
@@ -85,7 +85,7 @@ mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
 cd tmn
-if [ "$branch" -ne "master" ]
+if [ "$branch" != "master" ]
 then
 git fetch origin ${branch}
 fi
