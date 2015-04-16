@@ -11,6 +11,7 @@ config_path='config.json'
 ftp_uname=''
 ftp_pword=''
 ftp_destination='TMN'
+branch='master'
 full_refresh=true
 
 if [ $# -ne 6 ]; then
@@ -53,6 +54,7 @@ fi
 if [ "$4" -eq "stage" ]
 then
 ftp_destination='stage/TMN'
+branch='dev'
 fi
 
 if [ "$5" -eq "false" ]
@@ -83,7 +85,11 @@ mkdir ~/tmn_temp
 cd ~/tmn_temp
 git clone ${repo_url}
 cd tmn
-git checkout v${version}
+if [ ${branch} -ne "master" ]
+then
+git fetch origin ${branch}
+fi
+git checkout ${branch}
 git submodule init
 git submodule update
 
