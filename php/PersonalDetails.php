@@ -32,6 +32,7 @@ class PersonalDetails extends TmnCrudUser {
 		$data["DAYS_PER_WEEK"]  	= $userArray['days_per_week'];
 		
 		if ( $this->getSpouse() ) {
+		
 			$spouseArray  			= $this->getSpouse()->produceAssocArray();
 			
 			$data["S_FIRSTNAME"]    = $spouseArray['firstname'];
@@ -42,6 +43,7 @@ class PersonalDetails extends TmnCrudUser {
 		}
 		
 		if ((int)$userArray['mpd'] == 1) {
+		
 		  	$mpdCoachArray= $this->getMpdCoach()->produceAssocArray();
 		  
 		  	$data["MPD"]            = (int)$userArray['mpd'];
@@ -106,8 +108,7 @@ class PersonalDetails extends TmnCrudUser {
 			  $spouse->setField('days_per_week', ( isset($spouseData['days_per_week']) ? $spouseData['days_per_week'] : $spouse->getField('days_per_week') ) );
 			  $spouse->update();
 			  $this->setField('spouse_guid', $spouse->getGuid());
-fb($spouseData);
-fb($spouse);
+			  
 			} else {
 			  
 			  $errors = array_merge($errors, array('S_FIRSTNAME' => 'Could not match this person to you. A Spouse must have a theKey account, which has previously logged into the TMN. The TMN must also have the same Financial Account Number registered for both of you. If you think there has been a mistake contact <a href="tech.team@ccca.org.au">tech.team@ccca.org.au</a>'));
@@ -142,7 +143,6 @@ fb($spouse);
 		$this->setField('ft_pt_os', $userData['ft_pt_os']);
 		$this->setField('days_per_week', ( isset($userData['days_per_week']) ? $userData['days_per_week'] : $this->getField('days_per_week') ) );
 
-		//fb($this);
 		$this->update();
 
 		return json_encode(array('success' => true));
