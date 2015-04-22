@@ -23,27 +23,35 @@ class PersonalDetails extends TmnCrudUser {
 	//'get' mode
 	public function getPersonalDetails() {
 
-		$userArray    = $this->produceAssocArray();
+		$userArray    				= $this->produceAssocArray();
+		
+		$data["FIRSTNAME"]      	= $userArray['firstname'];
+		$data["SURNAME"]        	= $userArray['surname'];
+		$data["MINISTRY"]       	= $userArray['ministry'];
+		$data["FT_PT_OS"]      	 	= $userArray['ft_pt_os'];
+		$data["DAYS_PER_WEEK"]  	= $userArray['days_per_week'];
+		
 		if ( $this->getSpouse() ) {
-			$spouseArray  = $this->getSpouse()->produceAssocArray();
+		
+			$spouseArray  			= $this->getSpouse()->produceAssocArray();
+			
+			$data["S_FIRSTNAME"]    = $spouseArray['firstname'];
+			$data["S_SURNAME"]      = $spouseArray['surname'];
+			$data["S_MINISTRY"]     = $spouseArray['ministry'];
+			$data["S_FT_PT_OS"]     = $spouseArray['ft_pt_os'];
+			$data["S_DAYS_PER_WEEK"]= $spouseArray['days_per_week'];
 		}
+		
 		if ((int)$userArray['mpd'] == 1) {
-		  $mpdCoachArray= $this->getMpdCoach()->produceAssocArray();
+		
+		  	$mpdCoachArray= $this->getMpdCoach()->produceAssocArray();
+		  
+		  	$data["MPD"]            = (int)$userArray['mpd'];
+			$data["M_FIRSTNAME"]    = $mpdCoachArray['firstname'];
+			$data["M_SURNAME"]      = $mpdCoachArray['surname'];
+		} else {
+			$data["MPD"]            = 0;
 		}
-
-		$data["FIRSTNAME"]      = $userArray['firstname'];
-		$data["SURNAME"]        = $userArray['surname'];
-		$data["MINISTRY"]       = $userArray['ministry'];
-		$data["FT_PT_OS"]       = $userArray['ft_pt_os'];
-		$data["DAYS_PER_WEEK"]  = $userArray['days_per_week'];
-		$data["S_FIRSTNAME"]    = $spouseArray['firstname'];
-		$data["S_SURNAME"]      = $spouseArray['surname'];
-		$data["S_MINISTRY"]     = $spouseArray['ministry'];
-		$data["S_FT_PT_OS"]     = $spouseArray['ft_pt_os'];
-		$data["S_DAYS_PER_WEEK"]= $spouseArray['days_per_week'];
-		$data["MPD"]            = $userArray['mpd'];
-		$data["M_FIRSTNAME"]    = $mpdCoachArray['firstname'];
-		$data["M_SURNAME"]      = $mpdCoachArray['surname'];
 
 		return json_encode(array('success'=>'true', 'data'=>$data));
 	}
@@ -77,6 +85,9 @@ class PersonalDetails extends TmnCrudUser {
 
 		}
 
+		$userData	= $this->normaliseUserData($userData);
+		$spouseData	= $this->normaliseUserData($spouseData);
+
 		$errors = array_merge($errors, $this->validateUserData($userData));
 		$errors = array_merge($errors, $this->validateSpouseData($spouseData));
 		$errors = array_merge($errors, $this->validateMpdData($mpdData));
@@ -85,22 +96,25 @@ class PersonalDetails extends TmnCrudUser {
 		  return json_encode(array('success' => false, 'errors' => $errors));
 		}
 
-		//update the spouse data
-		$spouse = $this->findSpouseFromData($spouseData);
+		if ($this->hasSpouseFromData($spouseData)) {
+		
+			//update the spouse data
+			$spouse = $this->findSpouseFromData($spouseData);
 
-		if ($spouse != null) {
+			if ($spouse != null) {
 
-		  $spouse->setField('ministry', $spouseData['ministry']);
-		  $spouse->setField('ft_pt_os', $spouseData['ft_pt_os']);
-		  $spouse->setField('days_per_week', ( isset($spouseData['days_per_week']) ? $spouseData['days_per_week'] : $spouse->getField('days_per_week') ) );
-		  $spouse->update();
-		  $this->setField('spouse_guid', $spouse->getGuid());
-
-		} else {
-		  fb($errors);
-		  $errors = array_merge($errors, array('S_FIRSTNAME' => 'Could not match this person to you. A Spouse must have a theKey account, which has previously logged into the TMN. The TMN must also have the same Financial Account Number registered for both of you. If you think there has been a mistake contact <a href="tech.team@ccca.org.au">tech.team@ccca.org.au</a>'));
-		  fb($errors);
-		  return json_encode(array('success' => false, 'errors' => $errors));
+			  $spouse->setField('ministry', $spouseData['ministry']);
+			  $spouse->setField('ft_pt_os', $spouseData['ft_pt_os']);
+			  $spouse->setField('days_per_week', ( isset($spouseData['days_per_week']) ? $spouseData['days_per_week'] : $spouse->getField('days_per_week') ) );
+			  $spouse->update();
+			  $this->setField('spouse_guid', $spouse->getGuid());
+			  
+			} else {
+			  
+			  $errors = array_merge($errors, array('S_FIRSTNAME' => 'Could not match this person to you. A Spouse must have a theKey account, which has previously logged into the TMN. The TMN must also have the same Financial Account Number registered for both of you. If you think there has been a mistake contact <a href="tech.team@ccca.org.au">tech.team@ccca.org.au</a>'));
+			  return json_encode(array('success' => false, 'errors' => $errors));
+			}
+			
 		}
 
 		//update mpd data
@@ -129,7 +143,6 @@ class PersonalDetails extends TmnCrudUser {
 		$this->setField('ft_pt_os', $userData['ft_pt_os']);
 		$this->setField('days_per_week', ( isset($userData['days_per_week']) ? $userData['days_per_week'] : $this->getField('days_per_week') ) );
 
-		//fb($this);
 		$this->update();
 
 		return json_encode(array('success' => true));
@@ -164,11 +177,7 @@ class PersonalDetails extends TmnCrudUser {
 
     $errors = array();
 
-    if ($spouseData['firstname'] == "" && $spouseData['surname'] == "") {
-
-      return array();
-
-    } else {
+    if ($this->hasSpouseFromData($spouseData)) {
 
       if ($spouseData['firstname'] != "" && $spouseData['surname'] == "") {
         $errors['S_SURNAME'] = "Firstname entered: Please enter a surname.";
@@ -185,7 +194,7 @@ class PersonalDetails extends TmnCrudUser {
       if ($spouseData['ft_pt_os'] == "") {
         $errors['S_FT_PT_OS'] = "Spouse entered: Please select an option.";
       }
-
+      
     }
 
     return $errors;
@@ -204,6 +213,29 @@ class PersonalDetails extends TmnCrudUser {
     }
 
     return $errors;
+  }
+  
+  private function normaliseUserData($userData) {
+  		
+  		$userData['ft_pt_os'] = ($userData['ft_pt_os'] != '' ? (int)$userData['ft_pt_os'] : 2);
+  		
+  		if ($userData['ft_pt_os'] == 2) {
+  			$userData['days_per_week'] = 4;
+  		} else {
+			$userData['days_per_week'] = ($userData['days_per_week'] != '' ? (int)$userData['days_per_week'] : 0);
+		}
+		
+  		return $userData;
+  }
+  
+  private function hasSpouseFromData($spouseData) {
+  
+  	if (($spouseData['firstname'] == "" && $spouseData['surname'] == "") || empty($spouseData)) {
+		return false;
+    } else {
+    	return true;
+	}
+	
   }
 
   private function findMpdCoachFromData($mpdData) {
