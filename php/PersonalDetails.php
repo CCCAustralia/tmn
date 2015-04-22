@@ -24,7 +24,9 @@ class PersonalDetails extends TmnCrudUser {
 	public function getPersonalDetails() {
 
     $userArray    = $this->produceAssocArray();
-    $spouseArray  = $this->getSpouse()->produceAssocArray();
+    if ( $this->getSpouse() ) {
+    	$spouseArray  = $this->getSpouse()->produceAssocArray();
+    }
     if ((int)$userArray['mpd'] == 1) {
       $mpdCoachArray= $this->getMpdCoach()->produceAssocArray();
     }
