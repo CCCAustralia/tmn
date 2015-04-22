@@ -85,12 +85,8 @@ class PersonalDetails extends TmnCrudUser {
 
 		}
 
-fb($userData);
-fb($spouseData);
 		$userData	= $this->normaliseUserData($userData);
 		$spouseData	= $this->normaliseUserData($spouseData);
-fb($userData);
-fb($spouseData);
 
 		$errors = array_merge($errors, $this->validateUserData($userData));
 		$errors = array_merge($errors, $this->validateSpouseData($spouseData));
