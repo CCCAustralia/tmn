@@ -12,7 +12,7 @@ To contriubte our team uses the [Feature Branch Method](https://www.atlassian.co
 
 Publishing Code
 ---
-To deploy run
+To deploy run the following script from the root of the project
 ```
 . deploy.sh {user_name} {password} {config_path} {deployment_type=["stage", "production"]} {full_refresh=[true, false]} {version_number}
 ```
