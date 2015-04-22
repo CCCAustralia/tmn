@@ -165,10 +165,6 @@ class PersonalDetails extends TmnCrudUser {
       $errors['MINISTRY'] = "Please enter a ministry.";
     }
 
-    if ($userData['ft_pt_os'] == "") {
-      $errors['FT_PT_OS'] = "Please select an option.";
-    }
-
     return $errors;
 
   }
@@ -189,10 +185,6 @@ class PersonalDetails extends TmnCrudUser {
 
       if ($spouseData['ministry']  == "") {
         $errors['S_MINISTRY'] = "Spouse entered: Please enter a ministry.";
-      }
-
-      if ($spouseData['ft_pt_os'] == "") {
-        $errors['S_FT_PT_OS'] = "Spouse entered: Please select an option.";
       }
       
     }
@@ -217,9 +209,9 @@ class PersonalDetails extends TmnCrudUser {
   
   private function normaliseUserData($userData) {
   		
-  		$userData['ft_pt_os'] = ($userData['ft_pt_os'] != '' ? (int)$userData['ft_pt_os'] : 2);
+  		$userData['ft_pt_os'] = ($userData['ft_pt_os'] != '' ? (int)$userData['ft_pt_os'] : 0);
   		
-  		if ($userData['ft_pt_os'] == 2) {
+  		if ($userData['ft_pt_os'] == 0) {
   			$userData['days_per_week'] = 4;
   		} else {
 			$userData['days_per_week'] = ($userData['days_per_week'] != '' ? (int)$userData['days_per_week'] : 0);
