@@ -1,0 +1,9 @@
+{
+    "sendgrid_username"     : "username",
+    "sendgrid_password"     : "password",
+    "default_from_address"  : "ccca.tmn@ccca.org.au",
+    "db_name"		        : "tmn",
+    "db_server"	            : "localhost",
+    "db_username"	        : "username",
+    "db_password"	        : "password"
+}

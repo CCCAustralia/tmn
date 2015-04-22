@@ -6,6 +6,19 @@ Requirements
 ---
 Runs well with MAMP
 
+Setup
+---
+```
+git submodule init
+git submodule update
+cp config.example.json config.json
+open config.json
+```
+Update config.json with your usernames and passwords.
+Note: If you are working with CCCA email the address below for a copy of our config file.
+
+Now you can open the TMN in your browser.
+
 Contributing
 ---
 To contriubte our team uses the [Feature Branch Method](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) or you can just submit a pull request.
