@@ -11,7 +11,7 @@
 include_once "classes/Tmn.php";
 include_once "PersonalDetails.php";
 $logfile    = "logs/personal_details.log";
-$DEBUG      = 1;
+$DEBUG = 0;
 $mode       = $_REQUEST['mode'];		//get/set
 
 try {

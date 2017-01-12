@@ -5,9 +5,9 @@ include_once('php/classes/email.php');
 include_once('php/classes/TmnConstants.php');
 
 $LOGFILE		= 'php/logs/index.log';
-$DEBUG			= 1;
+$DEBUG = 0;
 $NEWVERSION		= 1;
-$BUILDNUMBER = "current_build_number_will_be_inserted_by_upload_script";
+$BUILDNUMBER = "";
 
 if ($DEBUG) {
 	$force_debug = "-debug";

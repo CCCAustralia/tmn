@@ -152,19 +152,19 @@ tmn.view.InternalTransfers = function(config) {
         		beforewrite: 	this.setParams,
         		exception:		function(proxy, type, action, options, res, arg) {
         			/*
-        			console.warn("load exception");
-        			console.warn('proxy');
-        			console.warn(proxy);
-        			console.warn('type');
-        			console.warn(type);
-        			console.warn('action');
-        			console.warn(action);
-        			console.warn('options');
-        			console.warn(options);
-        			console.warn('res');
-        			console.warn(res);
-        			console.warn('arg');
-        			console.warn(arg);
+        			//console.warn("load exception");
+        			//console.warn('proxy');
+        			//console.warn(proxy);
+        			//console.warn('type');
+        			//console.warn(type);
+        			//console.warn('action');
+        			//console.warn(action);
+        			//console.warn('options');
+        			//console.warn(options);
+        			//console.warn('res');
+        			//console.warn(res);
+        			//console.warn('arg');
+        			//console.warn(arg);
         			*/
         		},
         		scope: 			this

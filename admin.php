@@ -2,7 +2,7 @@
 include_once 'php/dbconnect.php';
 include_once 'php/classes/Tmn.php';
 include_once 'lib/FirePHPCore/fb.php';
-$DEBUG = 1;
+$DEBUG = 0;
 ob_start();
 try {
 Tmn::authenticate();

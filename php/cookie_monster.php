@@ -1,6 +1,6 @@
 <?php
 
-$DEBUG = 1;
+$DEBUG = 0;
 
 include_once("FinancialProcessor.php");
 include_once("../lib/FirePHPCore/fb.php");

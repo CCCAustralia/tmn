@@ -368,8 +368,8 @@ class FinancialSubmitter extends FinancialProcessor {
 		}
 		
 		//Additional Life Cover
-		$this->data['additional_life_cover']		=	$this->financial_data['ADDITIONAL_LIFE_COVER'];
-		$this->data['s_additional_life_cover']		=	$this->financial_data['S_ADDITIONAL_LIFE_COVER'];
+		$this->data['additional_life_cover']		=	round($this->financial_data['ADDITIONAL_LIFE_COVER']  * 52 / 12);
+		$this->data['s_additional_life_cover']		=	round($this->financial_data['S_ADDITIONAL_LIFE_COVER'] * 52 / 12);
 		
 		//INCOME_PROTECTION Cover Source
 		//(index: 0=Support Account, 1=Super Fund)
@@ -456,16 +456,18 @@ class FinancialSubmitter extends FinancialProcessor {
 		
 		//Financial Packages
 		if (!$iscouple) {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + round($this->data['additional_life_cover'] * 52 / 12) + $this->data['additional_housing']);
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
+			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['additional_mortgage']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		=	0;
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'];
 		} else {
-			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + round($this->data['additional_life_cover'] * 52 / 12) + ($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))));
+			$this->financial_data['FINANCIAL_PACKAGE']			=	round($this->data['taxable_income'] + $this->data['max_mfb'] + $this->data['pre_tax_super'] + $this->data['additional_life_cover']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_lafha']);
 			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['os_overseas_housing_allowance']);
-			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_max_mfb'] + $this->data['s_pre_tax_super'] + round($this->data['s_additional_life_cover'] * 52 / 12) + ($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))));
+			$this->financial_data['FINANCIAL_PACKAGE']			+=	round($this->data['additional_mortgage']);
+			$this->financial_data['S_FINANCIAL_PACKAGE']		=	round($this->data['s_taxable_income'] + $this->data['s_max_mfb'] + $this->data['s_pre_tax_super'] + $this->data['s_additional_life_cover']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_lafha']);
 			$this->financial_data['S_FINANCIAL_PACKAGE']		+=	round($this->data['s_os_overseas_housing_allowance']);
 			$this->financial_data['JOINT_FINANCIAL_PACKAGE']	=	$this->financial_data['FINANCIAL_PACKAGE'] + $this->financial_data['S_FINANCIAL_PACKAGE'];
@@ -507,7 +509,7 @@ class FinancialSubmitter extends FinancialProcessor {
 		//Ministry Levy
 		if ($iscouple) {
 			//calc the amount that the levy should be applied to
-			$subtotal = $this->data['employer_super'] + $this->data['s_employer_super'] + $this->data['joint_financial_package'] + $this->data['workers_comp'] + $this->data['mmr'] + $this->data['s_mmr'];
+			$subtotal = $this->data['employer_super'] + $this->data['s_employer_super'] + $this->data['joint_financial_package'] + $this->data['workers_comp'] + $this->data['mmr'] + $this->data['s_mmr'] + round($this->data['additional_housing'] * ($this->data['net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend']))) + round($this->data['additional_housing'] * ($this->data['s_net_stipend'] / ($this->data['net_stipend'] + $this->data['s_net_stipend'])));
 			//grab the levy percentage
 			$ministry_row = mysql_fetch_assoc(mysql_query("SELECT * FROM Ministry WHERE MINISTRY_ID='".str_replace("'", "''", $this->data['ministry'])."'"));
 			$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
@@ -523,7 +525,7 @@ class FinancialSubmitter extends FinancialProcessor {
 				$this->data['s_ministry_levy'] = 0;
 			}
 		} else {
-			$subtotal = $this->data['employer_super'] + $this->data['joint_financial_package'] + $this->data['workers_comp'] + $this->data['mmr'];
+			$subtotal = $this->data['employer_super'] + $this->data['joint_financial_package'] + $this->data['workers_comp'] + $this->data['mmr'] + $this->data['additional_housing'];
 			$ministry_row = mysql_fetch_assoc(mysql_query('SELECT * FROM Ministry WHERE MINISTRY_ID="'.$this->data['ministry'].'"'));
 			$ministry_levy_rate = $ministry_row['MINISTRY_LEVY'];
 			$this->data['ministry_levy']				=	round(($ministry_levy_rate / 100) * $subtotal);

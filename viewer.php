@@ -1,8 +1,8 @@
 <?php
 
-$DEBUG = 1;
+$DEBUG = 0;
 $NEWVERSION = 0;
-$BUILDNUMBER = "current_build_number_will_be_inserted_by_upload_script";
+$BUILDNUMBER = "";
 
 if ($DEBUG) {
 	$force_debug = "-debug";

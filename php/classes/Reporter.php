@@ -34,7 +34,7 @@ class Reporter implements ReporterInterface {
 	protected function __construct($logfile) {
 		
 		$this->setLogfile($logfile);
-		$this->DEBUG = 1;
+		$this->DEBUG = 0;
 	}
 	
 	//interface for creating an instance of this class
@@ -123,7 +123,7 @@ class Reporter implements ReporterInterface {
 	}
 	
 	public function startDebug() {
-		$this->DEBUG	= 1;
+		$this->DEBUG = 0;
 	}
 	
 	public function stopDebug() {

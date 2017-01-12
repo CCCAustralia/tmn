@@ -2,7 +2,7 @@
 
 $DEBUG			= 0;
 $NEWVERSION		= 0;
-$BUILDNUMBER	= "current_build_number_will_be_inserted_by_upload_script";
+$BUILDNUMBER = "";
 $LOGFILE		= "php/logs/session-viewer.log";
 
 if ($DEBUG) {
